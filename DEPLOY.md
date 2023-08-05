@@ -27,7 +27,7 @@
 
 **Windows**
 
-##### 方式一：使用 [Git](https://git-scm.com/) 克隆
+**方式一：使用 [Git](https://git-scm.com/) 克隆**
 
 1. 请在要放置小可的文件夹中右键打开 Git Bash，并输入以下指令：
 
@@ -45,7 +45,7 @@
 
 2. 按住 `Shift` + `右键`，选择 `在此处打开 Powershell 窗口` 或 `在此处打开命令窗口` 来打开终端。
 
-##### 方式二：直接下载代码
+**方式二：直接下载代码**
 
 1. 从 [Release 页面](https://github.com/Teahouse-Studios/bot/releases/latest) 的 Assets 板块中下载 Source code（源代码）。当然，您也可以下载 [master 分支的最新代码](https://github.com/Teahouse-Studios/akari-bot/archive/refs/heads/master.zip)。
    
@@ -120,7 +120,7 @@ pip install -r requirements.txt
 
 如果您已经安装了 Poetry，您可以跳过以下安装步骤。
 
-1. 打开终端，并执行以下指令来安装 Poetry*：
+1. 打开终端，并执行以下指令来安装 Poetry：
 
    ```sh
    curl -sSL "https://install.python-poetry.org" | python3 -
@@ -214,20 +214,20 @@ pip install -r requirements.txt
 
    **Windows** - 请使用自己熟悉的解压软件自行解压；
 
-   **Linux** - 请在命令行中输入 `tar -xzvf [文件名]` 。
+   **Linux** - 请在命令行中输入 `tar -xzvf [文件名]`。
 
 3. 运行 go-cqhttp：
 
    **Windows**
 
-   1. 双击`go-cqhttp_*.exe`，根据提示生成运行脚本
-   2. 双击运行脚本
+   1. 双击 `go-cqhttp_*.exe`，根据提示生成运行脚本。
+   2. 双击运行脚本。
 
    **Linux**
 
-   1. 通过 SSH 连接到服务器
-   2. `cd`到解压目录
-   3. 输入 `./go-cqhttp`, `Enter`运行
+   1. 通过 SSH 连接到服务器。
+   2. `cd` 到解压目录。
+   3. 输入 `./go-cqhttp`, `Enter` 运行。
 
 4. 此时将提示：
 
@@ -277,7 +277,7 @@ pip install -r requirements.txt
 	
 	> 由于最近 QQ 封控机制加强，go-cqhttp 若出现 Code45 报错情况，请配置签名服务器，请注意：目前 go-cqhttp 暂不支持最新版本的签名服务器。
 	
-	>  若在配置中遇到问题，请参阅 [go-cqhttp官方文档](https://docs.go-cqhttp.org/)。
+	> 若在配置中遇到问题，请参阅 [go-cqhttp官方文档](https://docs.go-cqhttp.org/)。
 
 #### Discord
 
@@ -313,7 +313,7 @@ pip install -r requirements.txt
 
 > 获取完 Access Token 后，不要使用客户端的退出登录功能，推荐通过浏览器隐私模式登陆并获取 Token。
 
-对于 Element 及其分支（如 SchindiChat），Access Token 可以从“所有设置”->“帮助及关于”->“高级”->“访问令牌”中获取。
+对于 Element 及其分支（如 SchindiChat），Access Token 可以从 “所有设置” -> “帮助及关于” -> “高级” -> “访问令牌” 中获取。
 
 对于 Cinny，Access Token 可以从浏览器的的 localStorage 中提取（参考 [cinnyapp/cinny#938](https://github.com/cinnyapp/cinny/issues/938)）。
 
@@ -461,8 +461,7 @@ curl -XPOST -d '{"type":"m.login.password", "user":"<user>", "password":"<passwo
 
 #### 自定义确认词及命令前缀
 
-您可以通过编辑配置文件中的 `confirm_command` 来添加（或删除）机器人在部分场景下询问用户是否继续的确认词，编辑 `command_prefix`
-来增加（或删除）可使用的默认命令前缀。
+您可以通过编辑配置文件中的 `confirm_command` 来添加（或删除）机器人在部分场景下询问用户是否继续的确认词，编辑 `command_prefix` 来增加（或删除）可使用的默认命令前缀。
 
 `command_prefix` 首位将被用作帮助文档中默认展示的前缀。
 
