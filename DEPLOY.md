@@ -2,11 +2,11 @@
 
   * [简介](#简介)
   * [正常部署](#正常部署)
-	* [一、准备](#一、准备)
-	* [二、下载源代码](#二、下载源代码)
-	* [三、安装依赖](#三、安装依赖)
-	* [四、配置](#四、配置)
-	* [五、运行机器人](#五、运行机器人)
+	* [一、准备](#一准备)
+	* [二、下载源代码](#二下载源代码)
+	* [三、安装依赖](#三安装依赖)
+	* [四、配置](#四配置)
+	* [五、运行机器人](#五运行机器人)
 * [获取帮助](#获取帮助)
 
 # 简介
@@ -62,7 +62,7 @@
    git clone https://github.com/Teahouse-studios/akari-bot.git
    ```
 
-   直连GitHub的克隆速度较慢，在特殊情况下，您可以使用镜像站进行克隆：
+   直连 GitHub 的克隆速度较慢，在特殊情况下，您可以使用镜像站进行克隆：
 
    ```sh
    git clone https://gitclone.com/github.com/Teahouse-studios/akari-bot.git
@@ -120,7 +120,7 @@ pip install -r requirements.txt
 
 如果您已经安装了 Poetry，您可以跳过以下安装步骤。
 
-1. 打开终端，并执行以下指令来安装 Poetry*：
+1. 打开终端，并执行以下指令来安装 Poetry：
 
    ```sh
    curl -sSL "https://install.python-poetry.org" | python3 -
@@ -195,7 +195,7 @@ pip install -r requirements.txt
 
 如果您想使用 Docker 部署 go-cqhttp，请转到 [使用 Docker](https://docs.go-cqhttp.org/guide/docker.html)。
 
-1. 从 go-cqhttp 的官方仓库上下载最新的 [Release](https://github.com/Mrs4s/go-cqhttp/releases/latest) 。
+1. 从 go-cqhttp 的官方仓库上下载最新的 [Release](https://github.com/Mrs4s/go-cqhttp/releases/latest)。
 
 	| 系统类型       | 可执行文件                    | 压缩文件                        |
    | -------------- | ----------------------------- | ------------------------------- |
@@ -214,7 +214,7 @@ pip install -r requirements.txt
 
    **Windows** - 请使用自己熟悉的解压软件自行解压；
 
-   **Linux** - 请在命令行中输入 `tar -xzvf [文件名]` 。
+   **Linux** - 请在命令行中输入 `tar -xzvf [文件名]`。
 
 3. 运行 go-cqhttp：
 
@@ -260,7 +260,7 @@ pip install -r requirements.txt
       #- http: # http 通信
 	   #- ws:   # 正向 Websocket
 	   #- ws-reverse: # 反向 Websocket
-      #- pprof: #性能分析服务器
+      #- pprof: # 性能分析服务器
 	   - ws-reverse:
           universal: ws://127.0.0.1:11451/ws/ # 此处填写先前的 IP 地址和端口，注意不要删去后面的 /ws/
 	       reconnect-interval: 3000
