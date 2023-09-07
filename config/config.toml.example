@@ -20,6 +20,8 @@ nl2c_model =
 curseforge_api_key =
 exchange_rate_api_key =
 wolfram_alpha_appid =
+translate_appid =
+translate_api_key =
 jwt_secret =
 
 [cfg]
