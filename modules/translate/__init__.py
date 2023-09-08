@@ -27,8 +27,8 @@ async def send(msg: Bot.MessageSession):
     if 'error_code' in res.keys():
         await msg.finish(msg.locale.t('trans.err.prefix') + msg.locale.t('trans.err.'+str(res['error_code'])))
     send_msg = []
-    send_msg.append(Plain(res['trans_result']['dst'][0]))
-    if res['trans_result']['dst'][0] == '':
+    send_msg.append(Plain(res['trans_result'][0]['dst']))
+    if res['trans_result'][0]['dst'] == '':
         send_msg.append(Plain(msg.locale.t('trans.msg.none')))
     stop = time.perf_counter_ns()
     delta = (stop - start) / 1000000
