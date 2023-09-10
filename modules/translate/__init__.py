@@ -23,8 +23,12 @@ async def send(msg: Bot.MessageSession):
         '&appid=' + appid + '&salt=' + salt + '&sign=' + sign.hexdigest() + '&action=1'
     res = await get_url(url, fmt='json', timeout=200)
 
+    err_codes = [52001, 52001, 52004, 54005, 58001]
     if 'error_code' in res.keys():
-        raise ValueError("{trans.err.prefix}{trans.err." + str(res['error_code']) + "}")
+        if int(res['error_code']) in err_codes:
+            await msg.finish(msg.locale.t('trans.err.prefix') + msg.locale.t('trans.err.' + res['error_code']))
+        else:
+            raise ValueError(msg.locale.t('trans.err', err_code=res['error_code']))
     send_msg = res['trans_result'][0]['dst']
 
     if send_msg == '':
