@@ -24,7 +24,7 @@ async def send(msg: Bot.MessageSession):
     res = await get_url(url, fmt='json', timeout=200)
 
     if 'error_code' in res.keys():
-        await msg.finish("{trans.err.prefix}{trans.err." + str(res['error_code']) + "}")
+        raise ValueError("{trans.err.prefix}{trans.err." + str(res['error_code']) + "}")
     send_msg = res['trans_result'][0]['dst']
 
     if res['trans_result'][0]['dst'] == '':
