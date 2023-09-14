@@ -1,12 +1,15 @@
 
 import os
 import sys
+import time
+
 from fastapi.responses import JSONResponse
 import uvicorn
 from fastapi import FastAPI
 import jwt
 
 from core.queue import JobQueue
+from core.scheduler import Scheduler
 
 sys.path.append(os.getcwd())
 
@@ -17,6 +20,8 @@ from core.extra.scheduler import load_extra_schedulers  # noqa: E402
 from config import Config  # noqa: E402
 from database import BotDBUtil  # noqa: E402
 from modules.wiki.utils.dbutils import WikiTargetInfo  # noqa: E402
+from core.logger import Logger  # noqa: E402
+
 
 app = FastAPI()
 jwt_secret = Config('jwt_secret')
@@ -26,6 +31,7 @@ jwt_secret = Config('jwt_secret')
 async def startup_event():
     await init_async(start_scheduler=False)
     load_extra_schedulers()
+    Scheduler.start()
     await JobQueue.secret_append_ip()
 
 
@@ -138,4 +144,8 @@ async def get_translation(locale: str, string: str):
         })
 
 if __name__ == "__main__":
-    uvicorn.run("bot:app", port=Config('api_port') or 5000, log_level="info", reload=True)
+    while True:
+        uvicorn.run("bot:app", port=Config('api_port') or 5000, log_level="info")
+        Logger.error('API Server crashed, is the port occupied?')
+        Logger.error('Retrying in 5 seconds...')
+        time.sleep(5)
