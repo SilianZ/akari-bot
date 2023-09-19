@@ -2,6 +2,7 @@ from core.builtins import Bot
 from core.component import module
 from core.utils.http import get_url
 from config import Config
+from core.logger import Logger
 import hashlib
 import random
 
@@ -19,8 +20,10 @@ async def send(msg: Bot.MessageSession):
     key = Config('translate_api_key')
     sign = hashlib.md5((appid + q + salt + key).encode('utf-8'))
 
-    url = 'http://api.fanyi.baidu.com/api/trans/vip/translate?q=' + q + '&from=' + fm + '&to=' + to + \
-        '&appid=' + appid + '&salt=' + salt + '&sign=' + sign.hexdigest() + '&action=1'
+    url = f'http://api.fanyi.baidu.com/api/trans/vip/translate?q={q}&from={fm}&to={to}&appid={appid}&salt={salt}&sign={sign.hexdigest()}&action=1'
+    
+    Logger.info(url)
+
     res = await get_url(url, fmt='json', timeout=200)
 
     err_codes = [52001, 52001, 52004, 54005, 58001]
@@ -32,5 +35,5 @@ async def send(msg: Bot.MessageSession):
     send_msg = res['trans_result'][0]['dst']
 
     if send_msg == '':
-        send_msg += '\n' + '{trans.msg.none}'
+        send_msg = f'\n{msg.locale.t("trans.msg.none")}'
     await msg.finish(send_msg)
