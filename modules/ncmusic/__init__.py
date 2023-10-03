@@ -12,7 +12,11 @@ ncmusic = module('ncmusic',
 @ncmusic.handle('search <keyword> {{ncmusic.help.search}}')
 async def search(msg: Bot.MessageSession, keyword: str):
     url = f"https://ncmusic.akari-bot.top/search?keywords={keyword}"
-    result = await get_url(url, 200, fmt='json')
+    try:
+        result = await get_url(url, 200, fmt='json', attempt=10)
+    except TimeoutError:
+        await msg.finish(msg.locale.t('ncmusic.message.timeout_error'))
+    
     legacy = True
 
     if result['result']['songCount'] == 0:
@@ -57,7 +61,7 @@ async def search(msg: Bot.MessageSession, keyword: str):
                         await msg.finish(msg.locale.t('ncmusic.message.search.invalid.out_of_range'))
                     sid = result['result']['songs'][query - 1]['id']
                     url = f"https://ncmusic.akari-bot.top/song/detail?ids={sid}"
-                    info = await get_url(url, 200, fmt='json')
+                    info = await get_url(url, 200, fmt='json', attempt=10)
                     info = info['songs'][0]
                     artist = ' / '.join([ar['name'] for ar in info['ar']])
                     song_page = f"https://music.163.com/#/song?id={info['id']}"
@@ -69,6 +73,8 @@ async def search(msg: Bot.MessageSession, keyword: str):
                     await msg.finish([Image(info['al']['picUrl']), Plain(send_msg)])
                 except Exception:
                     await msg.finish(msg.locale.t('ncmusic.message.search.invalid.non_digital'))
+                except TimeoutError:
+                    await msg.finish(msg.locale.t('ncmusic.message.timeout_error'))
 
     if legacy:
         send_msg = msg.locale.t('ncmusic.message.search.result') + '\n'
@@ -96,7 +102,7 @@ async def search(msg: Bot.MessageSession, keyword: str):
             sid = result['result']['songs'][query - 1]['id']
             url = f"https://ncmusic.akari-bot.top/song/detail?ids={sid}"
             logger.info(url)
-            info = await get_url(url, 200, fmt='json')
+            info = await get_url(url, 200, fmt='json', attempt=10)
             info = info['songs'][0]
             artist = ' / '.join([ar['name'] for ar in info['ar']])
             song_page = f"https://music.163.com/#/song?id={info['id']}"
@@ -108,7 +114,8 @@ async def search(msg: Bot.MessageSession, keyword: str):
             await msg.finish([Image(info['al']['picUrl']), Plain(send_msg)])
         except Exception:
             await msg.finish(msg.locale.t('ncmusic.message.search.invalid.non_digital'))
-        
+        except TimeoutError:
+            await msg.finish(msg.locale.t('ncmusic.message.timeout_error'))      
 
 @ncmusic.handle('info <sid> {{ncmusic.help.info}}')
 async def info(msg: Bot.MessageSession, sid: str):
