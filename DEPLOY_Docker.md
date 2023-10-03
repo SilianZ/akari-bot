@@ -302,16 +302,6 @@ curl -XPOST -d '{"type":"m.login.password", "user":"<user>", "password":"<passwo
 
 此模块下的内容主要用于监测 Minecraft Wiki 注册日志和滥用日志，如无需要可直接删除此模块的文件夹。
 
-#### translate
-
-`translate` 模块需要一些额外的参数才能正常工作。
-
-为了达到目的，您需要前往[百度翻译开放平台](https://fanyi-api.baidu.com/)注册一个账户，并开通通用文本翻译。
-
-`translate_api_key` - 开发者信息->申请信息中的密钥
-
-`translate_appid` - 开发者信息->申请信息中的APP ID
-
 #### 其他功能
 
 `base_superuser =` - 设置机器人主超级用户。可用格式为 `QQ|<QQ号>`、`Discord|Client|<ClientID>`、`Telegram|Client|<ClientID>`、`Kook|User|<UserID>`，可在机器人开启后使用 `~whoami` 命令来查看自身的 ID，机器人启动后将自动标记对象为超级用户。
