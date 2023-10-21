@@ -120,7 +120,7 @@ async def search(msg: Bot.MessageSession, keyword: str):
 @ncmusic.handle('info <sid> {{ncmusic.help.info}}')
 async def info(msg: Bot.MessageSession, sid: str):
     url = f"https://ncmusic.akari-bot.top/song/detail?ids={sid}"
-    result = await get_url(url, 200, fmt='json')
+    result = await get_url(url, 200, fmt='json', attempt=10)
 
     info = result['songs'][0]
     artist = ' / '.join([ar['name'] for ar in info['ar']])
