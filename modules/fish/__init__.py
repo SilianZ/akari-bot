@@ -5,8 +5,8 @@ from datetime import datetime
 from core.builtins import Bot
 from core.component import module
 from core.logger import Logger
+from core.petal import gained_petal, lost_petal
 from core.utils.cooldown import CoolDown
-from modules.core.su_utils import gained_petal, lost_petal
 
 fish = module('fish',
               desc='{fish.help.desc}',
@@ -32,11 +32,13 @@ fish_list = {
     'huge': ['sturgeon', 'oar-fish', 'coelacanth', 'tuna', 'blue-marlin'],
 }
 
+fish_list_by_name = {x: y for y in fish_list for x in fish_list[y]}
+
 
 async def finish_fish(msg: Bot.MessageSession):
     play_state[msg.target.target_id]['active'] = False
     if msg.target.target_from != 'TEST|Console':
-        qc = CoolDown('fish', msg)
+        qc = CoolDown('fish', msg, all=True)
         qc.reset()
     if play_state[msg.target.target_id]['hooked']:
         rand_result = random.randint(1, 100)
@@ -70,15 +72,15 @@ async def _(msg: Bot.MessageSession):
     if msg.target.target_id in play_state and play_state[msg.target.target_id]['active']:
         return await finish_fish(msg)
     if msg.target.target_from != 'TEST|Console':
-        qc = CoolDown('fish', msg)
+        qc = CoolDown('fish', msg, all=True)
         c = qc.check(60)
         if c != 0:
             await msg.finish(msg.locale.t('message.cooldown', time=int(c), cd_time='60'))
     play_state.update({msg.target.target_id: {'active': True, 'hooked': False}})
 
     async def generate_fish(msg: Bot.MessageSession):
-        fish_type = random.choice(list(fish_list.keys()))
-        fish_name = random.choice(fish_list[fish_type])
+        fish_name = random.choice(list(fish_list_by_name.keys()))
+        fish_type = fish_list_by_name[fish_name]
         play_state[msg.target.target_id]['fish_type'] = fish_type
         play_state[msg.target.target_id]['fish_name'] = fish_name
         hooked_time_chance = random.randint(1, 100)
@@ -126,11 +128,11 @@ async def _(msg: Bot.MessageSession):
                             wait_repeat = 0
                             hook_repeat = 0
                     else:
+                        play_state[msg.target.target_id]['hooked'] = True
                         if hooked_time % 1 == 0:
                             await msg.send_message(msg.locale.t(f"fish.message.hooked.{repeat_state}.{random.randint(1, 3)}"),
                                                    quote=False)
                             hook_repeat += 1
-                        play_state[msg.target.target_id]['hooked'] = True
                         hooked_time -= 0.25
                 else:
                     if wait_time % 10 == 0:
@@ -147,7 +149,7 @@ async def _(msg: Bot.MessageSession):
     await asyncio.create_task(timer(datetime.now().timestamp(), wait_time, hooked_time))
 
 
-@fish.handle('retract')
+@fish.handle('retract {{fish.retract.help}}')
 @fish.regex(r'^(?:收杆|收)$')
 async def _(msg: Bot.MessageSession):
     if msg.target.target_id in play_state and play_state[msg.target.target_id]['active']:

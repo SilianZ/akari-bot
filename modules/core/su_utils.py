@@ -315,9 +315,13 @@ async def update_bot(msg: Bot.MessageSession):
     await msg.send_message(msg.locale.t("core.message.confirm"))
     confirm = await msg.wait_confirm()
     if confirm:
-        await msg.send_message(pull_repo())
-        await msg.send_message(update_dependencies())
-
+        pull_repo_result = pull_repo()
+        if pull_repo_result != '':
+            await msg.send_message(pull_repo_result)
+            await msg.send_message(update_dependencies())
+        else:
+            await msg.finish(msg.locale.t("core.message.update.failed"))
+            
 
 if Info.subprocess:
     upds = module('update&restart', developers=['OasisAkari'], required_superuser=True, alias='u&r', base=True)
@@ -330,8 +334,12 @@ if Info.subprocess:
             restart_time.append(datetime.now().timestamp())
             await wait_for_restart(msg)
             write_version_cache(msg)
-            await msg.send_message(pull_repo())
-            await msg.send_message(update_dependencies())
+            pull_repo_result = pull_repo()
+            if pull_repo_result != '':
+                await msg.send_message(pull_repo_result)
+                await msg.send_message(update_dependencies())
+            else:
+                await msg.send_message(msg.locale.t("core.message.update.failed"))
             restart()
 
 if Bot.FetchTarget.name == 'QQ':
@@ -498,66 +506,6 @@ if Config('openai_api_key'):
             target = msg.data
             target.modify_petal(int(petal))
             await msg.finish(msg.locale.t('core.message.petal.modify.self', add_petal=petal, petal=target.petal))
-
-
-def gained_petal(msg: Bot.MessageSession, amount):
-    if Config('openai_api_key'):
-        limit = Config('gained_petal_limit', 10)
-        p = get_stored_list(msg.target.client_name, 'gainedpetal')
-        if not p:
-            p = [{}]
-        p = p[0]
-        now = datetime.now().timestamp()
-        if msg.target.target_id not in p:
-            p[msg.target.target_id] = {'time': now, 'amount': amount}
-            p = [p]
-            update_stored_list(msg.target.client_name, 'gainedpetal', p)
-            msg.data.modify_petal(amount)
-            return msg.locale.t('core.message.gainedpetal.success', amount=amount)
-        else:
-            if now - p[msg.target.target_id]['time'] > 60 * 60 * 24:
-                p[msg.target.target_id] = {'time': now, 'amount': amount}
-                p = [p]
-                msg.data.modify_petal(amount)
-                update_stored_list(msg.target.client_name, 'gainedpetal', p)
-            else:
-                if p[msg.target.target_id]['amount'] + amount > limit:
-                    return msg.locale.t('core.message.gainedpetal.limit')
-                p[msg.target.target_id]['amount'] += amount
-                p = [p]
-                update_stored_list(msg.target.client_name, 'gainedpetal', p)
-                msg.data.modify_petal(amount)
-            return msg.locale.t('core.message.gainedpetal.success', amount=amount)
-
-
-def lost_petal(msg: Bot.MessageSession, amount):
-    if Config('openai_api_key'):
-        limit = Config('lost_petal_limit', 5)
-        p = get_stored_list(msg.target.client_name, 'lostpetal')
-        if not p:
-            p = [{}]
-        p = p[0]
-        now = datetime.now().timestamp()
-        if msg.target.target_id not in p:
-            p[msg.target.target_id] = {'time': now, 'amount': amount}
-            p = [p]
-            update_stored_list(msg.target.client_name, 'lostpetal', p)
-            msg.data.modify_petal(-amount)
-            return msg.locale.t('core.message.lostpetal.success', amount=amount)
-        else:
-            if now - p[msg.target.target_id]['time'] > 60 * 60 * 24:
-                p[msg.target.target_id] = {'time': now, 'amount': amount}
-                p = [p]
-                msg.data.modify_petal(-amount)
-                update_stored_list(msg.target.client_name, 'lostpetal', p)
-            else:
-                if p[msg.target.target_id]['amount'] + amount > limit:
-                    return msg.locale.t('core.message.lostpetal.limit')
-                p[msg.target.target_id]['amount'] += amount
-                p = [p]
-                update_stored_list(msg.target.client_name, 'lostpetal', p)
-                msg.data.modify_petal(-amount)
-            return msg.locale.t('core.message.lostpetal.success', amount=amount)
 
 
 if Bot.client_name == 'QQ':
