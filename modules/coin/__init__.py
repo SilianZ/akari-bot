@@ -3,13 +3,13 @@
 from config import Config
 from core.builtins import Bot
 from core.component import module
+from core.petal import gained_petal, lost_petal
 from core.utils.cooldown import CoolDown
-from modules.core.su_utils import gained_petal, lost_petal
 from .zhNum2Int import Zh2Int
 
-MAX_COIN_NUM = int(Config('coin_limit', 10))
-FACE_UP_RATE = int(Config('coin_faceup_rate', 4994))  # n/10000
-FACE_DOWN_RATE = int(Config('coin_facedown_rate', 4994))
+MAX_COIN_NUM = Config('coin_limit', 10)
+FACE_UP_RATE = Config('coin_faceup_rate', 4994)  # n/10000
+FACE_DOWN_RATE = Config('coin_facedown_rate', 4994)
 
 coin = module('coin', developers=['Light-Beacon'], desc='{coin.help.desc}')
 
@@ -85,25 +85,6 @@ async def flipCoins(count: int, msg):
 
 stone = module('stone', developers=['OasisAkari'], desc='{stone.help.desc}')
 
-
-async def skip_stone(msg: Bot.MessageSession):
-    count = secrets.randbelow(11)
-    if count == 0:
-        send = msg.locale.t('stone.message.skip.nothing')
-    else:
-        send = msg.locale.t('stone.message.skip', count=count)
-
-    if count == 0:
-        if lo := lost_petal(msg, 1):
-            send += '\n' + lo
-    if count == 10:
-        if g := gained_petal(msg, 2):
-            send += '\n' + g
-    if count in [3, 5, 9]:
-        send += '\n' + msg.locale.t('eastereggs.message.1')
-    await msg.finish(send)
-
-
 @stone.command()
 @stone.regex(r'打水漂')
 async def _(msg: Bot.MessageSession):
@@ -113,4 +94,14 @@ async def _(msg: Bot.MessageSession):
         if c != 0:
             await msg.finish(msg.locale.t('message.cooldown', time=int(c), cd_time='30'))
         qc.reset()
-    await skip_stone(msg)
+        
+    count = secrets.randbelow(11)
+    if count == 0:
+        send = msg.locale.t('stone.message.skip.nothing')
+    else:
+        send = msg.locale.t('stone.message.skip', count=count)
+
+    if count == 10:
+        if g := gained_petal(msg, 1):
+            send += '\n' + g
+    await msg.finish(send)
