@@ -1,0 +1,16 @@
+name: Sync Fork
+
+on:
+  push: # push 时触发, 主要是为了测试配置有没有问题
+  schedule:
+    - cron: '* */3 * * *'
+jobs:
+  repo-sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: TG908/fork-sync@v1.6.3
+        with:
+          github_token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+          owner: Teahouse-Studios
+          head: master
+          base: dev/docker
