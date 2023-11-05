@@ -8,9 +8,9 @@ jobs:
   repo-sync:
     runs-on: ubuntu-latest
     steps:
-      - uses: TG908/fork-sync@v1.6.3
+      - uses: tgymnich/fork-sync@v1.2.1
         with:
-          token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+          github_token:: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
           owner: Teahouse-Studios
           head: master
           base: dev/docker
