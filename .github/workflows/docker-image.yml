@@ -24,7 +24,10 @@ jobs:
     - name: Extract metadata (tags, labels) for Docker
       id: meta
       uses: docker/metadata-action@v5.0.0
-        
+      with:
+        images: silianz/akari-bot
+        labels: latest
+      
     - name: Build and push Docker image
       uses: docker/build-push-action@v5.0.0
       with:
