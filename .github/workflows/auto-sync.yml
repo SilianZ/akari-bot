@@ -3,13 +3,14 @@ name: Sync Fork
 on:
   schedule:
     - cron: '*/60 * * * *'
+  workflow_dispatch:
 jobs:
   repo-sync:
     runs-on: ubuntu-latest
     steps:
-      - uses: tgymnich/fork-sync@v1.2.1
+      - uses: zwping/fork-sync@v1.6.5
         with:
-          github_token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+          token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
           owner: Teahouse-Studios
           head: master
           base: dev/docker
