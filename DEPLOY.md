@@ -235,7 +235,7 @@ pip install -r requirements.txt
 
 由于 QQ 风控机制的加强，go-cqhttp 若出现 Code45 报错情况时，请参照以下步骤配置签名服务器：
 
-5. 安装 JRE 17（Jave Runtime Environment 17），请善用搜索引擎查找安装方法。
+5. 安装 JRE 17（Java Runtime Environment 17），请善用搜索引擎查找安装方法。
 
 6. 在 ~~[unidbg-fetch-qsign](https://github.com/fuqiuluo/unidbg-fetch-qsign)~~（作者已删库，请自行在 GitHub 上搜索有关 `qsign` 的仓库）的 Release 界面中下载最新版本的 unidbg-fetch-qsign 并解压到一个提前准备好的文件夹中。
 
@@ -354,7 +354,7 @@ pip3 install matrix-nio[e2e] ; PIP
 
 如有需求，请前往阿里云进行开通并获取 AccessKeyID 及 AccessKeySecret。未填写字段将不会使用屏蔽词服务。
 
-另请注意注意，由于阿里云政策限制，内容安全服务**不面向个人开发者**，若账号未完成阿里云企业认证，即使生成AccessKey也不会调用相关接口。
+另请注意，由于阿里云政策限制，内容安全服务**不面向个人开发者**，若账号未完成阿里云企业认证，即使生成 AccessKey 也不会调用相关接口。
 
 `check_accessKeyId =` - 填写获取的 AccessKeyID。
 
@@ -522,16 +522,8 @@ pip3 install matrix-nio[e2e] ; PIP
 
 您可能需要使用 `poetry shell` 切换 poetry 的虚拟环境来调用先前安装的依赖。
 
-**Windows**
-
-1. 于 `console.py` 所在目录，按下 `Shift` + `右键` 来打开右键菜单。
-2. 选择 `在此处打开 Powershell 窗口` 或 `在此处打开命令窗口`。
-3. 于终端内输入 `python console.py` 来启动测试控制台。
-
-**Linux**
-
 1. 于 `console.py` 所在目录，打开终端。
-2. 于终端内输入 `python console.py` 来启动测试控制台。
+2. 在终端内输入 `python console.py` 来启动测试控制台。
 
 # 获取帮助
 
