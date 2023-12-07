@@ -15,6 +15,7 @@ from core.builtins import Bot, PrivateAssets, Image, Plain, ExecutionLockList, T
 from core.component import module
 from core.loader import ModulesManager
 from core.parser.message import remove_temp_ban
+from core.scheduler import CronTrigger
 from core.tos import pardon_user, warn_user
 from core.utils.cache import random_cache_path
 from core.utils.info import Info
@@ -145,12 +146,11 @@ async def _(msg: Bot.MessageSession):
         await msg.finish([Plain(result), Image(path)])
 
 
-purge = module('purge', required_superuser=True, base=True)
+purge = module('purge', developers=['DoroWolf'], required_superuser=True, base=True)
 
 @purge.command()
-async def purge_cache(msg: Bot.MessageSession):
+async def _(msg: Bot.MessageSession):
     cache_path = os.path.abspath(Config('cache_path'))
-    
     if os.path.exists(cache_path):
         if os.listdir(cache_path):
             shutil.rmtree(cache_path)
@@ -162,6 +162,17 @@ async def purge_cache(msg: Bot.MessageSession):
         os.mkdir(cache_path)
         await msg.finish(msg.locale.t("core.message.purge.empty"))
 
+
+@purge.schedule(CronTrigger.from_crontab('0 0 * * *'))
+async def _():
+    cache_path = os.path.abspath(Config('cache_path'))
+    Logger.info('Start purging cache...')
+    if os.path.exists(cache_path):
+        shutil.rmtree(cache_path)
+        os.mkdir(cache_path)
+    else:
+        os.mkdir(cache_path)
+    
 
 set_ = module('set', required_superuser=True, base=True)
 
