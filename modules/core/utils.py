@@ -159,15 +159,15 @@ whoami = module('whoami', base=True)
 
 @whoami.command('{{core.help.whoami}}')
 async def _(msg: Bot.MessageSession):
-    rights = ''
+    perm = ''
     if await msg.check_native_permission():
-        rights += '\n' + msg.locale.t("core.message.whoami.admin")
+        perm += '\n' + msg.locale.t("core.message.whoami.admin")
     elif await msg.check_permission():
-        rights += '\n' + msg.locale.t("core.message.whoami.botadmin")
+        perm += '\n' + msg.locale.t("core.message.whoami.botadmin")
     if msg.check_super_user():
-        rights += '\n' + msg.locale.t("core.message.whoami.superuser")
+        perm += '\n' + msg.locale.t("core.message.whoami.superuser")
     await msg.finish(
-        msg.locale.t('core.message.whoami', senderid=msg.target.sender_id, targetid=msg.target.target_id) + rights,
+        msg.locale.t('core.message.whoami', senderid=msg.target.sender_id, targetid=msg.target.target_id) + perm,
         disable_secret_check=True)
 
 
@@ -200,9 +200,9 @@ async def _(msg: Bot.MessageSession):
 @tog.command('timeoffset <offset> {{core.help.toggle.timeoffset}}')
 async def _(msg: Bot.MessageSession, offset: str):
     try:
-        tstr_split = [part for part in offset.split(':')]
-        hour = int(tstr_split[0])
-        minute = int(tstr_split[1]) if len(tstr_split) > 1 else 0
+        tstr_split = [int(part) for part in offset.split(':')]
+        hour = tstr_split[0]
+        minute = tstr_split[1] if len(tstr_split) > 1 else 0
         if minute == 0:
             offset = f"{'+' if hour >= 0 else '-'}{abs(hour)}"
         else:
