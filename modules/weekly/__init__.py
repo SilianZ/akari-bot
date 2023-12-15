@@ -4,8 +4,7 @@ from bs4 import BeautifulSoup
 
 import ujson as json
 
-from core.builtins import Bot
-from core.builtins import Plain, Image, Url
+from core.builtins import Bot, Plain, Image, Url
 from core.component import module
 from core.logger import Logger
 from core.utils.http import get_url
@@ -49,7 +48,7 @@ async def get_weekly(with_img=False, zh_tw=False):
                 "weekly.message.link",
                 img=imglink if imglink is not None else locale.t("none"),
                 article=str(
-                    Url(f'https://minecraft.fandom.com{page[0]}')),
+                    Url(f'https://zh.minecraft.wiki{page[0]}')),
                 link=str(
                     Url(f'https://zh.minecraft.wiki/wiki/?oldid={str(result["parse"]["revid"])}')))))
     if imglink is not None and with_img:
@@ -104,4 +103,4 @@ async def _(msg: Bot.MessageSession):
 @wky.handle('teahouse image {{weekly.help.teahouse}}')
 async def _(msg: Bot.MessageSession):
     weekly = await get_teahouse_rss()
-    await msg.finish(Image(await msgchain2image([Plain(weekly)])))
+    await msg.finish(Image(await msgchain2image([Plain(weekly)], msg)))

@@ -14,8 +14,8 @@ from aiocqhttp import MessageSegment
 from bots.lagrange.client import bot
 from bots.lagrange.info import client_name
 from config import Config
-from core.builtins import Bot, ErrorMessage, base_superuser_list
-from core.builtins import Plain, Image, Voice, Temp, command_prefix
+from core.builtins import Bot, base_superuser_list, command_prefix, ErrorMessage, Image, Plain, Temp, Voice, \
+    MessageTaskManager
 from core.builtins.message import MessageSession as MessageSessionT
 from core.builtins.message.chain import MessageChain
 from core.exceptions import SendMessageFailed
@@ -87,7 +87,8 @@ class MessageSession(MessageSessionT):
         quote = False
 
     async def send_message(self, message_chain, quote=True, disable_secret_check=False,
-                           allow_split_image=True) -> FinishedSession:
+                           allow_split_image=True,
+                           callback=None) -> FinishedSession:
         msg = []
         """
         if quote and self.target.target_from == 'QQ|Group' and self.session.message:
@@ -98,12 +99,12 @@ class MessageSession(MessageSessionT):
             return await self.send_message(Plain(ErrorMessage(self.locale.t("error.message.chain.unsafe"))))
         self.sent.append(message_chain)
         count = 0
-        for x in message_chain.as_sendable(locale=self.locale.locale, embed=False):
+        for x in message_chain.as_sendable(self, embed=False):
             if isinstance(x, Plain):
                 msg.append({
                     "type": "text",
                     "data": {
-                        "text": x.text
+                        "text": ('\n' if count != 0 else '') + x.text
                     }
                 })
             elif isinstance(x, Image):
@@ -123,7 +124,7 @@ class MessageSession(MessageSessionT):
                     self.locale.t("error.message.timeout")))
             except aiocqhttp.exceptions.ActionFailed:
                 message_chain.insert(0, Plain(self.locale.t("error.message.limited.msg2img")))
-                msg2img = MessageSegment.image(Path(await msgchain2image(message_chain)).as_uri())
+                msg2img = MessageSegment.image(Path(await msgchain2image(message_chain, self)).as_uri())
                 try:
                     send = await bot.send_group_msg(group_id=int(self.session.target), message=msg2img)
                 except aiocqhttp.exceptions.ActionFailed as e:
@@ -144,6 +145,8 @@ class MessageSession(MessageSessionT):
                     return FinishedSession(self, 0, [{}])
                 else:
                     raise e
+        if callback:
+            MessageTaskManager.add_callback(send['message_id'], callback)
         return FinishedSession(self, send['message_id'], [send])
 
     async def check_native_permission(self):

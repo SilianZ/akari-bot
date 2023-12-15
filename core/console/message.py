@@ -30,11 +30,11 @@ class MessageSession(MessageSessionT):
         wait = True
 
     async def send_message(self, message_chain, quote=True, disable_secret_check=False,
-                           allow_split_image=True) -> FinishedSession:
+                           allow_split_image=True, callback=None) -> FinishedSession:
         message_chain = MessageChain(message_chain)
         self.sent.append(message_chain)
         msg_list = []
-        for x in message_chain.as_sendable(embed=False):
+        for x in message_chain.as_sendable(self, embed=False):
             if isinstance(x, Plain):
                 msg_list.append(x.text)
                 print(x.text)
@@ -44,7 +44,7 @@ class MessageSession(MessageSessionT):
                 img = Image.open(image_path)
                 img.show()
                 Logger.info(f'[Bot] -> [{self.target.target_id}]: Image: {image_path}')
-        return FinishedSession(self, [0], ['There should be a callable here... hmm...'])
+        return FinishedSession(self, [0], ['Should be a callable here... hmm...'])
 
     async def wait_confirm(self, message_chain=None, quote=True, delete=True):
         send = None

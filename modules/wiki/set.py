@@ -10,7 +10,7 @@ from .wiki import wiki
 enable_urlmanager = Config('enable_urlmanager')
 
 
-@wiki.handle('set <WikiUrl> {{wiki.help.set}}', required_admin=True)
+@wiki.command('set <WikiUrl> {{wiki.help.set}}', required_admin=True)
 async def set_start_wiki(msg: Bot.MessageSession):
     target = WikiTargetInfo(msg)
     check = await WikiLib(msg.parsed_msg['<WikiUrl>'], headers=target.get_headers()).check_wiki_available()
@@ -31,7 +31,7 @@ async def set_start_wiki(msg: Bot.MessageSession):
         await msg.finish(result)
 
 
-@wiki.handle('iw add <Interwiki> <WikiUrl> {{wiki.help.iw.add}}', required_admin=True)
+@wiki.command('iw add <Interwiki> <WikiUrl> {{wiki.help.iw.add}}', required_admin=True)
 async def _(msg: Bot.MessageSession):
     iw = msg.parsed_msg['<Interwiki>']
     url = msg.parsed_msg['<WikiUrl>']
@@ -53,7 +53,7 @@ async def _(msg: Bot.MessageSession):
         await msg.finish(result)
 
 
-@wiki.handle('iw remove <Interwiki> {{wiki.help.iw.remove}}', required_admin=True)
+@wiki.command('iw remove <Interwiki> {{wiki.help.iw.remove}}', required_admin=True)
 async def _(msg: Bot.MessageSession):
     iw = msg.parsed_msg['<Interwiki>']
     target = WikiTargetInfo(msg)
@@ -62,7 +62,7 @@ async def _(msg: Bot.MessageSession):
         await msg.finish(msg.locale.t("wiki.message.iw.remove.success", iw=iw))
 
 
-@wiki.handle(['iw list {{wiki.help.iw.list}}',
+@wiki.command(['iw list {{wiki.help.iw.list}}',
               'iw list legacy {{wiki.help.iw.list.legacy}}'])
 async def _(msg: Bot.MessageSession):
     target = WikiTargetInfo(msg)
@@ -74,7 +74,7 @@ async def _(msg: Bot.MessageSession):
         if base_interwiki_link_.status:
             base_interwiki_link = base_interwiki_link_.link
     if query != {}:
-        if 'legacy' not in msg.parsed_msg and msg.Feature.image:
+        if not msg.parsed_msg.get('legacy', False) and msg.Feature.image:
             columns = [[x, query[x]] for x in query]
             img = await image_table_render(ImageTable(columns, ['Interwiki', 'Url']))
         else:
@@ -87,14 +87,14 @@ async def _(msg: Bot.MessageSession):
         else:
             result = msg.locale.t("wiki.message.iw.list.legacy") + '\n' + \
                 '\n'.join([f'{x}: {query[x]}' for x in query])
-            if base_interwiki_link is not None:
-                result += '\n' + msg.locale.t("wiki.message.iw.list.prompt", url=str(Url(base_interwiki_link)))
-            await msg.finish(result)
     else:
-        await msg.finish(msg.locale.t("wiki.message.iw.none", prefix=msg.prefixes[0]))
+        result = msg.locale.t("wiki.message.iw.list.none", prefix=msg.prefixes[0])
+    if base_interwiki_link is not None:
+        result += '\n' + msg.locale.t("wiki.message.iw.list.prompt", url=str(Url(base_interwiki_link)))
+    await msg.finish(result)
 
 
-@wiki.handle('iw get <Interwiki> {{wiki.help.iw.get}}')
+@wiki.command('iw get <Interwiki> {{wiki.help.iw.get}}')
 async def _(msg: Bot.MessageSession):
     target = WikiTargetInfo(msg)
     query = target.get_interwikis()
@@ -104,10 +104,10 @@ async def _(msg: Bot.MessageSession):
         else:
             await msg.finish(msg.locale.t("wiki.message.iw.get.not_found", iw=msg.parsed_msg["<Interwiki>"]))
     else:
-        await msg.finish(msg.locale.t("wiki.message.iw.none", prefix=msg.prefixes[0]))
+        await msg.finish(msg.locale.t("wiki.message.iw.list.none", prefix=msg.prefixes[0]))
 
 
-@wiki.handle('headers show {{wiki.help.headers.show}}')
+@wiki.command('headers show {{wiki.help.headers.show}}')
 async def _(msg: Bot.MessageSession):
     target = WikiTargetInfo(msg)
     headers = target.get_headers()
@@ -115,7 +115,7 @@ async def _(msg: Bot.MessageSession):
     await msg.finish(prompt)
 
 
-@wiki.handle('headers add <Headers> {{wiki.help.headers.add}}', required_admin=True)
+@wiki.command('headers add <Headers> {{wiki.help.headers.add}}', required_admin=True)
 async def _(msg: Bot.MessageSession):
     target = WikiTargetInfo(msg)
     add = target.config_headers(
@@ -126,18 +126,16 @@ async def _(msg: Bot.MessageSession):
         await msg.finish(msg.locale.t("wiki.message.headers.add.failed"))
 
 
-@wiki.handle('headers remove <HeaderKey> {{wiki.help.headers.remove}}', required_admin=True)
+@wiki.command('headers remove <HeaderKey> {{wiki.help.headers.remove}}', required_admin=True)
 async def _(msg: Bot.MessageSession):
     target = WikiTargetInfo(msg)
     delete = target.config_headers(
         " ".join(msg.trigger_msg.split(" ")[3:]), let_it=False)
     if delete:
         await msg.finish(msg.locale.t("wiki.message.headers.add.success", headers=json.dumps(target.get_headers())))
-    else:
-        await msg.finish(msg.locale.t("wiki.message.headers.add.failed"))
 
 
-@wiki.handle('headers reset {{wiki.help.headers.reset}}', required_admin=True)
+@wiki.command('headers reset {{wiki.help.headers.reset}}', required_admin=True)
 async def _(msg: Bot.MessageSession):
     target = WikiTargetInfo(msg)
     reset = target.config_headers('{}', let_it=None)
@@ -145,7 +143,7 @@ async def _(msg: Bot.MessageSession):
         await msg.finish(msg.locale.t("wiki.message.headers.reset.success"))
 
 
-@wiki.handle('prefix set <prefix> {{wiki.help.prefix.set}}', required_admin=True)
+@wiki.command('prefix set <prefix> {{wiki.help.prefix.set}}', required_admin=True)
 async def _(msg: Bot.MessageSession):
     target = WikiTargetInfo(msg)
     prefix = msg.parsed_msg['<prefix>']
@@ -154,7 +152,7 @@ async def _(msg: Bot.MessageSession):
         await msg.finish(msg.locale.t("wiki.message.prefix.set.success", wiki_prefix=prefix))
 
 
-@wiki.handle('prefix reset {{wiki.help.prefix.reset}}', required_admin=True)
+@wiki.command('prefix reset {{wiki.help.prefix.reset}}', required_admin=True)
 async def _(msg: Bot.MessageSession):
     target = WikiTargetInfo(msg)
     set_prefix = target.del_prefix()
@@ -162,7 +160,7 @@ async def _(msg: Bot.MessageSession):
         await msg.finish(msg.locale.t("wiki.message.prefix.reset.success"))
 
 
-@wiki.handle('fandom {{wiki.help.fandom}}',
+@wiki.command('fandom {{wiki.help.fandom}}',
              required_admin=True)
 async def _(msg: Bot.MessageSession):
     fandom_addon_state = msg.data.options.get('wiki_fandom_addon')
@@ -175,7 +173,7 @@ async def _(msg: Bot.MessageSession):
         await msg.finish(msg.locale.t("wiki.message.fandom.enable"))
 
 
-@wiki.handle('redlink {{wiki.help.redlink}}',
+@wiki.command('redlink {{wiki.help.redlink}}',
              required_admin=True)
 async def _(msg: Bot.MessageSession):
     redlink_state = msg.data.options.get('wiki_redlink')

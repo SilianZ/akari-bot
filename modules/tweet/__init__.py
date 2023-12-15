@@ -3,7 +3,7 @@ import ujson as json
 
 from config import CFG
 from core.builtins import Bot
-from core.builtins.message import Image
+from core.builtins.message import Image, Url
 from core.component import module
 from core.dirty_check import check_bool, rickroll
 from core.logger import Logger
@@ -13,7 +13,12 @@ web_render = CFG.get_url('web_render')
 web_render_local = CFG.get_url('web_render_local')
 
 
-t = module('tweet', developers=['Dianliang233'], desc='{tweet.help.desc}', alias=['x'])
+t = module('tweet', 
+           developers=['Dianliang233'], 
+           desc='{tweet.help.desc}', 
+           exclude_from=['QQ', 'QQ|Group', 'Kook'],
+           alias=['x']
+          )
 
 
 @t.handle('<tweet> {{tweet.help}}')
@@ -30,7 +35,7 @@ async def _(msg: Bot.MessageSession, tweet: str, use_local=True):
     if not web_render_local:
         if not web_render:
             Logger.warn('[Webrender] Webrender is not configured.')
-            await msg.finish(msg.locale.t("error.webrender.unconfigured"))
+            await msg.finish(msg.locale.t("error.config.webrender.invalid"))
         use_local = False
 
     res = await get_url(f'https://react-tweet.vercel.app/api/tweet/{tweet_id}')
@@ -42,7 +47,7 @@ async def _(msg: Bot.MessageSession, tweet: str, use_local=True):
     else:
         if await check_bool(res_json['data']['text'], res_json['data']['user']['name'],
                             res_json['data']['user']['screen_name']):
-            rickroll(msg)
+            await msg.finish(rickroll(msg))
 
         css = '''
             main {
@@ -83,4 +88,4 @@ async def _(msg: Bot.MessageSession, tweet: str, use_local=True):
             {'url': f'https://react-tweet-next.vercel.app/light/{tweet_id}', 'css': css, 'mw': False,
              'element': 'article'}), request_private_ip=True)
         await msg.finish(
-            [Image(pic), f"https://twitter.com/{res_json['data']['user']['screen_name']}/status/{tweet_id}"])
+            [Image(pic), Url(f"https://twitter.com/{res_json['data']['user']['screen_name']}/status/{tweet_id}")])

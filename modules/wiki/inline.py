@@ -9,6 +9,7 @@ from core.component import module
 from core.dirty_check import check
 from core.logger import Logger
 from core.utils.http import download_to_cache
+from core.utils.image_table import image_table_render, ImageTable
 from modules.wiki.utils.dbutils import WikiTargetInfo
 from modules.wiki.utils.screenshot_image import generate_screenshot_v1, generate_screenshot_v2
 from modules.wiki.utils.wikilib import WikiLib
@@ -19,8 +20,8 @@ wiki_inline = module('wiki_inline',
                      alias='wiki_regex', developers=['OasisAkari'])
 
 
-@wiki_inline.handle(re.compile(r'\[\[(.*?)]]', flags=re.I), mode='A',
-                    desc="{wiki.help.wiki_inline.page}")
+@wiki_inline.regex(re.compile(r'\[\[(.*?)]]', flags=re.I), mode='A',
+                   desc="{wiki.help.wiki_inline.page}")
 async def _(msg: Bot.MessageSession):
     query_list = []
     for x in msg.matched_msg:
@@ -30,8 +31,8 @@ async def _(msg: Bot.MessageSession):
         await query_pages(msg, query_list, inline_mode=True)
 
 
-@wiki_inline.handle(re.compile(r'\{\{(.*?)}}', flags=re.I), mode='A',
-                    desc='{wiki.help.wiki_inline.template}')
+@wiki_inline.regex(re.compile(r'\{\{(.*?)}}', flags=re.I), mode='A',
+                   desc='{wiki.help.wiki_inline.template}')
 async def _(msg: Bot.MessageSession):
     query_list = []
     for x in msg.matched_msg:
@@ -41,8 +42,8 @@ async def _(msg: Bot.MessageSession):
         await query_pages(msg, query_list, template=True, inline_mode=True)
 
 
-@wiki_inline.handle(re.compile(r'≺(.*?)≻|⧼(.*?)⧽', flags=re.I), mode='A', show_typing=False,
-                    desc='{wiki.help.wiki_inline.mediawiki}')
+@wiki_inline.regex(re.compile(r'≺(.*?)≻|⧼(.*?)⧽', flags=re.I), mode='A', show_typing=False,
+                   desc='{wiki.help.wiki_inline.mediawiki}')
 async def _(msg: Bot.MessageSession):
     query_list = []
     for x in msg.matched_msg:
@@ -53,7 +54,7 @@ async def _(msg: Bot.MessageSession):
         await query_pages(msg, query_list, mediawiki=True, inline_mode=True)
 
 
-@wiki_inline.handle(re.compile(
+@wiki_inline.regex(re.compile(
     r'(https?://[-a-zA-Z0-9@:%._+~#=]{2,256}\.[a-z]{2,4}\b[-a-zA-Z0-9@:%_+.~#?&/=]*)', flags=re.I),
     mode='A', show_typing=False, logging=False,
     desc='{wiki.help.wiki_inline.url}')
@@ -130,6 +131,27 @@ async def _(msg: Bot.MessageSession):
                                     get_infobox = await generate_screenshot_v1(q[qq].realurl, qq, headers)
                                     if get_infobox:
                                         await msg.send_message(Image(get_infobox), quote=False)
+                            if get_page.invalid_section and wiki_.wiki_info.in_allowlist:
+                                i_msg_lst = []
+                                session_data = [[str(i + 1), get_page.sections[i]] for i in
+                                                range(len(get_page.sections))]
+                                i_msg_lst.append(Plain(msg.locale.t('wiki.message.invalid_section')))
+                                i_msg_lst.append(Image(await
+                                                       image_table_render(
+                                                           ImageTable(session_data,
+                                                                      ['ID',
+                                                                       msg.locale.t('wiki.message.section')]))))
+
+                                async def _callback(msg: Bot.MessageSession):
+                                    display = msg.as_display(text_only=True)
+                                    if display.isdigit():
+                                        display = int(display)
+                                        if display <= len(get_page.sections):
+                                            get_page.selected_section = display - 1
+                                            await query_pages(msg, title=get_page.title + '#' +
+                                                              get_page.sections[display - 1])
+
+                                await msg.send_message(i_msg_lst, callback=_callback)
                 if len(query_list) == 1 and img_send:
                     return
                 if msg.Feature.image:

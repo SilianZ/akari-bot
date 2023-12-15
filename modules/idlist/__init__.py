@@ -10,7 +10,7 @@ api = 'https://ca.projectxero.top/idlist/search'
 i = module('idlist', support_languages=['zh_cn'])
 
 
-@i.handle('<query> {{idlist.help}}')
+@i.command('<query> {{idlist.help}}')
 async def _(msg: Bot.MessageSession, query: str):
     query_options = {'q': query, 'limit': '6'}
     query_url = api + '?' + urllib.parse.urlencode(query_options)
@@ -21,7 +21,7 @@ async def _(msg: Bot.MessageSession, query: str):
         for x in result[0:5]:
             plain_texts.append(f'{x["enumName"]}：{x["key"]} -> {x["value"]}')
         if resp['data']['count'] > 5:
-            plain_texts.append(msg.locale.t('idlist.message.collapse'))
+            plain_texts.append(msg.locale.t('message.collapse', amount='5') + msg.locale.t('idlist.message.collapse'))
             plain_texts.append('https://ca.projectxero.top/idlist/' + resp['data']['hash'])
         await msg.finish('\n'.join(plain_texts))
     else:

@@ -1,8 +1,7 @@
 import asyncio
 import traceback
 
-from core.builtins import Bot
-from core.builtins import Image, Plain, Url
+from core.builtins import Bot, Image, Plain, Url
 from core.dirty_check import rickroll
 from core.utils.http import get_url, download_to_cache
 from modules.github.utils import time_diff, dirty_check, darkCheck
@@ -54,7 +53,7 @@ Created {time_diff(result['created_at'])} ago | Updated {time_diff(result['updat
 
         is_dirty = await dirty_check(message, result['owner']['login']) or darkCheck(message)
         if is_dirty:
-            rickroll(msg)
+            await msg.finish(rickroll(msg))
         else:
             await msg.send_message([Plain(message)])
 
