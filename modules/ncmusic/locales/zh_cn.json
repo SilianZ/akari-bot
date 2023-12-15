@@ -11,5 +11,6 @@
     "ncmusic.message.search.table.header.artists": "歌手",
     "ncmusic.message.search.table.header.id": "序号",
     "ncmusic.message.search.table.header.name": "歌名",
-    "ncmusic.message.search.result": "搜索结果："
+    "ncmusic.message.search.result": "搜索结果：",
+    "ncmusic.message.timeout_error": "错误：请求超时，请重试。"
 }

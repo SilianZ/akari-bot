@@ -8,7 +8,6 @@ ncmusic = module('ncmusic',
                  developers=['bugungu', 'DoroWolf'],
                  support_languages=['zh_cn'])
 
-
 @ncmusic.handle('search <keyword> {{ncmusic.help.search}}')
 async def search(msg: Bot.MessageSession, keyword: str):
     url = f"https://ncmusic.akari-bot.top/search?keywords={keyword}"
