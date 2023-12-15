@@ -41,7 +41,7 @@ async def image_table_render(table: Union[ImageTable, List[ImageTable]], save_so
                 for c in row:
                     cs.append(re.sub(r'\n', '<br>', escape(c)))
                 d.append(cs)
-            w = len(tbl.headers) * 500
+            w = len(tbl.headers) * 10000
             if w > max_width:
                 max_width = w
             tblst.append(re.sub(r'<table>|</table>', '', tabulate(d, tbl.headers, tablefmt='unsafehtml')))
@@ -52,11 +52,12 @@ async def image_table_render(table: Union[ImageTable, List[ImageTable]], save_so
               }
               table, th, td {
                 border: 1px solid rgba(0,0,0,0.05);
-                font-size: 0.8125rem;
+                font-size: 2rem;
+                font-family: Consolas, Microsoft Yahei;
                 font-weight: 500;
               }
               th, td {
-              padding: 15px;
+              padding: 30px;
               text-align: left;
             }</style>"""
         html = {'content': tblst + css, 'width': w, 'mw': False}

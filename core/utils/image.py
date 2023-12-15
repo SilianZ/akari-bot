@@ -56,8 +56,9 @@ async def msgchain2image(message_chain: Union[List, MessageChain], use_local=Tru
     <style>html body {
         margin-top: 0px !important;
         font-family: 'Noto Sans SC', sans-serif;
+        font-size: 2rem;
     }
-
+    
     :lang(ko) {
         font-family: 'Noto Sans KR', 'Noto Sans JP', 'Noto Sans HK', 'Noto Sans TC', 'Noto Sans SC', sans-serif;
     }
