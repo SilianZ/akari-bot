@@ -9,16 +9,6 @@ ncmusic = module('ncmusic',
                  desc='{ncmusic.help.desc}', 
                  support_languages=['zh_cn'])
 
-<<<<<<< HEAD
-@ncmusic.handle('search <keyword> {{ncmusic.help.search}}')
-async def search(msg: Bot.MessageSession, keyword: str):
-    url = f"https://ncmusic.akari-bot.top/search?keywords={keyword}"
-    try:
-        result = await get_url(url, 200, fmt='json', attempt=10)
-    except TimeoutError:
-        await msg.finish(msg.locale.t('ncmusic.message.timeout_error'))
-    
-=======
 
 @ncmusic.handle(['search <keyword> {{ncmusic.help.search}}',
                  'search legacy <keyword> {{ncmusic.help.search.legacy}}'])
@@ -26,7 +16,6 @@ async def search(msg: Bot.MessageSession, keyword: str):
     url = f"https://ncmusic.akari-bot.top/search?keywords={keyword}"
     result = await get_url(url, 200, fmt='json')
     song_count = result['result']['songCount']
->>>>>>> 03467197a6142a7f20217d549d5557c72987db1d
     legacy = True
 
     if song_count == 0:
