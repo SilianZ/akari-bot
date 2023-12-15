@@ -4,13 +4,13 @@
     "trans.err.52001": "请求超时，请重试。",
     "trans.err.52002": "系统错误，请重试。",
     "trans.err.52004": "必填参数为空，请检查是否少传参数。",
-    "trans.err.54005": "请降低长文本翻译的发送频率，3s后再试。",
+    "trans.err.54005": "请降低长文本翻译的发送频率，3s 后再试。",
     "trans.err.58001": "译文语言方向不支持，请检查译文语言是否在语言列表里。",
     "trans.help": "翻译文本。",
-    "trans.help.opt.from": "源语言（填为auto即自动识别）",
+    "trans.help.opt.from": "源语言（填为 auto 即自动识别）",
     "trans.help.opt.to": "目标语言",
     "trans.help.opt.query": "翻译内容",
-    "trans.desc": "调用百度翻译API来翻译文本",
+    "trans.desc": "调用百度翻译 API 来翻译文本",
     "trans.msg.time": "花费时间：${time} ms",
-    "trans.msg.none": "嗯？？翻译API好像没有返回结果哦。"
+    "trans.msg.none": "嗯？？翻译 API 好像没有返回结果哦。"
 }
