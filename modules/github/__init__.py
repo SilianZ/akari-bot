@@ -8,6 +8,7 @@ from aiofile import async_open
 from core.utils.http import download_to_cache
 from core.utils.cache import random_cache_path
 
+<<<<<<< HEAD
 github = module('github', alias='gh', developers=['Dianliang233', 'bugungu'])
 
 async def pic(use_local=True):
@@ -1979,22 +1980,30 @@ TODO(https://crbug.com/852872): UI for offline suggested content is incomplete.
 @github.handle('<name> {{github.help}}')
 async def _(msg: Bot.MessageSession):
     if '/' in msg.parsed_msg['<name>']:
+=======
+github = module('github', alias='gh', developers=['Dianliang233'], desc='{github.help.desc}')
+
+
+@github.command('<name> {{github.help}}')
+async def _(msg: Bot.MessageSession, name: str):
+    if '/' in name:
+>>>>>>> fada63bed03b71f0043118ccce9938f2c38ed18d
         await repo.repo(msg)
     else:
         await user.user(msg)
 
 
-@github.handle('repo <name> {{github.help.repo}}')
+@github.command('repo <name> {{github.help.repo}}')
 async def _(msg: Bot.MessageSession):
     await repo.repo(msg)
 
 
-@github.handle(('user <name> {{github.help.user}}'))
+@github.command('user <name> {{github.help.user}}')
 async def _(msg: Bot.MessageSession):
     await user.user(msg)
 
 
-@github.handle('search <query> {{github.help.search}}')
+@github.command('search <query> {{github.help.search}}')
 async def _(msg: Bot.MessageSession):
     await search.search(msg)
 

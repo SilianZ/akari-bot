@@ -23,7 +23,7 @@ async def get_pic(link, source, use_local=True) -> Union[str, bool]:
             return False
         use_local = False
     try:
-        Logger.info('Starting find section..')
+        Logger.info('Starting find section...')
         try:
             async with aiohttp.ClientSession() as session:
                 async with session.get((web_render_local if use_local else web_render) + 'source?url=' + link,
@@ -97,7 +97,7 @@ async def get_pic(link, source, use_local=True) -> Union[str, bool]:
                 '.dictionaries > .dictionary, .dictionaries.dictionary')
             trash = content.select(
                 '.hwd_sound, .cobuild-logo, .pronIPASymbol, .title_frequency_container')
-            if trash is not None:
+            if trash:
                 for x in trash:
                     x.decompose()
         elif source == 'yd':

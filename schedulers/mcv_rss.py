@@ -8,7 +8,7 @@ from bs4 import BeautifulSoup
 from google_play_scraper import app as google_play_scraper
 
 from config import CFG, Config
-from core.builtins import I18NText, FormattedTime
+from core.builtins import I18NContext, FormattedTime
 from core.logger import Logger
 from core.queue import JobQueue
 from core.scheduler import Scheduler, IntervalTrigger
@@ -85,11 +85,11 @@ async def mcv_rss():
                 time_snapshot = datetime.datetime.fromisoformat(v['releaseTime']).timestamp()
 
         if release not in verlist:
-            Logger.info(f'huh, we find {release}.')
+            Logger.info(f'Huh, we find {release}.')
 
             await JobQueue.trigger_hook_all('mcv_rss',
-                                            message=[I18NText('mcv_rss.message.mcv_rss.release',
-                                                              version=release).to_dict(),
+                                            message=[I18NContext('mcv_rss.message.mcv_rss.release',
+                                                                 version=release).to_dict(),
                                                      FormattedTime(time_release).to_dict()
                                                      ])
             verlist.append(release)
@@ -99,15 +99,17 @@ async def mcv_rss():
                 get_stored_news_title = get_stored_list('scheduler', 'mcnews')
                 if article[1] not in get_stored_news_title:
                     await JobQueue.trigger_hook_all('minecraft_news',
-                                                    message=[I18NText('minecraft_news.message.update_log',
-                                                                      version=release, article=article[0]).to_dict()])
+                                                    message=[I18NContext('minecraft_news.message.update_log',
+                                                                         version=release,
+                                                                         article=article[0]).to_dict()])
                     get_stored_news_title.append(article[1])
                     update_stored_list('scheduler', 'mcnews', get_stored_news_title)
         if snapshot not in verlist:
-            Logger.info(f'huh, we find {snapshot}.')
-            await JobQueue.trigger_hook_all('mcv_rss', message=[I18NText('mcv_rss.message.mcv_rss.snapshot',
-                                            version=file['latest']['snapshot']).to_dict(),
-                FormattedTime(time_snapshot).to_dict()])
+            Logger.info(f'Huh, we find {snapshot}.')
+            await JobQueue.trigger_hook_all('mcv_rss', message=[I18NContext('mcv_rss.message.mcv_rss.snapshot',
+                                                                            version=file['latest'][
+                                                                                'snapshot']).to_dict(),
+                                                                FormattedTime(time_snapshot).to_dict()])
             verlist.append(snapshot)
             update_stored_list('scheduler', 'mcv_rss', verlist)
             article = await get_article(snapshot)
@@ -115,8 +117,9 @@ async def mcv_rss():
                 get_stored_news_title = get_stored_list('scheduler', 'mcnews')
                 if article[1] not in get_stored_news_title:
                     await JobQueue.trigger_hook_all('minecraft_news',
-                                                    message=[I18NText('minecraft_news.message.update_log',
-                                                                      version=snapshot, article=article[0]).to_dict()])
+                                                    message=[I18NContext('minecraft_news.message.update_log',
+                                                                         version=snapshot,
+                                                                         article=article[0]).to_dict()])
                     get_stored_news_title.append(article[1])
                     update_stored_list('scheduler', 'mcnews', get_stored_news_title)
     except Exception:
@@ -125,14 +128,15 @@ async def mcv_rss():
 
 @Scheduler.scheduled_job(IntervalTrigger(seconds=180))
 async def mcbv_rss():
-    if IP.country == 'China' or IP.country is None:
+    if IP.country == 'China' or not IP.country:
         return  # 中国大陆无法访问Google Play商店
     try:
         verlist = get_stored_list('scheduler', 'mcbv_rss')
         version = google_play_scraper('com.mojang.minecraftpe')['version']
         if version not in verlist:
-            Logger.info(f'huh, we find bedrock {version}.')
-            await JobQueue.trigger_hook_all('mcbv_rss', message='mcv_rss.message.mcbv_rss', i18n=True, version=version)
+            Logger.info(f'Huh, we find Bedrock {version}.')
+            await JobQueue.trigger_hook_all('mcbv_rss', message=[I18NContext('mcv_rss.message.mcbv_rss',
+                                                                             version=version).to_dict()])
             verlist.append(version)
             update_stored_list('scheduler', 'mcbv_rss', verlist)
     except Exception:
@@ -153,13 +157,14 @@ async def mcv_jira_rss():
                     verlist.append(v['name'])
         for release in releases:
             if release not in verlist:
-                Logger.info(f'huh, we find {release}.')
+                Logger.info(f'Huh, we find {release}.')
                 if release.lower().find('future version') != -1:
-                    await JobQueue.trigger_hook_all('mcv_jira_rss', message='mcv_rss.message.mcv_jira_rss.future',
-                                                    i18n=True, version=release)
+                    await JobQueue.trigger_hook_all('mcv_jira_rss',
+                                                    message=[I18NContext('mcv_rss.message.mcv_jira_rss.future',
+                                                                         version=release).to_dict()])
                 else:
-                    await JobQueue.trigger_hook_all('mcv_jira_rss', message='mcv_rss.message.mcv_jira_rss', i18n=True,
-                                                    version=release)
+                    await JobQueue.trigger_hook_all('mcv_jira_rss', message=[I18NContext('mcv_rss.message.mcv_jira_rss',
+                                                                                         version=release).to_dict()])
                 verlist.append(release)
                 update_stored_list('scheduler', 'mcv_jira_rss', verlist)
 
@@ -181,10 +186,10 @@ async def mcbv_jira_rss():
                     verlist.append(v['name'])
         for release in releases:
             if release not in verlist:
-                Logger.info(f'huh, we find {release}.')
+                Logger.info(f'Huh, we find {release}.')
 
-                await JobQueue.trigger_hook_all('mcbv_jira_rss', message='mcv_rss.message.mcbv_jira_rss',
-                                                i18n=True, version=release)
+                await JobQueue.trigger_hook_all('mcbv_jira_rss', message=[I18NContext('mcv_rss.message.mcbv_jira_rss',
+                                                                                      version=release).to_dict()])
                 verlist.append(release)
                 update_stored_list('scheduler', 'mcbv_jira_rss', verlist)
     except Exception:
@@ -205,10 +210,10 @@ async def mcdv_jira_rss():
                     verlist.append(v['name'])
         for release in releases:
             if release not in verlist:
-                Logger.info(f'huh, we find {release}.')
+                Logger.info(f'Huh, we find {release}.')
 
-                await JobQueue.trigger_hook_all('mcdv_jira_rss', message='mcv_rss.message.mcdv_jira_rss',
-                                                i18n=True, version=release)
+                await JobQueue.trigger_hook_all('mcdv_jira_rss', message=[I18NContext('mcv_rss.message.mcdv_jira_rss',
+                                                                                      version=release).to_dict()])
                 verlist.append(release)
                 update_stored_list('scheduler', 'mcdv_jira_rss', verlist)
     except Exception:
@@ -229,10 +234,10 @@ async def mclgv_jira_rss():
                     verlist.append(v['name'])
         for release in releases:
             if release not in verlist:
-                Logger.info(f'huh, we find {release}.')
+                Logger.info(f'Huh, we find {release}.')
 
-                await JobQueue.trigger_hook_all('mclgv_jira_rss', message='mcv_rss.message.mclgv_jira_rss',
-                                                i18n=True, version=release)
+                await JobQueue.trigger_hook_all('mclgv_jira_rss', message=[I18NContext('mcv_rss.message.mclgv_jira_rss',
+                                                                                       version=release).to_dict()])
                 verlist.append(release)
                 update_stored_list('scheduler', 'mclgv_jira_rss', verlist)
     except Exception:

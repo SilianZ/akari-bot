@@ -62,9 +62,11 @@ class Url(UrlT):
 
 
 class FormattedTime:
-    def __init__(self, timestamp: float, date=True, seconds=True, timezone=True):
+    def __init__(self, timestamp: float, date=True, iso=False, time=True, seconds=True, timezone=True):
         self.timestamp = timestamp
         self.date = date
+        self.iso = iso
+        self.time = time
         self.seconds = seconds
         self.timezone = timezone
 
@@ -72,13 +74,20 @@ class FormattedTime:
         ftime_template = []
         if msg:
             if self.date:
-                ftime_template.append(msg.locale.t("time.date.format"))
-            if self.seconds:
-                ftime_template.append(msg.locale.t("time.time.format"))
-            else:
-                ftime_template.append(msg.locale.t("time.time.nosec.format"))
+                if self.iso:
+                    ftime_template.append(msg.locale.t("time.date.iso.format"))
+                else:
+                    ftime_template.append(msg.locale.t("time.date.format"))
+            if self.time:
+                if self.seconds:
+                    ftime_template.append(msg.locale.t("time.time.format"))
+                else:
+                    ftime_template.append(msg.locale.t("time.time.nosec.format"))
             if self.timezone:
-                ftime_template.append(f"(UTC{msg._tz_offset})")
+                if msg._tz_offset == "+0":
+                    ftime_template.append("(UTC)")
+                else:
+                    ftime_template.append(f"(UTC{msg._tz_offset})")
         else:
             ftime_template.append('%Y-%m-%d %H:%M:%S')
         if not msg:
@@ -90,23 +99,30 @@ class FormattedTime:
         return self.to_str()
 
     def __repr__(self):
-        return f'FormattedTime(time={self.timestamp})'
+        return f'FormattedTime(timestamp={self.timestamp})'
 
     def to_dict(self):
-        return {'type': 'formatted_time', 'data': {'time': self.timestamp, 'date': self.date, 'seconds': self.seconds,
-                                                   'timezone': self.timezone}}
+        return {
+            'type': 'formatted_time',
+            'data': {
+                'timestamp': self.timestamp,
+                'date': self.date,
+                'iso': self.iso,
+                'time': self.time,
+                'seconds': self.seconds,
+                'timezone': self.timezone}}
 
 
-class I18NText:
+class I18NContext:
     def __init__(self, key, **kwargs):
         self.key = key
         self.kwargs = kwargs
 
     def __str__(self):
-        return self.key
+        return str(self.to_dict())
 
     def __repr__(self):
-        return f'I18NText(key="{self.key}", kwargs={self.kwargs})'
+        return f'I18NContext(key="{self.key}", kwargs={self.kwargs})'
 
     def to_dict(self):
         return {'type': 'i18n', 'data': {'key': self.key, 'kwargs': self.kwargs}}
@@ -120,8 +136,9 @@ class ErrorMessage(EMsg):
             if locale_str := re.findall(r'\{(.*)}', error_message):
                 for l in locale_str:
                     error_message = error_message.replace(f'{{{l}}}', locale.t(l))
-            self.error_message = locale.t('error.prompt', error_msg=error_message) + \
-                str(Url(Config('bug_report_url')))
+            self.error_message = locale.t('error') + error_message
+            if Config('bug_report_url'):
+                self.error_message += '\n' + locale.t('error.prompt.address', url=str(Url(Config('bug_report_url'))))
 
     def __str__(self):
         return self.error_message
@@ -237,26 +254,26 @@ class Embed(EmbedT):
 
     def to_message_chain(self):
         text_lst = []
-        if self.title is not None:
+        if self.title:
             text_lst.append(self.title)
-        if self.description is not None:
+        if self.description:
             text_lst.append(self.description)
-        if self.url is not None:
+        if self.url:
             text_lst.append(self.url)
-        if self.fields is not None:
+        if self.fields:
             for f in self.fields:
                 if f.inline:
                     text_lst.append(f"{f.name}: {f.value}")
                 else:
                     text_lst.append(f"{f.name}:\n{f.value}")
-        if self.author is not None:
+        if self.author:
             text_lst.append("作者：" + self.author)
-        if self.footer is not None:
+        if self.footer:
             text_lst.append(self.footer)
         message_chain = []
         if text_lst:
             message_chain.append(Plain('\n'.join(text_lst)))
-        if self.image is not None:
+        if self.image:
             message_chain.append(self.image)
         return message_chain
 
@@ -285,4 +302,4 @@ class Embed(EmbedT):
                 'fields': self.fields}}
 
 
-__all__ = ["Plain", "Image", "Voice", "Embed", "EmbedField", "Url", "ErrorMessage", "FormattedTime", "I18NText"]
+__all__ = ["Plain", "Image", "Voice", "Embed", "EmbedField", "Url", "ErrorMessage", "FormattedTime", "I18NContext"]

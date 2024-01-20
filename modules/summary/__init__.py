@@ -1,29 +1,32 @@
-import openai
+from openai import AsyncOpenAI
 import re
 
 from config import Config
 from core.builtins import Bot
 from core.component import module
 from core.dirty_check import check_bool, rickroll
+from core.exceptions import ConfigValueError
 from core.logger import Logger
 from core.petal import count_petal
 from core.utils.cooldown import CoolDown
 
-openai.api_key = Config('openai_api_key')
+client = AsyncOpenAI(
+    api_key=Config('openai_api_key'),
+) if Config('openai_api_key') else None
 
-s = module('summary', 
-    developers=['Dianliang233', 'OasisAkari'],
-    desc='{summary.help.desc}',
-    available_for=['QQ', 'QQ|Group'])
+s = module('summary',
+           developers=['Dianliang233', 'OasisAkari'],
+           desc='{summary.help.desc}',
+           available_for=['QQ', 'QQ|Group'])
 
 
 @s.handle('{{summary.help}}')
 async def _(msg: Bot.MessageSession):
     is_superuser = msg.check_super_user()
     if not Config('openai_api_key'):
-        raise ConfigError(msg.locale.t('error.config.secret.not_found'))
+        raise ConfigValueError(msg.locale.t('error.config.secret.not_found'))
     if not is_superuser and msg.data.petal <= 0:  # refuse
-        await msg.finish(msg.locale.t('core.message.petal.no_petals') + Config('issue_url'))
+        await msg.finish(msg.locale.t('core.message.petal.no_petals'))
 
     qc = CoolDown('call_openai', msg)
     c = qc.check(60)
@@ -31,9 +34,10 @@ async def _(msg: Bot.MessageSession):
         f_msg = await msg.wait_next_message(msg.locale.t('summary.message'), append_instruction=False)
         try:
             f = re.search(r'\[Ke:forward,id=(.*?)\]', f_msg.as_display()).group(1)
+            Logger.info(f)
         except AttributeError:
             await msg.finish(msg.locale.t('summary.message.not_found'))
-        Logger.info(f)
+
         data = await f_msg.call_api('get_forward_msg', message_id=f)
         msgs = data['messages']
         texts = [f'\n{m["sender"]["nickname"]}：{m["content"]}' for m in msgs]
@@ -59,7 +63,7 @@ async def _(msg: Bot.MessageSession):
                     nth += 1
                 else:
                     break
-        completion = openai.ChatCompletion.create(
+        completion = await client.chat.completions.create(
             model='gpt-3.5-turbo',
             messages=[
                 {'role': 'system', "content": "You are a helpful assistants who summarizes chat logs."},
@@ -68,12 +72,13 @@ async def _(msg: Bot.MessageSession):
     {post_texts}'''},
             ]
         )
-        output = completion['choices'][0]['message']['content']
-        tokens = completion['usage']['total_tokens']
+        output = completion.choices[0].message.content
+        tokens = completion.usage.total_tokens
         if not is_superuser:
             petal = await count_petal(tokens)
             msg.data.modify_petal(-petal)
         else:
+            Logger.info(f'{tokens} tokens have been consumed while calling AI.')
             petal = 0
 
         if petal != 0:
@@ -86,5 +91,3 @@ async def _(msg: Bot.MessageSession):
         await msg.finish(output, disable_secret_check=True)
     else:
         await msg.finish(msg.locale.t('message.cooldown', time=int(c), cd_time='60'))
-
-

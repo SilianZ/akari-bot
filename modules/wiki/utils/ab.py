@@ -6,7 +6,8 @@ from modules.wiki.utils.wikilib import WikiLib
 
 async def ab(msg: Bot.MessageSession, wiki_url):
     wiki = WikiLib(wiki_url)
-    query = await wiki.get_json(action='query', list='abuselog', aflprop='user|title|action|result|filter|timestamp')
+    query = await wiki.get_json(action='query', list='abuselog', aflprop='user|title|action|result|filter|timestamp',
+                                _no_login=not msg.options.get("use_bot_account", False))
     pageurl = wiki.wiki_info.articlepath.replace('$1', 'Special:AbuseLog')
     d = []
     for x in query['query']['abuselog'][:5]:
@@ -19,6 +20,6 @@ async def ab(msg: Bot.MessageSession, wiki_url):
     if y.find("<吃掉了>") != -1 or y.find("<全部吃掉了>") != -1:
         y = y.replace("<吃掉了>", msg.locale.t("check.redacted"))
         y = y.replace("<全部吃掉了>", msg.locale.t("check.redacted.all"))
-        return f'{str(Url(pageurl))}\n{y}\n{msg.locale.t("message.collapse", amount="5")}\n{msg.locale.t("wiki.message.utils.banned")}'
+        return f'{str(Url(pageurl))}\n{y}\n{msg.locale.t("message.collapse", amount="5")}\n{msg.locale.t("wiki.message.utils.redacted")}'
     else:
-        return f'{str(Url(pageurl))}\n{y}\n' + msg.locale.t("message.collapse", amount="5")
+        return f'{str(Url(pageurl))}\n{y}\n{msg.locale.t("message.collapse", amount="5")}'
