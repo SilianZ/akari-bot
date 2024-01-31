@@ -70,29 +70,11 @@ async def search(msg: Bot.MessageSession, keyword: str):
                 if query > song_count:
                     await msg.finish(msg.locale.t("mod_dl.message.invalid.out_of_range"))
                 else:
-                    sid = result['result']['songs'][query - 1]['id']
-<<<<<<< HEAD
-                    url = f"https://ncmusic.akari-bot.top/song/detail?ids={sid}"
-                    info = await get_url(url, 200, fmt='json', attempt=10)
-                    info = info['songs'][0]
-                    artist = ' / '.join([ar['name'] for ar in info['ar']])
-                    song_page = f"https://music.163.com/#/song?id={info['id']}"
-
-                    send_msg = msg.locale.t('ncmusic.message.info',
-                                            name=info['name'], id=info['id'],
-                                            album=info['al']['name'], album_id=info['al']['id'],
-                                            artists=artist, detail=song_page)
-                    await msg.finish([Image(info['al']['picUrl']), Plain(send_msg)])
-                except Exception:
-                    await msg.finish(msg.locale.t('ncmusic.message.search.invalid.non_digital'))
-                except TimeoutError:
-                    await msg.finish(msg.locale.t('ncmusic.message.timeout_error'))
-=======
+a                    sid = result['result']['songs'][query - 1]['id']
             else:
                 await msg.finish(msg.locale.t('ncmusic.message.search.invalid.non_digital'))
 
         await info(msg, sid)
->>>>>>> 03467197a6142a7f20217d549d5557c72987db1d
 
     if legacy:
         send_msg = msg.locale.t('ncmusic.message.search.result') + '\n'
@@ -108,35 +90,6 @@ async def search(msg: Bot.MessageSession, keyword: str):
                 send_msg += f"（{' / '.join(song['album']['transNames'])}）"
             send_msg += f"（{song['id']}）\n"
 
-<<<<<<< HEAD
-        if len(result['result']['songs']) > 10:
-            send_msg += msg.locale.t('ncmusic.message.search.collapse')
-        send_msg += '\n'
-        send_msg += msg.locale.t('ncmusic.message.search.prompt')
-        query = await msg.wait_next_message(send_msg)
-        query = query.as_display(text_only=True)
-        try:
-            query = int(query)
-            if query > 10:
-                await msg.finish(msg.locale.t('ncmusic.message.search.invalid.out_of_range'))
-            sid = result['result']['songs'][query - 1]['id']
-            url = f"https://ncmusic.akari-bot.top/song/detail?ids={sid}"
-            logger.info(url)
-            info = await get_url(url, 200, fmt='json', attempt=10)
-            info = info['songs'][0]
-            artist = ' / '.join([ar['name'] for ar in info['ar']])
-            song_page = f"https://music.163.com/#/song?id={info['id']}"
-
-            send_msg = msg.locale.t('ncmusic.message.info',
-                                    name=info['name'], id=info['id'],
-                                    album=info['al']['name'], album_id=info['al']['id'],
-                                    artists=artist, detail=song_page)
-            await msg.finish([Image(info['al']['picUrl']), Plain(send_msg)])
-        except Exception:
-            await msg.finish(msg.locale.t('ncmusic.message.search.invalid.non_digital'))
-        except TimeoutError:
-            await msg.finish(msg.locale.t('ncmusic.message.timeout_error'))      
-=======
         if song_count > 10:
             song_count = 10
             send_msg += msg.locale.t("message.collapse", amount="10")
@@ -164,7 +117,6 @@ async def search(msg: Bot.MessageSession, keyword: str):
 
         await info(msg, sid)
         
->>>>>>> 03467197a6142a7f20217d549d5557c72987db1d
 
 @ncmusic.handle('info <sid> {{ncmusic.help.info}}')
 async def info(msg: Bot.MessageSession, sid: str):
