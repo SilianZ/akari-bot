@@ -43,9 +43,9 @@ async def del_su(msg: Bot.MessageSession):
     if not user.startswith(f'{msg.target.sender_from}|'):
         await msg.finish(msg.locale.t("core.message.superuser.invalid", target=msg.target.sender_from))
     if user == msg.target.sender_id:
-        confirm = await msg.wait_confirm(msg.locale.t("core.message.confirm"), append_instruction=False)
+        confirm = await msg.wait_confirm(msg.locale.t("core.message.admin.remove.confirm"), append_instruction=False)
         if not confirm:
-            return
+            await msg.finish()
     if user:
         if BotDBUtil.SenderInfo(user).edit('isSuperUser', False):
             await msg.finish(msg.locale.t("success"))
@@ -158,7 +158,7 @@ async def _(msg: Bot.MessageSession):
         if os.listdir(cache_path):
             shutil.rmtree(cache_path)
             os.mkdir(cache_path)
-            await msg.finish(msg.locale.t("success"))
+            await msg.finish(msg.locale.t("core.message.purge.success"))
         else:
             await msg.finish(msg.locale.t("core.message.purge.empty"))
     else:
@@ -178,7 +178,7 @@ async def _(msg: Bot.MessageSession):
     if not target_data.query:
         confirm = await msg.wait_confirm(msg.locale.t("core.message.set.confirm.init"), append_instruction=False)
         if not confirm:
-            return
+            await msg.finish()
     modules = [m for m in [msg.parsed_msg['<modules>']] + msg.parsed_msg.get('...', [])
                if m in ModulesManager.return_modules_list(msg.target.target_from)]
     target_data.enable(modules)
@@ -196,7 +196,7 @@ async def _(msg: Bot.MessageSession):
     if not target_data.query:
         confirm = await msg.wait_confirm(msg.locale.t("core.message.set.confirm.init"), append_instruction=False)
         if not confirm:
-            return
+            await msg.finish()
     if v.startswith(('[', '{')):
         v = json.loads(v)
     elif v.upper() == 'TRUE':
@@ -279,7 +279,10 @@ upd = module('update', required_superuser=True, base=True)
 
 
 def pull_repo():
-    return os.popen('git pull', 'r').read()[:-1]
+    pull_repo_result = os.popen('git pull', 'r').read()[:-1]
+    if pull_repo_result == '':
+        return False
+    return pull_repo_result
 
 
 def update_dependencies():
@@ -297,11 +300,13 @@ async def update_bot(msg: Bot.MessageSession):
     confirm = await msg.wait_confirm(msg.locale.t("core.message.confirm"), append_instruction=False)
     if confirm:
         pull_repo_result = pull_repo()
-        if pull_repo_result != '':
+        if pull_repo_result:
             await msg.send_message(pull_repo_result)
         else:
             await msg.send_message(msg.locale.t("core.message.update.failed"))
-        await msg.send_message(update_dependencies())
+        await msg.finish(update_dependencies())
+    else:
+        await msg.finish()
 
 if Info.subprocess:
     rst = module('restart', required_superuser=True, base=True)
@@ -344,6 +349,8 @@ if Info.subprocess:
             await wait_for_restart(msg)
             write_version_cache(msg)
             restart()
+        else:
+            await msg.finish()
 
 
 if Info.subprocess:
@@ -364,6 +371,8 @@ if Info.subprocess:
                 Logger.warn(f'Failed to get Git repository result.')
                 await msg.send_message(msg.locale.t("core.message.update.failed"))
             restart()
+        else:
+            await msg.finish()
 
 
 if Bot.FetchTarget.name == 'QQ':

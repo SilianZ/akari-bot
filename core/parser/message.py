@@ -327,7 +327,7 @@ async def parser(msg: Bot.MessageSession, require_enable_modules: bool = True, p
                 except SendMessageFailed:
                     if msg.target.target_from == 'QQ|Group':
                         await msg.call_api('send_group_msg', group_id=msg.session.target,
-                                           message=f'[CQ:poke,qq={Config("qq_account")}]')
+                                           message=f'[CQ:touch,id={Config("qq_account")}]')
                     await msg.send_message(msg.locale.t("error.message.limited"))
 
                 except FinishedException as e:
@@ -485,7 +485,7 @@ async def parser(msg: Bot.MessageSession, require_enable_modules: bool = True, p
             except SendMessageFailed:
                 if msg.target.target_from == 'QQ|Group':
                     await msg.call_api('send_group_msg', group_id=msg.session.target,
-                                       message=f'[CQ:poke,qq={Config("qq_account")}]')
+                                       message=f'[CQ:touch,id={Config("qq_account")}]')
                 await msg.send_message((msg.locale.t("error.message.limited")))
                 continue
         return msg
@@ -578,7 +578,7 @@ async def parser(msg: Bot.MessageSession, require_enable_modules: bool = True, p
                 new_command_display = " ".join(new_command_split)
                 if new_command_display != msg.trigger_msg:
                     wait_confirm = await msg.waitConfirm(
-                        f'您是否想要输入{display_prefix}{new_command_display}？')
+                        f'你是否想要输入{display_prefix}{new_command_display}？')
                     if wait_confirm:
                         command_split = new_command_split
                         command_first_word = new_command_split[0]
@@ -589,7 +589,7 @@ async def parser(msg: Bot.MessageSession, require_enable_modules: bool = True, p
                     new_command_display = f'{match_close_module[0]} {" ".join(command_split[1:])}'
                     if new_command_display != msg.trigger_msg:
                         wait_confirm = await msg.waitConfirm(
-                            f'您是否想要输入{display_prefix}{new_command_display}？')
+                            f'你是否想要输入{display_prefix}{new_command_display}？')
                         if wait_confirm:
                             command_split = [match_close_module[0]] + command_split[1:]
                             command_first_word = match_close_module[0]
@@ -600,7 +600,7 @@ async def parser(msg: Bot.MessageSession, require_enable_modules: bool = True, p
             new_command_display = f'{match_close_module[0] + (" " + " ".join(command_split[1:]) if len(command_split) > 1 else "")}'
             if new_command_display != msg.trigger_msg:
                 wait_confirm = await msg.waitConfirm(
-                    f'您是否想要输入{display_prefix}{new_command_display}？')
+                    f'你是否想要输入{display_prefix}{new_command_display}？')
                 if wait_confirm:
                     command_split = [match_close_module[0]]
                     command_first_word = match_close_module[0]

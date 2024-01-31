@@ -24,7 +24,7 @@ async def _(msg: Bot.MessageSession):
 @arc.command('download {{arcaea.help.download}}')
 async def _(msg: Bot.MessageSession):
     resp = await get_url('https://webapi.lowiro.com/webapi/serve/static/bin/arcaea/apk/', 200,
-                         fmt='json', request_private_ip=True)
+                         fmt='json')
     if resp:
         await msg.finish([Plain(msg.locale.t("arcaea.message.download", version=resp["value"]["version"],
                                              url=resp['value']['url']))])
@@ -35,7 +35,7 @@ async def _(msg: Bot.MessageSession):
 @arc.command('random {{arcaea.help.random}}')
 async def _(msg: Bot.MessageSession):
     resp = await get_url('https://webapi.lowiro.com/webapi/song/showcase/',
-                         200, fmt='json', request_private_ip=True)
+                         200, fmt='json')
     if resp:
         value = resp["value"][0]
         image = f'{assets_path}/jacket/{value["song_id"]}.jpg'
@@ -52,10 +52,10 @@ async def _(msg: Bot.MessageSession):
 async def _(msg: Bot.MessageSession):
     if msg.parsed_msg.get('free', False):
         resp = await get_url('https://webapi.lowiro.com/webapi/song/rank/free/',
-                             200, fmt='json', request_private_ip=True)
+                             200, fmt='json')
     else:
         resp = await get_url('https://webapi.lowiro.com/webapi/song/rank/paid/',
-                             200, fmt='json', request_private_ip=True)
+                             200, fmt='json')
     if resp:
         r = []
         rank = 0
@@ -91,7 +91,7 @@ async def pttimg(msg: Bot.MessageSession):
         try:
             ptt = float(ptt)
         except ValueError:
-            await msg.finish(msg.locale.t('ptt.message.error.invalid'))
+            await msg.finish(msg.locale.t('ptt.message.invalid'))
     if ptt >= 13.00:
         pttimg = 7
     elif ptt >= 12.50:
@@ -144,7 +144,7 @@ async def pttimg(msg: Bot.MessageSession):
         drawptt = ImageDraw.Draw(pttimg)
         drawptt.text((0, 0), ptt, 'white', font=font1, stroke_width=3, stroke_fill='#52495d')
     else:
-        return await msg.finish(msg.locale.t('ptt.message.error.invalid'))
+        return await msg.finish(msg.locale.t('ptt.message.invalid'))
     pttimg_width, pttimg_height = pttimg.size
     ptttext.alpha_composite(pttimg,
                             (int((ptttext_width - pttimg_width) / 2), int((ptttext_height - pttimg_height) / 2) - 11))

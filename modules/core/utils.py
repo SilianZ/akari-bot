@@ -44,16 +44,6 @@ async def _(msg: Bot.MessageSession):
         swap_percent = psutil.swap_memory().percent
         disk = int(psutil.disk_usage('/').used / (1024 * 1024 * 1024))
         disk_total = int(psutil.disk_usage('/').total / (1024 * 1024 * 1024))
-        """
-        try:
-            GroupList = len(await app.groupList())
-        except Exception:
-            GroupList = msg.locale.t('core.message.ping.failed')
-        try:
-            FriendList = len(await app.friendList())
-        except Exception:
-            FriendList = msg.locale.t('core.message.ping.failed')
-        """
         result += '\n' + msg.locale.t("core.message.ping.detail",
                                       system_boot_time=boot_start,
                                       bot_running_time=timediff,
@@ -93,9 +83,9 @@ async def config_gu(msg: Bot.MessageSession):
             await msg.finish(msg.locale.t("core.message.admin.already"))
     if 'remove' in msg.parsed_msg:
         if user == msg.target.sender_id:
-            confirm = await msg.wait_confirm(msg.locale.t("core.message.confirm"))
+            confirm = await msg.wait_confirm(msg.locale.t("core.message.admin.remove.confirm"))
             if not confirm:
-                return
+                await msg.finish()
         if user:
             if msg.data.remove_custom_admin(user):
                 await msg.finish(msg.locale.t("core.message.admin.remove.success", user=user))
@@ -130,18 +120,24 @@ locale = module('locale', base=True, desc='{core.help.locale.desc}')
 @locale.command()
 async def _(msg: Bot.MessageSession):
     avaliable_lang = msg.locale.t("message.delimiter").join(get_available_locales())
-    await msg.finish(
-        f"{msg.locale.t('core.message.locale', lang=msg.locale.t('language'))}\n{msg.locale.t('core.message.locale.set.prompt', langlist=avaliable_lang, prefix=msg.prefixes[0])}")
+    res = msg.locale.t("core.message.locale", lang=msg.locale.t("language")) + '\n' + \
+          msg.locale.t("core.message.locale.set.prompt", prefix=msg.prefixes[0]) + '\n' + \
+          msg.locale.t("core.message.locale.langlist", langlist=avaliable_lang)
+    if Config('locale_url'):
+        res += '\n' + msg.locale.t("core.message.locale.contribute", url=Config('locale_url'))
+    await msg.finish(res)
 
 
 @locale.command('<lang> {{core.help.locale.set}}', required_admin=True)
 async def config_gu(msg: Bot.MessageSession):
     lang = msg.parsed_msg['<lang>']
     if lang in get_available_locales() and BotDBUtil.TargetInfo(msg.target.target_id).edit('locale', lang):
-        await msg.finish(Locale(lang).t('success'))
+        await msg.finish(Locale(lang).t("success"))
     else:
         avaliable_lang = msg.locale.t("message.delimiter").join(get_available_locales())
-        await msg.finish(msg.locale.t("core.message.locale.set.invalid", langlist=avaliable_lang))
+        res = msg.locale.t("core.message.locale.set.invalid") + '\n' + \
+              msg.locale.t("core.message.locale.langlist", langlist=avaliable_lang)
+        await msg.finish(res)
 
 
 @locale.command('reload', required_superuser=True)
@@ -166,11 +162,10 @@ async def _(msg: Bot.MessageSession):
     if msg.check_super_user():
         perm += '\n' + msg.locale.t("core.message.whoami.superuser")
     await msg.finish(
-        msg.locale.t('core.message.whoami', senderid=msg.target.sender_id, targetid=msg.target.target_id) + perm,
-        disable_secret_check=True)
+        msg.locale.t('core.message.whoami', senderid=msg.target.sender_id, targetid=msg.target.target_id) + perm)
 
 
-setup = module('setup', base=True, required_admin=True, desc='{core.help.setup.desc}', alias='toggle')
+setup = module('setup', base=True, desc='{core.help.setup.desc}', alias='toggle')
 
 
 @setup.command('typing {{core.help.setup.typing}}')
@@ -184,8 +179,8 @@ async def _(msg: Bot.MessageSession):
         target.edit('disable_typing', False)
         await msg.finish(msg.locale.t('core.message.setup.typing.enable'))
 
-
-@setup.command('check {{core.help.setup.check}}')
+'''
+@setup.command('check {{core.help.setup.check}}', required_admin=True)
 async def _(msg: Bot.MessageSession):
     state = msg.options.get('typo_check')
     if state:
@@ -194,9 +189,9 @@ async def _(msg: Bot.MessageSession):
     else:
         msg.data.edit_option('typo_check', True)
         await msg.finish(msg.locale.t('core.message.setup.check.disable'))
+'''
 
-
-@setup.command('timeoffset <offset> {{core.help.setup.timeoffset}}')
+@setup.command('timeoffset <offset> {{core.help.setup.timeoffset}}', required_admin=True)
 async def _(msg: Bot.MessageSession, offset: str):
     try:
         tstr_split = [int(part) for part in offset.split(':')]
@@ -233,10 +228,12 @@ leave = module('leave', base=True, required_admin=True, available_for='QQ|Group'
 
 @leave.command('{{core.help.leave}}')
 async def _(msg: Bot.MessageSession):
-    confirm = await msg.wait_confirm(msg.locale.t('core.message.confirm'))
+    confirm = await msg.wait_confirm(msg.locale.t('core.message.leave.confirm'))
     if confirm:
         await msg.send_message(msg.locale.t('core.message.leave.success'))
         await msg.call_api('set_group_leave', group_id=msg.session.target)
+    else:
+        await msg.finish()
 
 
 token = module('token', base=True)
