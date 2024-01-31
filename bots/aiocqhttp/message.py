@@ -278,7 +278,7 @@ class MessageSession(MessageSessionT):
                         return
                 last_send_typing_time[self.msg.session.sender] = datetime.datetime.now().timestamp()
                 await bot.send_group_msg(group_id=self.msg.session.target,
-                                         message=f'[CQ:poke,qq={self.msg.session.sender}]')
+                                         message=f'[CQ:touch,id={self.msg.session.sender}]')
 
         async def __aexit__(self, exc_type, exc_val, exc_tb):
             pass
