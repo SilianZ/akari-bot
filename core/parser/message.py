@@ -327,7 +327,7 @@ async def parser(msg: Bot.MessageSession, require_enable_modules: bool = True, p
                 except SendMessageFailed:
                     if msg.target.target_from == 'QQ|Group':
                         await msg.call_api('send_group_msg', group_id=msg.session.target,
-                                           message=f'[CQ:poke,qq={Config("qq_account")}]')
+                                           message=f'[CQ:touch,id={Config("qq_account")}]')
                     await msg.send_message(msg.locale.t("error.message.limited"))
 
                 except FinishedException as e:
@@ -485,7 +485,7 @@ async def parser(msg: Bot.MessageSession, require_enable_modules: bool = True, p
             except SendMessageFailed:
                 if msg.target.target_from == 'QQ|Group':
                     await msg.call_api('send_group_msg', group_id=msg.session.target,
-                                       message=f'[CQ:poke,qq={Config("qq_account")}]')
+                                       message=f'[CQ:touch,id={Config("qq_account")}]')
                 await msg.send_message((msg.locale.t("error.message.limited")))
                 continue
         return msg
