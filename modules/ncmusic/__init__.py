@@ -70,7 +70,7 @@ async def search(msg: Bot.MessageSession, keyword: str):
                 if query > song_count:
                     await msg.finish(msg.locale.t("mod_dl.message.invalid.out_of_range"))
                 else:
-a                    sid = result['result']['songs'][query - 1]['id']
+                    sid = result['result']['songs'][query - 1]['id']
             else:
                 await msg.finish(msg.locale.t('ncmusic.message.search.invalid.non_digital'))
 
