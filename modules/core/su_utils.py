@@ -1,4 +1,3 @@
-import asyncio
 import os
 import re
 import shutil
@@ -13,7 +12,7 @@ from dateutil.relativedelta import relativedelta
 from config import Config, CFG
 from core.builtins import Bot, PrivateAssets, Image, Plain, ExecutionLockList, Temp, MessageTaskManager
 from core.component import module
-from core.exceptions import TestException
+from core.exceptions import NoReportException, TestException
 from core.loader import ModulesManager
 from core.logger import Logger
 from core.parser.message import remove_temp_ban
@@ -327,7 +326,7 @@ if Info.subprocess:
         if datetime.now().timestamp() - restart_time[0] < 60:
             if len(get) != 0:
                 await msg.send_message(msg.locale.t("core.message.restart.wait", count=len(get)))
-                await asyncio.sleep(10)
+                await msg.sleep(10)
                 return await wait_for_restart(msg)
             else:
                 await msg.send_message(msg.locale.t("core.message.restart.restarting"))
@@ -389,7 +388,7 @@ if Bot.FetchTarget.name == 'QQ':
                 else:
                     await x['fetch'].send_direct_message(x['message'])
                 Temp.data['waiting_for_send_group_message'].remove(x)
-                await asyncio.sleep(30)
+                await msg.sleep(30)
             await msg.finish(msg.locale.t("core.message.resume.done"))
         else:
             await msg.finish(msg.locale.t("core.message.resume.nothing"))
@@ -409,7 +408,7 @@ if Bot.FetchTarget.name == 'QQ':
                 else:
                     await x['fetch'].send_direct_message(x['message'])
                 Temp.data['waiting_for_send_group_message'].remove(x)
-                await asyncio.sleep(30)
+                await msg.sleep(30)
             await msg.finish(msg.locale.t("core.message.resume.done"))
         else:
             await msg.finish(msg.locale.t("core.message.resume.nothing"))
@@ -465,7 +464,10 @@ if Config('enable_eval'):
 
     @_eval.command('<display_msg>')
     async def _(msg: Bot.MessageSession):
-        await msg.finish(str(eval(msg.parsed_msg['<display_msg>'], {'msg': msg})))
+        try:
+            await msg.finish(str(eval(msg.parsed_msg['<display_msg>'], {'msg': msg})))
+        except Exception as e:
+            raise NoReportException(e)
 
 
 cfg_ = module('config', required_superuser=True, alias='cfg', base=True)
