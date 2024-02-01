@@ -116,10 +116,11 @@ class WordleBoardImage:
     image: Image.Image
     wordle_board: WordleBoard
     dark_theme: bool
-    border_color: tuple[int, int, int]
+    outline_color: tuple[int, int, int]
     background_color: str
     cell_size = 50
     margin = 10
+    outline_width = 3
     rows = 6
     columns = 5
     green_color = (107, 169, 100)
@@ -130,7 +131,7 @@ class WordleBoardImage:
     def __init__(self, wordle_board: WordleBoard, dark_theme: bool):
         self.wordle_board = wordle_board
         self.dark_theme = dark_theme
-        self.border_color = (58, 58, 60) if dark_theme else (211, 214, 218)
+        self.outline_color = (58, 58, 60) if dark_theme else (211, 214, 218)
         self.background_color = 'black' if dark_theme else 'white'
 
         width = self.columns * (self.cell_size + self.margin) + self.margin
@@ -144,7 +145,8 @@ class WordleBoardImage:
                 x = col * (self.cell_size + self.margin) + self.margin
                 y = row * (self.cell_size + self.margin) + self.margin
 
-                draw.rectangle((x, y, x + self.cell_size, y + self.cell_size), fill=None, outline=self.border_color)
+                draw.rectangle((x, y, x + self.cell_size, y + self.cell_size),
+                               fill=None, outline=self.outline_color, width=self.outline_width)
 
         self.image = image
 
@@ -180,7 +182,7 @@ async def _(msg: Bot.MessageSession):
         await msg.finish(msg.locale.t('game.message.running'))
 
     qc = CoolDown('wordle', msg, all=True)
-    if not msg.target.target_from == 'TEST|Console':
+    if not msg.target.target_from == 'TEST|Console' and not msg.check_super_user():
         c = qc.check(30)
         if c != 0:
             await msg.finish(msg.locale.t('message.cooldown', time=int(c), cd_time='30'))
@@ -208,6 +210,7 @@ async def _(msg: Bot.MessageSession):
             continue
         board.add_word(word)
         board_image.update_board()
+        msg.sleep(1)  # 防冲突
 
         if not board.is_game_over() and board.get_trials() <= 6:
             Logger.info(f'{word} != {board.word}, attempt {board.get_trials() - 1}')
@@ -240,7 +243,7 @@ async def terminate(msg: Bot.MessageSession):
         await msg.finish(msg.locale.t('game.message.stop.none'))
 
 
-@wordle.command('theme {{wordle.help.theme}}', required_admin=True)
+@wordle.command('theme {{wordle.help.theme}}')
 async def _(msg: Bot.MessageSession):
     dark_theme = msg.data.options.get('wordle_dark_theme')
 
