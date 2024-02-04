@@ -14,8 +14,8 @@ from core.logger import Logger
 assets_path = os.path.abspath('./assets/phigros')
 cache_path = os.path.abspath(Config('cache_path'))
 rating_path = os.path.abspath(f'{assets_path}/rating.json')
-json_url = 'https://raw.githubusercontent.com/ssmzhn/Phigros/main/Phigros.json'
-json_url_mirror = 'https://gh.api.99988866.xyz/https://raw.githubusercontent.com/ssmzhn/Phigros/main/Phigros.json'
+# json_url = 'https://raw.githubusercontent.com/ssmzhn/Phigros/main/Phigros.json'
+json_url = 'https://ghproxy.bugungu.top/https://raw.githubusercontent.com/ssmzhn/Phigros/main/Phigros.json'
 
 p_headers = {'Accept': 'application/json',
              'X-LC-Id': 'rAK3FfdieFob2Nn8Am',
@@ -37,13 +37,13 @@ async def update_assets():
     illustration_list = os.listdir(illustration_path)
     file_path = random_cache_path() + '.json'
     data = {}
-    try:
-        update = await get_url(json_url, 200)
-    except TimeoutError:
-        try:
-            update = await get_url(json_url_mirror, 200)
-        except BaseException:
-            return False
+    # try:
+    update = await get_url(json_url, 200)
+    # except TimeoutError:
+        # try:
+            # update = await get_url(json_url_mirror, 200)
+        # except BaseException:
+            # return False
     update_json = json.loads(update)
     for song in update_json:
         diff = {}
@@ -61,12 +61,12 @@ async def update_assets():
             except Exception:
                 shutil.copy(os.path.abspath('./assets/unknown'), os.path.join(illustration_path, song_name))
     Logger.info('Phigros illustrations download completed.')
-    another_assets_url = 'https://github.com/7aGiven/PhigrosLibrary/archive/refs/heads/master.zip'
-    another_assets_url_mirror = 'https://gh.api.99988866.xyz/https://github.com/7aGiven/PhigrosLibrary/archive/refs/heads/master.zip'
-    try:
-        download_file = await download_to_cache(another_assets_url)
-    except TimeoutError:
-        download_file = await download_to_cache(another_assets_url_mirror)
+    # another_assets_url = 'https://github.com/7aGiven/PhigrosLibrary/archive/refs/heads/master.zip'
+    another_assets_url = 'https://ghproxy.bugungu.top/https://github.com/7aGiven/PhigrosLibrary/archive/refs/heads/master.zip'
+    # try:
+    download_file = await download_to_cache(another_assets_url)
+    # except TimeoutError:
+        # download_file = await download_to_cache(another_assets_url_mirror)
     if download_file:
         ca = random_cache_path()
         shutil.unpack_archive(download_file, ca)
