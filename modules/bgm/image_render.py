@@ -2,7 +2,7 @@ from core.utils.image_table import image_table_render, ImageTable
 from typing import List, Union
 import re
 from tabulate import tabulate
-from html import escape
+from html import unescape
 from config import CFG
 from core.logger import Logger
 import aiohttp
@@ -37,8 +37,8 @@ async def image_table_render(table: Union[ImageTable, List[ImageTable]], save_so
             if w > max_width:
                 max_width = w
             tblst.append(re.sub(r'<table>|</table>', '', tabulate(d, tbl.headers, tablefmt='html')))
-        tblst = '<table>' + '\n'.join(tblst) + '</table>'
-        css = """
+        tblst = unescape('<table>' + '\n'.join(tblst) + '</table>')
+        css =  """
         <style>table {
                 border-collapse: collapse;
               }
@@ -50,7 +50,7 @@ async def image_table_render(table: Union[ImageTable, List[ImageTable]], save_so
               }
               th, td {
               padding: 30px;
-              text-align: left;
+              text-align: center;
             }</style>"""
         html = {'content': tblst + css, 'width': w, 'mw': False}
         if save_source:
@@ -63,6 +63,7 @@ async def image_table_render(table: Union[ImageTable, List[ImageTable]], save_so
                 web_render_local if use_local else web_render,
                 method='POST',
                 post_data=json.dumps(html),
+                timeout=360,
                 request_private_ip=True,
                 headers={
                     'Content-Type': 'application/json',

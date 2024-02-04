@@ -2,8 +2,9 @@ from core.builtins import Bot, Plain, Image, Url
 from core.component import module
 from core.utils.image_table import ImageTable
 from .image_render import image_table_render
-from core.utils.http import get_url
+from core.utils.http import get_url, download_to_cache
 from core.logger import logger
+import base64
 
 bgm = module(
     'bgm',
@@ -30,10 +31,10 @@ async def search(msg: Bot.MessageSession, keyword: str):
         send_msg = [Plain('搜索结果' + '\n')]
         data = [[
             str(i),
-            f'''<img src="{anime["images"]["large"]}">' + f"<p>{anime['name']}" + (f' ({anime["name_cn"]})' if 'name_cn' in anime else '') + '</p>''',
+            f'<img src="{anime["images"]["large"] if "large" in anime["images"] else anime["images"]["common"]}" width="500">' + f'<h4>{anime["name"]}' + (f' ({anime["name_cn"]})' if 'name_cn' in anime else '') + '</h4>',
             str(anime['id'])
         ] for i, anime in enumerate(result, start=1)]
-        
+
         tables = ImageTable(data, 
                             ['序号',
                             '番剧',
