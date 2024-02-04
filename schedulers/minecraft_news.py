@@ -6,7 +6,7 @@ from urllib.parse import quote
 import ujson as json
 
 from config import Config, CFG
-from core.builtins import Url
+from core.builtins import Url, I18NContext
 from core.logger import Logger
 from core.queue import JobQueue
 from core.scheduler import Scheduler, IntervalTrigger
@@ -55,7 +55,7 @@ async def start_check_news(use_local=True):
         use_local = False
     try:
         get = (web_render_local if use_local else web_render) + 'source?url=' + url
-        getpage = await get_url(get, 200, attempt=1, logging_err_resp=False)
+        getpage = await get_url(get, 200, attempt=1, request_private_ip=True, logging_err_resp=False)
         if getpage:
             alist = get_stored_list('scheduler', 'mcnews')
             o_json = json.loads(getpage)
@@ -70,9 +70,8 @@ async def start_check_news(use_local=True):
                     publish_date = datetime.strptime(o_article['publish_date'], '%d %B %Y %H:%M:%S %Z')
                     now = datetime.now()
                     if now - publish_date < timedelta(days=2):
-                        await JobQueue.trigger_hook_all('minecraft_news',
-                                                        message='minecraft_news.message.minecraft_news', i18n=True,
-                                                        title=title, desc=desc, link=str(Url(link)))
+                        await JobQueue.trigger_hook_all('minecraft_news', message=[I18NContext('minecraft_news.message.minecraft_news',
+                                                                                               title=title, desc=desc, link=link).to_dict()])
                     alist.append(title)
                     update_stored_list('scheduler', 'mcnews', alist)
     except Exception:
@@ -89,7 +88,7 @@ async def feedback_news():
     for section in sections:
         try:
             alist = get_stored_list('scheduler', 'mcfeedbacknews')
-            get = await get_url(section['url'], 200, attempt=1, logging_err_resp=False)
+            get = await get_url(section['url'], 200, attempt=1, request_private_ip=True, logging_err_resp=False)
             res = json.loads(get)
             articles = []
             for i in res['articles']:
@@ -98,11 +97,10 @@ async def feedback_news():
                 if article['name'] not in alist:
                     name = article['name']
                     link = article['html_url']
-                    Logger.info(f'huh, we find {name}.')
+                    Logger.info(f'Huh, we find {name}.')
                     await JobQueue.trigger_hook_all('feedback_news',
-                                                    message='minecraft_news.message.feedback_news',
-                                                    i18n=True,
-                                                    name=name, link=str(Url(link)))
+                                                    message=[I18NContext('minecraft_news.message.feedback_news',
+                                                                         name=name, link=str(Url(link))).to_dict()])
                     alist.append(name)
                     update_stored_list('scheduler', 'mcfeedbacknews', alist)
         except Exception:

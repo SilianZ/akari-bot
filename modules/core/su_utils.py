@@ -1,4 +1,3 @@
-import asyncio
 import os
 import re
 import shutil
@@ -13,11 +12,10 @@ from dateutil.relativedelta import relativedelta
 from config import Config, CFG
 from core.builtins import Bot, PrivateAssets, Image, Plain, ExecutionLockList, Temp, MessageTaskManager
 from core.component import module
-from core.exceptions import TestException
+from core.exceptions import NoReportException, TestException
 from core.loader import ModulesManager
-from core.logger import logger
+from core.logger import Logger
 from core.parser.message import remove_temp_ban
-from core.scheduler import CronTrigger
 from core.tos import pardon_user, warn_user
 from core.utils.cache import random_cache_path
 from core.utils.info import Info
@@ -44,9 +42,9 @@ async def del_su(msg: Bot.MessageSession):
     if not user.startswith(f'{msg.target.sender_from}|'):
         await msg.finish(msg.locale.t("core.message.superuser.invalid", target=msg.target.sender_from))
     if user == msg.target.sender_id:
-        confirm = await msg.wait_confirm(msg.locale.t("core.message.confirm"), append_instruction=False)
+        confirm = await msg.wait_confirm(msg.locale.t("core.message.admin.remove.confirm"), append_instruction=False)
         if not confirm:
-            return
+            await msg.finish()
     if user:
         if BotDBUtil.SenderInfo(user).edit('isSuperUser', False):
             await msg.finish(msg.locale.t("success"))
@@ -78,7 +76,7 @@ async def _(msg: Bot.MessageSession):
         module_ = None
         if '<name>' in msg.parsed_msg:
             module_ = msg.parsed_msg['<name>']
-        if module_ is None:
+        if not module_:
             result = msg.locale.t("core.message.analytics.days.total", first_record=first_record.timestamp)
         else:
             result = msg.locale.t("core.message.analytics.days", module=module_,
@@ -116,7 +114,7 @@ async def _(msg: Bot.MessageSession):
         module_ = None
         if '<name>' in msg.parsed_msg:
             module_ = msg.parsed_msg['<name>']
-        if module_ is None:
+        if not module_:
             result = msg.locale.t("core.message.analytics.year.total", first_record=first_record.timestamp)
         else:
             result = msg.locale.t("core.message.analytics.year", module=module_,
@@ -167,15 +165,6 @@ async def _(msg: Bot.MessageSession):
         await msg.finish(msg.locale.t("core.message.purge.empty"))
 
 
-@purge.schedule(CronTrigger.from_crontab('0 0 * * *'))
-async def _():
-    cache_path = os.path.abspath(Config('cache_path'))
-    Logger.info('Start purging cache...')
-    if os.path.exists(cache_path):
-        shutil.rmtree(cache_path)
-    os.mkdir(cache_path)
-
-
 set_ = module('set', required_superuser=True, base=True)
 
 
@@ -185,10 +174,10 @@ async def _(msg: Bot.MessageSession):
     if not target.startswith(f'{msg.target.target_from}|'):
         await msg.finish(msg.locale.t("core.message.set.invalid"))
     target_data = BotDBUtil.TargetInfo(target)
-    if target_data.query is None:
+    if not target_data.query:
         confirm = await msg.wait_confirm(msg.locale.t("core.message.set.confirm.init"), append_instruction=False)
         if not confirm:
-            return
+            await msg.finish()
     modules = [m for m in [msg.parsed_msg['<modules>']] + msg.parsed_msg.get('...', [])
                if m in ModulesManager.return_modules_list(msg.target.target_from)]
     target_data.enable(modules)
@@ -203,10 +192,10 @@ async def _(msg: Bot.MessageSession):
     if not target.startswith(f'{msg.target.target_from}|'):
         await msg.finish(msg.locale.t("core.message.set.invalid"))
     target_data = BotDBUtil.TargetInfo(target)
-    if target_data.query is None:
+    if not target_data.query:
         confirm = await msg.wait_confirm(msg.locale.t("core.message.set.confirm.init"), append_instruction=False)
         if not confirm:
-            return
+            await msg.finish()
     if v.startswith(('[', '{')):
         v = json.loads(v)
     elif v.upper() == 'TRUE':
@@ -289,7 +278,10 @@ upd = module('update', required_superuser=True, base=True)
 
 
 def pull_repo():
-    return os.popen('git pull', 'r').read()[:-1]
+    pull_repo_result = os.popen('git pull', 'r').read()[:-1]
+    if pull_repo_result == '':
+        return False
+    return pull_repo_result
 
 
 def update_dependencies():
@@ -299,7 +291,7 @@ def update_dependencies():
     pip_install = os.popen('pip install -r requirements.txt').read()[:-1]
     if len(pip_install) > 500:
         return '...' + pip_install[-500:]
-    return
+    return pip_install
 
 
 @upd.command()
@@ -307,11 +299,13 @@ async def update_bot(msg: Bot.MessageSession):
     confirm = await msg.wait_confirm(msg.locale.t("core.message.confirm"), append_instruction=False)
     if confirm:
         pull_repo_result = pull_repo()
-        if pull_repo_result != '':
+        if pull_repo_result:
             await msg.send_message(pull_repo_result)
         else:
             await msg.send_message(msg.locale.t("core.message.update.failed"))
-        await msg.send_message(update_dependencies())
+        await msg.finish(update_dependencies())
+    else:
+        await msg.finish()
 
 if Info.subprocess:
     rst = module('restart', required_superuser=True, base=True)
@@ -332,7 +326,7 @@ if Info.subprocess:
         if datetime.now().timestamp() - restart_time[0] < 60:
             if len(get) != 0:
                 await msg.send_message(msg.locale.t("core.message.restart.wait", count=len(get)))
-                await asyncio.sleep(10)
+                await msg.sleep(10)
                 return await wait_for_restart(msg)
             else:
                 await msg.send_message(msg.locale.t("core.message.restart.restarting"))
@@ -354,6 +348,8 @@ if Info.subprocess:
             await wait_for_restart(msg)
             write_version_cache(msg)
             restart()
+        else:
+            await msg.finish()
 
 
 if Info.subprocess:
@@ -374,6 +370,8 @@ if Info.subprocess:
                 Logger.warn(f'Failed to get Git repository result.')
                 await msg.send_message(msg.locale.t("core.message.update.failed"))
             restart()
+        else:
+            await msg.finish()
 
 
 if Bot.FetchTarget.name == 'QQ':
@@ -390,7 +388,7 @@ if Bot.FetchTarget.name == 'QQ':
                 else:
                     await x['fetch'].send_direct_message(x['message'])
                 Temp.data['waiting_for_send_group_message'].remove(x)
-                await asyncio.sleep(30)
+                await msg.sleep(30)
             await msg.finish(msg.locale.t("core.message.resume.done"))
         else:
             await msg.finish(msg.locale.t("core.message.resume.nothing"))
@@ -410,7 +408,7 @@ if Bot.FetchTarget.name == 'QQ':
                 else:
                     await x['fetch'].send_direct_message(x['message'])
                 Temp.data['waiting_for_send_group_message'].remove(x)
-                await asyncio.sleep(30)
+                await msg.sleep(30)
             await msg.finish(msg.locale.t("core.message.resume.done"))
         else:
             await msg.finish(msg.locale.t("core.message.resume.nothing"))
@@ -466,10 +464,13 @@ if Config('enable_eval'):
 
     @_eval.command('<display_msg>')
     async def _(msg: Bot.MessageSession):
-        await msg.finish(str(eval(msg.parsed_msg['<display_msg>'], {'msg': msg})))
+        try:
+            await msg.finish(str(eval(msg.parsed_msg['<display_msg>'], {'msg': msg})))
+        except Exception as e:
+            raise NoReportException(e)
 
 
-_config = module('config', required_superuser=True, alias='cfg', base=True)
+cfg_ = module('config', required_superuser=True, alias='cfg', base=True)
 
 
 def isfloat(num):
@@ -488,7 +489,12 @@ def isint(num):
         return False
 
 
-@_config.command('write <k> <v> [-s]')
+@cfg_.command('get <k>')
+async def _(msg: Bot.MessageSession):
+    await msg.finish(str(Config(msg.parsed_msg['<k>'])))
+
+
+@cfg_.command('write <k> <v> [-s]')
 async def _(msg: Bot.MessageSession):
     value = msg.parsed_msg['<v>']
     if value.lower() == 'true':
@@ -509,7 +515,7 @@ async def _(msg: Bot.MessageSession):
     await msg.finish(msg.locale.t("success"))
 
 
-@_config.command('delete <k>')
+@cfg_.command('delete <k>')
 async def _(msg: Bot.MessageSession):
     if CFG.delete(msg.parsed_msg['<k>']):
         await msg.finish(msg.locale.t("success"))
@@ -517,7 +523,7 @@ async def _(msg: Bot.MessageSession):
         await msg.finish(msg.locale.t("failed"))
 
 
-if Config('openai_api_key'):
+if Config('enable_petal'):
     petal = module('petal', base=True, alias='petals')
 
     @petal.command()
@@ -528,7 +534,7 @@ if Config('openai_api_key'):
     async def _(msg: Bot.MessageSession):
         group = msg.parsed_msg['<target>']
         target = BotDBUtil.TargetInfo(group)
-        await msg.finish(msg.locale.t('core.message.petal', group=group, petal=target.petal))
+        await msg.finish(msg.locale.t('core.message.petal', target=group, petal=target.petal))
 
     @petal.command('modify <petal> [<target>]', required_superuser=True)
     async def _(msg: Bot.MessageSession):
@@ -538,11 +544,23 @@ if Config('openai_api_key'):
             target = BotDBUtil.TargetInfo(group)
             target.modify_petal(int(petal))
             await msg.finish(
-                msg.locale.t('core.message.petal.modify', group=group, add_petal=petal, petal=target.petal))
+                msg.locale.t('core.message.petal.modify', target=group, add_petal=petal, petal=target.petal))
         else:
             target = msg.data
             target.modify_petal(int(petal))
             await msg.finish(msg.locale.t('core.message.petal.modify.self', add_petal=petal, petal=target.petal))
+
+    @petal.command('clear [<target>]', required_superuser=True)
+    async def _(msg: Bot.MessageSession):
+        if '<target>' in msg.parsed_msg:
+            group = msg.parsed_msg['<target>']
+            target = BotDBUtil.TargetInfo(group)
+            target.clear_petal()
+            await msg.finish(msg.locale.t('core.message.petal.clear', target=group))
+        else:
+            msg.data.clear_petal()
+            await msg.finish(msg.locale.t('core.message.petal.clear.self'))
+
 
 if Bot.client_name == 'QQ':
     post_whitelist = module('post_whitelist', required_superuser=True, base=True)
