@@ -1,10 +1,10 @@
-from core.builtins import Bot, Plain, Image, Url
+from core.builtins import Bot, Plain, Image
 from core.component import module
 from core.utils.image_table import ImageTable
 from .image_render import image_table_render
-from core.utils.http import get_url, download_to_cache
+from core.utils.http import get_url
 from core.logger import logger
-import base64
+import ujson as json
 
 bgm = module(
     'bgm',
@@ -18,10 +18,11 @@ bgm = module(
 async def search(msg: Bot.MessageSession, keyword: str):
     logger.info(keyword)
     url = f"https://api.bgm.tv/search/subject/{keyword}?type=2&resourceGroup=medium"
-    result = await get_url(url, fmt='json')
+    logger.info(url)
+    result = await get_url(url)
+    logger.info(result)
+    result = json.loads(result)
     count = result['results']
-    logger.info('1')
-
     if count == 0:
         await msg.finish('找不到该番剧！')
 
