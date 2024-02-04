@@ -72,6 +72,7 @@ async def image_table_render(table: Union[ImageTable, List[ImageTable]], save_so
                 method='POST',
                 post_data=json.dumps(html),
                 request_private_ip=True,
+                timeout=90,
                 headers={
                     'Content-Type': 'application/json',
                 }
