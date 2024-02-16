@@ -120,7 +120,7 @@ class WordleBoardImage:
     background_color: str
     cell_size = 50
     margin = 10
-    outline_width = 3
+    outline_width = 2
     rows = 6
     columns = 5
     green_color = (107, 169, 100)
@@ -185,7 +185,7 @@ async def _(msg: Bot.MessageSession):
     if not msg.target.target_from == 'TEST|Console' and not msg.check_super_user():
         c = qc.check(30)
         if c != 0:
-            await msg.finish(msg.locale.t('message.cooldown', time=int(c), cd_time='30'))
+            await msg.finish(msg.locale.t('message.cooldown', time=int(c), cd_time=30))
 
     board = WordleBoard.from_random_word()
     board_image = WordleBoardImage(wordle_board=board, dark_theme=msg.data.options.get('wordle_dark_theme'))
@@ -210,7 +210,7 @@ async def _(msg: Bot.MessageSession):
             continue
         board.add_word(word)
         board_image.update_board()
-        msg.sleep(1)  # 防冲突
+        await msg.sleep(1)  # 防冲突
 
         if not board.is_game_over() and board.get_trials() <= 6:
             Logger.info(f'{word} != {board.word}, attempt {board.get_trials() - 1}')

@@ -23,7 +23,7 @@
 
 1. 一台可运行 Python 的服务器或主机（电脑、树莓派、安装了 Termux 的手机、etc...）。
 
-2. 主机已安装并可运行 [Python 3 环境](https://www.python.org/) ，版本大于 3.8 皆可部署。
+2. 主机已安装并可运行 [Python 3 环境](https://www.python.org/) ，版本大于 3.9 皆可部署。
 
 3. 对应你需要运行的平台所需要的必要内容（环境、token 等）。
 
@@ -237,7 +237,7 @@ pip install -r requirements.txt
 
 5. 安装 JRE 17（Java Runtime Environment 17），请善用搜索引擎查找安装方法。
 
-6. 在 ~~[unidbg-fetch-qsign](https://github.com/fuqiuluo/unidbg-fetch-qsign)~~（作者已删库，请自行在 GitHub 上搜索有关 `qsign` 的仓库）的 Release 界面中下载最新版本的 unidbg-fetch-qsign 并解压到一个提前准备好的文件夹中。
+6. 在 ~~[unidbg-fetch-qsign](https://github.com/fuqiuluo/unidbg-fetch-qsign)~~（原作者已删库，请自行在 GitHub 上搜索有关 `qsign` 的仓库）的 Release 界面中下载最新版本的 unidbg-fetch-qsign 并解压到一个提前准备好的文件夹中。
 
 7. 删除与 go-cqhttp 同一目录下的 `data` 文件夹和 `device.json` 文件。
 
@@ -252,7 +252,7 @@ pip install -r requirements.txt
     例：`--basePath=txlib\8.9.73`
 
     > 在选择版本时，应当遵从以下原则：
-    > 升级版本应当**一个一个版本**升，以后冻结了可能就没机会回退版本了。Code45 了应当先尝试删除 go-cqhttp 的 `device.json` 文件和 `data\cache` 文件夹并重新登录，而不是第一时间升级版本。
+    > 升级版本应当**一个一个版本**升，以后冻结了可能就没机会回退版本了。发生 Code45 应当先尝试删除 go-cqhttp 的 `device.json` 文件和 `data\cache` 文件夹并重新登录，而不是第一时间升级版本。
 
 9. 按照先前步骤配置 go-cqhttp 的 `config.yml` 文件。
 
@@ -383,8 +383,8 @@ pip3 install matrix-nio[e2e] ; PIP
 3. 于 `package.json` 同级目录中，创建 `.env` 文件，并于内填写以下字段：
 
     ```conf
-    CHROMIUM_PATH="C:\Program Files (x86)\Google\Chrome\Application\chrome.exe" # 填写 chrome.exe 的绝对路径
-    FC_SERVER_PORT=15551 # 填写服务运行的端口
+    CHROMIUM_PATH = "C:\Program Files (x86)\Google\Chrome\Application\chrome.exe" # 填写 chrome.exe 的绝对路径
+    FC_SERVER_PORT = 15551 # 填写服务运行的端口
     ```
 
     > 在填写好配置文件之后，请删除所有配置文件中的注释，否则程序无法正确读取配置。
@@ -495,7 +495,7 @@ pip3 install matrix-nio[e2e] ; PIP
 
 ## 运行机器人
 
-小可机器人主要由平台机器人构成，为了让开发者更好地测试模块，我们还提供了测试控制台，接下来我们将逐步讲解如何运行机器人。
+小可机器人主要由平台机器人构成，为了让开发者更好地测试模块，我们还提供了控制台，接下来我们将逐步讲解如何运行机器人。
 
 ### 运行平台机器人
 
@@ -514,16 +514,16 @@ pip3 install matrix-nio[e2e] ; PIP
 1. 于终端内，设置 `start` 脚本的执行权限：`chmod +x start`
 2. 启动脚本：`./start`
 
-### 运行测试控制台
+### 运行控制台
 
-测试控制台包括一个基础的运行环境，你可以在测试控制台内使用命令进行基础的机器人交互。
+控制台包括一个基础的运行环境，你可以在控制台内使用命令进行基础的机器人交互。
 
-测试控制台仅支持回复文本消息和图片，其它消息元素将被忽略或转换为文本或图片来显示。
+控制台仅支持回复文本消息和图片，其它消息元素将被忽略或转换为文本或图片来显示。
 
 你可能需要使用 `poetry shell` 切换 poetry 的虚拟环境来调用先前安装的依赖。
 
 1. 于 `console.py` 所在目录，打开终端。
-2. 在终端内输入 `python console.py` 来启动测试控制台。
+2. 在终端内输入 `python console.py` 来启动控制台。
 
 # 获取帮助
 

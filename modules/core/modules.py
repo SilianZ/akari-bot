@@ -29,8 +29,7 @@ m = module('module',
             'reload <module> ...',
             'load <module> ...',
             'unload <module> ...',
-            'list {{core.help.module.list}}',
-            'list legacy {{core.help.module.list.legacy}}'], exclude_from=['QQ|Guild'])
+            'list [legacy] {{core.help.module.list}}'], exclude_from=['QQ|Guild'])
 async def _(msg: Bot.MessageSession):
     if msg.parsed_msg.get('list', False):
         legacy = False
@@ -47,8 +46,7 @@ async def _(msg: Bot.MessageSession):
             'reload <module> ...',
             'load <module> ...',
             'unload <module> ...',
-            'list {{core.help.module.list}}',
-            'list legacy {{core.help.module.list.legacy}}'],
+            'list [legacy] {{core.help.module.list}}'],
            options_desc={'-g': '{core.help.option.module.g}'},
            available_for=['QQ|Guild'])
 async def _(msg: Bot.MessageSession):
@@ -198,7 +196,7 @@ async def config_modules(msg: Bot.MessageSession):
                 else:
                     extra_reload_modules = ModulesManager.search_related_module(module_, False)
                     if modules_[module_].base:
-                        if Config('enable_reload_base'):
+                        if Config('allow_reload_base'):
                             confirm = await msg.wait_confirm(msg.locale.t("core.message.module.reload.base.confirm"),
                                                              append_instruction=False)
                             if confirm:
@@ -382,8 +380,8 @@ async def bot_help(msg: Bot.MessageSession):
             await msg.finish(msg.locale.t("core.message.help.not_found"))
 
 
-@hlp.command(['{{core.help.help}}',
-              'legacy {{core.help.help.legacy}}'])
+@hlp.command()
+@hlp.command('[legacy] {{core.help.help}}')
 async def _(msg: Bot.MessageSession):
     module_list = ModulesManager.return_modules_list(
         target_from=msg.target.target_from)
@@ -496,7 +494,7 @@ async def modules_help(msg: Bot.MessageSession, legacy):
     module_list = ModulesManager.return_modules_list(
         target_from=msg.target.target_from)
     legacy_help = True
-    help_msg = [msg.locale.t("core.message.module.list.prompt")]
+    help_msg = [msg.locale.t("core.message.module.list.prompt", prefix=msg.prefixes[0])]
     if Config('help_url'):
         help_msg.append(msg.locale.t(
                        "core.message.help.more_information.document",
