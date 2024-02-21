@@ -1,10 +1,11 @@
 import random
+import re
 import traceback
 from datetime import datetime, timezone
 from database.local import CrowdinActivityRecords
 
 from config import Config
-from core.builtins import Plain
+from core.builtins import Plain, Embed, EmbedField
 from core.logger import Logger
 from core.queue import JobQueue
 from core.scheduler import Scheduler, IntervalTrigger
@@ -33,12 +34,16 @@ async def check_crowdin():
                 raise Exception(get_json['msg'])
             for act in get_json['activity']:
                 m = html2text(act["message"], baseurl=base_url).strip()
+                # Replace newline characters in url
+                match_url = re.search(r'(https?://[^\s]+)', m)
+                if match_url:
+                    m = m.replace(match_url.group(0), match_url.group(0).replace('\n', ''))
                 if not any(x in m for x in filter_words):
                     continue
                 if act['count'] == 1:
                     identify = f'{act["user_id"]}{str(act['timestamp'])}{m}'
                     if not first and not CrowdinActivityRecords.check(identify):
-                        await JobQueue.trigger_hook_all('mc_crowdin', message=[Plain(m).to_dict()])
+                        await JobQueue.trigger_hook_all('mc_crowdin', message=[Embed(title='New Crowdin Updates', description=m, ).to_dict()])
                 else:
                     detail_url = f"https://crowdin.com/backend/project_actions/activity_stream_details?request_type=project&type={
                         act["type"]}&timestamp={
@@ -50,19 +55,28 @@ async def check_crowdin():
                     Logger.info(get_detail_json)
                     if get_detail_json:
                         for detail_num in get_detail_json['activity']:
-                            identify_ = []
+                            identify_ = {}
                             if not isinstance(get_detail_json['activity'][detail_num], list):
                                 continue
                             for detail in get_detail_json['activity'][detail_num]:
-                                identify = f'{
-                                    detail["title"]}: {
-                                    html2text(
-                                        detail["content"],
-                                        baseurl=base_url)}'.strip()
-                                identify_.append(identify)
-                            identify = "\n".join(identify_)
+                                content = detail["content"]
+                                if 'icon-thumbs-up' in content:
+                                    content = '👍'
+                                elif 'icon-thumbs-down' in content:
+                                    content = '👎'
+                                else:
+                                    content = html2text(content, baseurl=base_url).strip()
+                                    match_url = re.search(r'(https?://[^\s]+)', content)
+                                    if match_url:
+                                        content = content.replace(match_url.group(
+                                            0), match_url.group(0).replace('\n', ''))
+                                identify = {detail['title']: content}
+                                identify_.update(identify)
+                            identify = f'{act["user_id"]}{str(act['timestamp'])}{m}{
+                                "\n".join(f'{i}: {identify_[i]}' for i in identify_)}'
+
                             if not first and not CrowdinActivityRecords.check(identify):
-                                await JobQueue.trigger_hook_all('mc_crowdin', message=[Plain(m + '\n' + identify).to_dict()])
+                                await JobQueue.trigger_hook_all('mc_crowdin', message=[Embed(title='New Crowdin Updates', description=m, fields=[EmbedField(name=k, value=v) for k, v in identify_.items()]).to_dict()])
     except Exception:
         if Config('debug'):
             Logger.error(traceback.format_exc())
