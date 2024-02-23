@@ -45,7 +45,6 @@ async def _(msg: Bot.MessageSession):
         disk_total = int(psutil.disk_usage('/').total / (1024 * 1024 * 1024))
         await msg.finish(Embed(title='Pong!',
                                color=0x00ff00,
-                               timestamp=datetime.now().timestamp(),
                                fields=[
                                     EmbedField(msg.locale.t('core.message.ping.system_boot_time'), boot_start, inline=True),
                                     EmbedField(msg.locale.t('core.message.ping.bot_running_time'), timediff, inline=True),
@@ -56,7 +55,7 @@ async def _(msg: Bot.MessageSession):
                                     EmbedField(msg.locale.t('core.message.ping.ram_percent'), f'{ram_percent}%', inline=True),
                                     EmbedField(msg.locale.t('core.message.ping.swap'), f'{swap}M', inline=True),
                                     EmbedField(msg.locale.t('core.message.ping.swap_percent'), f'{swap_percent}%', inline=True),
-                                    EmbedField(msg.locale.t('core.message.ping.disk_space'), f'{disk}G/${disk_total}G', inline=True),
+                                    EmbedField(msg.locale.t('core.message.ping.disk_space'), f'{disk}G/{disk_total}G', inline=True),
                             ]))
     await msg.finish("Pong!")
 
