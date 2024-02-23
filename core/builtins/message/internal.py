@@ -235,7 +235,7 @@ class Embed(EmbedT):
                  description: str = None,
                  url: str = None,
                  timestamp: float = datetime.now().timestamp(),
-                 color: int = 0x0000ff,
+                 color: int = 0x0091ff,
                  image: Image = None,
                  thumbnail: Image = None,
                  author: str = None,
@@ -270,10 +270,7 @@ class Embed(EmbedT):
             text_lst.append(self.url)
         if self.fields:
             for f in self.fields:
-                if f.inline:
-                    text_lst.append(f"{f.name}{msg.locale.t('message.colon')}{f.value}")
-                else:
-                    text_lst.append(f"{f.name}{msg.locale.t('message.colon')}\n{f.value}")
+                text_lst.append(f"{f.name}{msg.locale.t('message.colon')}{f.value}")
         if self.author:
             text_lst.append(msg.locale.t('message.embed.author') + self.author)
         if self.footer:
