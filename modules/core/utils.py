@@ -7,7 +7,7 @@ import psutil
 from cpuinfo import get_cpu_info
 
 from config import Config
-from core.builtins import Bot, command_prefix
+from core.builtins import Bot, Embed, EmbedField, command_prefix
 from core.component import module
 from core.utils.i18n import get_available_locales, Locale, load_locale_file
 from core.utils.info import Info
@@ -33,9 +33,8 @@ started_time = datetime.now()
 
 @ping.command('{{core.help.ping}}')
 async def _(msg: Bot.MessageSession):
-    checkpermisson = msg.check_super_user()
     result = "Pong!"
-    if checkpermisson:
+    if msg.check_super_user():
         timediff = str(datetime.now() - started_time)
         boot_start = msg.ts2strftime(psutil.boot_time())
         cpu_usage = psutil.cpu_percent()
