@@ -106,8 +106,8 @@ docker pull silianz/akari-bot:dev-docker
 
 [^2]: 你可以通过设置 - 应用管理 - QQ 来结束 QQ 的进程。
 
-> [!NOTE]
-> 若在安装和配置中遇到问题，请参阅 [OpenShamrock 官方文档](https://whitechi73.github.io/OpenShamrock/)。
+$\qquad$> [!NOTE]
+$\qquad$> 若在安装和配置中遇到问题，请参阅 [OpenShamrock 官方文档](https://whitechi73.github.io/OpenShamrock/)。
 
 #### QQ（go-cqhttp）
 
