@@ -1,4 +1,6 @@
 import base64
+import urllib.parse
+
 
 from config import Config
 from typing import Tuple
@@ -93,10 +95,10 @@ async def _(msg: Bot.MessageSession):
                                   first_record=first_record.timestamp)
         data_ = {}
         for m in range(12):
-            new = datetime.now().replace(month=1, day=1, hour=0, minute=0, second=0) + \
-                relativedelta(years=1) - relativedelta(months=12 - m - 1)
-            old = datetime.now().replace(month=1, day=1, hour=0, minute=0, second=0) + \
-                relativedelta(years=1) - relativedelta(months=12 - m)
+            new = datetime.now().replace(day=1, hour=0, minute=0, second=0) + relativedelta(months=1) - \
+            relativedelta(months=12 - m - 1)
+            old = datetime.now().replace(day=1, hour=0, minute=0, second=0) + relativedelta(months=1) - \
+            relativedelta(months=12 - m)
             get_ = BotDBUtil.Analytics.get_count_by_times(new, old, module_)
             data_[old.month] = get_
         data_x = []
@@ -198,4 +200,7 @@ def export_analytics(
     bucket = oss2.Bucket(auth, oss_endpoint, oss_bucket)
     bucket.put_object_from_file('analytics.zip', cache_path + '.zip')
     url = bucket.sign_url('GET', 'analytics.zip', expires=expires)
+    if custom_domain := Config('oss_custom_domain'):
+        url = urllib.parse.urlparse(url)
+        url = f'{url.scheme}://{urllib.parse.urlparse(custom_domain).netloc}{url.path}?{url.query}'
     return url
