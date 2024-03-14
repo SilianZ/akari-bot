@@ -123,7 +123,7 @@ async def _(msg: Bot.MessageSession):
                                             [Plain(msg.locale.t('wiki.message.wiki_inline.flies', file=get_page.file)),
                                              Voice(dl)],
                                             quote=False)
-                            elif check_svg:
+                            elif check_svg(dl):
                                 rd = await svg_render(dl)
                                 if msg.Feature.image and rd:
                                     await msg.send_message(
@@ -159,8 +159,8 @@ async def _(msg: Bot.MessageSession):
                                                                ImageTable(session_data,
                                                                           ['ID',
                                                                            msg.locale.t('wiki.message.table.section')]))))
-                                    i_msg_lst.append(Plain(session.locale.t('wiki.message.invalid_section.select')))
-                                    i_msg_lst.append(Plain(session.locale.t('message.reply.prompt')))
+                                    i_msg_lst.append(Plain(msg.locale.t('wiki.message.invalid_section.select')))
+                                    i_msg_lst.append(Plain(msg.locale.t('message.reply.prompt')))
 
                                     async def _callback(msg: Bot.MessageSession):
                                         display = msg.as_display(text_only=True)
