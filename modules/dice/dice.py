@@ -120,8 +120,6 @@ class Dice(DiceItemBase):
         return (int(dice_count), int(dice_type), int(advantage))
 
     def Roll(self, msg, use_markdown=False):
-        if msg.target.sender_from in ['Discord|Client', 'Kook|User']:
-            use_markdown = True
         output = ''
         result = 0
         dice_results = []
@@ -203,7 +201,7 @@ class FudgeDice(DiceItemBase):
 
         dice_results = ['-', '-', '0', '0', '+', '+']
         selected_results = [secrets.choice(dice_results) for _ in range(self.count)]
-        output += str(selected_results)
+        output += '[' + ', '.join(selected_results) + ']'
         
         for res in selected_results:
             if res == '-':
@@ -222,11 +220,16 @@ async def process_expression(msg, expr: str, times: int, dc):
     if not all([MAX_DICE_COUNT > 0, MAX_ROLL_TIMES > 0, MAX_OUTPUT_CNT > 0,
                 MAX_OUTPUT_LEN > 0, MAX_DETAIL_CNT > 0, MAX_ITEM_COUNT > 0]):
         raise ConfigValueError(msg.locale.t("error.config.invalid"))
-    
+    if msg.target.sender_from in ['Discord|Client', 'Kook|User']:
+        use_markdown = True
+    if use_markdown:
+        expr = expr.replace('*', '\*')
+        expr = expr.replace('\\*', '\*')
+
     dice_list, count, err = parse_dice_expression(msg, expr)
     if err:
         return err
-    output = generate_dice_message(msg, expr, dice_list, count, times, dc)
+    output = generate_dice_message(msg, expr, dice_list, count, times, dc, use_markdown)
     return output
 
 def parse_dice_expression(msg, dices):
@@ -238,7 +241,7 @@ def parse_dice_expression(msg, dices):
         r'(\(|\))',  # 括号
     ]
     errmsg = None
-    if re.search(r'[^0-9+\-\*/\%()DFKQ]', dices.upper()):
+    if re.search(r'[^0-9+\-\*/\%()DFKQ\\]', dices.upper()):
         return None, None, DiceSyntaxError(msg, msg.locale.t('dice.message.error.invalid')).message
         
     # 切分骰子表达式
@@ -256,7 +259,7 @@ def parse_dice_expression(msg, dices):
                 dice_item_list.append(item)
                 break
     if len(dice_item_list) > MAX_ITEM_COUNT:
-        return None, None, DiceValueError(msg, msg.locale.t('dice.message.error.value.too_long'), len(dice_item_list)).message
+        return None, None, DiceValueError(msg, msg.locale.t('dice.message.error.value.too_long')).message
         
     dice_count = 0
     i = 0
@@ -282,20 +285,21 @@ def parse_dice_expression(msg, dices):
 
 
 # 在数字与数字之间加上乘号
-def insert_multiply(lst):
+def insert_multiply(lst, use_markdown=False):
     result = []
+    asterisk = '/*' if use_markdown else '*'
     for i in range(len(lst)):
         if i == 0:
             result.append(lst[i])
         else:
             if lst[i-1][-1].isdigit() and lst[i][0].isdigit():
-                result.append('*')
+                result.append(asterisk)
             elif lst[i-1][-1] == ')' and lst[i][0] == '(':
-                result.append('*')
+                result.append(asterisk)
             elif lst[i-1][-1].isdigit() and lst[i][0] == '(':
-                result.append('*')
+                result.append(asterisk)
             elif lst[i-1][-1] == ')' and lst[i][0].isdigit():
-                result.append('*')
+                result.append(asterisk)
             result.append(lst[i])
     return result
 
@@ -308,9 +312,6 @@ def generate_dice_message(msg, expr, dice_expr_list, dice_count, times, dc, use_
         return DiceValueError(msg,
                                  msg.locale.t("dice.message.error.value.N.out_of_range", max=MAX_ROLL_TIMES),
                                  times).message
-    
-    if msg.target.sender_from in ['Discord|Client', 'Kook|User']:
-        use_markdown = True
     # 开始投掷并生成消息
     for i in range(times):
         j = 0
@@ -320,7 +321,7 @@ def generate_dice_message(msg, expr, dice_expr_list, dice_count, times, dc, use_
         for item in dice_detail_list:
             j += 1
             if isinstance(item, (Dice, FudgeDice)):
-                item.Roll(msg)
+                item.Roll(msg, use_markdown)
                 res = item.GetResult()
                 if times * dice_count < MAX_DETAIL_CNT:
                     dice_detail_list[j-1] = f'({item.GetDetail()})'
@@ -329,7 +330,7 @@ def generate_dice_message(msg, expr, dice_expr_list, dice_count, times, dc, use_
                 dice_res_list[j-1] = f'({str(res)})' if res < 0 else str(res)
             else:
                 continue
-        dice_detail_list = insert_multiply(dice_detail_list)
+        dice_detail_list = insert_multiply(dice_detail_list, use_markdown)
         dice_res_list = insert_multiply(dice_res_list)
         output_line += ''.join(dice_detail_list)
         Logger.debug(dice_detail_list)
@@ -361,7 +362,4 @@ def generate_dice_message(msg, expr, dice_expr_list, dice_count, times, dc, use_
     if dc and times > 1:
         output += '\n' + msg.locale.t('dice.message.dc.check', success=success_num, failed=fail_num)
 
-    if use_markdown:
-        output = output.replace("*", "\*")
-        output = output.replace("\\*", "\*")
     return output
