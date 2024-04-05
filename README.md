@@ -51,6 +51,10 @@
 
 邀请链接：<https://www.kookapp.cn/app/oauth2/authorize?id=19512&permissions=949248&client_id=xiDWoVygvPsP6bov&redirect_uri=&scope=bot>
 
+#### Matrix
+
+链接：<https://matrix.to/#/@akaribot:matrix.org>，支持私聊和群聊。
+
 ### 自搭建
 
 你可以参考[此处](./docs/DEPLOY.md)来尝试搭建。
