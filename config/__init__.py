@@ -1,6 +1,6 @@
 import os
 from os.path import abspath
-from typing import Union, Any
+from typing import Union, Any, get_origin, get_args
 
 import toml
 
@@ -79,10 +79,13 @@ class CFG:
         if value is None and default is not None:
             return default
         if cfg_type is not None:
-            if isinstance(cfg_type, Union):
-                cfg_type = tuple(cfg_type.__args__)
-            if not isinstance(value, cfg_type):
-                print(f'[Config] Config {q} has a wrong type, expected {cfg_type}, got {type(value)}.')
+            if isinstance(cfg_type, type) or isinstance(cfg_type, tuple):
+                if isinstance(cfg_type, tuple):
+                    cfg_type = tuple(cfg_type.__args__)
+                if value is not None and not isinstance(value, cfg_type):
+                    print(f'[Config] Config {q} has a wrong type, expected {cfg_type}, got {type(value)}.')
+            else:
+                print(f'[Config] Invalid cfg_type provided in config {q}. cfg_type should be a type or a tuple of types.')
         elif default is not None:
             if not isinstance(value, type(default)):
                 print(f'[Config] Config {q} has a wrong type, expected {type(default)}, got {type(value)}.')
