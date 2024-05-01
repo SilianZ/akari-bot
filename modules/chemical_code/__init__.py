@@ -82,7 +82,7 @@ async def search_csr(id=None):
     if wh < 500:
         wh = 500
     return {'id': answer_id,
-            'name': name,
+            'answer': name,
             'image': f'https://www.chemspider.com/ImagesHandler.ashx?id={answer_id}' +
                      (f"&w={wh}&h={wh}" if answer_id not in special_id else ""),
             'length': value,
@@ -115,7 +115,7 @@ async def s(msg: Bot.MessageSession):
     if play_state.check():
         play_state.disable()
         await msg.finish(
-            msg.locale.t('chemical_code.stop.message', answer=play_state.check(key='answer')),
+            msg.locale.t('chemical_code.stop.message', answer=play_state.check("answer")),
             quote=False)
     else:
         await msg.finish(msg.locale.t('game.message.stop.none'))
@@ -169,9 +169,9 @@ async def chemical_code(msg: Bot.MessageSession, id=None, random_mode=True, capt
         set_timeout = 2
 
     async def ans(msg: Bot.MessageSession, random_mode):
-        wait = await msg.wait_anyone(timeout=None)
+        wait = await msg.wait_next_message(timeout=None)
         if play_state.check():
-            if (wait_text := wait.as_display(text_only=True)) != csr["answer"]:
+            if (wait_text := wait.as_display(text_only=True)) != play_state.check("answer"):
                 if re.match(r'^[A-Za-z0-9]+$', wait_text):
                     try:
                         parse_ = parse_elements(wait_text)  # 解析消息中的化学元素
@@ -237,7 +237,7 @@ async def chemical_code(msg: Bot.MessageSession, id=None, random_mode=True, capt
                 await timer(start)
 
     if not captcha_mode:
-        await msg.send_message([Plain(msg.locale.t('chemical_code.message.showid', id=csr["id"])), Image(newpath),
+        await msg.send_message([Plain(msg.locale.t('chemical_code.message.showid', id=play_state.check("id"))), Image(newpath),
                                 Plain(msg.locale.t('chemical_code.message', times=set_timeout))])
         time_start = datetime.now().timestamp()
 
