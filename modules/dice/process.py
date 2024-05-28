@@ -20,7 +20,7 @@ dice_patterns = [
     r'(\d+A\d+(?:[KQM]?\d*)?(?:[KQM]?\d*)?(?:[KQM]?\d*)?)',  # WOD骰子
     r'(\d+C\d+M?\d*)',  # 双重十字骰子
     r'(?:D(?:100|%)?)?([BP]\d*)',  # 奖惩骰子
-    r'(\d+DF|\d*F)',  # 命运骰子
+    r'(\d*D?F)',  # 命运骰子
     r'(\d*D\d*%?(?:K\d*|Q\d*)?)',  # 普通骰子
     r'(\d+)',  # 数字
     r'([\(\)])',  # 括号
@@ -213,8 +213,8 @@ def generate_dice_message(msg, expr, dice_expr_list, dice_count, times, dc, use_
                         output_line += msg.locale.t('dice.message.dc.failed')
                         fail_num += 1
             output += f'\n{expr}={output_line}'
-            if dc and times > 1:
-                output += '\n' + msg.locale.t('dice.message.dc.check', success=success_num, failed=fail_num)
         except ValueError:
-            output = msg.locale.t("dice.message.dc.invalid") + dc
+            return msg.locale.t("dice.message.dc.invalid") + dc
+    if dc and times > 1:
+        output += '\n' + msg.locale.t('dice.message.dc.check', success=success_num, failed=fail_num)
     return output
