@@ -38,18 +38,17 @@ class WordleBoard:
     word: str
     board: List[str] = field(factory=list)
 
-    def add_word(self, word: str, last_word_state: Optional[List[WordleState]]):
-        if last_word_state:
+    def add_word(self, word: str, last_word, last_word_state: Optional[List[WordleState]]):
+        if last_word and last_word_state:
             yellow_letters = {}
             for index, state in enumerate(last_word_state):
                 if state == WordleState.YELLOW:
-                    letter = self.word[index]
-                    if letter in yellow_letters:
-                        yellow_letters[letter].append(index)
-                    else:
-                        yellow_letters[letter] = [index]
-            for letter, indices in yellow_letters.items():
-                if word.count(letter) < len(indices):
+                    letter = last_word[index]
+                    if letter not in yellow_letters:
+                        yellow_letters[letter] = 0
+                    yellow_letters[letter] += 1
+            for letter, count in yellow_letters.items():
+                if word.count(letter) < count:
                     return False
                     
             for index, state in enumerate(last_word_state):
@@ -210,7 +209,7 @@ async def _(msg: Bot.MessageSession):
 
     board = WordleBoard.from_random_word()
     hard_mode = True if msg.parsed_msg else False
-    last_word_state = None
+    last_word = None
     board_image = WordleBoardImage(wordle_board=board, dark_theme=msg.data.options.get('wordle_dark_theme'))
 
     play_state.enable()
@@ -236,13 +235,14 @@ async def _(msg: Bot.MessageSession):
         if len(word) != 5 or not (word.isalpha() and word.isascii()):
             continue
         if hard_mode:
-            last_word_state = board.test_board()[-1] if board.get_trials() > 1 else None
+            last_word_state = board.test_word(last_word) if last_word else None
         if not board.verify_word(word):
             await wait.send_message(msg.locale.t('wordle.message.not_a_word'))
             continue
-        if not board.add_word(word, last_word_state):
+        if not board.add_word(word, last_word, last_word_state):
             await wait.send_message(msg.locale.t('wordle.message.hard.not_matched'))
             continue
+        last_word = word
         board_image.update_board()
         await msg.sleep(2)  # 防冲突
 
