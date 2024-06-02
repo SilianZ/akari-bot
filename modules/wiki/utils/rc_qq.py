@@ -91,6 +91,10 @@ async def rc_qq(msg: MessageSession, wiki_url):
                 params = x['logparams']
                 if 'suppressredirect' in params:
                     t.append(msg.locale.t('wiki.message.rc.params.suppress_redirect'))
+                if 'oldgroups' and 'newgroups' in params:
+                    t.append(compare_groups(params['oldgroups'], params['newgroups']))
+                if 'description' in params:
+                    t.append(params['description'])
                 if 'duration' in params:
                     t.append(msg.locale.t('wiki.message.rc.params.duration') + params['duration'])
                 if 'flags' in params:
@@ -118,3 +122,10 @@ async def rc_qq(msg: MessageSession, wiki_url):
             })
     Logger.debug(nodelist)
     return nodelist
+
+def compare_groups(old_groups, new_groups):
+    added_groups = [group for group in new_groups if group not in old_groups]
+    removed_groups = [group for group in old_groups if group not in new_groups]
+    added = "+" + ", ".join(map(str, added_groups)) if added_groups else ""
+    removed = "-" + ", ".join(map(str, removed_groups)) if removed_groups else ""
+    return f"{added} {removed}" if added and removed else f"{added}{removed}"

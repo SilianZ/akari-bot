@@ -32,11 +32,15 @@ async def rc(msg: Bot.MessageSession, wiki_url):
                 else:
                     log = msg.locale.t(f"wiki.message.rc.action.{x['logtype']}.{x['logaction']}", user=x['user'], title=x['title'])
                 if log.find("{") != -1 and log.find("}") != -1:
-                    log = f"{user} {x['logtype']} {x['logaction']} {title}"
+                    log = f"{x['user']} {x['logtype']} {x['logaction']} {x['title']}"
                 d.append(f"•{msg.ts2strftime(strptime2ts(x['timestamp']), iso=True, timezone=False)} - {log}")
                 params = x['logparams']
                 if 'suppressredirect' in params:
                     d.append(msg.locale.t('wiki.message.rc.params.suppress_redirect'))
+                if 'oldgroups' and 'newgroups' in params:
+                    d.append(compare_groups(params['oldgroups'], params['newgroups']))
+                if 'description' in params:
+                    d.append(params['description'])
                 if 'duration' in params:
                     d.append(msg.locale.t('wiki.message.rc.params.duration') + params['duration'])
                 if 'flags' in params:
@@ -56,3 +60,10 @@ async def rc(msg: Bot.MessageSession, wiki_url):
         return f'{str(Url(pageurl))}\n{y}\n{msg.locale.t("message.collapse", amount="10")}\n{msg.locale.t("wiki.message.utils.redacted")}'
     else:
         return f'{str(Url(pageurl))}\n{y}\n{msg.locale.t("message.collapse", amount="10")}'
+
+def compare_groups(old_groups, new_groups):
+    added_groups = [group for group in new_groups if group not in old_groups]
+    removed_groups = [group for group in old_groups if group not in new_groups]
+    added = "+" + ",".join(map(str, added_groups)) if added_groups else ""
+    removed = "-" + ",".join(map(str, removed_groups)) if removed_groups else ""
+    return f"{added} {removed}" if added and removed else f"{added}{removed}"
