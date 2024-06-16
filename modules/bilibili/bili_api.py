@@ -12,7 +12,7 @@ async def get_video_info(msg: Bot.MessageSession, query, get_detail=False, use_e
         use_embed = True
     try:
         url = f'https://api.bilibili.com/x/web-interface/view/detail{query}'
-        res = await get_url(webrender('source', url), 200, fmt='json')
+        res = await get_url(webrender('source', url), 200, fmt='json', request_private_ip=True)
         if res['code'] != 0:
             if res['code'] == -400:
                 await msg.finish(msg.locale.t("bilibili.message.invalid"))
@@ -40,17 +40,17 @@ async def get_video_info(msg: Bot.MessageSession, query, get_detail=False, use_e
     else:
         pages = ''
 
-    stat_view = format_num(stat['view'])
-    stat_danmaku = format_num(stat['danmaku'])
-    stat_reply = format_num(stat['reply'])
-    stat_favorite = format_num(stat['favorite'])
-    stat_coin = format_num(stat['coin'])
-    stat_share = format_num(stat['share'])
-    stat_like = format_num(stat['like'])
+    stat_view = format_num(msg, stat['view'])
+    stat_danmaku = format_num(msg, stat['danmaku'])
+    stat_reply = format_num(msg, stat['reply'])
+    stat_favorite = format_num(msg, stat['favorite'])
+    stat_coin = format_num(msg, stat['coin'])
+    stat_share = format_num(msg, stat['share'])
+    stat_like = format_num(msg, stat['like'])
 
     owner = view['owner']['name']
     avatar = view['owner']['face']
-    fans = format_num(res['data']['Card']['card']['fans'])
+    fans = format_num(msg, res['data']['Card']['card']['fans'])
 
     if use_embed:
         await msg.finish(Embed(title=f'{title}{pages}',
@@ -81,18 +81,31 @@ async def get_video_info(msg: Bot.MessageSession, query, get_detail=False, use_e
         await msg.finish([Image(pic), Url(video_url), Plain(output)])
 
 
-def format_num(number):
-    if number >= 1000000000:
-        formatted_number = number / 1000000000
-        formatted_str = f'{formatted_number:.2f}' if formatted_number < 100 else f'{formatted_number:.1f}'
-        return formatted_str.rstrip('0').rstrip('.') + 'G'
-    elif number >= 1000000:
-        formatted_number = number / 1000000
-        formatted_str = f'{formatted_number:.2f}' if formatted_number < 100 else f'{formatted_number:.1f}'
-        return formatted_str.rstrip('0').rstrip('.') + 'M'
-    elif number >= 1000:
-        formatted_number = number / 1000
-        formatted_str = f'{formatted_number:.2f}' if formatted_number < 100 else f'{formatted_number:.1f}'
-        return formatted_str.rstrip('0').rstrip('.') + 'k'
+def format_num(msg: Bot.MessageSession, number):
+    if msg.locale.locale in ['zh_cn', 'zh_tw']:
+        zh_tw = True if msg.locale.locale == 'zh_tw' else False
+        if number >= 100000000:
+            formatted_number = number / 100000000
+            formatted_str = f'{formatted_number:.2f}' if formatted_number < 100 else f'{formatted_number:.1f}'
+            return formatted_str.rstrip('0').rstrip('.') + ('億' if zh_tw else '亿')
+        elif number >= 10000:
+            formatted_number = number / 10000
+            formatted_str = f'{formatted_number:.2f}' if formatted_number < 100 else f'{formatted_number:.1f}'
+            return formatted_str.rstrip('0').rstrip('.') + ('萬' if zh_tw else '万')
+        else:
+            return str(number)
     else:
-        return str(number)
+        if number >= 1000000000:
+            formatted_number = number / 1000000000
+            formatted_str = f'{formatted_number:.2f}' if formatted_number < 100 else f'{formatted_number:.1f}'
+            return formatted_str.rstrip('0').rstrip('.') + 'G'
+        elif number >= 1000000:
+            formatted_number = number / 1000000
+            formatted_str = f'{formatted_number:.2f}' if formatted_number < 100 else f'{formatted_number:.1f}'
+            return formatted_str.rstrip('0').rstrip('.') + 'M'
+        elif number >= 1000:
+            formatted_number = number / 1000
+            formatted_str = f'{formatted_number:.2f}' if formatted_number < 100 else f'{formatted_number:.1f}'
+            return formatted_str.rstrip('0').rstrip('.') + 'k'
+        else:
+            return str(number)
