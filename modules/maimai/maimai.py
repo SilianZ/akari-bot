@@ -222,10 +222,8 @@ async def _(msg: Bot.MessageSession):
         await msg.finish(msg.locale.t('maimai.message.unbind.success'))
 
 
-@mai.command('b50 [<username>] [-b] {{maimai.help.b50}}',
-             options_desc={'-b': '{maimai.help.option.b}'})
+@mai.command('b50 [<username>] {{maimai.help.b50}}')
 async def _(msg: Bot.MessageSession, username: str = None):
-    beta = True
     if not username:
         if msg.target.sender_from == "QQ":
             payload = {'qq': msg.session.sender, 'b50': True}
@@ -236,17 +234,11 @@ async def _(msg: Bot.MessageSession, username: str = None):
             payload = {'username': username, 'b50': True}
     else:
         payload = {'username': username, 'b50': True}
-
-    if not msg.parsed_msg.get('-b', False):
-        try:
-            img = await generate(msg, payload)
-            beta = False
-        except BaseException:
-            traceback.print_exc()
-    if beta:
-        img = await generate_best50_text(msg, payload)
-    await msg.finish([BImage(img)])
-
+    try:
+        img = await generate(msg, payload)
+        await msg.finish([BImage(img)])
+    except BaseException:
+        traceback.print_exc()
 
 @mai.command('id <id> [<diff>] {{maimai.help.id}}')
 @mai.command('song <id_or_alias> [-d <diff>] {{maimai.help.song}}',
