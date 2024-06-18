@@ -5,13 +5,14 @@ from datetime import datetime
 
 import ujson as json
 
-from core.builtins import Plain
+from core.builtins import Bot, MessageChain, Plain
 from core.utils.http import get_url
 from core.utils.image import msgchain2image
 from .maimaidx_apidata import get_record, get_total_record, get_plate
 from .maimaidx_music import TotalList
 
-SONGS_PER_PAGE = 20
+SONGS_PER_PAGE = 30
+SONGS_NEED_IMG = 10
 
 assets_path = os.path.abspath('./assets/maimai')
 total_list = TotalList()
@@ -234,7 +235,7 @@ def calc_dxstar(dxscore: int, dxscore_max: int) -> str:
     return stars
 
 
-async def generate_best50_text(msg, payload):
+async def generate_best50_text(msg: Bot.MessageSession, payload: dict) -> MessageChain:
     data = await get_record(msg, payload)
     dx_charts = data["charts"]["dx"]
     sd_charts = data["charts"]["sd"]
@@ -304,7 +305,7 @@ async def generate_best50_text(msg, payload):
         await msg.finish(msg.locale.t("error.config.webrender.invalid"))
 
 
-async def get_rank(msg, payload):
+async def get_rank(msg: Bot.MessageSession, payload: dict):
     time = msg.ts2strftime(datetime.now().timestamp(), timezone=False)
 
     url = f"https://www.diving-fish.com/api/maimaidxprober/rating_ranking"
@@ -341,7 +342,7 @@ async def get_rank(msg, payload):
                                   surpassing_rate="{:.2f}".format(surpassing_rate)))
 
 
-async def get_player_score(msg, payload, input_id):
+async def get_player_score(msg: Bot.MessageSession, payload: dict, input_id: str) -> str:
     res = await get_total_record(msg, payload, utage=True)  # 获取用户成绩信息
     verlist = res["verlist"]
 
@@ -385,7 +386,7 @@ async def get_player_score(msg, payload, input_id):
     return '\n'.join(output_lines)
 
 
-async def get_level_process(msg, payload, process, goal):
+async def get_level_process(msg: Bot.MessageSession, payload: dict, process: str, goal: str) -> tuple[str, bool]:
     song_played = []
     song_remain = []
 
@@ -446,11 +447,11 @@ async def get_level_process(msg, payload, process, goal):
                     if verlist[record_index]['fs']:
                         self_record = syncRank[sync_rank.index(verlist[record_index]['fs'])]
             output += f"{s[0]}\u200B. {s[1]}{' (DX)' if s[5] == 'DX' else ''} {s[2]} {s[3]} {self_record}\n"
-            if i == 49:
+            if i == SONGS_PER_PAGE - 1:
                 break
-        if len(song_remain) > 50:
+        if len(song_remain) > SONGS_PER_PAGE:
             output += msg.locale.t('maimai.message.process', song_remain=len(song_remain), process=process, goal=goal)
-        if len(song_remain) > 10:  # 若剩余歌曲大于10个则使用图片形式
+        if len(song_remain) > SONGS_NEED_IMG:
             get_img = True
     else:
         await msg.finish(msg.locale.t('maimai.message.process.completed', process=process, goal=goal))
@@ -458,7 +459,7 @@ async def get_level_process(msg, payload, process, goal):
     return output, get_img
 
 
-async def get_score_list(msg, payload, level, page):
+async def get_score_list(msg: Bot.MessageSession, payload: dict, level: str, page: str) -> tuple[str, bool]:
     player_data = await get_record(msg, payload)
 
     res = await get_total_record(msg, payload)  # 获取用户成绩信息
@@ -496,7 +497,7 @@ async def get_score_list(msg, payload, level, page):
     return res, get_img
 
 
-async def get_plate_process(msg, payload, plate):
+async def get_plate_process(msg: Bot.MessageSession, payload: dict, plate: str) -> tuple[str, bool]:
     song_played = []
     song_remain_basic = []
     song_remain_advanced = []
@@ -653,7 +654,7 @@ async def get_plate_process(msg, payload, plate):
 
     output = ''
     if len(song_remain_difficult) > 0:
-        if len(song_remain_difficult) < 50:  # 若剩余歌曲小于50个则显示
+        if len(song_remain_difficult) < SONGS_PER_PAGE:
             output += msg.locale.t('maimai.message.plate.difficult.last') + '\n'
             for i, s in enumerate(sorted(song_remain_difficult, key=lambda i: i[3])):  # 根据定数排序结果
                 self_record = ''
@@ -669,7 +670,7 @@ async def get_plate_process(msg, payload, plate):
                             self_record = syncRank[sync_rank.index(verlist[record_index]['fs'])]
                 output += f"{s[0]}\u200B. {s[1]}{' (DX)' if s[5] == 'DX' else ''} {s[2]
                                                                                    } {s[3]} {self_record}".strip() + '\n'
-            if len(song_remain_difficult) > 10:  # 若剩余歌曲大于10个则使用图片形式
+            if len(song_remain_difficult) > SONGS_NEED_IMG:
                 get_img = True
         else:
             output += msg.locale.t('maimai.message.plate.difficult', song_remain=len(song_remain_difficult))
@@ -678,7 +679,7 @@ async def get_plate_process(msg, payload, plate):
             m = (await total_list.get()).by_id(str(s[0]))
             ds = m.ds[s[1]]
             song_remain[i].append(ds)
-        if len(song_remain) < 50:  # 若剩余歌曲小于50个则显示
+        if len(song_remain) < SONGS_PER_PAGE:
             output += msg.locale.t('maimai.message.plate.last') + '\n'
             for i, s in enumerate(sorted(song_remain, key=lambda i: i[2])):  # 根据难度排序结果
                 m = (await total_list.get()).by_id(str(s[0]))
@@ -695,7 +696,7 @@ async def get_plate_process(msg, payload, plate):
                             self_record = syncRank[sync_rank.index(verlist[record_index]['fs'])]
                 output += f"{m.id}\u200B. {m.title}{' (DX)' if m.type ==
                                                     'DX' else ''} {diffs[s[1]]} {m.ds[s[1]]} {self_record}".strip() + '\n'
-            if len(song_remain) > 10:  # 若剩余歌曲大于10个则使用图片形式
+            if len(song_remain) > SONGS_NEED_IMG:
                 get_img = True
         else:
             output += msg.locale.t('maimai.message.plate.difficult.completed')
@@ -705,7 +706,7 @@ async def get_plate_process(msg, payload, plate):
     return output, get_img
 
 
-async def get_grade_info(msg, grade):
+async def get_grade_info(msg: Bot.MessageSession, grade: str):
     file_path = os.path.join(assets_path, "mai_grade_info.json")
     with open(file_path, 'r') as file:
         data = json.load(file)
