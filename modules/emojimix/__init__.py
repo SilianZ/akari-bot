@@ -1,11 +1,11 @@
 import os
+import random
 from typing import List, Optional, Tuple
 
 import emoji
 import ujson as json
 
-from config import Config
-from core.builtins import Bot, Image
+from core.builtins import Bot, Image, Plain
 from core.component import module
 from core.logger import Logger
 
@@ -24,9 +24,23 @@ class EmojimixGenerator:
 
     @staticmethod
     def make_emoji_tuple(emoji1: str, emoji2: str) -> Tuple[str, str]:
-        unicode_emoji1 = '-'.join(f'{ord(char):x}' for char in emoji1)
-        unicode_emoji2 = '-'.join(f'{ord(char):x}' for char in emoji2)
-        return (unicode_emoji1, unicode_emoji2)
+        emoji_code1 = '-'.join(f'{ord(char):x}' for char in emoji1)
+        emoji_code2 = '-'.join(f'{ord(char):x}' for char in emoji2)
+        return (emoji_code1, emoji_code2)
+    
+
+    def random_choice_emoji(self, emoji: Optional[str] = None) -> Optional[Tuple[str, str]]:
+        if emoji:
+            emoji_code = '-'.join(f'{ord(char):x}' for char in emoji)
+            emoji_combo_list = []
+            for key in self.data:
+                if emoji_code in key:
+                    emoji_combo_list.append(key)
+            combo = random.choice(emoji_combo_list)
+        else:
+            combo = random.choice(list(self.data.keys()))
+        combo = tuple(i.strip() for i in combo[1:-1].split(","))
+        return combo
 
 
     def check_supported(self, emoji_tuple: Tuple[str, str]) -> List[str]:
@@ -88,7 +102,7 @@ class EmojimixGenerator:
                 emoji_char = ''.join(chr(int(segment, 16)) for segment in emoji_code.split('-'))
                 supported_combinations.append(emoji_char)
 
-        return supported_combinations
+        return sorted(supported_combinations, key=str)
 
 mixer = EmojimixGenerator()
 
@@ -96,15 +110,33 @@ mixer = EmojimixGenerator()
 emojimix = module('emojimix', developers=['DoroWolf'])
 
 
-@emojimix.handle('<emoji1> <emoji2> {{emojimix.help}}')
-async def _(msg: Bot.MessageSession, emoji1: str, emoji2: str):
-    if not (check_valid_emoji(emoji1) and check_valid_emoji(emoji2)):
-        await msg.finish(msg.locale.t("emojimix.message.invalid"))
-    combo = mixer.make_emoji_tuple(emoji1, emoji2)
+@emojimix.handle()
+async def _(msg: Bot.MessageSession):
+    combo = mixer.random_choice_emoji()
     Logger.debug(str(combo))
-    unsupported_emojis = mixer.check_supported(combo)
-    if unsupported_emojis:
-        await msg.finish(f"{msg.locale.t('emojimix.message.unsupported')}{' '.join(unsupported_emojis)}")
+    result = mixer.mix_emoji(combo)
+    Logger.debug(result)
+    await msg.finish(Image(result))
+
+
+@emojimix.handle('<emoji1> [<emoji2>] {{emojimix.help}}')
+async def _(msg: Bot.MessageSession, emoji1: str, emoji2: str = None):
+    if not check_valid_emoji(emoji1):
+        await msg.finish(msg.locale.t("emojimix.message.invalid"))
+    if emoji2:
+        if not check_valid_emoji(emoji2):
+            await msg.finish(msg.locale.t("emojimix.message.invalid"))
+        combo = mixer.make_emoji_tuple(emoji1, emoji2)
+        Logger.debug(str(combo))
+        unsupported_emojis = mixer.check_supported(combo)
+        if unsupported_emojis:
+            await msg.finish(f"{msg.locale.t('emojimix.message.unsupported')}{' '.join(unsupported_emojis)}")
+    else:
+        emoji_code1 = '-'.join(f'{ord(char):x}' for char in emoji1)
+        if emoji_code1 not in mixer.known_supported_emoji:
+            await msg.finish(msg.locale.t('emojimix.message.unsupported') + emoji1)
+        combo = mixer.random_choice_emoji(emoji1)
+        Logger.debug(str(combo))
     result = mixer.mix_emoji(combo)
     Logger.debug(result)
     if result:
@@ -121,8 +153,8 @@ async def _(msg: Bot.MessageSession, emoji: str = None):
     supported_emojis = mixer.list_supported_emojis(emoji)
     if emoji:
         if supported_emojis:
-            await msg.finish(msg.locale.t('emojimix.message.combine_supported', emoji=emoji) + '\n' + ' '.join(supported_emojis))
+            await msg.finish([Plain(msg.locale.t('emojimix.message.combine_supported', emoji=emoji)), Plain(''.join(supported_emojis))])
         else:
             await msg.finish(msg.locale.t('emojimix.message.unsupported') + emoji)
     else:
-        await msg.finish(msg.locale.t('emojimix.message.all_supported') + '\n' + ' '.join(supported_emojis))
+        await msg.finish([Plain(msg.locale.t('emojimix.message.all_supported')), Plain(''.join(supported_emojis))])
