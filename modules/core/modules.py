@@ -30,12 +30,13 @@ m = module('module',
             'reload <module> ...',
             'load <module> ...',
             'unload <module> ...',
-            'list [legacy] {{core.help.module.list}}'],
-           exclude_from=['QQ|Guild'])
+            'list [--legacy] {{core.help.module.list}}'],
+            options_desc={'--legacy': '{help.option.legacy}'},
+            exclude_from=['QQ|Guild'])
 async def _(msg: Bot.MessageSession):
     if msg.parsed_msg.get('list', False):
         legacy = False
-        if msg.parsed_msg.get('legacy', False):
+        if msg.parsed_msg.get('--legacy', False):
             legacy = True
         await modules_help(msg, legacy)
     await config_modules(msg)
@@ -48,13 +49,13 @@ async def _(msg: Bot.MessageSession):
             'reload <module> ...',
             'load <module> ...',
             'unload <module> ...',
-            'list [legacy] {{core.help.module.list}}'],
-           options_desc={'-g': '{core.help.option.module.g}'},
-           available_for=['QQ|Guild'])
+            'list [--legacy] {{core.help.module.list}}'],
+            options_desc={'-g': '{core.help.option.module.g}', '--legacy': '{help.option.legacy}'},
+            available_for=['QQ|Guild'])
 async def _(msg: Bot.MessageSession):
     if msg.parsed_msg.get('list', False):
         legacy = False
-        if msg.parsed_msg.get('legacy', False):
+        if msg.parsed_msg.get('--legacy', False):
             legacy = True
         await modules_help(msg, legacy)
     await config_modules(msg)
@@ -301,7 +302,8 @@ async def config_modules(msg: Bot.MessageSession):
 hlp = module('help', base=True)
 
 
-@hlp.command('[legacy] <module> {{core.help.help.detail}}')
+@hlp.command('[--legacy] <module> {{core.help.help.detail}}',
+            options_desc={'--legacy': '{help.option.legacy}'})
 async def bot_help(msg: Bot.MessageSession):
     module_list = ModulesManager.return_modules_list(
         target_from=msg.target.target_from)
@@ -363,7 +365,7 @@ async def bot_help(msg: Bot.MessageSession):
                                                url=(CFG.get_url('help_url') + help_name))
             else:
                 wiki_msg = ''
-            if len(doc) > 500 and not msg.parsed_msg.get('legacy', False) and msg.Feature.image:
+            if len(doc) > 500 and not msg.parsed_msg.get('--legacy', False) and msg.Feature.image:
                 try:
                     tables = [ImageTable([[doc, '\n'.join(malias), devs]],
                                          [msg.locale.t("core.message.help.table.header.help"),
@@ -387,7 +389,8 @@ async def bot_help(msg: Bot.MessageSession):
 
 
 @hlp.command()
-@hlp.command('[legacy] {{core.help.help}}')
+@hlp.command('[--legacy] {{core.help.help}}',
+            options_desc={'--legacy': '{help.option.legacy}'})
 async def _(msg: Bot.MessageSession):
     module_list = ModulesManager.return_modules_list(
         target_from=msg.target.target_from)

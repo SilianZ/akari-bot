@@ -77,12 +77,12 @@ if Config('enable_urlmanager', False):
                 ('\n' + msg.locale.t('wiki.message.error.info') + check.message if check.message != '' else '')
             await msg.finish(result)
 
-    @aud.command('list [legacy]')
+    @aud.command('list [--legacy]')
     async def _(msg: Bot.MessageSession):
         allow_list = Audit.get_allow_list()
         block_list = Audit.get_block_list()
         legacy = True
-        if not msg.parsed_msg.get('legacy', False) and msg.Feature.image:
+        if not msg.parsed_msg.get('--legacy', False) and msg.Feature.image:
             send_msgs = []
             if Config('db_path', cfg_type=str).startswith('mysql'):
                 allow_columns = [[x[0], msg.ts2strftime(
