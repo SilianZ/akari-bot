@@ -19,7 +19,7 @@ async def main(msg: Bot.MessageSession):
     if match_object:
         server_address = match_object.group(1)
 
-    if server_address == 'localhost':
+    if server_address.lower() == 'localhost':
         is_local_ip = True
 
     matchserip = re.match(r'(.*?)\.(.*?)\.(.*?)\.(.*?)', server_address)
@@ -49,12 +49,8 @@ async def main(msg: Bot.MessageSession):
                 get_info(
                     msg,
                     msg.parsed_msg["<address:port>"],
-                    msg.parsed_msg.get(
-                        '-r',
-                        False),
-                    msg.parsed_msg.get(
-                        '-p',
-                        False),
+                    msg.parsed_msg.get('-r', False),
+                    msg.parsed_msg.get('-p', False),
                     mode)))
     g = await asyncio.gather(*gather_list)
     if g == ['', '']:

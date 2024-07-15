@@ -7,7 +7,7 @@ import tiktoken
 
 from config import Config
 from core.logger import Logger
-from core.builtins import Bot, Plain, Image
+from core.builtins import Bot, I18NContext, Image, Plain
 from core.component import module
 from core.dirty_check import check, check_bool, rickroll
 from core.exceptions import ConfigValueError, NoReportException
@@ -16,13 +16,13 @@ from core.utils.cooldown import CoolDown
 
 from .formatting import generate_latex, generate_code_snippet  # noqa: E402
 
-if Config('openai_api_key'):
+if Config('openai_api_key', cfg_type=str):
     client = AsyncOpenAI(
-        api_key=Config('openai_api_key'),
+        api_key=Config('openai_api_key', cfg_type=str),
     )
 
     sync_client = OpenAI(
-        api_key=Config('openai_api_key'),
+        api_key=Config('openai_api_key', cfg_type=str),
     )
 
     INSTRUCTIONS = '''You are the chat mode of AkariBot (Chinese: 小可), a chat bot created by Teahouse Studios (Chinese: 茶馆工作室)
@@ -51,13 +51,14 @@ else:
 
 a = module('ask', developers=['Dianliang233'], desc='{ask.help.desc}')
 
+
 @a.command('[-4] <question> {{ask.help}}')
 @a.regex(r'^(?:question||问|問)[\:：]\s?(.+?)[?？]$', flags=re.I, desc='{ask.help.regex}')
 async def _(msg: Bot.MessageSession):
     is_superuser = msg.check_super_user()
-    if not Config('openai_api_key'):
+    if not Config('openai_api_key', cfg_type=str):
         raise ConfigValueError(msg.locale.t('error.config.secret.not_found'))
-    if Config('enable_petal') and not is_superuser and msg.data.petal <= 0:  # refuse
+    if Config('enable_petal', False) and not is_superuser and msg.petal <= 0:  # refuse
         await msg.finish(msg.locale.t('core.message.petal.no_petals'))
 
     qc = CoolDown('call_openai', msg)
@@ -90,8 +91,9 @@ async def _(msg: Bot.MessageSession):
             if run.status == 'completed':
                 break
             elif run.status == 'failed':
-                if run.last_error.code == 'rate_limit_exceeded':
-                    Logger.warn(run.last_error.json())
+                if run.last_error.code == 'rate_limit_exceeded' and \
+                   'quota' not in run.last_error.message:
+                    Logger.warning(run.last_error.json())
                     raise NoReportException(msg.locale.t('ask.message.rate_limit_exceeded'))
                 raise RuntimeError(run.last_error.json())
             await msg.sleep(4)
@@ -103,13 +105,8 @@ async def _(msg: Bot.MessageSession):
         res = messages.data[0].content[0].text.value
         tokens = count_token(res)
 
-        if not is_superuser:
-            petal = await count_petal(msg, tokens)
-            # petal = await count_petal(msg, tokens, gpt4)
-
-        else:
-            Logger.info(f'{tokens} tokens have been consumed while calling AI.')
-            petal = 0
+        petal = await count_petal(msg, tokens)
+        # petal = await count_petal(msg, tokens, gpt4)
 
         res = await check(res)
         for m in res:
@@ -123,28 +120,29 @@ async def _(msg: Bot.MessageSession):
             if block['type'] == 'text':
                 chain.append(Plain(block['content']))
             elif block['type'] == 'latex':
-                content = await generate_latex(block['content'])
                 try:
+                    content = await generate_latex(block['content'])
                     img = PILImage.open(io.BytesIO(content))
                     chain.append(Image(img))
                 except Exception as e:
-                    chain.append(Plain(msg.locale.t('ask.message.text2img.error', text=content)))
+                    chain.append(I18NContext('ask.message.text2img.error', text=content))
             elif block['type'] == 'code':
                 content = block['content']['code']
                 try:
                     chain.append(Image(PILImage.open(io.BytesIO(await generate_code_snippet(content,
-                                                                                                block['content']['language'])))))
+                                                                                            block['content']['language'])))))
                 except Exception as e:
-                    chain.append(Plain(msg.locale.t('ask.message.text2img.error', text=content)))
+                    chain.append(I18NContext('ask.message.text2img.error', text=content))
 
         if petal != 0:
-            chain.append(Plain(msg.locale.t('petal.message.cost', count=petal)))
+            chain.append(I18NContext('petal.message.cost', count=petal))
 
         if msg.target.target_from != 'TEST|Console' and not is_superuser:
             qc.reset()
         await msg.finish(chain)
     else:
-        await msg.finish(msg.locale.t('message.cooldown', time=int(c), cd_time=60))
+        await msg.finish(msg.locale.t('message.cooldown', time=int(60 - c)))
+
 
 def parse_markdown(md: str):
     regex = r'(```[\s\S]*?\n```|\\\[[\s\S]*?\\\]|[^\n]+)'
@@ -152,7 +150,7 @@ def parse_markdown(md: str):
     blocks = []
     for match in re.finditer(regex, md):
         content = match.group(1)
-        
+
         if content.startswith('```'):
             block = 'code'
             try:
@@ -169,9 +167,11 @@ def parse_markdown(md: str):
 
     return blocks
 
+
 enc = tiktoken.encoding_for_model('gpt-3.5-turbo')
 INSTRUCTIONS_LENGTH = len(enc.encode(INSTRUCTIONS))
 SPECIAL_TOKEN_LENGTH = 109
+
 
 def count_token(text: str):
     return len(enc.encode(text, allowed_special="all")) + SPECIAL_TOKEN_LENGTH + INSTRUCTIONS_LENGTH

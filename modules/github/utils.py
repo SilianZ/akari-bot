@@ -19,7 +19,7 @@ def darkCheck(msg: str):
         'zhao',
         'programthink'
     ]
-    if Config('enable_dirty_check'):
+    if Config('enable_dirty_check', False):
         for i in blacklist:
             if msg.find(i) > -1:
                 return True
@@ -61,8 +61,7 @@ async def dirty_check(text, *allowlist_check):
     ]
     if allowlist_check in allowlist:
         return False
-    check = await dirty.check(text)
-    for x in check:
-        if not x['status']:
-            return True
+    check = await dirty.check_bool(text)
+    if not check:
+        return True
     return False

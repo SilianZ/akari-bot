@@ -1,34 +1,38 @@
-from datetime import datetime
+import re
+from datetime import timezone
 
 from config import Config
-from core.builtins import Bot, Plain, Image
+from core.builtins import Bot, I18NContext, Image
 from core.component import module
 from core.utils.image_table import image_table_render, ImageTable
 from modules.wiki.utils.dbutils import Audit
 from modules.wiki.utils.wikilib import WikiLib
 
+audit_available_list = ["KOOK|Group", "QQ|Group", "QQ|Guild", "QQ|Private"]
 
-if Config('enable_urlmanager'):
-    aud = module('wiki_audit', required_superuser=True,
-                 alias='wau')
+
+if Config('enable_urlmanager', False):
+    aud = module('wiki_audit',
+                 required_superuser=True,
+                 alias='wau',
+                 available_for=audit_available_list)
 
     @aud.command(['trust <apilink>',
                   'block <apilink>'])
     async def _(msg: Bot.MessageSession, apilink: str):
-        date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         check = await WikiLib(apilink).check_wiki_available()
         if check.available:
             apilink = check.value.api
             if msg.parsed_msg.get('trust', False):
-                res = Audit(apilink).add_to_AllowList(date)
+                res = Audit(apilink).add_to_AllowList()
                 list_name = msg.locale.t('wiki.message.wiki_audit.list_name.allowlist')
             else:
-                res = Audit(apilink).add_to_BlockList(date)
+                res = Audit(apilink).add_to_BlockList()
                 list_name = msg.locale.t('wiki.message.wiki_audit.list_name.blocklist')
             if not res:
                 await msg.finish(msg.locale.t('wiki.message.wiki_audit.add.failed', list_name=list_name, api=apilink))
             else:
-                await msg.finish(msg.locale.t('wiki.message.wiki_audit.add.success', list_name=list_name) + apilink)
+                await msg.finish(msg.locale.t('wiki.message.wiki_audit.add.success', list_name=list_name, api=apilink))
         else:
             result = msg.locale.t('wiki.message.error.add') + \
                 ('\n' + msg.locale.t('wiki.message.error.info') + check.message if check.message != '' else '')
@@ -37,10 +41,12 @@ if Config('enable_urlmanager'):
     @aud.command(['distrust <apilink>',
                   'unblock <apilink>'])
     async def _(msg: Bot.MessageSession, apilink: str):
+        if not re.match(r'^.*(/api\.php)$', apilink):
+            await msg.finish(msg.locale.t("wiki.message.wiki_audit.remove.failed.not_api"))
         if msg.parsed_msg.get('distrust', False):
             res = Audit(apilink).remove_from_AllowList()  # 已关闭的站点无法验证有效性
             if not res:
-                await msg.finish(msg.locale.t('wiki.message.wiki_audit.remove.failed.other', api=apilink))
+                await msg.finish(msg.locale.t('wiki.message.wiki_audit.remove.failed.other_wiki', api=apilink))
             list_name = msg.locale.t('wiki.message.wiki_audit.list_name.allowlist')
         else:
             res = Audit(apilink).remove_from_BlockList()
@@ -48,7 +54,7 @@ if Config('enable_urlmanager'):
         if not res:
             await msg.finish(msg.locale.t('wiki.message.wiki_audit.remove.failed', list_name=list_name, api=apilink))
         else:
-            await msg.finish(msg.locale.t('wiki.message.wiki_audit.remove.success', list_name=list_name) + apilink)
+            await msg.finish(msg.locale.t('wiki.message.wiki_audit.remove.success', list_name=list_name, api=apilink))
 
     @aud.command('query <apilink>')
     async def _(msg: Bot.MessageSession, apilink: str):
@@ -71,14 +77,20 @@ if Config('enable_urlmanager'):
                 ('\n' + msg.locale.t('wiki.message.error.info') + check.message if check.message != '' else '')
             await msg.finish(result)
 
-    @aud.command('list [legacy]')
+    @aud.command('list [--legacy]')
     async def _(msg: Bot.MessageSession):
         allow_list = Audit.get_allow_list()
         block_list = Audit.get_block_list()
         legacy = True
-        if not msg.parsed_msg.get('legacy', False) and msg.Feature.image:
+        if not msg.parsed_msg.get('--legacy', False) and msg.Feature.image:
             send_msgs = []
-            allow_columns = [[x[0], x[1]] for x in allow_list]
+            if Config('db_path', cfg_type=str).startswith('mysql'):
+                allow_columns = [[x[0], msg.ts2strftime(
+                    x[1].timestamp(), iso=True, timezone=False)] for x in allow_list]
+            else:
+                allow_columns = [[x[0], msg.ts2strftime(x[1].replace(
+                    tzinfo=timezone.utc).timestamp(), iso=True, timezone=False)] for x in allow_list]
+
             if allow_columns:
                 allow_table = ImageTable(data=allow_columns, headers=[
                     msg.locale.t('wiki.message.wiki_audit.list.table.header.apilink'),
@@ -87,9 +99,14 @@ if Config('enable_urlmanager'):
                 if allow_table:
                     allow_image = await image_table_render(allow_table)
                     if allow_image:
-                        send_msgs.append(Plain(msg.locale.t('wiki.message.wiki_audit.list.allowlist')))
+                        send_msgs.append(I18NContext('wiki.message.wiki_audit.list.allowlist'))
                         send_msgs.append(Image(allow_image))
-            block_columns = [[x[0], x[1]] for x in block_list]
+            if Config('db_path', cfg_type=str).startswith('mysql'):
+                block_columns = [[x[0], msg.ts2strftime(
+                    x[1].timestamp(), iso=True, timezone=False)] for x in block_list]
+            else:
+                block_columns = [[x[0], msg.ts2strftime(x[1].replace(
+                    tzinfo=timezone.utc).timestamp(), iso=True, timezone=False)] for x in block_list]
             if block_columns:
                 block_table = ImageTable(data=block_columns, headers=[
                     msg.locale.t('wiki.message.wiki_audit.list.table.header.apilink'),
@@ -98,16 +115,22 @@ if Config('enable_urlmanager'):
                 if block_table:
                     block_image = await image_table_render(block_table)
                     if block_image:
-                        send_msgs.append(Plain(msg.locale.t('wiki.message.wiki_audit.list.blocklist')))
+                        send_msgs.append(I18NContext('wiki.message.wiki_audit.list.blocklist'))
                         send_msgs.append(Image(block_image))
             if send_msgs:
                 await msg.finish(send_msgs)
                 legacy = False
         if legacy:
-            wikis = [msg.locale.t('wiki.message.wiki_audit.list.allowlist')]
-            for al in allow_list:
-                wikis.append(f'{al[0]} ({al[1]})')
-            wikis.append(msg.locale.t('wiki.message.wiki_audit.list.blocklist'))
-            for bl in block_list:
-                wikis.append(f'{bl[0]} ({bl[1]})')
-            await msg.finish('\n'.join(wikis))
+            wikis = []
+            if allow_list:
+                wikis.append(msg.locale.t('wiki.message.wiki_audit.list.allowlist'))
+                for al in allow_list:
+                    wikis.append(f'{al[0]} ({msg.ts2strftime(al[1].timestamp(), iso=True, timezone=False)})')
+            if block_list:
+                wikis.append(msg.locale.t('wiki.message.wiki_audit.list.blocklist'))
+                for bl in block_list:
+                    wikis.append(f'{bl[0]} ({bl[1]})')
+            if wikis:
+                await msg.finish('\n'.join(wikis))
+            else:
+                await msg.finish(msg.locale.t('wiki.message.wiki_audit.list.none'))

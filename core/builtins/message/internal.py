@@ -1,9 +1,10 @@
 import base64
+import random
 import re
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 from os.path import abspath
-from typing import List
+from typing import List, Self
 from urllib import parse
 
 import aiohttp
@@ -12,18 +13,21 @@ from PIL import Image as PImage
 from tenacity import retry, stop_after_attempt
 
 from config import Config
-from core.types.message.internal import (Plain as PlainT, Image as ImageT, Voice as VoiceT, Embed as EmbedT,
+from core.builtins.utils import shuffle_joke
+from core.types.message.internal import (Plain as PlainT, Image as ImageT, Voice as VoiceT, Embed as EmbedT, 
+                                         FormattedTime as FormattedTimeT, I18NContext as I18NContextT,
                                          EmbedField as EmbedFieldT, Url as UrlT, ErrorMessage as EMsg)
 from core.types.message import MessageSession
 from core.utils.i18n import Locale
 
 
 class Plain(PlainT):
-    def __init__(self,
-                 text, *texts):
+    def __init__(self, text, *texts, disable_joke: bool = False):
         self.text = str(text)
         for t in texts:
             self.text += str(t)
+        if not disable_joke:
+            self.text = shuffle_joke(self.text)
 
     def __str__(self):
         return self.text
@@ -61,7 +65,7 @@ class Url(UrlT):
         return {'type': 'url', 'data': {'url': self.url}}
 
 
-class FormattedTime:
+class FormattedTime(FormattedTimeT):
     def __init__(self, timestamp: float, date=True, iso=False, time=True, seconds=True, timezone=True):
         self.timestamp = timestamp
         self.date = date
@@ -70,7 +74,7 @@ class FormattedTime:
         self.seconds = seconds
         self.timezone = timezone
 
-    def to_str(self, msg: MessageSession=None):
+    def to_str(self, msg: MessageSession = None):
         ftime_template = []
         if msg:
             if self.date:
@@ -93,7 +97,7 @@ class FormattedTime:
         if not msg:
             return datetime.fromtimestamp(self.timestamp).strftime(' '.join(ftime_template))
         else:
-            return (datetime.utcfromtimestamp(self.timestamp) + msg.timezone_offset).strftime(' '.join(ftime_template))
+            return (datetime.fromtimestamp(self.timestamp, tz=timezone.utc) + msg.timezone_offset).strftime(' '.join(ftime_template))
 
     def __str__(self):
         return self.to_str()
@@ -113,7 +117,7 @@ class FormattedTime:
                 'timezone': self.timezone}}
 
 
-class I18NContext:
+class I18NContext(I18NContextT):
     def __init__(self, key, **kwargs):
         self.key = key
         self.kwargs = kwargs
@@ -129,16 +133,18 @@ class I18NContext:
 
 
 class ErrorMessage(EMsg):
-    def __init__(self, error_message, locale=None):
+    def __init__(self, error_message, locale=None, enable_report=True, **kwargs):
         self.error_message = error_message
+
         if locale:
             locale = Locale(locale)
             if locale_str := re.findall(r'\{(.*)}', error_message):
                 for l in locale_str:
-                    error_message = error_message.replace(f'{{{l}}}', locale.t(l))
+                    error_message = error_message.replace(f'{{{l}}}', locale.t(l, **kwargs))
             self.error_message = locale.t('error') + error_message
-            if Config('bug_report_url'):
-                self.error_message += '\n' + locale.t('error.prompt.address', url=str(Url(Config('bug_report_url'))))
+            if enable_report and Config('bug_report_url', cfg_type=str):
+                self.error_message += '\n' + locale.t('error.prompt.address',
+                                                      url=str(Url(Config('bug_report_url', cfg_type=str))))
 
     def __str__(self):
         return self.error_message
@@ -157,7 +163,7 @@ class Image(ImageT):
         self.path = path
         self.headers = headers
         if isinstance(path, PImage.Image):
-            save = f'{Config("cache_path")}{str(uuid.uuid4())}.png'
+            save = f'{Config("cache_path", "./cache/")}{str(uuid.uuid4())}.png'
             path.convert('RGBA').save(save)
             self.path = save
         elif re.match('^https?://.*', path):
@@ -175,7 +181,7 @@ class Image(ImageT):
             async with session.get(url, timeout=aiohttp.ClientTimeout(total=20)) as req:
                 raw = await req.read()
                 ft = filetype.match(raw).extension
-                img_path = f'{Config("cache_path")}{str(uuid.uuid4())}.{ft}'
+                img_path = f'{Config("cache_path", "./cache/")}{str(uuid.uuid4())}.{ft}'
                 with open(img_path, 'wb+') as image_cache:
                     image_cache.write(raw)
                 return img_path
@@ -193,6 +199,21 @@ class Image(ImageT):
 
     def to_dict(self):
         return {'type': 'image', 'data': {'path': self.path}}
+
+    async def add_random_noise(self) -> Self:
+        image = PImage.open(await self.get())
+        image = image.convert('RGBA')
+
+        noise_image = PImage.new('RGBA', (50, 50))
+        for i in range(50):
+            for j in range(50):
+                noise_image.putpixel((i, j), (i, j, i, random.randint(0, 1)))
+
+        image.alpha_composite(noise_image)
+
+        save = f'{Config("cache_path", "./cache/")}{str(uuid.uuid4())}.png'
+        image.save(save)
+        return Image(save)
 
 
 class Voice(VoiceT):
@@ -260,7 +281,7 @@ class Embed(EmbedT):
                 else:
                     raise TypeError(f"Invalid type {type(f)} for EmbedField")
 
-    def to_message_chain(self, msg: MessageSession=None):
+    def to_message_chain(self, msg: MessageSession = None):
         text_lst = []
         if self.title:
             text_lst.append(self.title)

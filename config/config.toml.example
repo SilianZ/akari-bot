@@ -1,26 +1,24 @@
 # https://toml.io/en/v1.0.0
 # REMEMBER: TOML is not like Python. Do not use Python syntax here.
-# Example: Boolean values in TOML must be lowercase.
+# Note: Boolean values in TOML must be lowercase.
 # If you don't need some functions, please delete the corresponding keys.
 
 [secret]
 db_path = "mysql+pymysql://"
-check_accessKeyId =
-check_accessKeySecret =
+check_access_key_id =
+check_access_key_secret =
 web_render =
 proxy =
-dc_token =
-tg_token =
+discord_token =
+telegram_token =
 kook_token =
-matrix_homeserver =
-matrix_user =
 matrix_device_id =
-matrix_device_name =
 matrix_token =
 matrix_megolm_backup_passphrase =
-openai_api_key =
 curseforge_api_key =
 exchange_rate_api_key =
+openai_api_key =
+osu_api_key =
 wolfram_alpha_appid =
 translate_appid =
 translate_api_key =
@@ -28,34 +26,45 @@ jwt_secret =
 
 [cfg]
 api_port = 5000
-base_superuser = "QQ|2596322644"
+base_superuser = ["QQ|2596322644",]
 debug = false
 cache_path = "./cache/"
 command_prefix = ["~", "～",]
 confirm_command = ["是", "对", "對", "yes", "Yes", "YES", "y", "Y",]
 disabled_bots = ["",]
+report_targets = ["",]
+use_llonebot = false
+use_shamrock = false
 locale = "zh_cn"
 timezone_offset = "+8"
 bug_report_url = "https://s.wd-ljt.com/botreportbug"
-bug_report_targets = ["",]
 donate_url = "https://afdian.net/@teahouse"
 help_url = "https://bot.teahouse.team"
+help_page_url = "https://bot.teahouse.team/wiki/${module}"
 issue_url = "https://github.com/Teahouse-Studios/bot/issues/new/choose"
 locale_url = "https://www.crowdin.com/project/akari-bot"
 wiki_whitelist_url = "https://s.wd-ljt.com/botwhitelist"
 web_render_local =
 qq_account = 2314163511
 qq_host = "127.0.0.1:11451"
-qq_invite_join_group_notice = true
 qq_disable_temp_session = false
+qq_allow_approve_friend = true
+qq_allow_approve_group_invite = true
 qq_enable_listening_self_message = false
+qq_limited_emoji = 10060
+qq_typing_emoji = 181
+matrix_device_name =
+matrix_homeserver =
+matrix_user = "@akaribot:matrix.org"
 allow_request_private_ip = false
-allow_bot_auto_approve_group_invite = false
 allow_reload_base = false
 no_confirm = false
 slower_schedule = false
+enable_commit_url = true
 enable_dirty_check = true
 enable_rickroll = true
+enable_shuffle_joke =
+shuffle_rate = 0.1
 rickroll_msg = "https://wdf.ink/6OUp"
 enable_urlmanager = true
 enable_tos = false
@@ -72,9 +81,8 @@ coin_faceup_rate = 4997
 coin_facedown_rate = 4997
 dice_limit = 100
 dice_roll_limit = 10
-dice_mod_max = 10000
-dice_mod_min = -10000
 dice_output_count = 50
 dice_output_len = 200
 dice_detail_count = 5
 dice_count_limit = 10
+wordle_disable_image = false

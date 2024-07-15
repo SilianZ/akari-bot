@@ -1,4 +1,4 @@
-import datetime
+from datetime import datetime
 import re
 import traceback
 from urllib.parse import quote
@@ -7,7 +7,7 @@ import ujson as json
 from bs4 import BeautifulSoup
 from google_play_scraper import app as google_play_scraper
 
-from config import CFG, Config
+from config import Config
 from core.builtins import I18NContext, FormattedTime
 from core.logger import Logger
 from core.queue import JobQueue
@@ -15,12 +15,10 @@ from core.scheduler import Scheduler, IntervalTrigger
 from core.utils.http import get_url
 from core.utils.ip import IP
 from core.utils.storedata import get_stored_list, update_stored_list
-
-web_render = CFG.get_url('web_render')
-web_render_local = CFG.get_url('web_render_local')
+from core.utils.web_render import webrender
 
 
-async def get_article(version, use_local=True):
+async def get_article(version):
     match_snapshot = re.match(r'.*?w.*', version)
     link = False
     if match_snapshot:
@@ -35,23 +33,17 @@ async def get_article(version, use_local=True):
         match_prerelease = False
     if match_prerelease:
         link = f'https://www.minecraft.net/en-us/article/minecraft-' + re.sub("\\.", "-", match_prerelease.group(1)) \
-               + f'-pre-release-{match_prerelease.group(2)}'
+            + f'-pre-release-{match_prerelease.group(2)}'
     match_release_candidate = re.match(r'(.*?)-rc(.*[0-9])', version)
     if match_release_candidate:
         link = f'https://www.minecraft.net/en-us/article/minecraft-' + re.sub("\\.", "-",
                                                                               match_release_candidate.group(1)) \
-               + f'-release-candidate-{match_release_candidate.group(2)}'
+            + f'-release-candidate-{match_release_candidate.group(2)}'
     if not link:
         link = 'https://www.minecraft.net/en-us/article/minecraft-java-edition-' + re.sub("\\.", "-", version)
-    if not web_render_local:
-        if not web_render:
-            Logger.warn('[Webrender] Webrender is not configured.')
-            return '', ''
-        use_local = False
-    get = (web_render_local if use_local else web_render) + 'source?url=' + quote(link)
 
     try:
-        html = await get_url(get, attempt=1, request_private_ip=True, logging_err_resp=False)
+        html = await get_url(webrender('source', quote(link)), attempt=1, request_private_ip=True, logging_err_resp=False)
 
         soup = BeautifulSoup(html, 'html.parser')
 
@@ -61,12 +53,12 @@ async def get_article(version, use_local=True):
         else:
             return link, title.text
     except Exception:
-        if Config('debug'):
+        if Config('debug', False):
             Logger.error(traceback.format_exc())
         return '', ''
 
 
-trigger_times = 60 if not Config('slower_schedule') else 180
+trigger_times = 60 if not Config('slower_schedule', False) else 180
 
 
 @Scheduler.scheduled_job(IntervalTrigger(seconds=trigger_times))
@@ -81,9 +73,9 @@ async def mcv_rss():
         time_snapshot = 0
         for v in file['versions']:
             if v['id'] == release:
-                time_release = datetime.datetime.fromisoformat(v['releaseTime']).timestamp()
+                time_release = datetime.fromisoformat(v['releaseTime']).timestamp()
             if v['id'] == snapshot:
-                time_snapshot = datetime.datetime.fromisoformat(v['releaseTime']).timestamp()
+                time_snapshot = datetime.fromisoformat(v['releaseTime']).timestamp()
 
         if release not in verlist:
             Logger.info(f'Huh, we find {release}.')
@@ -124,7 +116,7 @@ async def mcv_rss():
                     get_stored_news_title.append(article[1])
                     update_stored_list('scheduler', 'mcnews', get_stored_news_title)
     except Exception:
-        if Config('debug'):
+        if Config('debug', False):
             Logger.error(traceback.format_exc())
 
 
@@ -142,7 +134,7 @@ async def mcbv_rss():
             verlist.append(version)
             update_stored_list('scheduler', 'mcbv_rss', verlist)
     except Exception:
-        if Config('debug'):
+        if Config('debug', False):
             Logger.error(traceback.format_exc())
 
 
@@ -173,7 +165,7 @@ async def mcv_jira_rss():
                 update_stored_list('scheduler', 'mcv_jira_rss', verlist)
 
     except Exception:
-        if Config('debug'):
+        if Config('debug', False):
             Logger.error(traceback.format_exc())
 
 
@@ -199,7 +191,7 @@ async def mcbv_jira_rss():
                 verlist.append(release)
                 update_stored_list('scheduler', 'mcbv_jira_rss', verlist)
     except Exception:
-        if Config('debug'):
+        if Config('debug', False):
             Logger.error(traceback.format_exc())
 
 
@@ -225,7 +217,7 @@ async def mcdv_jira_rss():
                 verlist.append(release)
                 update_stored_list('scheduler', 'mcdv_jira_rss', verlist)
     except Exception:
-        if Config('debug'):
+        if Config('debug', False):
             Logger.error(traceback.format_exc())
 
 
@@ -251,5 +243,5 @@ async def mclgv_jira_rss():
                 verlist.append(release)
                 update_stored_list('scheduler', 'mclgv_jira_rss', verlist)
     except Exception:
-        if Config('debug'):
+        if Config('debug', False):
             Logger.error(traceback.format_exc())

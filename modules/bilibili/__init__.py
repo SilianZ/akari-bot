@@ -15,7 +15,7 @@ bili = module('bilibili', alias='bili', developers=['DoroWolf'],
               options_desc={'-i': '{bilibili.help.option.i}'},
               exclude_from=['Discord|Channel'])
 @bili.command('<bid> {{bilibili.help}}', available_for=['Discord|Channel'])
-async def _(msg: Bot.MessageSession, bid: str, get_detail = False):
+async def _(msg: Bot.MessageSession, bid: str, get_detail=False):
     if msg.parsed_msg.get('-i', False):
         get_detail = True
     if bid[:2].upper() == "BV":
@@ -26,12 +26,12 @@ async def _(msg: Bot.MessageSession, bid: str, get_detail = False):
         return await msg.finish(msg.locale.t('bilibili.message.invalid'))
     res = await get_video_info(msg, query, get_detail)
     if res:
-        await msg.finish(msg.locale.t('message.cooldown', time=int(res), cd_time=30))
+        await msg.finish(msg.locale.t('message.cooldown', time=int(30 - res)))
 
 
-@bili.regex(re.compile(r"av(\d+)", flags=re.I), mode='A', desc="{bilibili.help.regex.av}")
+@bili.regex(re.compile(r"av(\d+)", flags=re.I), mode='M', desc="{bilibili.help.regex.av}")
 async def _(msg: Bot.MessageSession):
-    query = f"?aid={msg.matched_msg[0]}"
+    query = f"?aid={msg.matched_msg.group(1)}"
     await get_video_info(msg, query)
 
 

@@ -45,7 +45,7 @@ async def on_room_member(room: nio.MatrixRoom, event: nio.RoomMemberEvent):
     if room.member_count == 1 and event.membership == 'leave':
         resp = await bot.room_leave(room.room_id)
         if resp is nio.ErrorResponse:
-            Logger.error(f"Error leaving empty room {room.room_id}: {str(resp)}")
+            Logger.error(f"Error while leaving empty room {room.room_id}: {str(resp)}")
         else:
             Logger.info(f"Left empty room: {room.room_id}")
 
@@ -60,8 +60,6 @@ async def on_message(room: nio.MatrixRoom, event: nio.RoomMessageFormatted):
     if event.source['content']['msgtype'] == 'm.notice':
         # https://spec.matrix.org/v1.9/client-server-api/#mnotice
         return
-    is_room = room.member_count != 2 or room.join_rule != 'invite'
-    target_id = room.room_id if is_room else event.sender
     reply_id = None
     if 'm.relates_to' in event.source['content']:
         relatesTo = event.source['content']['m.relates_to']
@@ -82,9 +80,9 @@ async def on_message(room: nio.MatrixRoom, event: nio.RoomMessageFormatted):
         return
     sender_name = resp.displayname
 
-    msg = MessageSession(MsgInfo(target_id=f'Matrix|{target_id}',
+    msg = MessageSession(MsgInfo(target_id=f'Matrix|Room|{room.room_id}',
                                  sender_id=f'Matrix|{event.sender}',
-                                 target_from=f'Matrix',
+                                 target_from='Matrix|Room',
                                  sender_from='Matrix',
                                  sender_name=sender_name,
                                  client_name=client_name,
@@ -110,7 +108,7 @@ async def on_verify(event: nio.KeyVerificationEvent):
         Logger.info(f"Key verification {event.transaction_id} succeeded: {mac}")
         await bot.to_device(mac)
     else:
-        Logger.warn(f"Unknown key verification event: {event}")
+        Logger.warning(f"Unknown key verification event: {event}")
 
 
 async def on_in_room_verify(room: nio.MatrixRoom, event: nio.RoomMessageUnknown):
@@ -163,12 +161,12 @@ async def start():
             if isinstance(
                     resp,
                     nio.KeysUploadError) and "One time key" in resp.message and "already exists." in resp.message:
-                Logger.warn(
+                Logger.warning(
                     f"Matrix E2EE keys have been uploaded for this session, we are going to force claim them down, although this is very dangerous and should never happen for a clean session: {resp}")
                 keys = 0
                 while True:
                     resp = await bot.keys_claim({client.user: [client.device_id]})
-                    Logger.info(f"Matrix OTK claim resp #{keys+1}: {resp}")
+                    Logger.info(f"Matrix OTK claim resp #{keys + 1}: {resp}")
                     if isinstance(resp, nio.KeysClaimError):
                         break
                     keys += 1
@@ -200,10 +198,10 @@ async def start():
     await init_async()
     await load_prompt(FetchTarget)
 
-    Logger.info(f"starting sync loop")
+    Logger.info(f"starting sync loop...")
     await bot.set_presence('online', f"akari-bot {Info.version}")
     await bot.sync_forever(timeout=30000, full_state=False)
-    Logger.info(f"sync loop stopped")
+    Logger.info(f"sync loop stopped.")
 
     if bot.olm:
         if client.megolm_backup_passphrase:

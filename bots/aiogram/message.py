@@ -6,7 +6,7 @@ from bots.aiogram.client import dp, bot, token
 from aiogram.types import FSInputFile
 from bots.aiogram.info import client_name
 from config import Config
-from core.builtins import Bot, Plain, Image, Voice, MessageSession as MessageSessionT, ErrorMessage, MessageTaskManager
+from core.builtins import Bot, Plain, Image, Voice, MessageSession as MessageSessionT, I18NContext, MessageTaskManager
 from core.builtins.message.chain import MessageChain
 from core.logger import Logger
 from core.types import FetchTarget as FetchTargetT, \
@@ -14,7 +14,7 @@ from core.types import FetchTarget as FetchTargetT, \
 from core.utils.image import image_split
 from database import BotDBUtil
 
-enable_analytics = Config('enable_analytics')
+enable_analytics = Config('enable_analytics', False)
 
 
 class FinishedSession(FinS):
@@ -43,7 +43,7 @@ class MessageSession(MessageSessionT):
                            allow_split_image=True, callback=None) -> FinishedSession:
         message_chain = MessageChain(message_chain)
         if not message_chain.is_safe and not disable_secret_check:
-            return await self.send_message(Plain(ErrorMessage(self.locale.t("error.message.chain.unsafe"))))
+            return await self.send_message(I18NContext("error.message.chain.unsafe"))
         self.sent.append(message_chain)
         count = 0
         send = []
@@ -93,12 +93,12 @@ class MessageSession(MessageSessionT):
 
     async def check_native_permission(self):
         if not self.session.message:
-            chat = await dp.bot.get_chat(self.session.target)
+            chat = await bot.get_chat(self.session.target)
         else:
             chat = self.session.message.chat
         if chat.type == 'private':
             return True
-        admins = [member.user.id for member in await dp.bot.get_chat_administrators(chat.id)]
+        admins = [member.user.id for member in await bot.get_chat_administrators(chat.id)]
         if self.session.sender in admins:
             return True
         return False
@@ -123,8 +123,10 @@ class MessageSession(MessageSessionT):
         try:
             for x in self.session.message:
                 await x.delete()
+            return True
         except Exception:
             Logger.error(traceback.format_exc())
+            return False
 
     sendMessage = send_message
     asDisplay = as_display
@@ -183,6 +185,7 @@ class FetchTarget(FetchTargetT):
                             msgchain = MessageChain([Plain(x.parent.locale.t(message, **kwargs))])
                         else:
                             msgchain = MessageChain([Plain(message)])
+                    msgchain = MessageChain(msgchain)
                     await x.send_direct_message(msgchain)
                     if enable_analytics:
                         BotDBUtil.Analytics(x).add('', module_name, 'schedule')
@@ -200,6 +203,7 @@ class FetchTarget(FetchTargetT):
                                 msgchain = MessageChain([Plain(fetch.parent.locale.t(message, **kwargs))])
                             else:
                                 msgchain = MessageChain([Plain(message)])
+                        msgchain = MessageChain(msgchain)
                         await fetch.send_direct_message(msgchain)
                         if enable_analytics:
                             BotDBUtil.Analytics(fetch).add('', module_name, 'schedule')

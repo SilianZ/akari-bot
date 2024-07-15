@@ -1,6 +1,5 @@
-import datetime
+from datetime import datetime
 import re
-import traceback
 
 from google_play_scraper import app as google_play_scraper
 import ujson as json
@@ -20,9 +19,9 @@ async def mcv(msg):
         time_snapshot = None
         for v in data['versions']:
             if v['id'] == release:
-                time_release = datetime.datetime.fromisoformat(v['releaseTime']).timestamp()
+                time_release = datetime.fromisoformat(v['releaseTime']).timestamp()
             if v['id'] == snapshot:
-                time_snapshot = datetime.datetime.fromisoformat(v['releaseTime']).timestamp()
+                time_snapshot = datetime.fromisoformat(v['releaseTime']).timestamp()
 
         message1 = msg.locale.t(
             "mcv.message.mcv.launcher",
@@ -66,7 +65,7 @@ async def mcbv(msg):
     try:
         data = json.loads(await get_url('https://bugs.mojang.com/rest/api/2/project/10200/versions', 200))
     except (ConnectionError, OSError):  # Probably...
-        return ErrorMessage(msg.locale.t('mcv.message.error.server'))
+        return ErrorMessage('{mcv.message.error.server}', locale=msg.locale.locale, enable_report=False)
     beta = []
     preview = []
     release = []
@@ -95,7 +94,7 @@ async def mcdv(msg):
     try:
         data = json.loads(await get_url('https://bugs.mojang.com/rest/api/2/project/11901/versions', 200))
     except (ConnectionError, OSError):  # Probably...
-        return ErrorMessage(msg.locale.t('mcv.message.error.server'))
+        return ErrorMessage('{mcv.message.error.server}', locale=msg.locale.locale, enable_report=False)
     release = []
     for v in data:
         if not v['archived']:
@@ -110,7 +109,7 @@ async def mcev(msg):
         version = re.search(r'(?<=\[)(.*?)(?=])', data)[0]
         Logger.debug(version)
     except (ConnectionError, OSError):  # Probably...
-        return ErrorMessage(msg.locale.t('mcv.message.error.server'))
+        return ErrorMessage('{mcv.message.error.server}', locale=msg.locale.locale, enable_report=False)
     return msg.locale.t("mcv.message.mcev", version=version)
 
 
@@ -118,7 +117,7 @@ async def mclgv(msg):
     try:
         data = json.loads(await get_url('https://bugs.mojang.com/rest/api/2/project/12200/versions', 200))
     except (ConnectionError, OSError):  # Probably...
-        return ErrorMessage(msg.locale.t('mcv.message.error.server'))
+        return ErrorMessage('{mcv.message.error.server}', locale=msg.locale.locale, enable_report=False)
     release = []
     for v in data:
         if not v['archived']:

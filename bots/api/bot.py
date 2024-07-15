@@ -24,7 +24,7 @@ from core.logger import Logger  # noqa: E402
 
 
 app = FastAPI()
-jwt_secret = Config('jwt_secret')
+jwt_secret = Config('jwt_secret', cfg_type=str)
 
 
 @app.on_event("startup")
@@ -69,8 +69,9 @@ async def get_target(target_id: str):
     command_prefix = target.get_option('command_prefix')
     ban = target.get_option('ban')
     typo_check = target.get_option('typo_check')
+    cooldown_time = target.get_option('cooldown_time')
     dice_dc_reversed = target.get_option('dice_dc_reversed')
-    wiki_fandom_addon = target.get_option('wiki_fandom_addon')
+    dice_default_sides = target.get_option('dice_default_sides')
     wordle_dark_theme = target.get_option('wordle_dark_theme')
 
     wiki_target = WikiTargetInfo(target_id)
@@ -89,10 +90,11 @@ async def get_target(target_id: str):
         'commandPrefix': command_prefix,
         'ban': ban,
         'typoCheck': typo_check,
+        'cooldownTime': cooldown_time,
         'diceDCReversed': dice_dc_reversed,
+        'diceDefaultFace': dice_default_sides,
         'wordleDarkTheme': wordle_dark_theme,
         'wiki': {
-            'fandomAddon': wiki_fandom_addon,
             'headers': wiki_headers,
             'startWiki': wiki_start_wiki,
             'interwikis': wiki_interwikis

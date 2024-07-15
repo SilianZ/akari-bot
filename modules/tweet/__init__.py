@@ -1,16 +1,16 @@
 import re
+import traceback
+
 import ujson as json
 
-from config import CFG
 from core.builtins import Bot
 from core.builtins.message import Image, Url
 from core.component import module
 from core.dirty_check import check_bool, rickroll
 from core.logger import Logger
-from core.utils.http import download_to_cache, get_url
-
-web_render = CFG.get_url('web_render')
-web_render_local = CFG.get_url('web_render_local')
+from core.utils.http import download, get_url
+from core.utils.text import isint
+from core.utils.web_render import webrender
 
 
 t = module('tweet',
@@ -21,8 +21,8 @@ t = module('tweet',
 
 
 @t.handle('<tweet> {{tweet.help}}')
-async def _(msg: Bot.MessageSession, tweet: str, use_local=True):
-    if tweet.isdigit():
+async def _(msg: Bot.MessageSession, tweet: str):
+    if isint(tweet):
         tweet_id = tweet
     else:
         match = re.search(r"status/(\d+)", tweet)
@@ -31,13 +31,18 @@ async def _(msg: Bot.MessageSession, tweet: str, use_local=True):
         else:
             await msg.finish(msg.locale.t('tweet.message.invalid'))
 
-    if not web_render_local:
-        if not web_render:
-            Logger.warn('[Webrender] Webrender is not configured.')
-            await msg.finish(msg.locale.t("error.config.webrender.invalid"))
-        use_local = False
+    web_render = webrender('element_screenshot')
+    if not web_render:
+        await msg.finish(msg.locale.t("error.config.webrender.invalid"))
 
-    res = await get_url(f'https://react-tweet.vercel.app/api/tweet/{tweet_id}', 200)
+    try:
+        res = await get_url(f'https://react-tweet.vercel.app/api/tweet/{tweet_id}', 200)
+    except ValueError as e:
+        if str(e).startswith('404'):
+            await msg.finish(msg.locale.t('tweet.message.invalid'))
+        else:
+            Logger.error(traceback.format_exc())
+
     res_json = json.loads(res)
     if not res_json['data']:
         await msg.finish(msg.locale.t('tweet.message.not_found'))
@@ -81,7 +86,7 @@ async def _(msg: Bot.MessageSession, tweet: str, use_local=True):
             }
         '''
 
-        pic = await download_to_cache((web_render_local if use_local else web_render) + 'element_screenshot', method='POST', headers={
+        pic = await download(web_render, method='POST', headers={
             'Content-Type': 'application/json',
         }, post_data=json.dumps(
             {'url': f'https://react-tweet-next.vercel.app/light/{tweet_id}', 'css': css, 'mw': False,
