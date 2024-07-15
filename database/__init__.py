@@ -251,43 +251,30 @@ class BotDBUtil:
             session.expire_all()
             return True
 
-    class CoolDown:
+    class GroupBlockList:
+        @staticmethod
         @retry(stop=stop_after_attempt(3))
         @auto_rollback_error
-        def __init__(self, msg: MessageSession, name):
-            self.msg = msg
-            self.name = name
-            self.query = session.query(CommandTriggerTime).filter_by(targetId=str(msg.target.sender_id),
-                                                                     commandName=name).first()
-            self.need_insert = True if not self.query else False
-
-        def check(self, delay):
-            if not self.need_insert:
-                now = datetime.datetime.now().timestamp() - self.query.timestamp.timestamp()
-                if now > delay:
-                    return 0
-                return now
-            return 0
-
-        @retry(stop=stop_after_attempt(3))
-        @auto_rollback_error
-        def reset(self):
-            if not self.need_insert:
-                session.delete(self.query)
-                session.commit()
-            session.add_all([CommandTriggerTime(targetId=self.msg.target.sender_id, commandName=self.name)])
-            session.commit()
+        def check(target_id):
             session.expire_all()
+            query = session.query(GroupBlockList).filter_by(targetId=target_id).first()
+            if query:
+                return True
+            return False
 
-    @staticmethod
-    @retry(stop=stop_after_attempt(3))
-    @auto_rollback_error
-    def isGroupInAllowList(target_id):
-        session.expire_all()
-        query = session.query(GroupAllowList).filter_by(targetId=target_id).first()
-        if query:
+        def add(target_id):
+            session.add(GroupBlockList(targetId=target_id))
+            session.commit()
             return True
-        return False
+
+        def remove(target_id):
+            entry = session.query(GroupBlockList).filter_by(targetId=target_id).first()
+            if entry:
+                session.delete(entry)
+                session.commit()
+                return True
+            else:
+                return False
 
     class Data:
         def __init__(self, msg: Union[MessageSession, FetchTarget, str]):

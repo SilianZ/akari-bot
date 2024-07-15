@@ -1,31 +1,18 @@
 import os
 from os.path import abspath
-from typing import Union
+from typing import Union, Any, get_origin, get_args
 
+from loguru import logger
 import toml
 
-from core.exceptions import ConfigFileNotFound
+from core.exceptions import ConfigFileNotFound, ConfigValueError
+from core.utils.text import isfloat, isint
+
 
 config_filename = 'config.toml'
 config_path = abspath('./config/' + config_filename)
 
 old_cfg_file_path = abspath('./config/config.cfg')
-
-
-def isfloat(num):
-    try:
-        float(num)
-        return True
-    except ValueError:
-        return False
-
-
-def isint(num):
-    try:
-        int(num)
-        return True
-    except ValueError:
-        return False
 
 
 def convert_cfg_to_toml():
@@ -63,11 +50,14 @@ class CFG:
                 convert_cfg_to_toml()
             else:
                 raise ConfigFileNotFound(config_path) from None
-        cls.value = toml.loads(open(config_path, 'r', encoding='utf-8').read())
+        try:
+            cls.value = toml.loads(open(config_path, 'r', encoding='utf-8').read())
+        except Exception as e:
+            raise ConfigValueError(e)
         cls._ts = os.path.getmtime(config_path)
 
     @classmethod
-    def get(cls, q: str, default: Union[str, None] = None):
+    def get(cls, q: str, default: Union[Any, None] = None, cfg_type: Union[type, tuple, None] = None) -> Any:
         q = q.lower()
         if os.path.getmtime(config_path) != cls._ts:
             cls.load()
@@ -76,17 +66,27 @@ class CFG:
         value = value_s.get(q)
         if value is None:
             value = value_n.get(q)
-        if value is None:
-            print(f'[Config] Config {q} not found, is it configured?')
         if value is None and default is not None:
             return default
-        if default is not None:
+        if cfg_type:
+            if isinstance(cfg_type, type) or isinstance(cfg_type, tuple):
+                if isinstance(cfg_type, tuple):
+                    cfg_type_str = ', '.join(map(lambda t: t.__name__, cfg_type))
+                    if value is not None and not isinstance(value, cfg_type):
+                        logger.warning(f'[Config] Config {q} has a wrong type, expected {cfg_type_str}, got {type(value).__name__}.')
+                else:
+                    if value is not None and not isinstance(value, cfg_type):
+                        logger.warning(f'[Config] Config {q} has a wrong type, expected {cfg_type.__name__}, got {type(value).__name__}.')
+            else:
+                logger.warning(f'[Config] Invalid cfg_type provided in config {q}. cfg_type should be a type or a tuple of types.')
+        elif default:
             if not isinstance(value, type(default)):
-                print(f'[Config] Config {q} has a wrong type, expected {type(default)}, got {type(value)}')
+                logger.warning(f'[Config] Config {q} has a wrong type, expected {type(default).__name__}, got {type(value).__name__}.')
+                return default
         return value
 
     @classmethod
-    def write(cls, q, value, secret=False):
+    def write(cls, q: str, value: Union[Any, None], secret: bool = False):
         q = q.lower()
         if os.path.getmtime(config_path) != cls._ts:
             cls.load()
@@ -108,7 +108,7 @@ class CFG:
         cls.load()
 
     @classmethod
-    def delete(cls, q):
+    def delete(cls, q: str) -> bool:
         q = q.lower()
         if os.path.getmtime(config_path) != cls._ts:
             cls.load()
@@ -128,8 +128,8 @@ class CFG:
         return True
 
     @classmethod
-    def get_url(cls, q):
-        q = cls.get(q)
+    def get_url(cls, q: str, default: Union[str, None] = None) -> Union[str, None]:
+        q = cls.get(q, default, str)
         if q:
             if q[-1] != '/':
                 q += '/'

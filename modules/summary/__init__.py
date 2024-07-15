@@ -11,21 +11,21 @@ from core.petal import count_petal
 from core.utils.cooldown import CoolDown
 
 client = AsyncOpenAI(
-    api_key=Config('openai_api_key'),
+    api_key=Config('openai_api_key', cfg_type=str),
 ) if Config('openai_api_key') else None
 
 s = module('summary',
            developers=['Dianliang233', 'OasisAkari'],
            desc='{summary.help.desc}',
-           available_for=['QQ', 'QQ|Group'])
+           available_for=['QQ|Private', 'QQ|Group'])
 
 
 @s.handle('{{summary.help}}')
 async def _(msg: Bot.MessageSession):
     is_superuser = msg.check_super_user()
-    if not Config('openai_api_key'):
+    if not Config('openai_api_key', cfg_type=str):
         raise ConfigValueError(msg.locale.t('error.config.secret.not_found'))
-    if Config('enable_petal') and not is_superuser and msg.data.petal <= 0:  # refuse
+    if Config('enable_petal', False) and not is_superuser and msg.petal <= 0:  # refuse
         await msg.finish(msg.locale.t('core.message.petal.no_petals'))
 
     qc = CoolDown('call_openai', msg)
@@ -52,7 +52,7 @@ async def _(msg: Bot.MessageSession):
         prev = ''
         while nth < len(texts):
             prompt = f'请总结下列聊天内容。要求语言简练，但必须含有所有要点，以一段话的形式输出。请使用{msg.locale.locale}输出结果。除了聊天记录的摘要以外，不要输出其他任何内容。' \
-                     f'''{f"""同时<ctx_start>与<|ctx_end|>之间记录了聊天内容的上下文，请你同时结合这段上下文和聊天记录来输出。
+                f'''{f"""同时<ctx_start>与<|ctx_end|>之间记录了聊天内容的上下文，请你同时结合这段上下文和聊天记录来输出。
 
     <|ctx_start|>{prev}<|ctx_end|>""" if nth != 0 else ""}'''
             len_prompt = len(prompt)
@@ -74,12 +74,8 @@ async def _(msg: Bot.MessageSession):
         )
         output = completion.choices[0].message.content
         tokens = completion.usage.total_tokens
-        if not is_superuser:
-            petal = await count_petal(msg, tokens)
-        else:
-            Logger.info(f'{tokens} tokens have been consumed while calling AI.')
-            petal = 0
 
+        petal = await count_petal(msg, tokens)
         if petal != 0:
             output = f"{output}\n{msg.locale.t('petal.message.cost', count=petal)}"
         await wait_msg.delete()
@@ -94,4 +90,4 @@ async def _(msg: Bot.MessageSession):
         output = output.replace("<全部吃掉了>", msg.locale.t("check.redacted.all"))
         await msg.finish(output)
     else:
-        await msg.finish(msg.locale.t('message.cooldown', time=int(c), cd_time=60))
+        await msg.finish(msg.locale.t('message.cooldown', time=int(60 - c)))

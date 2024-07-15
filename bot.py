@@ -18,15 +18,15 @@ bots_required_configs = {
     'aiocqhttp': [
         'qq_host',
         'qq_account'],
-    'discord': ['dc_token'],
-    'aiogram': ['tg_token'],
+    'discord': ['discord_token'],
+    'aiogram': ['telegram_token'],
     'kook': ['kook_token'],
     'matrix': [
         'matrix_homeserver',
         'matrix_user',
         'matrix_device_id',
-        'matrix_token'],
-    'lagrange': ['lagrange_host']}
+        'matrix_token']
+    }
 
 
 class RestartBot(Exception):
@@ -44,7 +44,7 @@ def enqueue_output(out, queue):
 
 
 def init_bot():
-    base_superuser = Config('base_superuser')
+    base_superuser = Config('base_superuser', cfg_type=(str, list))
     if base_superuser:
         if isinstance(base_superuser, str):
             base_superuser = [base_superuser]
@@ -58,7 +58,7 @@ disabled_bots = Config('disabled_bots', [])
 
 
 def run_bot():
-    cache_path = os.path.abspath(Config('cache_path'))
+    cache_path = os.path.abspath(Config('cache_path', './cache/'))
     if os.path.exists(cache_path):
         shutil.rmtree(cache_path)
     os.mkdir(cache_path)

@@ -1,19 +1,22 @@
 import platform
-import time
-from datetime import datetime, timedelta, tzinfo
+from datetime import datetime, timedelta, UTC
 
 import jwt
 import psutil
 from cpuinfo import get_cpu_info
 
 from config import Config
-from core.builtins import Bot, Embed, EmbedField, command_prefix
+from core.builtins import Bot, I18NContext, Url
 from core.component import module
 from core.utils.i18n import get_available_locales, Locale, load_locale_file
 from core.utils.info import Info
+from core.utils.text import isint
+from core.utils.web_render import WebRender
 from database import BotDBUtil
 
-jwt_secret = Config('jwt_secret')
+import subprocess
+
+jwt_secret = Config('jwt_secret', cfg_type=str)
 
 ver = module('version', base=True)
 
@@ -21,7 +24,14 @@ ver = module('version', base=True)
 @ver.command('{{core.help.version}}')
 async def bot_version(msg: Bot.MessageSession):
     if Info.version:
-        await msg.finish(msg.locale.t('core.message.version', commit=Info.version[0:6]))
+        commit = Info.version[0:6]
+        send_msgs = [I18NContext('core.message.version', commit=commit)]
+        if Config('enable_commit_url', True):
+            repo_url = subprocess.check_output(['git', 'config', '--get', 'remote.origin.url']).decode().strip()
+            repo_url = repo_url.replace('.git', '')  # Remove .git from the repo URL
+            commit_url = f"{repo_url}/commit/{commit}"
+            send_msgs.append(Url(commit_url))
+        await msg.finish(send_msgs)
     else:
         await msg.finish(msg.locale.t('core.message.version.unknown'))
 
@@ -34,9 +44,10 @@ started_time = datetime.now()
 @ping.command('{{core.help.ping}}')
 async def _(msg: Bot.MessageSession):
     result = "Pong!"
+    timediff = str(datetime.now() - started_time).split('.')[0]
     if msg.check_super_user():
-        timediff = str(datetime.now() - started_time)
         boot_start = msg.ts2strftime(psutil.boot_time())
+        web_render_status = str(WebRender.status)
         cpu_usage = psutil.cpu_percent()
         ram = int(psutil.virtual_memory().total / (1024 * 1024))
         ram_percent = psutil.virtual_memory().percent
@@ -48,6 +59,7 @@ async def _(msg: Bot.MessageSession):
                                       system_boot_time=boot_start,
                                       bot_running_time=timediff,
                                       python_version=platform.python_version(),
+                                      web_render_status=web_render_status,
                                       cpu_brand=get_cpu_info()['brand_raw'],
                                       cpu_usage=cpu_usage,
                                       ram=ram,
@@ -56,10 +68,20 @@ async def _(msg: Bot.MessageSession):
                                       swap_percent=swap_percent,
                                       disk_space=disk,
                                       disk_space_total=disk_total)
+    else:
+        disk_percent = psutil.disk_usage('/').percent
+        result += '\n' + msg.locale.t("core.message.ping.simple",
+                                      bot_running_time=timediff,
+                                      disk_percent=disk_percent)
     await msg.finish(result)
 
-
-admin = module('admin', base=True, required_admin=True, desc='{core.help.admin.desc}')
+admin = module('admin',
+               base=True,
+               required_admin=True,
+               alias={'ban': 'admin ban',
+                      'unban': 'admin unban',
+                      'ban list': 'admin ban list'},
+               desc='{core.help.admin.desc}')
 
 
 @admin.command([
@@ -74,7 +96,7 @@ async def config_gu(msg: Bot.MessageSession):
             await msg.finish(msg.locale.t("core.message.admin.list.none"))
     user = msg.parsed_msg['<user>']
     if not user.startswith(f'{msg.target.sender_from}|'):
-        await msg.finish(msg.locale.t('core.message.admin.invalid', target=msg.target.sender_from, prefix=msg.prefixes[0]))
+        await msg.finish(msg.locale.t('core.message.admin.invalid', sender=msg.target.sender_from, prefix=msg.prefixes[0]))
     if 'add' in msg.parsed_msg:
         if user and user not in msg.custom_admins:
             if msg.data.add_custom_admin(user):
@@ -92,20 +114,28 @@ async def config_gu(msg: Bot.MessageSession):
 
 
 @admin.command('ban <user> {{core.help.admin.ban}}',
-               'unban <user> {{core.help.admin.unban}}')
-async def config_ban(msg: Bot.MessageSession, user: str):
+               'unban <user> {{core.help.admin.unban}}',
+               'ban list {{core.help.admin.ban.list}}')
+async def config_ban(msg: Bot.MessageSession):
+    admin_ban_list = msg.options.get('ban', [])
+    if 'list' in msg.parsed_msg:
+        if admin_ban_list:
+            await msg.finish(msg.locale.t("core.message.admin.ban.list") + '\n'.join(admin_ban_list))
+        else:
+            await msg.finish(msg.locale.t("core.message.admin.ban.list.none"))
+    user = msg.parsed_msg['<user>']
     if not user.startswith(f'{msg.target.sender_from}|'):
-        await msg.finish(msg.locale.t('core.message.admin.invalid', prefix=msg.prefixes[0]))
+        await msg.finish(msg.locale.t('core.message.admin.invalid', sender=msg.target.sender_from, prefix=msg.prefixes[0]))
     if user == msg.target.sender_id:
         await msg.finish(msg.locale.t("core.message.admin.ban.self"))
     if 'ban' in msg.parsed_msg:
-        if user not in msg.options.get('ban', []):
-            msg.data.edit_option('ban', msg.options.get('ban', []) + [user])
+        if user not in admin_ban_list:
+            msg.data.edit_option('ban', admin_ban_list + [user])
             await msg.finish(msg.locale.t('success'))
         else:
             await msg.finish(msg.locale.t("core.message.admin.ban.already"))
     if 'unban' in msg.parsed_msg:
-        if user in (banlist := msg.options.get('ban', [])):
+        if user in (banlist := admin_ban_list):
             banlist.remove(user)
             msg.data.edit_option('ban', banlist)
             await msg.finish(msg.locale.t('success'))
@@ -113,7 +143,7 @@ async def config_ban(msg: Bot.MessageSession, user: str):
             await msg.finish(msg.locale.t("core.message.admin.ban.not_yet"))
 
 
-locale = module('locale', base=True, desc='{core.help.locale.desc}')
+locale = module('locale', base=True, desc='{core.help.locale.desc}', alias='lang')
 
 
 @locale.command()
@@ -122,8 +152,8 @@ async def _(msg: Bot.MessageSession):
     res = msg.locale.t("core.message.locale", lang=msg.locale.t("language")) + '\n' + \
         msg.locale.t("core.message.locale.set.prompt", prefix=msg.prefixes[0]) + '\n' + \
         msg.locale.t("core.message.locale.langlist", langlist=avaliable_lang)
-    if Config('locale_url'):
-        res += '\n' + msg.locale.t("core.message.locale.contribute", url=Config('locale_url'))
+    if Config('locale_url', cfg_type=str):
+        res += '\n' + msg.locale.t("core.message.locale.contribute", url=Config('locale_url', cfg_type=str))
     await msg.finish(res)
 
 
@@ -160,7 +190,7 @@ async def _(msg: Bot.MessageSession):
     if msg.check_super_user():
         perm += '\n' + msg.locale.t("core.message.whoami.superuser")
     await msg.finish(
-        msg.locale.t('core.message.whoami', senderid=msg.target.sender_id, targetid=msg.target.target_id) + perm)
+        msg.locale.t('core.message.whoami', sender=msg.target.sender_id, target=msg.target.target_id) + perm)
 
 
 setup = module('setup', base=True, desc='{core.help.setup.desc}', alias='toggle')
@@ -210,6 +240,15 @@ async def _(msg: Bot.MessageSession, offset: str):
                                   offset='' if offset == '+0' else offset))
 
 
+@setup.command('cooldown <second> {{core.help.setup.cooldown}}', required_admin=True)
+async def _(msg: Bot.MessageSession, second: str):
+    if not isint(second):
+        await msg.finish(msg.locale.t('core.message.setup.cooldown.invalid'))
+    else:
+        msg.data.edit_option('cooldown_time', second)
+        await msg.finish(msg.locale.t('core.message.setup.cooldown.success', time=second))
+
+
 mute = module('mute', base=True, required_admin=True)
 
 
@@ -222,7 +261,7 @@ async def _(msg: Bot.MessageSession):
         await msg.finish(msg.locale.t('core.message.mute.disable'))
 
 
-leave = module('leave', base=True, required_admin=True, available_for='QQ|Group', alias='dismiss')
+leave = module('leave', base=True, required_admin=True, available_for=['QQ|Group'], alias='dismiss')
 
 
 @leave.command('{{core.help.leave}}')
@@ -235,14 +274,14 @@ async def _(msg: Bot.MessageSession):
         await msg.finish()
 
 
-token = module('token', base=True)
+token = module('token', base=True, hidden=True)
 
 
 @token.command('<code> {{core.help.token}}')
 async def _(msg: Bot.MessageSession, code: str):
     await msg.finish(jwt.encode({
-        'exp': datetime.utcnow() + timedelta(seconds=60 * 60 * 24 * 7),  # 7 days
-        'iat': datetime.utcnow(),
+        'exp': datetime.now(UTC) + timedelta(seconds=60 * 60 * 24 * 7),  # 7 days
+        'iat': datetime.now(UTC),
         'senderId': msg.target.sender_id,
         'code': code
     }, bytes(jwt_secret, 'utf-8'), algorithm='HS256'))

@@ -83,7 +83,7 @@ async def get_rating(msg: Bot.MessageSession, uid, query_type):
         """)
 
         result = await client.execute_async(query)
-        workdir = os.path.abspath(Config("cache_path") + str(uuid.uuid4()))
+        workdir = os.path.abspath(Config("cache_path", "./cache/") + str(uuid.uuid4()))
         os.mkdir(workdir)
         best_records = result['profile'][query_type]
         rank = 0
@@ -155,7 +155,7 @@ async def get_rating(msg: Bot.MessageSession, uid, query_type):
                 output.convert('RGBA')
                 b30img.alpha_composite(output, (1825, 22))
             except BaseException:
-                traceback.print_exc()
+                Logger.error(traceback.format_exc())
 
         font4 = ImageFont.truetype(os.path.abspath('./assets/Nunito-Regular.ttf'), 35)
         drawtext = ImageDraw.Draw(b30img)
@@ -204,19 +204,19 @@ async def get_rating(msg: Bot.MessageSession, uid, query_type):
                 fname += 1
                 s += 1
             except Exception:
-                traceback.print_exc()
+                Logger.error(traceback.format_exc())
                 break
         if __name__ == '__main__':
             b30img.show()
         else:
-            savefilename = os.path.abspath(f'{Config("cache_path")}{str(uuid.uuid4())}.jpg')
+            savefilename = os.path.abspath(f'{Config("cache_path", "./cache/")}{str(uuid.uuid4())}.jpg')
             b30img.convert("RGB").save(savefilename)
             # shutil.rmtree(workdir)
             return {'status': True, 'path': savefilename}
     except Exception as e:
         if e.args == (404,):
             await msg.finish(msg.locale.t("cytoid.message.user_not_found"))
-        traceback.print_exc()
+        Logger.error(traceback.format_exc())
         return {'status': False, 'text': msg.locale.t("error") + str(e)}
 
 
@@ -240,7 +240,7 @@ async def download_cover_thumb(uid):
         else:
             return path
     except BaseException:
-        traceback.print_exc()
+        Logger.error(traceback.format_exc())
         return False
 
 
@@ -261,7 +261,7 @@ async def download_avatar_thumb(link, id):
                     await jpg.write(await resp.read())
                     return path
     except BaseException:
-        traceback.print_exc()
+        Logger.error(traceback.format_exc())
         return False
 
 

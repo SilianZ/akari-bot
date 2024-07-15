@@ -18,7 +18,7 @@ filter_words = ['Mojang']
 base_url = 'https://crowdin.com/'
 
 
-@Scheduler.scheduled_job(IntervalTrigger(seconds=60 if not Config('slower_schedule') else 180))
+@Scheduler.scheduled_job(IntervalTrigger(seconds=60 if not Config('slower_schedule', False) else 180))
 async def check_crowdin():
     global first
     randstr = 'abcdefghijklmnopqrstuvwxyz'
@@ -38,6 +38,12 @@ async def check_crowdin():
                 for i in match:
                     m = m.replace(i, i.replace('\n', ''))
                 if not any(x in m for x in filter_words):
+                    continue
+                if 'unapproved' in m:
+                    continue
+                if 'canceled' in m:
+                    continue
+                if 'deleted' in m:
                     continue
                 if act['count'] == 1:
                     identify = f'{act["user_id"]}{str(act['timestamp'])}{m}'
@@ -75,7 +81,7 @@ async def check_crowdin():
                             if not first and not CrowdinActivityRecords.check(identify):
                                 await JobQueue.trigger_hook_all('mc_crowdin', message=[Embed(title='New Crowdin Updates', description=m, color=0x00ff00, fields=[EmbedField(name=k, value=v, inline=True) for k, v in identify_.items()]).to_dict()])
     except Exception:
-        if Config('debug'):
+        if Config('debug', False):
             Logger.error(traceback.format_exc())
     if first:
         first = False

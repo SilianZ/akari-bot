@@ -8,7 +8,7 @@ from typing import Union, Dict, List
 import ujson as json
 
 import core.utils.html2text as html2text
-from config import Config, CFG
+from config import Config
 from core.builtins import Url
 from core.dirty_check import check
 from core.logger import Logger
@@ -17,9 +17,8 @@ from core.utils.i18n import Locale, default_locale
 from core.exceptions import NoReportException
 from modules.wiki.utils.dbutils import WikiSiteInfo as DBSiteInfo, Audit
 from modules.wiki.utils.bot import BotAccount
+from core.utils.web_render import webrender
 
-web_render = CFG.get_url('web_render')
-web_render_local = CFG.get_url('web_render_local')
 
 redirect_list = {'https://zh.moegirl.org.cn/api.php': 'https://mzh.moegirl.org.cn/api.php',  # 萌娘百科强制使用移动版 API
                  'https://minecraft.fandom.com/api.php': 'https://minecraft.wiki/api.php',  # no more Fandom then
@@ -170,9 +169,7 @@ class WikiLib:
         request_local = False
         for x in request_by_web_render_list:
             if x.match(api):
-                if web_render:
-                    use_local = True if web_render_local else False
-                    api = (web_render_local if use_local else web_render) + 'source?url=' + urllib.parse.quote(api)
+                api = webrender('source', urllib.parse.quote(api))
                 request_local = True
                 break
 
@@ -208,7 +205,7 @@ class WikiLib:
                 if '*' in ns and 'canonical' in ns:
                     namespaces_local.update({ns['*']: ns['canonical']})
             except Exception:
-                traceback.print_exc()
+                Logger.error(traceback.format_exc())
         for x in info['query']['namespacealiases']:
             if '*' in x:
                 namespaces[x['*']] = x['id']
@@ -256,15 +253,18 @@ class WikiLib:
             except (TimeoutError, asyncio.TimeoutError):
                 return WikiStatus(available=False, value=False, message=self.locale.t(
                     "wiki.message.utils.wikilib.get_failed.timeout"))
+            except IndexError:
+                return WikiStatus(available=False, value=False, message=self.locale.t(
+                    "wiki.message.utils.wikilib.get_failed.not_mediawiki"))
             except Exception as e:
-                if Config('debug'):
+                if Config('debug', False):
                     Logger.error(traceback.format_exc())
                 if e.args == (403,):
                     message = self.locale.t("wiki.message.utils.wikilib.get_failed.forbidden")
                 elif not re.match(r'^(https?://).*', self.url):
                     message = self.locale.t("wiki.message.utils.wikilib.get_failed.no_http_or_https_headers")
                 else:
-                    message = self.locale.t("wiki.message.utils.wikilib.get_failed.not_a_mediawiki") + str(e)
+                    message = self.locale.t("wiki.message.utils.wikilib.get_failed.may_not_mediawiki") + str(e)
                 if self.url.find('moegirl.org.cn') != -1:
                     message += '\n' + self.locale.t("wiki.message.utils.wikilib.get_failed.moegirl")
                 return WikiStatus(available=False, value=False, message=message)
@@ -281,7 +281,7 @@ class WikiLib:
                                                     meta='siteinfo',
                                                     siprop='general|namespaces|namespacealiases|interwikimap|extensions')
         except Exception as e:
-            if Config('debug'):
+            if Config('debug', False):
                 Logger.error(traceback.format_exc())
             message = self.locale.t("wiki.message.utils.wikilib.get_failed.api") + str(e)
             if self.url.find('moegirl.org.cn') != -1:
@@ -333,7 +333,7 @@ class WikiLib:
                     desc_end = re.findall(r'(.*?[)}\]>\"\'》】’”」）].*?(?:!\s|\?\s|\.\s|！|？|。)).*', desc, re.S | re.M)
                 desc = desc_end[0]
         except Exception:
-            traceback.print_exc()
+            Logger.error(traceback.format_exc())
             desc = ''
         if desc in ['...', '…']:
             desc = ''
@@ -360,6 +360,9 @@ class WikiLib:
         h.ignore_images = True
         h.ignore_tables = True
         h.single_line_break = True
+        parse_text = get_parse['parse']['text']['*']
+        if len(parse_text) > 65535:
+            return self.locale.t("wiki.message.utils.wikilib.error.text_too_long")
         t = h.handle(get_parse['parse']['text']['*'])
         if section:
             for i in range(1, 7):
@@ -384,7 +387,7 @@ class WikiLib:
                                             prop='wikitext')
             desc = load_desc['parse']['wikitext']['*']
         except Exception:
-            traceback.print_exc()
+            Logger.error(traceback.format_exc())
             desc = ''
         return desc
 
@@ -448,9 +451,12 @@ class WikiLib:
         if self.wiki_info.in_blocklist and not self.wiki_info.in_allowlist:
             ban = True
         if _tried > 5:
-            if Config('enable_tos'):
+            if Config('enable_tos', True):
                 raise WhatAreUDoingError
         selected_section = None
+        query_props = ['info', 'imageinfo', 'langlinks', 'templates']
+        if self.wiki_info.api.find('moegirl.org.cn') != -1:
+            query_props.remove('imageinfo')
         if title:
             if inline:
                 split_name = re.split(r'(#)', title)
@@ -488,19 +494,21 @@ class WikiLib:
             page_info.selected_section = selected_section
             if not selected_section and used_quote:
                 page_info.invalid_section = True
-            query_string = {'action': 'query', 'prop': 'info|imageinfo|langlinks|templates', 'llprop': 'url',
+            query_string = {'action': 'query', 'prop': '|'.join(query_props), 'llprop': 'url',
                             'inprop': 'url', 'iiprop': 'url',
-                            'redirects': 'True', 'titles': title}
+                            'redirects': 'true', 'titles': title}
+
         elif pageid:
             page_info = PageInfo(info=self.wiki_info, title=title, args='', interwiki_prefix=_prefix)
-            query_string = {'action': 'query', 'prop': 'info|imageinfo|langlinks|templates', 'llprop': 'url',
-                            'inprop': 'url', 'iiprop': 'url', 'redirects': 'True', 'pageids': pageid}
+            query_string = {'action': 'query', 'prop': '|'.join(query_props), 'llprop': 'url',
+                            'inprop': 'url', 'iiprop': 'url', 'redirects': 'true', 'pageids': pageid}
         else:
             return PageInfo(title='', link=self.wiki_info.articlepath.replace("$1", ""), info=self.wiki_info,
                             interwiki_prefix=_prefix, templates=[])
         use_textextracts = True if 'TextExtracts' in self.wiki_info.extensions else False
         if use_textextracts and not selected_section:
-            query_string.update({'prop': 'info|imageinfo|langlinks|templates|extracts|pageprops',
+            query_props += ['extracts', 'pageprops']
+            query_string.update({'prop': "|".join(query_props),
                                  'ppprop': 'description|displaytitle|disambiguation|infoboxes', 'explaintext': 'true',
                                  'exsectionformat': 'plain', 'exchars': '200'})
         get_page = await self.get_json(**query_string)
@@ -535,9 +543,9 @@ class WikiLib:
                 if 'invalid' in page_raw:
                     match = re.search(r'"(.)"', page_raw['invalidreason'])
                     if match:
-                        rs = self.locale.t("wiki.message.utils.wikilib.error.invalid_character", char=match.group(1))
+                        rs = self.locale.t("wiki.message.utils.wikilib.invalid.invalid_character", char=match.group(1))
                     else:
-                        rs = self.locale.t("wiki.message.utils.wikilib.error.empty_title")
+                        rs = self.locale.t("wiki.message.utils.wikilib.invalid.empty_title")
                     page_info.desc = rs
                 elif 'missing' in page_raw:
                     if 'title' in page_raw:
@@ -591,7 +599,7 @@ class WikiLib:
                                             invalid_namespace = research[1]
                                         return research
                                     except Exception:
-                                        if Config('debug'):
+                                        if Config('debug', False):
                                             Logger.error(traceback.format_exc())
                                         return None, False
 
@@ -734,7 +742,10 @@ class WikiLib:
                     iw_title = iw_title.group(1)
                     _prefix += i['iw'] + ':'
                     _iw = True
-                    iw_query = await WikiLib(url=self.wiki_info.interwiki[i['iw']], headers=self.headers) \
+
+                    if not (get_iw := self.wiki_info.interwiki.get(i['iw'])):
+                        raise InvalidWikiError(self.locale.t("wiki.message.utils.wikilib.get_failed.invalid_interwiki"))
+                    iw_query = await WikiLib(url=get_iw, headers=self.headers) \
                         .parse_page_info(iw_title, lang=lang,
                                          _tried=_tried + 1,
                                          _prefix=_prefix,

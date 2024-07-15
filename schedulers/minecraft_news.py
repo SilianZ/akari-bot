@@ -5,16 +5,14 @@ from urllib.parse import quote
 
 import ujson as json
 
-from config import Config, CFG
+from config import Config
 from core.builtins import Url, I18NContext
 from core.logger import Logger
 from core.queue import JobQueue
 from core.scheduler import Scheduler, IntervalTrigger
 from core.utils.http import get_url
 from core.utils.storedata import get_stored_list, update_stored_list
-
-web_render = CFG.get_url('web_render')
-web_render_local = CFG.get_url('web_render_local')
+from core.utils.web_render import webrender
 
 
 class Article:
@@ -43,19 +41,16 @@ class Article:
         return random_tags
 
 
-@Scheduler.scheduled_job(IntervalTrigger(seconds=60 if not Config('slower_schedule') else 180))
-async def start_check_news(use_local=True):
+@Scheduler.scheduled_job(IntervalTrigger(seconds=60 if not Config('slower_schedule', False) else 180))
+async def start_check_news():
     baseurl = 'https://www.minecraft.net'
     url = quote(
-        f'https://www.minecraft.net/content/minecraft-net/_jcr_content.articles.grid?tileselection=auto&tagsPath={",".join(Article.random_tags())}&offset=0&pageSize={Article.count}')
-    if not web_render_local:
-        if not web_render:
-            Logger.warn('[Webrender] Webrender is not configured.')
-            return
-        use_local = False
+        f'https://www.minecraft.net/content/minecraft-net/_jcr_content.articles.grid?tileselection=auto&tagsPath={
+            ",".join(
+                Article.random_tags())}&offset=0&pageSize={
+            Article.count}')
     try:
-        get = (web_render_local if use_local else web_render) + 'source?url=' + url
-        getpage = await get_url(get, 200, attempt=1, request_private_ip=True, logging_err_resp=False)
+        getpage = await get_url(webrender('source', url), 200, attempt=1, request_private_ip=True, logging_err_resp=False)
         if getpage:
             alist = get_stored_list('scheduler', 'mcnews')
             o_json = json.loads(getpage)
@@ -75,7 +70,7 @@ async def start_check_news(use_local=True):
                     alist.append(title)
                     update_stored_list('scheduler', 'mcnews', alist)
     except Exception:
-        if Config('debug'):
+        if Config('debug', False):
             Logger.error(traceback.format_exc())
 
 
@@ -104,5 +99,5 @@ async def feedback_news():
                     alist.append(name)
                     update_stored_list('scheduler', 'mcfeedbacknews', alist)
         except Exception:
-            if Config('debug'):
+            if Config('debug', False):
                 Logger.error(traceback.format_exc())

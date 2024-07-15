@@ -1,5 +1,5 @@
 import asyncio
-from datetime import datetime, UTC
+from datetime import datetime
 from typing import List
 
 from config import Config
@@ -29,6 +29,8 @@ class MessageSession(MessageSessionT):
         self.custom_admins = self.data.custom_admins
         self.enabled_modules = self.data.enabled_modules
         self.locale = Locale(self.data.locale)
+        self.name = self.locale.t('bot_name')
+        self.petal = self.data.petal
         self.timestamp = datetime.now()
         self.tmp = {}
         self._tz_offset = self.options.get(
@@ -39,12 +41,12 @@ class MessageSession(MessageSessionT):
             -> bool:
         send = None
         ExecutionLockList.remove(self)
-        if Config('no_confirm'):
+        if Config('no_confirm', False):
             return True
         if message_chain:
             message_chain = MessageChain(message_chain)
             if append_instruction:
-                message_chain.append(Plain(self.locale.t("message.wait.confirm.prompt.type1")))
+                message_chain.append(I18NContext("message.wait.prompt.confirm"))
             send = await self.send_message(message_chain, quote)
         flag = asyncio.Event()
         MessageTaskManager.add_task(self, flag, timeout=timeout)
@@ -71,7 +73,7 @@ class MessageSession(MessageSessionT):
         if message_chain:
             message_chain = MessageChain(message_chain)
             if append_instruction:
-                message_chain.append(Plain(self.locale.t("message.wait.confirm.prompt.type2")))
+                message_chain.append(I18NContext("message.wait.prompt.next_message"))
             send = await self.send_message(message_chain, quote)
         flag = asyncio.Event()
         MessageTaskManager.add_task(self, flag, timeout=timeout)
@@ -96,7 +98,7 @@ class MessageSession(MessageSessionT):
         ExecutionLockList.remove(self)
         message_chain = MessageChain(message_chain)
         if append_instruction:
-            message_chain.append(Plain(self.locale.t("message.reply.prompt")))
+            message_chain.append(I18NContext("message.reply.prompt"))
         send = await self.send_message(message_chain, quote)
         flag = asyncio.Event()
         MessageTaskManager.add_task(self, flag, reply=send.message_id, all_=all_, timeout=timeout)
@@ -172,7 +174,7 @@ class MessageSession(MessageSessionT):
                 ftime_template.append("(UTC)")
             else:
                 ftime_template.append(f"(UTC{self._tz_offset})")
-        return (datetime.fromtimestamp(timestamp, UTC) + self.timezone_offset).strftime(' '.join(ftime_template))
+        return (datetime.utcfromtimestamp(timestamp) + self.timezone_offset).strftime(' '.join(ftime_template))
 
 
 __all__ = ["MessageSession"]

@@ -8,14 +8,11 @@ import ujson as json
 from PIL import Image as PImage
 from aiofile import async_open
 
-from config import CFG
 from core.builtins import Plain, Image, Voice, Embed, MessageChain, MessageSession
 from core.logger import Logger
 from core.utils.cache import random_cache_path
-from core.utils.http import download_to_cache
-
-web_render = CFG.get_url('web_render')
-web_render_local = CFG.get_url('web_render_local')
+from core.utils.http import download
+from core.utils.web_render import WebRender, webrender
 
 
 async def image_split(i: Image) -> List[Image]:
@@ -50,10 +47,9 @@ async def msgchain2image(message_chain: Union[List, MessageChain], msg: MessageS
     :param use_local: 是否使用本地Webrender渲染。
     :return: 图片的相对路径，若渲染失败则返回False。
     '''
-    if not web_render_local:
-        if not web_render:
-            Logger.warn('[Webrender] Webrender is not configured.')
-            return False
+    if not WebRender.status:
+        return False
+    elif not WebRender.local:
         use_local = False
     if isinstance(message_chain, List):
         message_chain = MessageChain(message_chain)
@@ -111,7 +107,7 @@ async def msgchain2image(message_chain: Union[List, MessageChain], msg: MessageS
                     lst.append(f'<img src="data:{ftt.mime};base64,{
                         (base64.encodebytes(data)).decode("utf-8")}" width="720" />')
                 except TypeError:
-                    traceback.print_exc()
+                    Logger.error(traceback.format_exc())
         if isinstance(m, Voice):
             lst.append('<div>[Voice]</div>')
         if isinstance(m, Embed):
@@ -128,7 +124,7 @@ async def msgchain2image(message_chain: Union[List, MessageChain], msg: MessageS
         fi.write(d['content'])
 
     try:
-        pic = await download_to_cache((web_render_local if use_local else web_render) + 'element_screenshot',
+        pic = await download(webrender('element_screenshot', use_local=use_local),
                                       status_code=200,
                                       headers={'Content-Type': 'application/json'},
                                       method="POST",
@@ -139,9 +135,13 @@ async def msgchain2image(message_chain: Union[List, MessageChain], msg: MessageS
                                       )
     except aiohttp.ClientConnectorError:
         if use_local:
-            pic = await download_to_cache(web_render, method='POST', headers={
-                'Content-Type': 'application/json',
-            }, post_data=html_, request_private_ip=True)
+            pic = await download(webrender('element_screenshot', use_local=False),
+                                          status_code=200,
+                                          method='POST',
+                                          headers={'Content-Type': 'application/json'},
+                                          post_data=html_,
+                                          request_private_ip=True
+                                          )
         else:
             Logger.info('[Webrender] Generation Failed.')
             return False
@@ -155,10 +155,9 @@ async def svg_render(file_path: str, use_local=True):
     :param use_local: 是否使用本地Webrender渲染。
     :return: 图片的相对路径，若渲染失败则返回False。
     '''
-    if not web_render_local:
-        if not web_render:
-            Logger.warn('[Webrender] Webrender is not configured.')
-            return False
+    if not WebRender.status:
+        return False
+    elif not WebRender.local:
         use_local = False
 
     html_template = """<!DOCTYPE html>
@@ -206,7 +205,7 @@ async def svg_render(file_path: str, use_local=True):
     <title>File</title>
 </head>
 <body>
-    <div class="botbox"'>
+    <div class="botbox">
     ${content}
     </div>
 </body>
@@ -226,7 +225,7 @@ async def svg_render(file_path: str, use_local=True):
         fi.write(d['content'])
 
     try:
-        pic = await download_to_cache((web_render_local if use_local else web_render) + 'element_screenshot',
+        pic = await download(webrender('element_screenshot', use_local=use_local),
                                       status_code=200,
                                       headers={'Content-Type': 'application/json'},
                                       method="POST",
@@ -237,9 +236,13 @@ async def svg_render(file_path: str, use_local=True):
                                       )
     except aiohttp.ClientConnectorError:
         if use_local:
-            pic = await download_to_cache(web_render, method='POST', headers={
-                'Content-Type': 'application/json',
-            }, post_data=html_, request_private_ip=True)
+            pic = await download(webrender('element_screenshot', use_local=False),
+                                          status_code=200,
+                                          method='POST',
+                                          headers={'Content-Type': 'application/json'},
+                                          post_data=html_,
+                                          request_private_ip=True
+                                          )
         else:
             Logger.info('[Webrender] Generation Failed.')
             return False

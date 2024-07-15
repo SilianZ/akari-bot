@@ -110,7 +110,7 @@ async def iwremove(ctx: discord.ApplicationContext, interwiki: str):
 @iw.command(name="list", description="Lists the currently configured Interwiki.")
 @discord.option(name="legacy", choices=['false', 'true'], description="Whether to use legacy mode.")
 async def iw_list(ctx: discord.ApplicationContext, legacy: str):
-    legacy = "legacy" if legacy == "true" else ""
+    legacy = "--legacy" if legacy == "true" else ""
     await slash_parser(ctx, f'iw list {legacy}')
 
 
@@ -157,11 +157,6 @@ async def set_prefix(ctx: discord.ApplicationContext, prefix: str):
 @p.command(name="reset", description="Reset custom wiki prefix.")
 async def reset_prefix(ctx: discord.ApplicationContext):
     await slash_parser(ctx, 'prefix reset')
-
-
-@wiki.command(name="fandom", description="Toggle whether to use Fandom global Interwiki queries.")
-async def fandom(ctx: discord.ApplicationContext):
-    await slash_parser(ctx, 'fandom')
 
 
 @wiki.command(name="redlink", description="Toggle whether to return the edit link when the page does not exist.")
