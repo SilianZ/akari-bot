@@ -124,15 +124,15 @@ async def _(msg: Bot.MessageSession, target: str):
     elif 'edit' in msg.parsed_msg:
         k = msg.parsed_msg.get('<k>')
         v = msg.parsed_msg.get('<v>')
-        if re.match(r'\[.*\]|{.*}', v):
+        if re.match(r'\[.*\]|\{.*\}', v):
             try:
                 v = v.replace('\'', '\"')
                 v = json.loads(v)
-            except BaseException:
+            except json.JSONDecodeError:
                 await msg.finish(msg.locale.t("core.message.config.write.failed"))
-        elif v.upper() == 'TRUE':
+        elif v.lower() == 'true':
             v = True
-        elif v.upper() == 'FALSE':
+        elif v.lower() == 'false':
             v = False
         target_data.edit_option(k, v)
         await msg.finish(msg.locale.t("core.message.set.option.edit.success", k=k, v=v))
@@ -467,7 +467,7 @@ async def _(msg: Bot.MessageSession, k: str, v: str):
         try:
             v = v.replace('\'', '\"')
             v = json.loads(v)
-        except BaseException:
+        except json.JSONDecodeError:
             await msg.finish(msg.locale.t("core.message.config.write.failed"))
 
     CFG.write(k, v, msg.parsed_msg['-s'])
@@ -523,12 +523,3 @@ if Config('enable_petal', False):
         else:
             msg.data.clear_petal()
             await msg.finish(msg.locale.t('core.message.petal.clear.self'))
-
-lagrange = module('lagrange', required_superuser=True, base=True)
-
-
-@lagrange.command()
-async def _(msg: Bot.MessageSession):
-    await msg.finish(f'Keepalive: {str(Temp.data.get("lagrange_keepalive", "None"))}\n'
-                     f'Status: {str(Temp.data.get("lagrange_status", "None"))}\n'
-                     f'Groups: {str(Temp.data.get("lagrange_available_groups", "None"))}')
