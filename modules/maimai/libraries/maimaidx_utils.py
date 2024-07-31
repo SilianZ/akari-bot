@@ -6,9 +6,10 @@ from datetime import datetime
 import ujson as json
 
 from core.builtins import Bot, MessageChain, Plain
+from core.logger import Logger
 from core.utils.http import get_url
 from core.utils.image import msgchain2image
-from .maimaidx_apidata import get_record, get_total_record, get_plate
+from .maimaidx_apidata import get_record, get_song_record, get_total_record, get_plate
 from .maimaidx_music import TotalList
 
 SONGS_PER_PAGE = 30
@@ -24,23 +25,18 @@ sd_plate_conversion = {
     '檄': 'maimai GreeN PLUS',
     '橙': 'maimai ORANGE',
     '暁': 'maimai ORANGE PLUS',
-    '晓': 'maimai ORANGE PLUS',
     '桃': 'maimai PiNK',
     '櫻': 'maimai PiNK PLUS',
-    '樱': 'maimai PiNK PLUS',
     '紫': 'maimai MURASAKi',
     '菫': 'maimai MURASAKi PLUS',
-    '堇': 'maimai MURASAKi PLUS',
     '白': 'maimai MiLK',
     '雪': 'MiLK PLUS',
     '輝': 'maimai FiNALE',
-    '辉': 'maimai FiNALE'
 }
 
 dx_plate_conversion = {
     '熊': 'maimai でらっくす',
     '華': 'maimai でらっくす',
-    '华': 'maimai でらっくす',
     '爽': 'maimai でらっくす Splash',
     '煌': 'maimai でらっくす Splash',
     '宙': 'maimai でらっくす UNiVERSE',
@@ -48,7 +44,6 @@ dx_plate_conversion = {
     '祭': 'maimai でらっくす FESTiVAL',
     '祝': 'maimai でらっくす FESTiVAL',
     '双': 'maimai でらっくす BUDDiES',
-    '雙': 'maimai でらっくす BUDDiES',
 }
 
 grade_conversion = {
@@ -237,6 +232,7 @@ def calc_dxstar(dxscore: int, dxscore_max: int) -> str:
 
 async def generate_best50_text(msg: Bot.MessageSession, payload: dict) -> MessageChain:
     data = await get_record(msg, payload)
+
     dx_charts = data["charts"]["dx"]
     sd_charts = data["charts"]["sd"]
 
@@ -305,14 +301,14 @@ async def generate_best50_text(msg: Bot.MessageSession, payload: dict) -> Messag
         await msg.finish(msg.locale.t("error.config.webrender.invalid"))
 
 
-async def get_rank(msg: Bot.MessageSession, payload: dict):
+async def get_rank(msg: Bot.MessageSession, payload: dict, use_cache: bool = True):
     time = msg.ts2strftime(datetime.now().timestamp(), timezone=False)
 
     url = f"https://www.diving-fish.com/api/maimaidxprober/rating_ranking"
     rank_data = await get_url(url, 200, fmt='json')
     rank_data = sorted(rank_data, key=lambda x: x['ra'], reverse=True)  # 根据rating排名并倒序
 
-    player_data = await get_record(msg, payload)
+    player_data = await get_record(msg, payload, use_cache)
     username = player_data['username']
 
     rating = 0
@@ -354,42 +350,64 @@ async def get_rank(msg: Bot.MessageSession, payload: dict):
                                   surpassing_rate="{:.2f}".format(surpassing_rate)))
 
 
-async def get_player_score(msg: Bot.MessageSession, payload: dict, input_id: str) -> str:
-    res = await get_total_record(msg, payload, utage=True)  # 获取用户成绩信息
-    verlist = res["verlist"]
+async def get_player_score(msg: Bot.MessageSession, payload: dict, input_id: str, use_cache: bool = True) -> str:
+    if int(input_id) >= 100000:
+        await msg.finish(msg.locale.t("maimai.message.info.utage"))
 
     music = (await total_list.get()).by_id(input_id)
     level_scores = {level: [] for level in range(len(music['level']))}  # 获取歌曲难度列表
 
-    for entry in verlist:
-        sid = entry["id"]
-        achievements = entry["achievements"]
-        fc = entry["fc"]
-        fs = entry["fs"]
-        level_index = entry["level_index"]
+    try:
+        res = await get_song_record(msg, payload, input_id, use_cache)
+        for sid, records in res.items():
+            if str(sid) == input_id:
+                for entry in records:
+                    achievements = entry["achievements"]
+                    fc = entry["fc"]
+                    fs = entry["fs"]
+                    level_index = entry["level_index"]
+                    score_rank = next(
+                    # 根据成绩获得等级
+                        rank for interval, rank in score_to_rank.items() if interval[0] <= achievements < interval[1]
+                    )
+                    combo_rank = combo_conversion.get(fc, "")  # Combo字典转换
+                    sync_rank = sync_conversion.get(fs, "")  # Sync字典转换
+                    dxscore = entry.get("dxScore", 0)
+                    dxscore_max = sum(music['charts'][level_index]['notes']) * 3
+                    level_scores[level_index].append(
+                        (diffs[level_index], achievements, score_rank, combo_rank, sync_rank, dxscore, dxscore_max)
+                        )
+    except Exception:
+        res = await get_total_record(msg, payload, True, use_cache)
+        records = res["verlist"]
 
-        if str(sid) == input_id:
-            score_rank = next(
-                # 根据成绩获得等级
-                rank for interval, rank in score_to_rank.items() if interval[0] <= achievements < interval[1]
-            )
-
-            combo_rank = combo_conversion.get(fc, "")  # Combo字典转换
-            sync_rank = sync_conversion.get(fs, "")  # Sync字典转换
-
-            level_scores[level_index].append((diffs[level_index], achievements, score_rank, combo_rank, sync_rank))
+        for entry in records:
+            if str(entry.get("id")) == input_id:
+                achievements = entry["achievements"]
+                fc = entry["fc"]
+                fs = entry["fs"]
+                level_index = entry["level_index"]
+                score_rank = next(
+                    # 根据成绩获得等级
+                    rank for interval, rank in score_to_rank.items() if interval[0] <= achievements < interval[1]
+                )
+                combo_rank = combo_conversion.get(fc, "")  # Combo字典转换
+                sync_rank = sync_conversion.get(fs, "")  # Sync字典转换
+                level_scores[level_index].append((diffs[level_index], achievements, score_rank, combo_rank, sync_rank))
 
     output_lines = []
     for level, scores in level_scores.items():  # 使用循环输出格式化文本
         if scores:
             output_lines.append(f"{diffs[level]} {music['level'][level]}")  # 难度字典转换
             for score in scores:
-                level, achievements, score_rank, combo_rank, sync_rank = score
+                level, achievements, score_rank, combo_rank, sync_rank, *dx = score
                 entry_output = f"{achievements:.4f} {score_rank}"
                 if combo_rank and sync_rank:
                     entry_output += f" {combo_rank} {sync_rank}"
                 elif combo_rank or sync_rank:
                     entry_output += f" {combo_rank}{sync_rank}"
+                if dx:
+                    entry_output += f"\n{dx[0]}/{dx[1]} {calc_dxstar(dx[0], dx[1])}"
                 output_lines.append(entry_output)
         else:
             output_lines.append(
@@ -398,24 +416,25 @@ async def get_player_score(msg: Bot.MessageSession, payload: dict, input_id: str
     return '\n'.join(output_lines)
 
 
-async def get_level_process(msg: Bot.MessageSession, payload: dict, process: str, goal: str) -> tuple[str, bool]:
+async def get_level_process(msg: Bot.MessageSession, payload: dict, level: str, goal: str, 
+                            use_cache: bool = True) -> tuple[str, bool]:
     song_played = []
     song_remain = []
 
-    res = await get_total_record(msg, payload)  # 获取用户成绩信息
+    res = await get_total_record(msg, payload, use_cache=use_cache)
     verlist = res["verlist"]
 
     goal = goal.upper()  # 输入强制转换为大写以适配字典
     if goal in scoreRank:
         achievement = achievementList[scoreRank.index(goal) - 1]  # 根据列表将输入评级转换为成绩分界线
         for song in verlist:
-            if song['level'] == process and song['achievements'] < achievement:  # 达成难度条件但未达成目标条件
+            if song['level'] == level and song['achievements'] < achievement:  # 达成难度条件但未达成目标条件
                 song_remain.append([song['id'], song['level_index']])  # 将剩余歌曲ID和难度加入目标列表
             song_played.append([song['id'], song['level_index']])  # 将已游玩歌曲ID和难度加入列表
     elif goal in comboRank:
         combo_index = comboRank.index(goal)  # 根据API结果字典转换
         for song in verlist:
-            if song['level'] == process and (
+            if song['level'] == level and (
                 (song['fc'] and combo_rank.index(
                     song['fc']) < combo_index) or not song['fc']):  # 达成难度条件但未达成目标条件
                 song_remain.append([song['id'], song['level_index']])  # 将剩余歌曲ID和难度加入目标列表
@@ -423,15 +442,15 @@ async def get_level_process(msg: Bot.MessageSession, payload: dict, process: str
     elif goal in syncRank:
         sync_index = syncRank.index(goal)  # 根据API结果字典转换
         for song in verlist:
-            if song['level'] == process and (
+            if song['level'] == level and (
                 (song['fs'] and sync_rank.index(
                     song['fs']) < sync_index) or not song['fs']):  # 达成难度条件但未达成目标条件
                 song_remain.append([song['id'], song['level_index']])  # 将剩余歌曲ID和难度加入目标列表
             song_played.append([song['id'], song['level_index']])  # 将已游玩歌曲ID和难度加入列表
-    for music in (await total_list.get()):  # 遍历歌曲列表
-        for i, lv in enumerate(music.level[2:]):
-            if lv == process and [int(music.id), i + 2] not in song_played:
-                song_remain.append([int(music.id), i + 2])  # 将未游玩歌曲ID和难度加入目标列表
+    for music in ((await total_list.get()).filter(level=level)):  # 遍历歌曲列表
+        for i in enumerate(music.level):
+            if i[1] == level and [int(music.id), i[0]] not in song_played:
+                song_remain.append([int(music.id), i[0]])  # 将未游玩歌曲ID和难度加入目标列表
 
     song_remain = sorted(song_remain, key=lambda i: int(i[1]))  # 根据难度排序结果
     song_remain = sorted(song_remain, key=lambda i: int(i[0]))  # 根据ID排序结果
@@ -445,7 +464,7 @@ async def get_level_process(msg: Bot.MessageSession, payload: dict, process: str
     get_img = False
     if len(song_remain) > 0:
         song_record = [[s['id'], s['level_index']] for s in verlist]
-        output += f"{msg.locale.t('maimai.message.process.last', process=process, goal=goal)}\n"
+        output += f"{msg.locale.t('maimai.message.process.last', level=level, goal=goal)}\n"
         for i, s in enumerate(sorted(songs, key=lambda i: i[3], reverse=True)):  # 显示剩余歌曲信息
             self_record = ''
             if [int(s[0]), s[-2]] in song_record:
@@ -462,23 +481,23 @@ async def get_level_process(msg: Bot.MessageSession, payload: dict, process: str
             if i == SONGS_PER_PAGE - 1:
                 break
         if len(song_remain) > SONGS_PER_PAGE:
-            output += msg.locale.t('maimai.message.process', song_remain=len(song_remain), process=process, goal=goal)
+            output += msg.locale.t('maimai.message.process', song_remain=len(song_remain), level=level, goal=goal)
         if len(song_remain) > SONGS_NEED_IMG:
             get_img = True
     else:
-        await msg.finish(msg.locale.t('maimai.message.process.completed', process=process, goal=goal))
+        await msg.finish(msg.locale.t('maimai.message.process.completed', level=level, goal=goal))
 
     return output, get_img
 
 
-async def get_score_list(msg: Bot.MessageSession, payload: dict, level: str, page: int) -> tuple[str, bool]:
-    player_data = await get_record(msg, payload)
+async def get_score_list(msg: Bot.MessageSession, payload: dict, level: str, page: int, 
+                         use_cache: bool = True) -> tuple[str, bool]:
+    res = await get_total_record(msg, payload, use_cache=use_cache)
+    records = res["verlist"]
 
-    res = await get_total_record(msg, payload)  # 获取用户成绩信息
-    verlist = res["verlist"]
-
+    player_data = await get_record(msg, payload, use_cache)
     song_list = []
-    for song in verlist:
+    for song in records:
         if song['level'] == level:
             song_list.append(song)  # 将符合难度的成绩加入列表
 
@@ -488,6 +507,7 @@ async def get_score_list(msg: Bot.MessageSession, payload: dict, level: str, pag
     for i, s in enumerate(sorted(song_list, key=lambda i: i['achievements'], reverse=True)):  # 根据成绩排序
         if (page - 1) * SONGS_PER_PAGE <= i < page * SONGS_PER_PAGE:
             music = (await total_list.get()).by_id(str(s['id']))
+
             output = f"{music.id} - {music.title}{' (DX)' if music.type == 'DX' else ''} {diffs[s['level_index']]} {
                 music.ds[s['level_index']]} {s['achievements']:.4f}%"
             if s["fc"] and s["fs"]:
@@ -509,7 +529,7 @@ async def get_score_list(msg: Bot.MessageSession, payload: dict, level: str, pag
     return res, get_img
 
 
-async def get_plate_process(msg: Bot.MessageSession, payload: dict, plate: str) -> tuple[str, bool]:
+async def get_plate_process(msg: Bot.MessageSession, payload: dict, plate: str, use_cache: bool = True) -> tuple[str, bool]:
     song_played = []
     song_remain_basic = []
     song_remain_advanced = []
@@ -540,7 +560,7 @@ async def get_plate_process(msg: Bot.MessageSession, payload: dict, plate: str) 
     else:
         await msg.finish(msg.locale.t('maimai.message.plate.plate_not_found'))
 
-    res = await get_plate(msg, payload, version)  # 获取用户成绩信息
+    res = await get_plate(msg, payload, version, use_cache)
     verlist = res["verlist"]
 
     if goal in ['將', '者']:
@@ -624,17 +644,33 @@ async def get_plate_process(msg: Bot.MessageSession, payload: dict, plate: str) 
                                           music.ds[song[1]], song[1], music.type])
 
     if version == '真':
-        song_expect = [70]
+        song_expect = [70, 146]
+    elif version == '超':
+        song_expect = [185, 189, 190]
     elif version == '檄':
         song_expect = [341]
+    elif version == '暁':
+        song_expect = [419]
     elif version == '桃':
         song_expect = [451, 455, 460]
+    elif version == '櫻':
+        song_expect = [524]
     elif version == '菫':
         song_expect = [853]
+    elif version == '白':
+        song_expect = [687, 688, 712]
+    elif version == '雪':
+        song_expect = [731]
     elif version == '輝':
         song_expect = [792]
     elif version == '舞':
-        song_expect = [341, 451, 455, 460, 792, 853]
+        song_expect = [146, 185, 189, 190, 341, 419, 451, 455, 460, 524, 687, 688, 712, 731, 792, 853]
+    elif version in ['熊', '華']:
+        song_expect = [10146]
+    elif version in ['爽', '煌']:
+        song_expect = [11213]
+    elif version in ['宙', '星']:
+        song_expect = [11253, 11267]
     else:
         song_expect = []
 
@@ -736,7 +772,7 @@ async def get_grade_info(msg: Bot.MessageSession, grade: str):
     grade_key, grade = key_process(grade, grade_conversion)
 
     if not grade_key:
-        await msg.finish(msg.locale.t('maimai.message.grade.grade_not_found'))
+        await msg.finish(msg.locale.t('maimai.message.grade_invalid'))
     elif grade_key.startswith('tgrade'):
         grade_type = 'tgrade'
     elif grade_key.startswith('grade'):
