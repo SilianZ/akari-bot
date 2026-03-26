@@ -120,9 +120,10 @@ async def get_article(version):
             soup = BeautifulSoup(html, "html.parser")
 
             title = soup.find("h1")
-            if title.text == "404":
+            if title and title.text == "404":
                 return "", ""
-            return link, title.text
+            if title:
+                return link, title.text
     except Exception:
         if Config("debug", False):
             Logger.exception()
@@ -149,14 +150,19 @@ async def _():
                 time_snapshot = datetime.fromisoformat(v["releaseTime"]).timestamp()
 
         if release not in verlist:
-            Logger.info(f"Huh, we find {release}.")
+            Logger.info(f"Huh, we found {release}.")
 
             await Bot.post_message(
                 "mcv_rss",
                 message=MessageChain.assign(
                     [
-                        I18NContext("mcv_rss.message.mcv_rss.release", version=release),
-                        FormattedTime(time_release),
+                        I18NContext(
+                            "mcv_rss.message.mcv_rss.release",
+                            version=release,
+                            record_time=FormattedTime(time_release),
+                            record_ts=time_release,
+                            detected_time=FormattedTime(datetime.now().timestamp()),
+                        ),
                     ]
                 ),
             )
@@ -181,7 +187,7 @@ async def _():
                     get_stored_news_title.append(article[1])
                     await update_stored_list(Bot, "mcnews", get_stored_news_title)
         if snapshot not in verlist:
-            Logger.info(f"Huh, we find {snapshot}.")
+            Logger.info(f"Huh, we found {snapshot}.")
             await Bot.post_message(
                 "mcv_rss",
                 message=MessageChain.assign(
@@ -189,8 +195,10 @@ async def _():
                         I18NContext(
                             "mcv_rss.message.mcv_rss.snapshot",
                             version=file["latest"]["snapshot"],
+                            record_time=FormattedTime(time_snapshot),
+                            record_ts=time_snapshot,
+                            detected_time=FormattedTime(datetime.now().timestamp()),
                         ),
-                        FormattedTime(time_snapshot),
                     ]
                 ),
             )
@@ -227,7 +235,7 @@ async def _():
         verlist = await get_stored_list(Bot, "mcbv_rss")
         version = google_play_scraper("com.mojang.minecraftpe")["version"]
         if version not in verlist:
-            Logger.info(f"Huh, we find Bedrock {version}.")
+            Logger.info(f"Huh, we found Bedrock {version}.")
             await Bot.post_message(
                 "mcbv_rss",
                 message=MessageChain.assign([I18NContext("mcv_rss.message.mcbv_rss", version=version)]),

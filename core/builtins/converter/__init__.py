@@ -10,19 +10,37 @@ from datetime import timedelta
 from cattrs import Converter
 
 import core.builtins.message.elements as elements
+from core.builtins.message.elements import I18NContextElement
 from core.builtins.types import MessageElement
 from core.database.models import TargetInfo, SenderInfo
 from core.i18n import Locale
+from core.logger import Logger
 
 # 创建类型转换器实例
 converter = Converter()
 
 # ========== 注册 unstructure 钩子（对象 -> 字典）==========
 
+
 # 消息元素类型的反结构化处理
 # 将任何 MessageElement 对象转换为字典，添加 _type 字段标记类型
+def elements_to_kwargs(kwargs):
+    for k in kwargs:
+        if isinstance(kwargs[k], MessageElement):
+            kwargs[k] = {"_type": type(kwargs[k]).__name__, "element": converter.unstructure(kwargs[k])}
+    return kwargs
+
+
 converter.register_unstructure_hook(
-    MessageElement, lambda obj: {"_type": type(obj).__name__, **converter.unstructure(obj)}
+    MessageElement,
+    lambda obj: {
+        "_type": type(obj).__name__,
+        **(
+            converter.unstructure(obj)
+            if not isinstance(obj, I18NContextElement)
+            else {"key": obj.key, "disable_joke": obj.disable_joke, "kwargs": elements_to_kwargs(obj.kwargs)}
+        ),
+    },
 )
 
 # 会话信息的反结构化处理
@@ -62,5 +80,18 @@ converter.register_structure_hook(Locale, lambda o, _: Locale(o["locale"]))
 # 时间间隔的结构化处理
 # 从字典恢复为 timedelta 对象，使用保存的秒数值
 converter.register_structure_hook(timedelta, lambda o, _: timedelta(seconds=o["seconds"]))
+
+
+def kwargs_to_elements(kwargs):
+    Logger.debug(f"kwargs before structure: {kwargs}")
+    for k in kwargs:
+        if isinstance(kwargs[k], dict) and (g := getattr(elements, kwargs[k]["_type"])):
+            kwargs[k] = converter.structure(kwargs[k]["element"], g)
+    return kwargs
+
+
+converter.register_structure_hook(
+    I18NContextElement, lambda o, _: I18NContextElement(o["key"], o["disable_joke"], kwargs_to_elements(o["kwargs"]))
+)
 
 __all__ = ["converter"]
