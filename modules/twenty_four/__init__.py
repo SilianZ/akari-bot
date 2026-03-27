@@ -110,6 +110,9 @@ def find_solution(numbers):
                 rest_exprs = [exprs[k] for k in range(len(nums)) if k != i and k != j]
 
                 for op, (func, prec) in ops.items():
+                    if op in ["+", "*"] and j < i:
+                        continue
+
                     val = func(a, b)
                     if val is None:
                         continue
