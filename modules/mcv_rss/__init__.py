@@ -160,8 +160,7 @@ async def _():
                             "mcv_rss.message.mcv_rss.release",
                             version=release,
                             record_time=FormattedTime(time_release),
-                            record_ts=time_release,
-                            detected_time=FormattedTime(datetime.now().timestamp()),
+                            posted_time=FormattedTime(datetime.now().timestamp()),
                         ),
                     ]
                 ),
@@ -196,8 +195,7 @@ async def _():
                             "mcv_rss.message.mcv_rss.snapshot",
                             version=file["latest"]["snapshot"],
                             record_time=FormattedTime(time_snapshot),
-                            record_ts=time_snapshot,
-                            detected_time=FormattedTime(datetime.now().timestamp()),
+                            posted_time=FormattedTime(datetime.now().timestamp()),
                         ),
                     ]
                 ),
