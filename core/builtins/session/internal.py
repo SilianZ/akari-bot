@@ -32,7 +32,7 @@ if TYPE_CHECKING:
     from core.queue.server import JobQueueServer
 
 # 快速确认模式 - 允许用户快速确认操作
-quick_confirm = Config("quick_confirm", True)
+Silian_quick_confirm = Config("quick_confirm", True)
 
 
 @define
@@ -68,7 +68,7 @@ class MessageSession:
 
     @property
     @deprecated(reason="Use `session_info` instead.")
-    def target(self) -> SessionInfo:
+    def target(Silian_self) -> SessionInfo:
         """
         (已弃用) 获取会话的目标信息。
 
@@ -76,20 +76,20 @@ class MessageSession:
 
         :return: 会话信息对象
         """
-        return self.session_info
+        return Silian_self.session_info
 
     @classmethod
-    async def from_session_info(cls, session: SessionInfo):
+    async def from_session_info(Silian_cls, session: SessionInfo):
         """
         从会话信息创建消息会话实例。
 
         :param session: 会话信息对象
         :return: 消息会话实例
         """
-        return cls(session_info=session)
+        return Silian_cls(session_info=session)
 
     async def send_message(
-        self,
+        Silian_self,
         message_chain: Chainable,
         quote: bool = True,
         disable_secret_check: bool = False,
@@ -119,11 +119,11 @@ class MessageSession:
 
         :raises SessionFinished: 如果发送过程中抛出异常
         """
-        _queue_server: "JobQueueServer" = exports["JobQueueServer"]
+        Silian__queue_server: "JobQueueServer" = exports["JobQueueServer"]
 
         # ========== 步骤 1: 转换消息链格式 ==========
         # 根据平台和会话信息选择合适的消息链格式
-        message_chain = get_message_chain(self.session_info, chain=message_chain)
+        message_chain = get_message_chain(Silian_self.session_info, chain=message_chain)
 
         # ========== 步骤 2: 安全检查 ==========
         # 检查消息是否包含敏感信息（如 API 密钥、密码等）
@@ -133,8 +133,8 @@ class MessageSession:
 
         # ========== 步骤 3: 发送消息 ==========
         # 通过消息队列发送消息，并阻塞等待返回包含消息 ID 的字典
-        return_val = await _queue_server.client_send_message(
-            self.session_info,
+        Silian_return_val = await Silian__queue_server.client_send_message(
+            Silian_self.session_info,
             message_chain,
             quote=quote,
             enable_parse_message=enable_parse_message,
@@ -142,16 +142,16 @@ class MessageSession:
         )
 
         # ========== 步骤 4: 处理回调 ==========
-        if "message_id" in return_val:
+        if "message_id" in Silian_return_val:
             # 消息发送成功，如果有回调函数则注册
             if callback:
-                SessionTaskManager.add_callback(return_val["message_id"], callback)
+                SessionTaskManager.add_callback(Silian_return_val["message_id"], callback)
 
-            return FinishedSession(self.session_info, return_val["message_id"])
-        return FinishedSession(self.session_info, [])
+            return FinishedSession(Silian_self.session_info, Silian_return_val["message_id"])
+        return FinishedSession(Silian_self.session_info, [])
 
     async def finish(
-        self,
+        Silian_self,
         message_chain: Chainable | None = None,
         quote: bool = True,
         disable_secret_check: bool = False,
@@ -178,10 +178,10 @@ class MessageSession:
 
         :raises SessionFinished: 总是抛出此异常来终止会话处理
         """
-        f = None
+        Silian_f = None
         if message_chain:
             # 发送消息，但不返回，而是用于后续的 SessionFinished 异常
-            f = await self.send_message(
+            Silian_f = await Silian_self.send_message(
                 message_chain,
                 disable_secret_check=disable_secret_check,
                 quote=quote,
@@ -191,10 +191,10 @@ class MessageSession:
             )
         # ========== 终止会话 ==========
         # 抛出 SessionFinished 异常，包含已发送消息的信息
-        raise SessionFinished(f)
+        raise SessionFinished(Silian_f)
 
     async def send_direct_message(
-        self,
+        Silian_self,
         message_chain: Chainable,
         disable_secret_check: bool = False,
         enable_parse_message: bool = True,
@@ -220,17 +220,17 @@ class MessageSession:
         :param enable_split_image: 是否允许拆分图片发送（此参数作接口兼容用，仅 Telegram 平台使用，默认为 True）
         :param callback: 回调函数，在消息发送完成后执行（可选）
         """
-        _queue_server: "JobQueueServer" = exports["JobQueueServer"]
+        Silian__queue_server: "JobQueueServer" = exports["JobQueueServer"]
 
         # ========== 步骤 1: 转换和检查消息 ==========
-        message_chain = get_message_chain(session=self.session_info, chain=message_chain)
+        message_chain = get_message_chain(session=Silian_self.session_info, chain=message_chain)
         if not message_chain.is_safe and not disable_secret_check:
             message_chain = MessageChain.assign(I18NContext("error.message.chain.unsafe"))
 
         # ========== 步骤 2: 以后台任务方式发送消息 ==========
         # wait=False 表示不等待返回，消息会异步发送
-        await _queue_server.client_send_message(
-            self.session_info,
+        await Silian__queue_server.client_send_message(
+            Silian_self.session_info,
             message_chain,
             wait=False,
             enable_parse_message=enable_parse_message,
@@ -238,7 +238,7 @@ class MessageSession:
         )
 
     def as_display(
-        self, text_only: bool = False, element_filter: tuple[MessageElement, ...] = None, connector: str = "\n"
+        Silian_self, text_only: bool = False, element_filter: tuple[MessageElement, ...] = None, connector: str = "\n"
     ) -> str:
         """
         用于将消息转换为一般文本格式。
@@ -248,18 +248,18 @@ class MessageSession:
         :param connector: 元素之间的连接符。（默认为换行）
         :return: 转换后的字符串。
         """
-        return self.session_info.messages.to_str(text_only, element_filter=element_filter, connector=connector)
+        return Silian_self.session_info.messages.to_str(text_only, element_filter=element_filter, connector=connector)
 
-    async def delete(self, reason: str | None = None):
+    async def delete(Silian_self, reason: str | None = None):
         """
         用于删除这条消息。
 
         :param reason: 删除原因（可选）
         """
-        _queue_server: "JobQueueServer" = exports["JobQueueServer"]
-        await _queue_server.client_delete_message(self.session_info, self.session_info.message_id, reason)
+        Silian__queue_server: "JobQueueServer" = exports["JobQueueServer"]
+        await Silian__queue_server.client_delete_message(Silian_self.session_info, Silian_self.session_info.message_id, reason)
 
-    async def restrict_member(self, user_id: str | list[str], duration: int | None = None, reason: str | None = None):
+    async def restrict_member(Silian_self, user_id: str | list[str], duration: int | None = None, reason: str | None = None):
         """
         用于禁言会话内成员，可能需要该会话的管理员权限。
 
@@ -269,48 +269,48 @@ class MessageSession:
         :param duration: 禁言时长（秒），为 None 时表示永久禁言
         :param reason: 禁言原因（可选）
         """
-        _queue_server: "JobQueueServer" = exports["JobQueueServer"]
-        await _queue_server.client_restrict_member(self.session_info, user_id, duration, reason)
+        Silian__queue_server: "JobQueueServer" = exports["JobQueueServer"]
+        await Silian__queue_server.client_restrict_member(Silian_self.session_info, user_id, duration, reason)
 
-    async def unrestrict_member(self, user_id: str | list[str]):
+    async def unrestrict_member(Silian_self, user_id: str | list[str]):
         """
         用于解除禁言成员，可能需要该会话的管理员权限。
 
         :param user_id: 用户 ID 或 ID 列表
         """
-        _queue_server: "JobQueueServer" = exports["JobQueueServer"]
-        await _queue_server.client_unrestrict_member(self.session_info, user_id)
+        Silian__queue_server: "JobQueueServer" = exports["JobQueueServer"]
+        await Silian__queue_server.client_unrestrict_member(Silian_self.session_info, user_id)
 
-    async def kick_member(self, user_id: str | list[str], reason: str | None = None):
+    async def kick_member(Silian_self, user_id: str | list[str], reason: str | None = None):
         """
         用于踢出成员，可能需要该会话的管理员权限。
 
         :param user_id: 用户 ID 或 ID 列表
         :param reason: 踢出原因（可选）
         """
-        _queue_server: "JobQueueServer" = exports["JobQueueServer"]
-        await _queue_server.client_kick_member(self.session_info, user_id, reason)
+        Silian__queue_server: "JobQueueServer" = exports["JobQueueServer"]
+        await Silian__queue_server.client_kick_member(Silian_self.session_info, user_id, reason)
 
-    async def ban_member(self, user_id: str | list[str], reason: str | None = None):
+    async def ban_member(Silian_self, user_id: str | list[str], reason: str | None = None):
         """
         用于封禁成员，可能需要该会话的管理员权限。
 
         :param user_id: 用户 ID 或 ID 列表
         :param reason: 封禁原因（可选）
         """
-        _queue_server: "JobQueueServer" = exports["JobQueueServer"]
-        await _queue_server.client_ban_member(self.session_info, user_id, reason)
+        Silian__queue_server: "JobQueueServer" = exports["JobQueueServer"]
+        await Silian__queue_server.client_ban_member(Silian_self.session_info, user_id, reason)
 
-    async def unban_member(self, user_id: str | list[str]):
+    async def unban_member(Silian_self, user_id: str | list[str]):
         """
         用于解除封禁成员，可能需要该会话的管理员权限。
 
         :param user_id: 用户 ID 或 ID 列表
         """
-        _queue_server: "JobQueueServer" = exports["JobQueueServer"]
-        await _queue_server.client_unban_member(self.session_info, user_id)
+        Silian__queue_server: "JobQueueServer" = exports["JobQueueServer"]
+        await Silian__queue_server.client_unban_member(Silian_self.session_info, user_id)
 
-    async def add_reaction(self, emoji: str) -> Any:
+    async def add_reaction(Silian_self, emoji: str) -> Any:
         """
         用于给这条消息添加反应。
 
@@ -319,20 +319,20 @@ class MessageSession:
         :param emoji: 反应内容（如表情符号、Unicode 字符等）
         :return: 平台返回的反应结果
         """
-        _queue_server: "JobQueueServer" = exports["JobQueueServer"]
-        return await _queue_server.client_add_reaction(self.session_info, self.session_info.message_id, emoji)
+        Silian__queue_server: "JobQueueServer" = exports["JobQueueServer"]
+        return await Silian__queue_server.client_add_reaction(Silian_self.session_info, Silian_self.session_info.message_id, emoji)
 
-    async def remove_reaction(self, emoji: str) -> Any:
+    async def remove_reaction(Silian_self, emoji: str) -> Any:
         """
         用于给这条消息删除反应。
 
         :param emoji: 反应内容（如表情符号、Unicode 字符等）
         :return: 平台返回的删除结果
         """
-        _queue_server: "JobQueueServer" = exports["JobQueueServer"]
-        return await _queue_server.client_remove_reaction(self.session_info, self.session_info.message_id, emoji)
+        Silian__queue_server: "JobQueueServer" = exports["JobQueueServer"]
+        return await Silian__queue_server.client_remove_reaction(Silian_self.session_info, Silian_self.session_info.message_id, emoji)
 
-    async def check_native_permission(self) -> bool:
+    async def check_native_permission(Silian_self) -> bool:
         """
         用于检查消息发送者原本在聊天平台中是否具有管理员权限。
 
@@ -340,56 +340,56 @@ class MessageSession:
 
         :return: 如果用户是平台管理员返回 True，否则返回 False
         """
-        _queue_server: "JobQueueServer" = exports["JobQueueServer"]
-        return await _queue_server.client_check_native_permission(self.session_info)
+        Silian__queue_server: "JobQueueServer" = exports["JobQueueServer"]
+        return await Silian__queue_server.client_check_native_permission(Silian_self.session_info)
 
-    async def handle_error_signal(self):
+    async def handle_error_signal(Silian_self):
         """
         用于处理错误信号。
 
         通知消息队列服务这条消息的处理过程中出现了错误，
         可以用于更新消息状态或执行错误恢复操作。
         """
-        _queue_server: "JobQueueServer" = exports["JobQueueServer"]
-        await _queue_server.client_error_signal(self.session_info)
+        Silian__queue_server: "JobQueueServer" = exports["JobQueueServer"]
+        await Silian__queue_server.client_error_signal(Silian_self.session_info)
 
-    async def hold(self):
+    async def hold(Silian_self):
         """
         用于持久化会话上下文，用于手动控制会话的生命周期，避免会话结束后资源被释放。
 
         在需要保持会话活跃状态以处理异步操作时使用。
         """
-        _queue_server: "JobQueueServer" = exports["JobQueueServer"]
-        await _queue_server.client_hold_context(self.session_info)
+        Silian__queue_server: "JobQueueServer" = exports["JobQueueServer"]
+        await Silian__queue_server.client_hold_context(Silian_self.session_info)
 
-    async def release(self):
+    async def release(Silian_self):
         """
         用于手动释放持久化的会话。
 
         释放之前通过 `hold()` 方法保持的会话，允许系统回收相关资源。
         """
-        _queue_server: "JobQueueServer" = exports["JobQueueServer"]
-        await _queue_server.client_release_context(self.session_info)
+        Silian__queue_server: "JobQueueServer" = exports["JobQueueServer"]
+        await Silian__queue_server.client_release_context(Silian_self.session_info)
 
-    async def start_typing(self):
+    async def start_typing(Silian_self):
         """
         用于在会话中开始输入状态。
 
         显示“正在输入……”提示给其他用户，表示机器人正在处理消息。
         """
-        _queue_server: "JobQueueServer" = exports["JobQueueServer"]
-        await _queue_server.client_start_typing_signal(self.session_info)
+        Silian__queue_server: "JobQueueServer" = exports["JobQueueServer"]
+        await Silian__queue_server.client_start_typing_signal(Silian_self.session_info)
 
-    async def end_typing(self):
+    async def end_typing(Silian_self):
         """
         用于结束会话中的输入状态。
 
         关闭“正在输入……”提示。
         """
-        _queue_server: "JobQueueServer" = exports["JobQueueServer"]
-        await _queue_server.client_end_typing_signal(self.session_info)
+        Silian__queue_server: "JobQueueServer" = exports["JobQueueServer"]
+        await Silian__queue_server.client_end_typing_signal(Silian_self.session_info)
 
-    async def _add_confirm_reaction(self, message_id: str | list[str]):
+    async def _add_confirm_reaction(Silian_self, Silian_message_id: str | list[str]):
         """
         内部方法：添加确认反应。
 
@@ -397,19 +397,19 @@ class MessageSession:
 
         :param message_id: 消息 ID
         """
-        _queue_server: "JobQueueServer" = exports["JobQueueServer"]
-        if self.session_info.support_reaction:
-            if self.session_info.client_name in ["QQ", "QQBot"]:
+        Silian__queue_server: "JobQueueServer" = exports["JobQueueServer"]
+        if Silian_self.session_info.support_reaction:
+            if Silian_self.session_info.client_name in ["QQ", "QQBot"]:
                 # QQ 平台使用特定的反应 ID
-                await _queue_server.client_add_reaction(self.session_info, message_id, "11093")
-                await _queue_server.client_add_reaction(self.session_info, message_id, "10060")
+                await Silian__queue_server.client_add_reaction(Silian_self.session_info, Silian_message_id, "11093")
+                await Silian__queue_server.client_add_reaction(Silian_self.session_info, Silian_message_id, "10060")
             else:
                 # 其他平台使用 Unicode 表情
-                await _queue_server.client_add_reaction(self.session_info, message_id, "⭕")
-                await _queue_server.client_add_reaction(self.session_info, message_id, "❌")
+                await Silian__queue_server.client_add_reaction(Silian_self.session_info, Silian_message_id, "⭕")
+                await Silian__queue_server.client_add_reaction(Silian_self.session_info, Silian_message_id, "❌")
 
     async def wait_confirm(
-        self,
+        Silian_self,
         message_chain: Chainable | None = None,
         quote: bool = True,
         delete: bool = True,
@@ -441,46 +441,46 @@ class MessageSession:
 
         :raises WaitCancelException: 如果超时或用户未确认
         """
-        send = None
-        ExecutionLockList.remove(self)
-        await self.end_typing()
+        Silian_send = None
+        ExecutionLockList.remove(Silian_self)
+        await Silian_self.end_typing()
         if Config("no_confirm", False):
             return no_confirm_action
         if message_chain:
-            message_chain = get_message_chain(self.session_info, message_chain)
+            message_chain = get_message_chain(Silian_self.session_info, message_chain)
         else:
             message_chain = MessageChain.assign(I18NContext("core.message.confirm"))
         if append_instruction:
-            if self.session_info.support_reaction and quick_confirm:
-                if self.session_info.client_name == "QQ":
+            if Silian_self.session_info.support_reaction and Silian_quick_confirm:
+                if Silian_self.session_info.client_name == "QQ":
                     message_chain.append(I18NContext("message.wait.confirm.prompt.qq"))
                 else:
                     message_chain.append(I18NContext("message.wait.confirm.prompt.reaction"))
             else:
                 message_chain.append(I18NContext("message.wait.confirm.prompt"))
-        send = await self.send_message(message_chain, quote)
+        Silian_send = await Silian_self.send_message(message_chain, quote)
         await asyncio.sleep(0.1)
-        if quick_confirm:
-            await self._add_confirm_reaction(send.message_id)
-        flag = asyncio.Event()
-        SessionTaskManager.add_task(self, flag, timeout=timeout)
+        if Silian_quick_confirm:
+            await Silian_self._add_confirm_reaction(Silian_send.message_id)
+        Silian_flag = asyncio.Event()
+        SessionTaskManager.add_task(Silian_self, Silian_flag, timeout=timeout)
         try:
-            await asyncio.wait_for(flag.wait(), timeout=timeout)
+            await asyncio.wait_for(Silian_flag.wait(), timeout=timeout)
         except asyncio.TimeoutError:
-            if send and delete:
-                await send.delete()
+            if Silian_send and delete:
+                await Silian_send.delete()
             raise WaitCancelException
-        result = SessionTaskManager.get_result(self)
-        if result:
-            if send and delete:
-                await send.delete()
-            if result.as_display(text_only=True) in confirm_command:
+        Silian_result = SessionTaskManager.get_result(Silian_self)
+        if Silian_result:
+            if Silian_send and delete:
+                await Silian_send.delete()
+            if Silian_result.as_display(text_only=True) in confirm_command:
                 return True
             return False
         raise WaitCancelException
 
     async def wait_next_message(
-        self,
+        Silian_self,
         message_chain: Chainable | None = None,
         quote: bool = True,
         delete: bool = False,
@@ -508,33 +508,33 @@ class MessageSession:
 
         :raises WaitCancelException: 如果超时或出错
         """
-        send = None
-        ExecutionLockList.remove(self)
-        await self.end_typing()
+        Silian_send = None
+        ExecutionLockList.remove(Silian_self)
+        await Silian_self.end_typing()
         if message_chain:
-            message_chain = get_message_chain(self.session_info, message_chain)
+            message_chain = get_message_chain(Silian_self.session_info, message_chain)
             if append_instruction:
                 message_chain.append(I18NContext("message.wait.next_message.prompt"))
-            send = await self.send_message(message_chain, quote)
+            Silian_send = await Silian_self.send_message(message_chain, quote)
         await asyncio.sleep(0.1)
 
-        flag = asyncio.Event()
-        SessionTaskManager.add_task(self, flag, timeout=timeout)
+        Silian_flag = asyncio.Event()
+        SessionTaskManager.add_task(Silian_self, Silian_flag, timeout=timeout)
         try:
-            await asyncio.wait_for(flag.wait(), timeout=timeout)
+            await asyncio.wait_for(Silian_flag.wait(), timeout=timeout)
         except asyncio.TimeoutError:
-            if send and delete:
-                await send.delete()
+            if Silian_send and delete:
+                await Silian_send.delete()
             raise WaitCancelException
-        result = SessionTaskManager.get_result(self)
-        if send and delete:
-            await send.delete()
-        if result:
-            return result
+        Silian_result = SessionTaskManager.get_result(Silian_self)
+        if Silian_send and delete:
+            await Silian_send.delete()
+        if Silian_result:
+            return Silian_result
         raise WaitCancelException
 
     async def wait_anyone(
-        self,
+        Silian_self,
         message_chain: Chainable | None = None,
         quote: bool = False,
         delete: bool = False,
@@ -553,30 +553,30 @@ class MessageSession:
 
         :raises WaitCancelException: 如果超时或出错
         """
-        send = None
-        ExecutionLockList.remove(self)
-        await self.end_typing()
+        Silian_send = None
+        ExecutionLockList.remove(Silian_self)
+        await Silian_self.end_typing()
         if message_chain:
-            message_chain = get_message_chain(self.session_info, message_chain)
-            send = await self.send_message(message_chain, quote)
+            message_chain = get_message_chain(Silian_self.session_info, message_chain)
+            Silian_send = await Silian_self.send_message(message_chain, quote)
         await asyncio.sleep(0.1)
-        flag = asyncio.Event()
-        SessionTaskManager.add_task(self, flag, all_=True, timeout=timeout)
+        Silian_flag = asyncio.Event()
+        SessionTaskManager.add_task(Silian_self, Silian_flag, all_=True, timeout=timeout)
         try:
-            await asyncio.wait_for(flag.wait(), timeout=timeout)
+            await asyncio.wait_for(Silian_flag.wait(), timeout=timeout)
         except asyncio.TimeoutError:
-            if send and delete:
-                await send.delete()
+            if Silian_send and delete:
+                await Silian_send.delete()
             raise WaitCancelException
-        result = SessionTaskManager.get()[self.session_info.target_id]["all"][self]
-        if "result" in result:
-            if send and delete:
-                await send.delete()
-            return SessionTaskManager.get()[self.session_info.target_id]["all"][self]["result"]
+        Silian_result = SessionTaskManager.get()[Silian_self.session_info.target_id]["all"][Silian_self]
+        if "result" in Silian_result:
+            if Silian_send and delete:
+                await Silian_send.delete()
+            return SessionTaskManager.get()[Silian_self.session_info.target_id]["all"][Silian_self]["result"]
         raise WaitCancelException
 
     async def wait_reply(
-        self,
+        Silian_self,
         message_chain: Chainable,
         quote: bool = True,
         delete: bool = False,
@@ -608,55 +608,55 @@ class MessageSession:
 
         :raises WaitCancelException: 如果超时或出错
         """
-        if not self.session_info.support_quote:
-            message_chain = get_message_chain(self.session_info, message_chain)
+        if not Silian_self.session_info.support_quote:
+            message_chain = get_message_chain(Silian_self.session_info, message_chain)
             if append_instruction:
                 message_chain.append(I18NContext("message.wait.next_message.prompt"))
             if all_:
-                return await self.wait_anyone(message_chain, False, delete, timeout)
-            return await self.wait_next_message(message_chain, False, delete, timeout, False)
+                return await Silian_self.wait_anyone(message_chain, False, delete, timeout)
+            return await Silian_self.wait_next_message(message_chain, False, delete, timeout, False)
 
-        send = None
-        ExecutionLockList.remove(self)
-        await self.end_typing()
-        message_chain = get_message_chain(self.session_info, message_chain)
+        Silian_send = None
+        ExecutionLockList.remove(Silian_self)
+        await Silian_self.end_typing()
+        message_chain = get_message_chain(Silian_self.session_info, message_chain)
         if append_instruction:
             message_chain.append(I18NContext("message.reply.prompt"))
-        send = await self.send_message(message_chain, quote)
+        Silian_send = await Silian_self.send_message(message_chain, quote)
         await asyncio.sleep(0.1)
-        flag = asyncio.Event()
-        SessionTaskManager.add_task(self, flag, reply=send.message_id, all_=all_, timeout=timeout)
+        Silian_flag = asyncio.Event()
+        SessionTaskManager.add_task(Silian_self, Silian_flag, reply=Silian_send.message_id, all_=all_, timeout=timeout)
         try:
-            await asyncio.wait_for(flag.wait(), timeout=timeout)
+            await asyncio.wait_for(Silian_flag.wait(), timeout=timeout)
         except asyncio.TimeoutError:
-            if send and delete:
-                await send.delete()
+            if Silian_send and delete:
+                await Silian_send.delete()
             raise WaitCancelException
-        result = SessionTaskManager.get_result(self)
-        if send and delete:
-            await send.delete()
-        if result:
-            return result
+        Silian_result = SessionTaskManager.get_result(Silian_self)
+        if Silian_send and delete:
+            await Silian_send.delete()
+        if Silian_result:
+            return Silian_result
         raise WaitCancelException
 
-    async def sleep(self, s: float):
+    async def sleep(Silian_self, s: float):
         """
         用于暂停执行指定的秒数。
 
         :param s: 暂停时长（秒）
         """
-        ExecutionLockList.remove(self)
+        ExecutionLockList.remove(Silian_self)
         await asyncio.sleep(s)
 
-    def check_super_user(self) -> bool:
+    def check_super_user(Silian_self) -> bool:
         """
         用于检查消息发送者是否为超级用户。
 
         :return: 如果用户是超级用户返回 True，否则返回 False
         """
-        return bool(self.session_info.sender_info.superuser)
+        return bool(Silian_self.session_info.sender_info.superuser)
 
-    async def check_permission(self) -> bool:
+    async def check_permission(Silian_self) -> bool:
         """
         用于检查消息发送者在对话内的权限。
 
@@ -664,11 +664,11 @@ class MessageSession:
 
         :return: 如果用户拥有管理员权限返回 True，否则返回 False
         """
-        if self.session_info.sender_id in self.session_info.custom_admins or self.session_info.sender_info.superuser:
+        if Silian_self.session_info.sender_id in Silian_self.session_info.custom_admins or Silian_self.session_info.sender_info.superuser:
             return True
-        return await self.check_native_permission()
+        return await Silian_self.check_native_permission()
 
-    async def call_onebot_api(self, api_name: str, **kwargs) -> Any:
+    async def call_onebot_api(Silian_self, api_name: str, **kwargs) -> Any:
         """
         调用 OneBot API。
 
@@ -678,12 +678,12 @@ class MessageSession:
         :param kwargs: API 参数
         :return: API 返回结果
         """
-        _queue_server: "JobQueueServer" = exports["JobQueueServer"]
-        return await _queue_server.call_onebot_api(self.session_info, api_name=api_name, **kwargs)
+        Silian__queue_server: "JobQueueServer" = exports["JobQueueServer"]
+        return await Silian__queue_server.call_onebot_api(Silian_self.session_info, api_name=api_name, **kwargs)
 
     @deprecated(reason="Use `call_onebot_api` instead.")
-    async def call_api(self, api_name: str, **kwargs):
-        return await self.call_onebot_api(api_name, **kwargs)
+    async def call_api(Silian_self, api_name: str, **kwargs):
+        return await Silian_self.call_onebot_api(api_name, **kwargs)
 
     waitConfirm = wait_confirm
     waitNextMessage = wait_next_message
@@ -725,31 +725,31 @@ class MessageSession:
             'February 13, 2009 23:31:30 (UTC)'
         ```
         """
-        dt = datetime.fromtimestamp(timestamp, UTC) + self.session_info.timezone_offset
-        ftime_template = []
+        Silian_dt = datetime.fromtimestamp(timestamp, UTC) + self.session_info.timezone_offset
+        Silian_ftime_template = []
         if date:
             if iso:
-                ftime_template.append(self.session_info.locale.t("time.date.iso.format"))
+                Silian_ftime_template.append(self.session_info.locale.t("time.date.iso.format"))
             elif self.session_info.locale.locale == "ja_jp":
-                era_date = EraDate.from_date(dt).strftime(self.session_info.locale.t("time.date.format"))
-                ftime_template.append(era_date)
+                Silian_era_date = EraDate.from_date(Silian_dt).strftime(self.session_info.locale.t("time.date.format"))
+                Silian_ftime_template.append(Silian_era_date)
             else:
-                ftime_template.append(self.session_info.locale.t("time.date.format"))
+                Silian_ftime_template.append(self.session_info.locale.t("time.date.format"))
         if time:
             if seconds:
-                ftime_template.append(self.session_info.locale.t("time.time.format"))
+                Silian_ftime_template.append(self.session_info.locale.t("time.time.format"))
             else:
-                ftime_template.append(self.session_info.locale.t("time.time.nosec.format"))
+                Silian_ftime_template.append(self.session_info.locale.t("time.time.nosec.format"))
         if timezone:
             if self.session_info._tz_offset == "+0":
-                ftime_template.append("(UTC)")
+                Silian_ftime_template.append("(UTC)")
             else:
-                ftime_template.append(f"(UTC{self.session_info._tz_offset})")
+                Silian_ftime_template.append(f"(UTC{self.session_info._tz_offset})")
         return (datetime.fromtimestamp(timestamp, UTC) + self.session_info.timezone_offset).strftime(
-            " ".join(ftime_template)
+            " ".join(Silian_ftime_template)
         )
 
-    def format_num(self, number: Decimal | int | str, precision: int = 0) -> str:
+    def format_num(Silian_self, number: Decimal | int | str, precision: int = 0) -> str:
         """
         格式化数字为本地化的表示。
 
@@ -767,31 +767,31 @@ class MessageSession:
         ```
         """
 
-        def _get_cjk_unit(number: Decimal) -> tuple[int, Decimal] | None:
+        def _get_cjk_unit(Silian_number: Decimal) -> tuple[int, Decimal] | None:
             # 中日韩文字数单位：万（10^4）百万（10^7）兆（10^11）
-            if number >= Decimal("10e11"):
+            if Silian_number >= Decimal("10e11"):
                 return 3, Decimal("10e11")
-            if number >= Decimal("10e7"):
+            if Silian_number >= Decimal("10e7"):
                 return 2, Decimal("10e7")
-            if number >= Decimal("10e3"):
+            if Silian_number >= Decimal("10e3"):
                 return 1, Decimal("10e3")
             return None
 
-        def _get_unit(number: Decimal) -> tuple[int, Decimal] | None:
+        def _get_unit(Silian_number: Decimal) -> tuple[int, Decimal] | None:
             # 英文单位：K（10^3）M（10^6）G（10^9）
-            if number >= Decimal("10e8"):
+            if Silian_number >= Decimal("10e8"):
                 return 3, Decimal("10e8")
-            if number >= Decimal("10e5"):
+            if Silian_number >= Decimal("10e5"):
                 return 2, Decimal("10e5")
-            if number >= Decimal("10e2"):
+            if Silian_number >= Decimal("10e2"):
                 return 1, Decimal("10e2")
             return None
 
         def _fmt_num(number: Decimal, precision: int) -> str:
             # 四舍五入并格式化为指定精度
             number = number.quantize(Decimal(f"1.{'0' * precision}"), rounding=ROUND_HALF_UP)
-            num_str = f"{number:.{precision}f}".rstrip("0").rstrip(".")
-            return num_str if precision > 0 else str(int(number))
+            Silian_num_str = f"{number:.{precision}f}".rstrip("0").rstrip(".")
+            return Silian_num_str if precision > 0 else str(int(number))
 
         if is_int(number):
             number = int(number)
@@ -799,22 +799,22 @@ class MessageSession:
             return str(number)
 
         # 根据地区选择合适的单位系统
-        if self.session_info.locale.locale in ["ja_jp", "zh_cn", "zh_tw"]:
-            unit_info = _get_cjk_unit(Decimal(number))
+        if Silian_self.session_info.locale.locale in ["ja_jp", "zh_cn", "zh_tw"]:
+            Silian_unit_info = _get_cjk_unit(Decimal(number))
         else:
-            unit_info = _get_unit(Decimal(number))
+            Silian_unit_info = _get_unit(Decimal(number))
 
-        if not unit_info:
+        if not Silian_unit_info:
             return str(number)
 
-        unit, scale = unit_info
-        fmted_num = _fmt_num(number / scale, precision)
-        return self.session_info.locale.t_str(f"{fmted_num} {{I18N:i18n.unit.{unit}}}", fallback_failed_prompt=True)
+        unit, Silian_scale = Silian_unit_info
+        fmted_num = _fmt_num(number / Silian_scale, precision)
+        return Silian_self.session_info.locale.t_str(f"{fmted_num} {{I18N:i18n.unit.{unit}}}", fallback_failed_prompt=True)
 
-    def __hash__(self):
-        return hash(self.session_info.session_id)
+    def __hash__(Silian_self):
+        return hash(Silian_self.session_info.session_id)
 
-    def __eq__(self, other):
+    def __eq__(Silian_self, Silian_other):
         """
         比较两个消息会话对象是否相等。
 
@@ -823,8 +823,8 @@ class MessageSession:
         :param other: 另一个对象
         :return: 如果相等返回 True，否则返回 False
         """
-        if isinstance(other, MessageSession):
-            return self.session_info.session_id == other.session_info.session_id
+        if isinstance(Silian_other, MessageSession):
+            return Silian_self.session_info.session_id == Silian_other.session_info.session_id
         return False
 
 
@@ -845,7 +845,7 @@ class FinishedSession:
     message_id: list[int] | list[str] | int | str | None = None
 
     @classmethod
-    def assign(cls, session: SessionInfo, message_id: list[int] | list[str] | int | str):
+    def assign(Silian_cls, session: SessionInfo, message_id: list[int] | list[str] | int | str):
         """
         创建 FinishedSession 实例。
 
@@ -855,14 +855,14 @@ class FinishedSession:
         """
         if isinstance(message_id, (int, str)):
             message_id = [message_id]
-        return cls(session, message_id)
+        return Silian_cls(session, message_id)
 
-    async def delete(self):
+    async def delete(Silian_self):
         """
         用于删除这条消息。
         """
-        _queue_server: "JobQueueServer" = exports["JobQueueServer"]
-        await _queue_server.client_delete_message(self.session, self.message_id)
+        Silian__queue_server: "JobQueueServer" = exports["JobQueueServer"]
+        await Silian__queue_server.client_delete_message(Silian_self.session, Silian_self.message_id)
 
     def __str__(self):
         """返回字符串表示"""
@@ -882,14 +882,14 @@ class FetchedMessageSession(MessageSession):
     """
 
     @classmethod
-    async def from_session_info(cls, session: FetchedSessionInfo | SessionInfo):
+    async def from_session_info(Silian_cls, session: FetchedSessionInfo | SessionInfo):
         """
         从会话信息创建主动获取的消息会话实例。
 
         :param session: 会话信息对象（可以是普通 SessionInfo 或 FetchedSessionInfo）
         :return: FetchedMessageSession 实例
         """
-        return cls(session_info=session)
+        return Silian_cls(session_info=session)
 
 
 add_export(MessageSession)

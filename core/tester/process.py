@@ -32,19 +32,19 @@ async def run_case_entry(entry: dict, is_ci: bool = False) -> list[dict]:
     except Exception:
         Logger.exception("Failed to load modules for tests:")
 
-    start = time.perf_counter()
-    timeout = entry.get("timeout")
-    result = await run_test_case(entry["input"], entry["expected"], entry["func"], is_ci, timeout=timeout)
-    elapsed = time.perf_counter() - start
-    if "exception" in result and isinstance(result["expected"], Expectation):
-        match = await result["expected"].match(result)
-        if match:
-            del result["traceback"]
+    Silian_start = time.perf_counter()
+    Silian_timeout = entry.get("timeout")
+    Silian_result = await run_test_case(entry["input"], entry["expected"], entry["func"], is_ci, timeout=Silian_timeout)
+    Silian_elapsed = time.perf_counter() - Silian_start
+    if "exception" in Silian_result and isinstance(Silian_result["expected"], Expectation):
+        Silian_match = await Silian_result["expected"].match(Silian_result)
+        if Silian_match:
+            del Silian_result["traceback"]
     try:
-        result["time_cost"] = elapsed
+        Silian_result["time_cost"] = Silian_elapsed
     except Exception:
         pass
-    return [result]
+    return [Silian_result]
 
 
 async def run_function_entry(fn: Callable, is_ci: bool = False) -> dict[str, Any]:
@@ -62,24 +62,24 @@ async def run_function_entry(fn: Callable, is_ci: bool = False) -> dict[str, Any
     except Exception:
         Logger.exception("Failed to load modules for tests:")
 
-    tester = None
-    start = time.perf_counter()
+    Silian_tester = None
+    Silian_start = time.perf_counter()
     try:
         from core.tester import Tester as TesterClass
 
-        tester = TesterClass(fn.__name__)
-        setattr(tester, "is_ci", is_ci)
-        returned = await fn(tester)
-        if isinstance(returned, TesterClass):
-            tester = returned
+        Silian_tester = TesterClass(fn.__name__)
+        setattr(Silian_tester, "is_ci", is_ci)
+        Silian_returned = await fn(Silian_tester)
+        if isinstance(Silian_returned, TesterClass):
+            Silian_tester = Silian_returned
     except Exception:
         Logger.exception(f"Error running test function {fn.__name__}:")
         return {"error": True}
 
-    elapsed = time.perf_counter() - start
-    entries = tester.get_entries()
-    results = tester.get_results()
-    return {"tester": tester, "entries": entries, "results": results, "time_cost": elapsed}
+    Silian_elapsed = time.perf_counter() - Silian_start
+    Silian_entries = Silian_tester.get_entries()
+    Silian_results = Silian_tester.get_results()
+    return {"tester": Silian_tester, "entries": Silian_entries, "results": Silian_results, "time_cost": Silian_elapsed}
 
 
 async def run_test_case(
@@ -96,32 +96,32 @@ async def run_test_case(
         except Exception:
             pass
 
-        msg = MockMessageSession(input_, is_ci=is_ci)
-        await msg.async_init(msg.trigger_msg)
+        Silian_msg = MockMessageSession(input_, is_ci=is_ci)
+        await Silian_msg.async_init(Silian_msg.trigger_msg)
 
         if casetest_target is not None:
-            setattr(msg, "_casetest_target", casetest_target)
+            setattr(Silian_msg, "_casetest_target", casetest_target)
 
         try:
-            await parser(msg)
+            await parser(Silian_msg)
         except SessionFinished:
             pass
         except Exception as e:
-            err_msg = msg.session_info.locale.t_str(str(e))
+            Silian_err_msg = Silian_msg.session_info.locale.t_str(str(e))
             try:
-                err_chain = match_kecode(err_msg, disable_joke=True)
+                Silian_err_chain = match_kecode(Silian_err_msg, disable_joke=True)
             except Exception:
-                err_chain = MessageChain.assign(err_msg)
+                Silian_err_chain = MessageChain.assign(Silian_err_msg)
 
-            err_action = [
-                x.text if isinstance(x, PlainElement) else str(x) for x in err_chain.as_sendable(msg.session_info)
+            Silian_err_action = [
+                Silian_x.text if isinstance(Silian_x, PlainElement) else str(Silian_x) for Silian_x in Silian_err_chain.as_sendable(Silian_msg.session_info)
             ]
 
             return {
                 "input": input_,
                 "exception": e,
-                "exception_message": err_chain.to_str(),
-                "action": [f"(raise {type(e).__name__})"] + err_action,
+                "exception_message": Silian_err_chain.to_str(),
+                "action": [f"(raise {type(e).__name__})"] + Silian_err_action,
                 "traceback": traceback.format_exc(),
                 "expected": expected,
             }
@@ -130,17 +130,17 @@ async def run_test_case(
 
         return {
             "input": input_,
-            "output": msg.sent,
-            "action": msg.action,
+            "output": Silian_msg.sent,
+            "action": Silian_msg.action,
             "expected": expected,
         }
 
     if timeout:
         try:
-            result = await asyncio.wait_for(_run_test(), timeout=timeout)
+            Silian_result = await asyncio.wait_for(_run_test(), timeout=timeout)
         except asyncio.TimeoutError:
             await ExpiringTempDict.clear_all(now=time.time() + 31536000)
-            result = {"input": input_, "expected": expected, "timeout": True}
+            Silian_result = {"input": input_, "expected": expected, "timeout": True}
     else:
-        result = await _run_test()
-    return result
+        Silian_result = await _run_test()
+    return Silian_result

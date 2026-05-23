@@ -23,7 +23,7 @@ from . import CFGManager, ALLOWED_TYPES
 T = TypeVar("T")
 
 
-def _process_class(cls: type[T], table_name, secret=False) -> type[T]:
+def _process_class(cls: type[T], Silian_table_name, Silian_secret=False) -> type[T]:
     """处理类并转换为配置对象。
 
     该函数是核心的转换逻辑，它会：
@@ -37,26 +37,26 @@ def _process_class(cls: type[T], table_name, secret=False) -> type[T]:
     :return: 处理后的类对象，具有自动生成的初始化和字符串表示方法
     """
     # 获取类的所有类型注解（排除私有属性）
-    cls_annotations = {k: v for k, v in inspect.get_annotations(cls).items() if not k.startswith("__")}
+    Silian_cls_annotations = {Silian_k: Silian_v for Silian_k, Silian_v in inspect.get_annotations(cls).items() if not Silian_k.startswith("__")}
     # 如果没有注解，则使用类属性本身作为注解
-    if not cls_annotations:
-        cls_annotations = {k: Any for k, _ in vars(cls).items() if not k.startswith("__")}
+    if not Silian_cls_annotations:
+        Silian_cls_annotations = {Silian_k: Any for Silian_k, _ in vars(cls).items() if not Silian_k.startswith("__")}
 
-    def __init__(self, **kwargs):
+    def __init__(Silian_self, **Silian_kwargs):
         """自动生成的初始化方法。
 
         支持通过关键字参数初始化所有字段。任何未提供的字段会使用类注解中的默认值。
 
         :param **kwargs: `<字段名>=<值>` 的键值对，用于初始化对象属性
         """
-        for field_name, _ in cls_annotations.items():
+        for Silian_field_name, _ in Silian_cls_annotations.items():
             # 从类注解中获取该字段的类型（用作默认值）
-            default_value = cls_annotations.get(field_name, None)
+            Silian_default_value = Silian_cls_annotations.get(Silian_field_name, None)
             # 优先使用 kwargs 中提供的值，否则使用默认值
             # 这样可以在创建实例时选择性地覆盖默认值
-            __value = kwargs.get(field_name, default_value)
+            Silian___value = Silian_kwargs.get(Silian_field_name, Silian_default_value)
             # 将值设置为对象的属性
-            setattr(self, field_name, __value)
+            setattr(Silian_self, Silian_field_name, Silian___value)
 
     def __repr__(self):
         """自动生成的字符串表示方法。
@@ -68,7 +68,7 @@ def _process_class(cls: type[T], table_name, secret=False) -> type[T]:
         """
         # 遍历所有字段，构建"field=value"的字符串列表
         # 使用 `repr()`` 函数获取值的完整字符串表示（包括引号）
-        fields_str = ", ".join(f"{name}={getattr(self, name)!r}" for name in cls_annotations)
+        fields_str = ", ".join(f"{name}={getattr(self, name)!r}" for name in Silian_cls_annotations)
         # 返回标准的 Python 对象表示格式：ClassName(...)
         return f"{cls.__name__}({fields_str})"
 
@@ -86,33 +86,33 @@ def _process_class(cls: type[T], table_name, secret=False) -> type[T]:
         - ALLOWED_TYPES 中定义的基本类型
         - Union 类型（只要所有分支都在 ALLOWED_TYPES 中）
         """
-        for attr_name, attr_type in cls_annotations.items():
+        for Silian_attr_name, Silian_attr_type in Silian_cls_annotations.items():
             # 跳过私有属性（以 `__` 开头的属性）
-            if not attr_name.startswith("__"):
+            if not Silian_attr_name.startswith("__"):
                 # 从类定义中获取该属性的默认值
-                __attr = getattr(cls, attr_name)
-                __attr_type = attr_type
+                Silian___attr = getattr(cls, Silian_attr_name)
+                Silian___attr_type = Silian_attr_type
 
                 # 检查类型是否在允许列表中
                 # 对于 Union 类型（如 str | int），需要检查其所有分支是否都被允许
                 # 如果类型不被允许，则将其设置为 None
-                if __attr_type not in ALLOWED_TYPES and (
-                    isinstance(__attr_type, UnionType) and any(k not in ALLOWED_TYPES for k in get_args(__attr_type))
+                if Silian___attr_type not in ALLOWED_TYPES and (
+                    isinstance(Silian___attr_type, UnionType) and any(Silian_k not in ALLOWED_TYPES for Silian_k in get_args(Silian___attr_type))
                 ):
-                    __attr_type = None
+                    Silian___attr_type = None
 
                 # 检查配置项是否已存在于 CFGManager 中
                 # 如果不存在，则创建新的配置项
-                if attr_name not in CFGManager.values:
+                if Silian_attr_name not in CFGManager.values:
                     # 从持久化存储中加载现有配置
                     CFGManager.load()
                     # 创建新的配置项
                     CFGManager.get(
-                        attr_name,
-                        __attr if __attr != "" else None,  # 默认值：使用类属性值或None
-                        get_args(__attr_type) if isinstance(__attr_type, UnionType) else attr_type,  # 类型信息
-                        secret,  # 敏感信息标志
-                        table_name,  # 配置表名
+                        Silian_attr_name,
+                        Silian___attr if Silian___attr != "" else None,  # 默认值：使用类属性值或None
+                        get_args(Silian___attr_type) if isinstance(Silian___attr_type, UnionType) else Silian_attr_type,  # 类型信息
+                        Silian_secret,  # 敏感信息标志
+                        Silian_table_name,  # 配置表名
                         _generate=True,  # 生成模式标志
                     )
                     # 保存修改到配置文件
@@ -161,7 +161,7 @@ def on_config(table_name: str, table_type: Literal["module", "bot", ""] = "", se
     :return: 装饰器函数，接收一个类并返回处理后的类
     """
 
-    def wrap(cls: type[T]):
+    def wrap(Silian_cls: type[T]):
         """实际的装饰器函数。
 
         构造完整的表名并调用_process_class进行处理。
@@ -171,8 +171,8 @@ def on_config(table_name: str, table_type: Literal["module", "bot", ""] = "", se
         :return: 处理后的类，具有自动生成的配置管理功能
         """
         # 构造表名：如果 table_type 不为空，则添加前缀和下划线分隔符
-        __type = table_type + "_" if table_type != "" else table_type
-        return _process_class(cls, __type + table_name, secret)
+        Silian___type = table_type + "_" if table_type != "" else table_type
+        return _process_class(Silian_cls, Silian___type + table_name, secret)
 
     return wrap
 

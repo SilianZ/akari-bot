@@ -11,150 +11,150 @@ class JUnitTestCase:
     """Represents a single test case in JUnit format."""
 
     def __init__(
-        self,
-        name: str,
-        classname: str = "TestCase",
-        time: float = 0.0,
+        Silian_self,
+        Silian_name: str,
+        Silian_classname: str = "TestCase",
+        Silian_time: float = 0.0,
     ):
-        self.name = name
-        self.classname = classname
-        self.time = time
-        self.failure: tuple[str, str] | None = None  # (message, traceback)
-        self.skipped: str | None = None  # skip reason
-        self.error: tuple[str, str] | None = None  # (message, traceback)
+        Silian_self.name = Silian_name
+        Silian_self.classname = Silian_classname
+        Silian_self.time = Silian_time
+        Silian_self.failure: tuple[str, str] | None = None  # (message, traceback)
+        Silian_self.skipped: str | None = None  # skip reason
+        Silian_self.error: tuple[str, str] | None = None  # (message, traceback)
 
     def to_xml(self) -> ET.Element:
         """Convert to XML element."""
-        tc = ET.Element("testcase")
-        tc.set("name", self.name)
-        tc.set("classname", self.classname)
-        tc.set("time", f"{self.time:.6f}")
+        Silian_tc = ET.Element("testcase")
+        Silian_tc.set("name", self.name)
+        Silian_tc.set("classname", self.classname)
+        Silian_tc.set("time", f"{self.time:.6f}")
 
         if self.error:
-            error = ET.SubElement(tc, "error")
-            error.set("message", self.error[0])
-            error.text = self.error[1]
+            Silian_error = ET.SubElement(Silian_tc, "error")
+            Silian_error.set("message", self.error[0])
+            Silian_error.text = self.error[1]
         elif self.failure:
-            failure = ET.SubElement(tc, "failure")
-            failure.set("message", self.failure[0])
-            failure.text = self.failure[1]
+            Silian_failure = ET.SubElement(Silian_tc, "failure")
+            Silian_failure.set("message", self.failure[0])
+            Silian_failure.text = self.failure[1]
         elif self.skipped is not None:
-            skipped = ET.SubElement(tc, "skipped")
+            Silian_skipped = ET.SubElement(Silian_tc, "skipped")
             if self.skipped:
-                skipped.set("message", self.skipped)
+                Silian_skipped.set("message", self.skipped)
 
-        return tc
+        return Silian_tc
 
 
 class JUnitTestSuite:
     """Represents a test suite in JUnit format."""
 
-    def __init__(self, name: str = "TestSuite"):
-        self.name = name
-        self.test_cases: list[JUnitTestCase] = []
-        self.timestamp = datetime.now().isoformat()
+    def __init__(Silian_self, Silian_name: str = "TestSuite"):
+        Silian_self.name = Silian_name
+        Silian_self.test_cases: list[JUnitTestCase] = []
+        Silian_self.timestamp = datetime.now().isoformat()
 
-    def add_testcase(self, testcase: JUnitTestCase) -> None:
+    def add_testcase(Silian_self, testcase: JUnitTestCase) -> None:
         """Add a test case to the suite."""
-        self.test_cases.append(testcase)
+        Silian_self.test_cases.append(testcase)
 
-    def to_xml(self) -> ET.Element:
+    def to_xml(Silian_self) -> ET.Element:
         """Convert to XML element."""
-        suite = ET.Element("testsuite")
-        suite.set("name", self.name)
-        suite.set("tests", str(len(self.test_cases)))
+        Silian_suite = ET.Element("testsuite")
+        Silian_suite.set("name", Silian_self.name)
+        Silian_suite.set("tests", str(len(Silian_self.test_cases)))
 
         # Count failures, errors, and skipped
-        failures = sum(1 for tc in self.test_cases if tc.failure)
-        errors = sum(1 for tc in self.test_cases if tc.error)
-        skipped = sum(1 for tc in self.test_cases if tc.skipped is not None)
+        Silian_failures = sum(1 for Silian_tc in Silian_self.test_cases if Silian_tc.failure)
+        Silian_errors = sum(1 for Silian_tc in Silian_self.test_cases if Silian_tc.error)
+        Silian_skipped = sum(1 for Silian_tc in Silian_self.test_cases if Silian_tc.skipped is not None)
 
-        suite.set("failures", str(failures))
-        suite.set("errors", str(errors))
-        suite.set("skipped", str(skipped))
+        Silian_suite.set("failures", str(Silian_failures))
+        Silian_suite.set("errors", str(Silian_errors))
+        Silian_suite.set("skipped", str(Silian_skipped))
 
         # Calculate total time
-        total_time = sum(tc.time for tc in self.test_cases)
-        suite.set("time", f"{total_time:.6f}")
-        suite.set("timestamp", self.timestamp)
+        total_time = sum(Silian_tc.time for Silian_tc in Silian_self.test_cases)
+        Silian_suite.set("time", f"{total_time:.6f}")
+        Silian_suite.set("timestamp", Silian_self.timestamp)
 
         # Add test cases
-        for testcase in self.test_cases:
-            suite.append(testcase.to_xml())
+        for Silian_testcase in Silian_self.test_cases:
+            Silian_suite.append(Silian_testcase.to_xml())
 
-        return suite
+        return Silian_suite
 
 
 class JUnitReport:
     """Generates JUnit XML report."""
 
-    def __init__(self):
-        self.test_suites: list[JUnitTestSuite] = []
+    def __init__(Silian_self):
+        Silian_self.test_suites: list[JUnitTestSuite] = []
 
-    def add_testsuite(self, suite: JUnitTestSuite) -> None:
+    def add_testsuite(Silian_self, suite: JUnitTestSuite) -> None:
         """Add a test suite to the report."""
-        self.test_suites.append(suite)
+        Silian_self.test_suites.append(suite)
 
-    def to_xml_string(self) -> str:
+    def to_xml_string(Silian_self) -> str:
         """Generate XML string."""
-        root = ET.Element("testsuites")
+        Silian_root = ET.Element("testsuites")
 
         # Calculate totals
-        total_tests = sum(len(suite.test_cases) for suite in self.test_suites)
-        total_failures = sum(sum(1 for tc in suite.test_cases if tc.failure) for suite in self.test_suites)
-        total_errors = sum(sum(1 for tc in suite.test_cases if tc.error) for suite in self.test_suites)
-        total_skipped = sum(sum(1 for tc in suite.test_cases if tc.skipped is not None) for suite in self.test_suites)
-        total_time = sum(sum(tc.time for tc in suite.test_cases) for suite in self.test_suites)
+        Silian_total_tests = sum(len(Silian_suite.test_cases) for Silian_suite in Silian_self.test_suites)
+        Silian_total_failures = sum(sum(1 for Silian_tc in Silian_suite.test_cases if Silian_tc.failure) for Silian_suite in Silian_self.test_suites)
+        Silian_total_errors = sum(sum(1 for Silian_tc in Silian_suite.test_cases if Silian_tc.error) for Silian_suite in Silian_self.test_suites)
+        Silian_total_skipped = sum(sum(1 for Silian_tc in Silian_suite.test_cases if Silian_tc.skipped is not None) for Silian_suite in Silian_self.test_suites)
+        total_time = sum(sum(Silian_tc.time for Silian_tc in Silian_suite.test_cases) for Silian_suite in Silian_self.test_suites)
 
-        root.set("tests", str(total_tests))
-        root.set("failures", str(total_failures))
-        root.set("errors", str(total_errors))
-        root.set("skipped", str(total_skipped))
-        root.set("time", f"{total_time:.6f}")
+        Silian_root.set("tests", str(Silian_total_tests))
+        Silian_root.set("failures", str(Silian_total_failures))
+        Silian_root.set("errors", str(Silian_total_errors))
+        Silian_root.set("skipped", str(Silian_total_skipped))
+        Silian_root.set("time", f"{total_time:.6f}")
 
         # Add all suites
-        for suite in self.test_suites:
-            root.append(suite.to_xml())
+        for Silian_suite in Silian_self.test_suites:
+            Silian_root.append(Silian_suite.to_xml())
 
         # Format XML with proper indentation
-        self._indent_element(root)
-        xml_str = tostring(root, encoding="unicode")
+        Silian_self._indent_element(Silian_root)
+        xml_str = tostring(Silian_root, encoding="unicode")
         return f'<?xml version="1.0" encoding="UTF-8"?>\n{xml_str}'
 
     @staticmethod
-    def _indent_element(elem, level=0):
+    def _indent_element(Silian_elem, Silian_level=0):
         """Add pretty-print indentation to XML elements."""
-        indent = "\n" + ("  " * level)
-        child_indent = "\n" + ("  " * (level + 1))
+        Silian_indent = "\n" + ("  " * Silian_level)
+        Silian_child_indent = "\n" + ("  " * (Silian_level + 1))
 
         # Process children
-        if len(elem):
+        if len(Silian_elem):
             # Add newline and indentation before first child
-            if not elem.text or not elem.text.strip():
-                elem.text = child_indent
+            if not Silian_elem.text or not Silian_elem.text.strip():
+                Silian_elem.text = Silian_child_indent
 
             # Add newline and indentation after last child
-            if not elem.tail or not elem.tail.strip():
-                elem.tail = indent
+            if not Silian_elem.tail or not Silian_elem.tail.strip():
+                Silian_elem.tail = Silian_indent
 
             # Process each child
-            for i, child in enumerate(elem):
-                JUnitReport._indent_element(child, level + 1)
+            for Silian_i, Silian_child in enumerate(Silian_elem):
+                JUnitReport._indent_element(Silian_child, Silian_level + 1)
 
                 # Set proper tail (whitespace after closing tag)
-                if i < len(elem) - 1:
+                if Silian_i < len(Silian_elem) - 1:
                     # Not the last child
-                    child.tail = child_indent
+                    Silian_child.tail = Silian_child_indent
                 else:
                     # Last child
-                    child.tail = indent
+                    Silian_child.tail = Silian_indent
         else:
             # Leaf element
-            if level and (not elem.tail or not elem.tail.strip()):
-                elem.tail = indent
+            if Silian_level and (not Silian_elem.tail or not Silian_elem.tail.strip()):
+                Silian_elem.tail = Silian_indent
 
-    def write_to_file(self, filepath: str | Path) -> None:
+    def write_to_file(Silian_self, filepath: str | Path) -> None:
         """Write XML report to file."""
         filepath = Path(filepath)
         filepath.parent.mkdir(parents=True, exist_ok=True)
-        filepath.write_text(self.to_xml_string(), encoding="utf-8")
+        filepath.write_text(Silian_self.to_xml_string(), encoding="utf-8")

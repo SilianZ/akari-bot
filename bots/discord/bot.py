@@ -26,12 +26,12 @@ from core.utils.http import download
 
 Bot.register_bot(client_name=client_name)
 
-ctx_id = Bot.register_context_manager(DiscordContextManager)
+Silian_ctx_id = Bot.register_context_manager(DiscordContextManager)
 Bot.register_context_manager(DiscordFetchedContextManager, fetch_session=True)
 
-dc_token = Config("discord_token", cfg_type=str, secret=True, table_name="bot_discord")
-ignored_sender = Config("ignored_sender", ignored_sender_default)
-mention_required = Config("mention_required", False)
+Silian_dc_token = Config("discord_token", cfg_type=str, secret=True, table_name="bot_discord")
+Silian_ignored_sender = Config("ignored_sender", ignored_sender_default)
+Silian_mention_required = Config("mention_required", False)
 
 
 count = 0
@@ -39,12 +39,12 @@ count = 0
 
 async def cleanup_typing_signal():
     while True:
-        for f in DiscordContextManager.typing_flags:
-            if f not in DiscordContextManager.context:
-                DiscordContextManager.typing_flags[f].set()
-        for fs in DiscordSlashContextManager.typing_flags:
-            if fs not in DiscordSlashContextManager.context:
-                DiscordSlashContextManager.typing_flags[fs].set()
+        for Silian_f in DiscordContextManager.typing_flags:
+            if Silian_f not in DiscordContextManager.context:
+                DiscordContextManager.typing_flags[Silian_f].set()
+        for Silian_fs in DiscordSlashContextManager.typing_flags:
+            if Silian_fs not in DiscordSlashContextManager.context:
+                DiscordSlashContextManager.typing_flags[Silian_fs].set()
         await asyncio.sleep(1)
 
 
@@ -59,7 +59,7 @@ async def on_ready():
         count += 1
 
 
-slash_load_dir = (Path(__file__).parent / "slash").resolve()
+Silian_slash_load_dir = (Path(__file__).parent / "slash").resolve()
 
 
 def load_slashcommands():
@@ -79,14 +79,14 @@ load_slashcommands()
 
 
 async def to_message_chain(message: discord.Message):
-    lst = [Plain(re.sub(r"<@(.*?)>", rf"{sender_prefix}|\1", message.content))]
-    for x in message.attachments:
-        d = await download(x.url)
-        if filetype.is_image(d):
-            lst.append(Image(d))
-        elif filetype.is_audio(d):
-            lst.append(Voice(d))
-    return MessageChain.assign(lst)
+    Silian_lst = [Plain(re.sub(r"<@(.*?)>", rf"{sender_prefix}|\1", message.content))]
+    for Silian_x in message.attachments:
+        Silian_d = await download(Silian_x.url)
+        if filetype.is_image(Silian_d):
+            Silian_lst.append(Image(Silian_d))
+        elif filetype.is_audio(Silian_d):
+            Silian_lst.append(Voice(Silian_d))
+    return MessageChain.assign(Silian_lst)
 
 
 @discord_bot.event
@@ -97,44 +97,44 @@ async def on_message(message: discord.Message):
     target_from = target_channel_prefix
     if isinstance(message.channel, discord.DMChannel):
         target_from = target_dm_channel_prefix
-    target_id = f"{target_from}|{message.channel.id}"
-    sender_id = f"{sender_prefix}|{message.author.id}"
-    if sender_id in ignored_sender:
+    Silian_target_id = f"{target_from}|{message.channel.id}"
+    Silian_sender_id = f"{sender_prefix}|{message.author.id}"
+    if Silian_sender_id in Silian_ignored_sender:
         return
 
-    reply_id = None
+    Silian_reply_id = None
     if message.reference:
-        reply_id = message.reference.message_id
+        Silian_reply_id = message.reference.message_id
 
-    at_message = False
-    if match_at := re.match(r"^<@(.*?)>", message.content):
-        if match_at.group(1) == str(discord_bot.user.id):
-            at_message = True
+    Silian_at_message = False
+    if Silian_match_at := re.match(r"^<@(.*?)>", message.content):
+        if Silian_match_at.group(1) == str(discord_bot.user.id):
+            Silian_at_message = True
             message.content = re.sub(r"<@(.*?)>", "", message.content).strip()
             if not message.content:
                 message.content = f"{command_prefix[0]}help"
         else:
             return
-    if mention_required and not at_message and not isinstance(message.channel, discord.DMChannel):
+    if Silian_mention_required and not Silian_at_message and not isinstance(message.channel, discord.DMChannel):
         return
 
-    msg_chain = await to_message_chain(message)
+    Silian_msg_chain = await to_message_chain(message)
 
-    session = await SessionInfo.assign(
-        target_id=target_id,
-        sender_id=sender_id,
+    Silian_session = await SessionInfo.assign(
+        target_id=Silian_target_id,
+        sender_id=Silian_sender_id,
         sender_name=message.author.name,
         target_from=target_from,
         sender_from=sender_prefix,
         client_name=client_name,
         message_id=str(message.id),
-        reply_id=str(reply_id),
-        messages=msg_chain,
-        ctx_slot=ctx_id,
+        reply_id=str(Silian_reply_id),
+        messages=Silian_msg_chain,
+        ctx_slot=Silian_ctx_id,
         use_url_md_format=False,
     )
 
-    await Bot.process_message(session, message)
+    await Bot.process_message(Silian_session, message)
 
 
 @discord_bot.event
@@ -142,25 +142,25 @@ async def on_raw_reaction_add(payload: discord.RawReactionActionEvent):
     if payload.user_id == discord_bot.user.id:
         return
     Logger.debug(payload)
-    sender_id = f"{sender_prefix}|{payload.user_id}"
-    if sender_id in ignored_sender:
+    Silian_sender_id = f"{sender_prefix}|{payload.user_id}"
+    if Silian_sender_id in Silian_ignored_sender:
         return
     target_from = target_channel_prefix
     if isinstance(await discord_bot.fetch_channel(payload.channel_id), discord.DMChannel):
         target_from = target_dm_channel_prefix
-    target_id = f"{target_from}|{payload.channel_id}"
-    session = await SessionInfo.assign(
-        target_id=target_id,
-        sender_id=sender_id,
+    Silian_target_id = f"{target_from}|{payload.channel_id}"
+    Silian_session = await SessionInfo.assign(
+        target_id=Silian_target_id,
+        sender_id=Silian_sender_id,
         target_from=target_from,
         sender_from=sender_prefix,
         client_name=client_name,
         reply_id=str(payload.message_id),
         messages=MessageChain.assign([Plain(payload.emoji.name)]),
-        ctx_slot=ctx_id,
+        ctx_slot=Silian_ctx_id,
     )
-    await Bot.process_message(session, payload)
+    await Bot.process_message(Silian_session, payload)
 
 
 if Config("enable", False, table_name="bot_discord"):
-    discord_bot.run(dc_token)
+    discord_bot.run(Silian_dc_token)

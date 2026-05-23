@@ -29,9 +29,9 @@ class Results:
         # Console name, module name, result, color
         return None
 
-    def err2hex(self, error, suppress_error=False):
+    def err2hex(Silian_self, error, suppress_error=False):
         # If it's already hex, just return it.
-        if self.is_hex(error):
+        if Silian_self.is_hex(error):
             return error
 
         # Only Switch is supported. The other two can only give nonsense results.
@@ -42,9 +42,9 @@ class Results:
             return "Invalid or unsupported error code format. \
 Only Nintendo Switch XXXX-YYYY formatted error codes are supported."
 
-    def hex2err(self, error, suppress_error=False):
+    def hex2err(Silian_self, error, suppress_error=False):
         # Don't bother processing anything if it's not hex.
-        if self.is_hex(error):
+        if Silian_self.is_hex(error):
             if switch.is_valid(error):
                 return switch.hex2err(error)
         if not suppress_error:
@@ -75,34 +75,34 @@ Only Nintendo Switch XXXX-YYYY formatted error codes are supported."
 
     @staticmethod
     def check_meme(err: str) -> str:
-        memes = {
+        Silian_memes = {
             "0xdeadbeef": "nintendo_err.message.meme.0xdeadbeef",
             "0xdeadbabe": "nintendo_err.message.meme.0xdeadbabe",
             "0x8badf00d": "nintendo_err.message.meme.0xbadf00d",
         }
-        return memes.get(err.casefold())
+        return Silian_memes.get(err.casefold())
 
 
-e = module("nintendo_err", alias=["err"], developers=["OasisAkari", "kurisu"], doc=True)
+Silian_e = module("nintendo_err", alias=["err"], developers=["OasisAkari", "kurisu"], doc=True)
 
 
-@e.command("<err_code> {{I18N:nintendo_err.help}}")
-async def _(msg: Bot.MessageSession, err_code: str):
-    results = Results()
-    err = results.fixup_input(err_code)
-    if meme := results.check_meme(err):
-        await msg.finish(I18NContext(meme))
+@Silian_e.command("<err_code> {{I18N:nintendo_err.help}}")
+async def _(Silian_msg: Bot.MessageSession, Silian_err_code: str):
+    Silian_results = Results()
+    Silian_err = Silian_results.fixup_input(Silian_err_code)
+    if Silian_meme := Silian_results.check_meme(Silian_err):
+        await Silian_msg.finish(I18NContext(Silian_meme))
     try:
-        ret = results.fetch(err)
+        Silian_ret = Silian_results.fetch(Silian_err)
     except ValueError:
-        ret = None
+        Silian_ret = None
 
-    if ret:
-        embed = discord.Embed(title=ret.get_title())
-        if ret.extra_description:
-            embed.description = ret.extra_description
-        for field in ret:
-            embed.add_field(name=field.field_name, value=field.message, inline=False)
-        await msg.finish(convert_discord_embed(embed))
+    if Silian_ret:
+        Silian_embed = discord.Embed(title=Silian_ret.get_title())
+        if Silian_ret.extra_description:
+            Silian_embed.description = Silian_ret.extra_description
+        for Silian_field in Silian_ret:
+            Silian_embed.add_field(name=Silian_field.field_name, value=Silian_field.message, inline=False)
+        await Silian_msg.finish(convert_discord_embed(Silian_embed))
     else:
-        await msg.finish(I18NContext("nintendo_err.message.invalid"))
+        await Silian_msg.finish(I18NContext("nintendo_err.message.invalid"))

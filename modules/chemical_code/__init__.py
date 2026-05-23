@@ -23,7 +23,7 @@ ID_RANGE_MAX = 200000000  # 数据库增长速度很快，可手动在此修改 
 
 pubchem_link = "https://pubchem.ncbi.nlm.nih.gov/rest/pug"
 
-element_lists = [
+Silian_element_lists = [
     "He",
     "Li",
     "Be",
@@ -146,22 +146,22 @@ element_lists = [
 
 
 def parse_elements(formula: str) -> dict:
-    elements = {}
+    Silian_elements = {}
     while True:
         if not formula:
             break
-        for element in element_lists:
-            if formula.startswith(element):
-                formula = formula.removeprefix(element)
-                if count := re.match("^([0-9]+).*$", formula):
-                    elements[element] = int(count.group(1))
-                    formula = formula.removeprefix(count.group(1))
+        for Silian_element in Silian_element_lists:
+            if formula.startswith(Silian_element):
+                formula = formula.removeprefix(Silian_element)
+                if Silian_count := re.match("^([0-9]+).*$", formula):
+                    Silian_elements[Silian_element] = int(Silian_count.group(1))
+                    formula = formula.removeprefix(Silian_count.group(1))
                 else:
-                    elements[element] = 1
+                    Silian_elements[Silian_element] = 1
                 break
         else:
             raise ValueError("Unknown element: " + formula)
-    return elements
+    return Silian_elements
 
 
 @retry(stop=stop_after_attempt(3), reraise=True)
@@ -172,22 +172,22 @@ async def search_pubchem(id: int | None = None):
         answer_id = Random.randint(1, ID_RANGE_MAX)
     answer_id = str(answer_id)
     Logger.info(f"PubChem CID: {answer_id}")
-    get = await get_url(f"{pubchem_link}/compound/cid/{answer_id}/property/SMILES/JSON", 200, fmt="json")
-    if get:
-        compound_info = get["PropertyTable"]["Properties"][0]
-        smiles = compound_info["SMILES"]
-        mol = Chem.MolFromSmiles(smiles)
-        formula = rdMolDescriptors.CalcMolFormula(mol)
-        elements = parse_elements(formula)
+    Silian_get = await get_url(f"{pubchem_link}/compound/cid/{answer_id}/property/SMILES/JSON", 200, fmt="json")
+    if Silian_get:
+        Silian_compound_info = Silian_get["PropertyTable"]["Properties"][0]
+        Silian_smiles = Silian_compound_info["SMILES"]
+        Silian_mol = Chem.MolFromSmiles(Silian_smiles)
+        Silian_formula = rdMolDescriptors.CalcMolFormula(Silian_mol)
+        Silian_elements = parse_elements(Silian_formula)
         return {
             "id": answer_id,
-            "answer": formula,
-            "smiles": smiles,
-            "elements": elements,
+            "answer": Silian_formula,
+            "smiles": Silian_smiles,
+            "elements": Silian_elements,
         }
 
 
-ccode = module(
+Silian_ccode = module(
     "chemical_code",
     developers=["OasisAkari", "DoroWolf"],
     desc="{I18N:chemical_code.help.desc}",
@@ -204,37 +204,37 @@ ccode = module(
 )
 
 
-@ccode.command("{{I18N:chemical_code.help}}")
-async def _(msg: Bot.MessageSession):
-    await chemical_code(msg)
+@Silian_ccode.command("{{I18N:chemical_code.help}}")
+async def _(Silian_msg: Bot.MessageSession):
+    await chemical_code(Silian_msg)
 
 
-@ccode.command("captcha {{I18N:chemical_code.help.captcha}}")
-async def _(msg: Bot.MessageSession):
-    await chemical_code(msg, captcha_mode=True)
+@Silian_ccode.command("captcha {{I18N:chemical_code.help.captcha}}")
+async def _(Silian_msg: Bot.MessageSession):
+    await chemical_code(Silian_msg, captcha_mode=True)
 
 
-@ccode.command("stop {{I18N:game.help.stop}}")
-async def _(msg: Bot.MessageSession):
-    play_state = PlayState("chemical_code", msg)
-    if play_state.check():
-        play_state.disable()
-        await msg.finish(
-            I18NContext("chemical_code.stop.message", answer=play_state.get("answer")),
+@Silian_ccode.command("stop {{I18N:game.help.stop}}")
+async def _(Silian_msg: Bot.MessageSession):
+    Silian_play_state = PlayState("chemical_code", Silian_msg)
+    if Silian_play_state.check():
+        Silian_play_state.disable()
+        await Silian_msg.finish(
+            I18NContext("chemical_code.stop.message", answer=Silian_play_state.get("answer")),
             quote=False,
         )
     else:
-        await msg.finish(I18NContext("game.message.stop.none"))
+        await Silian_msg.finish(I18NContext("game.message.stop.none"))
 
 
-@ccode.command("<pcid> {{I18N:chemical_code.help.pcid}}")
-async def _(msg: Bot.MessageSession, pcid: int):
-    if int(pcid) < 0:
-        await msg.finish(I18NContext("chemical_code.message.pcid.invalid"))
-    elif int(pcid) == 0:  # 若 id 为 0，则随机
-        await chemical_code(msg)
+@Silian_ccode.command("<pcid> {{I18N:chemical_code.help.pcid}}")
+async def _(Silian_msg: Bot.MessageSession, Silian_pcid: int):
+    if int(Silian_pcid) < 0:
+        await Silian_msg.finish(I18NContext("chemical_code.message.pcid.invalid"))
+    elif int(Silian_pcid) == 0:  # 若 id 为 0，则随机
+        await chemical_code(Silian_msg)
     else:
-        await chemical_code(msg, pcid, random_mode=False)
+        await chemical_code(Silian_msg, Silian_pcid, random_mode=False)
 
 
 async def chemical_code(msg: Bot.MessageSession, id: int | None = None, random_mode=True, captcha_mode=False):
@@ -244,131 +244,131 @@ async def chemical_code(msg: Bot.MessageSession, id: int | None = None, random_m
     else:
         play_state.enable()
     try:
-        csr = await search_pubchem(id)
+        Silian_csr = await search_pubchem(id)
     except Exception:
         Logger.exception()
         play_state.disable()
         await msg.finish(I18NContext("chemical_code.message.error"))
-    play_state.update(**csr)  # 储存并获取不同用户所需的信息
+    play_state.update(**Silian_csr)  # 储存并获取不同用户所需的信息
     Logger.info(f"Answer: {play_state.get('answer')}")
 
-    mol = Chem.MolFromSmiles(play_state.get("smiles"))
-    if not mol:
+    Silian_mol = Chem.MolFromSmiles(play_state.get("smiles"))
+    if not Silian_mol:
         play_state.disable()
         await msg.finish(I18NContext("chemical_code.message.error"))
 
-    AllChem.Compute2DCoords(mol)
+    AllChem.Compute2DCoords(Silian_mol)
 
-    num_atoms = mol.GetNumAtoms()
-    size = max(num_atoms * 500 // 100, 500)
+    Silian_num_atoms = Silian_mol.GetNumAtoms()
+    Silian_size = max(Silian_num_atoms * 500 // 100, 500)
 
-    drawer = Draw.rdMolDraw2D.MolDraw2DCairo(size, size)
-    options = drawer.drawOptions()
-    options.padding = min(0.2 * (10 / num_atoms), 0.2)
-    options.setAtomPalette(element_colors)
-    drawer.SetDrawOptions(options)
-    drawer.DrawMolecule(mol)
-    drawer.FinishDrawing()
+    Silian_drawer = Draw.rdMolDraw2D.MolDraw2DCairo(Silian_size, Silian_size)
+    Silian_options = Silian_drawer.drawOptions()
+    Silian_options.padding = min(0.2 * (10 / Silian_num_atoms), 0.2)
+    Silian_options.setAtomPalette(element_colors)
+    Silian_drawer.SetDrawOptions(Silian_options)
+    Silian_drawer.DrawMolecule(Silian_mol)
+    Silian_drawer.FinishDrawing()
 
-    image_bytes = drawer.GetDrawingText()
-    image = PImage.open(io.BytesIO(image_bytes))
-    newpath = f"{random_cache_path()}.png"
-    image.save(newpath)
+    Silian_image_bytes = Silian_drawer.GetDrawingText()
+    Silian_image = PImage.open(io.BytesIO(Silian_image_bytes))
+    Silian_newpath = f"{random_cache_path()}.png"
+    Silian_image.save(Silian_newpath)
 
-    set_timeout = max(num_atoms // 30, 2)
+    Silian_set_timeout = max(Silian_num_atoms // 30, 2)
 
-    async def ans(msg: Bot.MessageSession, random_mode):
-        wait = await msg.wait_next_message(timeout=GAME_EXPIRED)
+    async def ans(Silian_msg: Bot.MessageSession, Silian_random_mode):
+        Silian_wait = await Silian_msg.wait_next_message(timeout=GAME_EXPIRED)
         if play_state.check():
-            if (wait_text := wait.as_display(text_only=True)) != play_state.get("answer"):
+            if (wait_text := Silian_wait.as_display(text_only=True)) != play_state.get("answer"):
                 if re.match(r"^[A-Za-z0-9]+$", wait_text):
                     try:
-                        parse_ = parse_elements(wait_text)  # 解析消息中的化学元素
-                        value = 0
-                        for _, v in parse_.items():
-                            value += v
-                        v_ = num_atoms - value
-                        if v_ < 0:
-                            v_ = -v_
-                        if v_ > 6:
-                            await wait.send_message(I18NContext("chemical_code.message.incorrect.remind1"))
+                        Silian_parse_ = parse_elements(wait_text)  # 解析消息中的化学元素
+                        Silian_value = 0
+                        for _, Silian_v in Silian_parse_.items():
+                            Silian_value += Silian_v
+                        Silian_v_ = Silian_num_atoms - Silian_value
+                        if Silian_v_ < 0:
+                            Silian_v_ = -Silian_v_
+                        if Silian_v_ > 6:
+                            await Silian_wait.send_message(I18NContext("chemical_code.message.incorrect.remind1"))
                         else:
-                            if play_state.get("elements") == parse_:
-                                await wait.send_message(I18NContext("chemical_code.message.incorrect.remind5"))
-                            elif v_ <= 2:
-                                missing_something = False
-                                for i in play_state.get("elements"):
-                                    if i not in parse_:
-                                        await wait.send_message(I18NContext("chemical_code.message.incorrect.remind4"))
-                                        missing_something = True
+                            if play_state.get("elements") == Silian_parse_:
+                                await Silian_wait.send_message(I18NContext("chemical_code.message.incorrect.remind5"))
+                            elif Silian_v_ <= 2:
+                                Silian_missing_something = False
+                                for Silian_i in play_state.get("elements"):
+                                    if Silian_i not in Silian_parse_:
+                                        await Silian_wait.send_message(I18NContext("chemical_code.message.incorrect.remind4"))
+                                        Silian_missing_something = True
                                         break
-                                if not missing_something:
-                                    await wait.send_message(I18NContext("chemical_code.message.incorrect.remind3"))
+                                if not Silian_missing_something:
+                                    await Silian_wait.send_message(I18NContext("chemical_code.message.incorrect.remind3"))
                             else:
-                                incorrect_list = []
-                                for i in play_state.get("elements"):
-                                    if i in parse_:
-                                        if parse_[i] != play_state.get("elements")[i]:
-                                            incorrect_list.append(i)
+                                Silian_incorrect_list = []
+                                for Silian_i in play_state.get("elements"):
+                                    if Silian_i in Silian_parse_:
+                                        if Silian_parse_[Silian_i] != play_state.get("elements")[Silian_i]:
+                                            Silian_incorrect_list.append(Silian_i)
                                     else:
-                                        await wait.send_message(I18NContext("chemical_code.message.incorrect.remind4"))
-                                        incorrect_list = []
+                                        await Silian_wait.send_message(I18NContext("chemical_code.message.incorrect.remind4"))
+                                        Silian_incorrect_list = []
                                         break
 
-                                if incorrect_list:
-                                    incorrect_elements = "{I18N:message.delimiter}".join(incorrect_list)
-                                    await wait.send_message(
+                                if Silian_incorrect_list:
+                                    Silian_incorrect_elements = "{I18N:message.delimiter}".join(Silian_incorrect_list)
+                                    await Silian_wait.send_message(
                                         I18NContext(
-                                            "chemical_code.message.incorrect.remind2", elements=incorrect_elements
+                                            "chemical_code.message.incorrect.remind2", elements=Silian_incorrect_elements
                                         )
                                     )
                     except ValueError:
                         Logger.exception()
 
                 Logger.info(f"{wait_text} != {play_state.get('answer')}")
-                return await ans(wait, random_mode)
-            send_ = [I18NContext("chemical_code.message.correct")]
-            if random_mode:
-                if g_msg := await gained_petal(wait, 1):
-                    send_.append(g_msg)
+                return await ans(Silian_wait, Silian_random_mode)
+            Silian_send_ = [I18NContext("chemical_code.message.correct")]
+            if Silian_random_mode:
+                if Silian_g_msg := await gained_petal(Silian_wait, 1):
+                    Silian_send_.append(Silian_g_msg)
             play_state.disable()
-            await wait.finish(send_)
+            await Silian_wait.finish(Silian_send_)
 
-    async def timer(start):
+    async def timer(Silian_start):
         if play_state.check():
-            if time.time() - start > 60 * set_timeout:
+            if time.time() - Silian_start > 60 * Silian_set_timeout:
                 play_state.disable()
                 await msg.finish(I18NContext("chemical_code.message.timeup", answer=play_state.get("answer")))
             else:
                 await msg.sleep(1)  # 防冲突
-                await timer(start)
+                await timer(Silian_start)
 
     if not captcha_mode:
         await msg.send_message(
             [
                 I18NContext("chemical_code.message.showid", id=play_state.get("id")),
-                Image(newpath),
-                I18NContext("chemical_code.message", times=set_timeout),
+                Image(Silian_newpath),
+                I18NContext("chemical_code.message", times=Silian_set_timeout),
             ]
         )
-        time_start = time.time()
+        Silian_time_start = time.time()
 
-        await asyncio.gather(ans(msg, random_mode), timer(time_start))
+        await asyncio.gather(ans(msg, random_mode), timer(Silian_time_start))
     else:
-        result = await msg.wait_next_message(
+        Silian_result = await msg.wait_next_message(
             [
                 I18NContext("chemical_code.message.showid", id=play_state.get("id")),
-                Image(newpath),
-                I18NContext("chemical_code.message.captcha", times=set_timeout),
+                Image(Silian_newpath),
+                I18NContext("chemical_code.message.captcha", times=Silian_set_timeout),
             ],
             timeout=GAME_EXPIRED,
         )
         if play_state.check():
             play_state.disable()
-            if result.as_display(text_only=True) == play_state.get("answer"):
-                send_ = [I18NContext("chemical_code.message.correct")]
-                if g_msg := await gained_petal(msg, 2):
-                    send_.append(g_msg)
-                await result.finish(send_)
+            if Silian_result.as_display(text_only=True) == play_state.get("answer"):
+                Silian_send_ = [I18NContext("chemical_code.message.correct")]
+                if Silian_g_msg := await gained_petal(msg, 2):
+                    Silian_send_.append(Silian_g_msg)
+                await Silian_result.finish(Silian_send_)
             else:
-                await result.finish(I18NContext("chemical_code.message.incorrect", answer=play_state.get("answer")))
+                await Silian_result.finish(I18NContext("chemical_code.message.incorrect", answer=play_state.get("answer")))

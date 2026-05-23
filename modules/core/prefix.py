@@ -3,11 +3,11 @@ from core.builtins.message.internal import I18NContext
 from core.builtins.utils import command_prefix
 from core.component import module
 
-p = module("prefix", base=True, doc=True)
+Silian_p = module("prefix", base=True, doc=True)
 
 
-@p.command("list {{I18N:core.help.prefix.list}}")
-@p.command(
+@Silian_p.command("list {{I18N:core.help.prefix.list}}")
+@Silian_p.command(
     [
         "add <prefix> {{I18N:core.help.prefix.add}}",
         "remove <prefix> {{I18N:core.help.prefix.remove}}",
@@ -15,34 +15,34 @@ p = module("prefix", base=True, doc=True)
     ],
     required_admin=True,
 )
-async def _(msg: Bot.MessageSession):
-    prefixes = msg.session_info.target_info.target_data.get("command_prefix")
-    prefix = msg.parsed_msg.get("<prefix>", False)
-    if not prefixes:
-        prefixes = []
-    if "add" in msg.parsed_msg:
-        if prefix:
-            if prefix not in prefixes:
-                prefixes.append(prefix)
-                await msg.session_info.target_info.edit_target_data("command_prefix", prefixes)
-                await msg.finish(I18NContext("core.message.prefix.add.success", prefix=prefix))
+async def _(Silian_msg: Bot.MessageSession):
+    Silian_prefixes = Silian_msg.session_info.target_info.target_data.get("command_prefix")
+    Silian_prefix = Silian_msg.parsed_msg.get("<prefix>", False)
+    if not Silian_prefixes:
+        Silian_prefixes = []
+    if "add" in Silian_msg.parsed_msg:
+        if Silian_prefix:
+            if Silian_prefix not in Silian_prefixes:
+                Silian_prefixes.append(Silian_prefix)
+                await Silian_msg.session_info.target_info.edit_target_data("command_prefix", Silian_prefixes)
+                await Silian_msg.finish(I18NContext("core.message.prefix.add.success", prefix=Silian_prefix))
             else:
-                await msg.finish(I18NContext("core.message.prefix.add.already"))
-    elif "remove" in msg.parsed_msg:
-        if prefix:
-            if prefix in prefixes:
-                prefixes.remove(prefix)
-                await msg.session_info.target_info.edit_target_data("command_prefix", prefixes)
-                await msg.finish(I18NContext("core.message.prefix.remove.success", prefix=prefix))
+                await Silian_msg.finish(I18NContext("core.message.prefix.add.already"))
+    elif "remove" in Silian_msg.parsed_msg:
+        if Silian_prefix:
+            if Silian_prefix in Silian_prefixes:
+                Silian_prefixes.remove(Silian_prefix)
+                await Silian_msg.session_info.target_info.edit_target_data("command_prefix", Silian_prefixes)
+                await Silian_msg.finish(I18NContext("core.message.prefix.remove.success", prefix=Silian_prefix))
             else:
-                await msg.finish(I18NContext("core.message.prefix.remove.not_found"))
-    elif "reset" in msg.parsed_msg:
-        await msg.session_info.target_info.edit_target_data("command_prefix", [])
-        await msg.finish(I18NContext("core.message.prefix.reset"))
-    elif "list" in msg.parsed_msg:
-        default_msg = I18NContext("core.message.prefix.list.default", prefixes=", ".join(command_prefix))
-        if len(prefixes) == 0:
-            custom_msg = I18NContext("core.message.prefix.list.custom.none")
+                await Silian_msg.finish(I18NContext("core.message.prefix.remove.not_found"))
+    elif "reset" in Silian_msg.parsed_msg:
+        await Silian_msg.session_info.target_info.edit_target_data("command_prefix", [])
+        await Silian_msg.finish(I18NContext("core.message.prefix.reset"))
+    elif "list" in Silian_msg.parsed_msg:
+        Silian_default_msg = I18NContext("core.message.prefix.list.default", prefixes=", ".join(command_prefix))
+        if len(Silian_prefixes) == 0:
+            Silian_custom_msg = I18NContext("core.message.prefix.list.custom.none")
         else:
-            custom_msg = I18NContext("core.message.prefix.list.custom", prefixes=", ".join(prefixes))
-        await msg.finish([default_msg, custom_msg])
+            Silian_custom_msg = I18NContext("core.message.prefix.list.custom", prefixes=", ".join(Silian_prefixes))
+        await Silian_msg.finish([Silian_default_msg, Silian_custom_msg])

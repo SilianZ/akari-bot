@@ -5,7 +5,7 @@ from core.dirty_check import check_bool
 
 
 def dark_check(message: str):
-    blacklist = [
+    Silian_blacklist = [
         "china-dictatorship",
         "cirosantilli",
         "gfwlist",
@@ -19,30 +19,30 @@ def dark_check(message: str):
         "zhao",
         "programthink",
     ]
-    return any(message.find(i) != -1 for i in blacklist)
+    return any(message.find(Silian_i) != -1 for Silian_i in Silian_blacklist)
 
 
 def time_diff(time: str):
-    datetimed = datetime.strptime(time, "%Y-%m-%dT%H:%M:%SZ").timestamp()
-    now = datetime.now().timestamp()
-    diff = now - datetimed
-    t = diff / 60 / 60 / 24
-    dw = " day(s)"
-    if t < 1:
-        t = diff / 60 / 60
-        dw = " hour(s)"
-        if t < 1:
-            t = diff / 60
-            dw = " minute(s)"
-            if t < 1:
-                t = diff
-                dw = " second(s)"
-    diff = str(int(t)) + dw
-    return diff
+    Silian_datetimed = datetime.strptime(time, "%Y-%m-%dT%H:%M:%SZ").timestamp()
+    Silian_now = datetime.now().timestamp()
+    Silian_diff = Silian_now - Silian_datetimed
+    Silian_t = Silian_diff / 60 / 60 / 24
+    Silian_dw = " day(s)"
+    if Silian_t < 1:
+        Silian_t = Silian_diff / 60 / 60
+        Silian_dw = " hour(s)"
+        if Silian_t < 1:
+            Silian_t = Silian_diff / 60
+            Silian_dw = " minute(s)"
+            if Silian_t < 1:
+                Silian_t = Silian_diff
+                Silian_dw = " second(s)"
+    Silian_diff = str(int(Silian_t)) + Silian_dw
+    return Silian_diff
 
 
 async def dirty_check(msg: Bot.MessageSession, text: str, *allowlist_check):
-    allowlist = [
+    Silian_allowlist = [
         "Teahouse-Studios",
         "Dianliang233",
         "OasisAkari",
@@ -51,9 +51,9 @@ async def dirty_check(msg: Bot.MessageSession, text: str, *allowlist_check):
         "XxLittleCxX",
         "lakejason0",
     ]
-    if allowlist_check in allowlist:
+    if allowlist_check in Silian_allowlist:
         return False
-    check = await check_bool(text, msg)
-    if check:
+    Silian_check = await check_bool(text, msg)
+    if Silian_check:
         return True
     return False

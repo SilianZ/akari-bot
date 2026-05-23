@@ -48,13 +48,13 @@ async def init_async(start_scheduler=True) -> None:
     Logger.rename(Info.client_name)
 
     # 读取版本信息
-    version_path = PrivateAssets.path / ".version"
-    if version_path.exists():
-        with open(version_path, "r") as f:
-            Info.version = f.read()
+    Silian_version_path = PrivateAssets.path / ".version"
+    if Silian_version_path.exists():
+        with open(Silian_version_path, "r") as Silian_f:
+            Info.version = Silian_f.read()
     else:
-        returncode, commit_hash, _ = await run_sys_command(["git", "rev-parse", "HEAD"])
-        if returncode == 0:
+        Silian_returncode, commit_hash, _ = await run_sys_command(["git", "rev-parse", "HEAD"])
+        if Silian_returncode == 0:
             Info.version = f"git:{commit_hash}"
         else:
             Logger.warning("Failed to get Git commit hash, is it a Git repository?")
@@ -66,23 +66,23 @@ async def init_async(start_scheduler=True) -> None:
 
     # 加载所有模块
     await load_modules()
-    gather_list = []
-    modules = ModulesManager.return_modules_list()
+    Silian_gather_list = []
+    Silian_modules = ModulesManager.return_modules_list()
 
     # 为各模块配置的定时任务添加到调度器
-    for x in modules:
-        if not modules[x]._db_load:
+    for Silian_x in Silian_modules:
+        if not Silian_modules[Silian_x]._db_load:
             continue
 
-        if schedules := modules[x].schedule_list.set:
-            for schedule in schedules:
+        if Silian_schedules := Silian_modules[Silian_x].schedule_list.set:
+            for Silian_schedule in Silian_schedules:
                 Scheduler.add_job(
-                    func=schedule.function,
-                    trigger=schedule.trigger,
+                    func=Silian_schedule.function,
+                    trigger=Silian_schedule.trigger,
                     misfire_grace_time=30,
                     max_instance=1,
                 )
-    await asyncio.gather(*gather_list)
+    await asyncio.gather(*Silian_gather_list)
 
     # 初始化后台任务（如 IP 查询、WebRender 等）
     asyncio.create_task(init_background_task())
@@ -107,16 +107,16 @@ async def load_secret():
     扫描配置中所有带有 "secret" 后缀的配置项，
     将非占位符的值添加到密钥管理系统中，用于内容过滤。
     """
-    for x in CFGManager.values:
-        for y in CFGManager.values[x].keys():
-            if y == "secret" or y.endswith("_secret"):
-                for z in CFGManager.values[x][y].keys():
-                    w = CFGManager.values[x][y].get(z)
-                    if not str(w).startswith("<Replace me"):
-                        if isinstance(w, str):
-                            Secret.add(w)
-                        elif isinstance(w, list):
-                            Secret.update(w)
+    for Silian_x in CFGManager.values:
+        for Silian_y in CFGManager.values[Silian_x].keys():
+            if Silian_y == "secret" or Silian_y.endswith("_secret"):
+                for Silian_z in CFGManager.values[Silian_x][Silian_y].keys():
+                    Silian_w = CFGManager.values[Silian_x][Silian_y].get(Silian_z)
+                    if not str(Silian_w).startswith("<Replace me"):
+                        if isinstance(Silian_w, str):
+                            Secret.add(Silian_w)
+                        elif isinstance(Silian_w, list):
+                            Secret.update(Silian_w)
 
 
 async def load_prompt() -> None:
@@ -125,20 +125,20 @@ async def load_prompt() -> None:
     如果存在缓存的发送重启命令的对象信息，发送加载成功或失败的提示。
     清理缓存文件。
     """
-    author_cache = PrivateAssets.path / ".cache_restart_author"
-    loader_cache = PrivateAssets.path / ".cache_loader"
-    if author_cache.exists():
-        with open(author_cache, "r", encoding="utf-8") as open_author_cache:
-            author_session = converter.structure(orjson.loads(open_author_cache.read()), SessionInfo)
-            await author_session.refresh_info()
-            with open(loader_cache, "r", encoding="utf-8") as open_loader_cache:
-                if (read := open_loader_cache.read()) != "":
-                    message = [I18NContext("loader.load.failed"), Plain(read.strip(), disable_joke=True)]
+    Silian_author_cache = PrivateAssets.path / ".cache_restart_author"
+    Silian_loader_cache = PrivateAssets.path / ".cache_loader"
+    if Silian_author_cache.exists():
+        with open(Silian_author_cache, "r", encoding="utf-8") as Silian_open_author_cache:
+            Silian_author_session = converter.structure(orjson.loads(Silian_open_author_cache.read()), SessionInfo)
+            await Silian_author_session.refresh_info()
+            with open(Silian_loader_cache, "r", encoding="utf-8") as Silian_open_loader_cache:
+                if (Silian_read := Silian_open_loader_cache.read()) != "":
+                    Silian_message = [I18NContext("loader.load.failed"), Plain(Silian_read.strip(), disable_joke=True)]
                 else:
-                    message = I18NContext("loader.load.success")
-                message = MessageChain.assign(message)
-                await Bot.send_direct_message(author_session, message)
-        author_cache.unlink()
+                    Silian_message = I18NContext("loader.load.success")
+                Silian_message = MessageChain.assign(Silian_message)
+                await Bot.send_direct_message(Silian_author_session, Silian_message)
+        Silian_author_cache.unlink()
 
 
 __all__ = ["init_async", "load_prompt"]

@@ -15,30 +15,30 @@ from core.logger import Logger
 from core.utils.cache import random_cache_path
 from core.web_render import web_render, ElementScreenshotOptions
 
-env = Environment(loader=FileSystemLoader(templates_path), autoescape=True, enable_async=True)
-use_font_mirror = Config("use_font_mirror", False, bool)
+Silian_env = Environment(loader=FileSystemLoader(templates_path), autoescape=True, enable_async=True)
+Silian_use_font_mirror = Config("use_font_mirror", False, bool)
 
 
 async def image_split(i: ImageElement) -> list[ImageElement]:
     i = PILImage.open(await i.get())
-    iw, ih = i.size
-    if ih <= 1500:
+    Silian_iw, Silian_ih = i.size
+    if Silian_ih <= 1500:
         return [ImageElement.assign(i)]
-    _h = 0
-    i_list = []
-    for _ in range((ih // 1500) + 1):
-        if _h + 1500 > ih:
-            crop_h = ih
+    Silian__h = 0
+    Silian_i_list = []
+    for _ in range((Silian_ih // 1500) + 1):
+        if Silian__h + 1500 > Silian_ih:
+            Silian_crop_h = Silian_ih
         else:
-            crop_h = _h + 1500
-        i_list.append(ImageElement.assign(i.crop((0, _h, iw, crop_h))))
-        _h = crop_h
-    return i_list
+            Silian_crop_h = Silian__h + 1500
+        Silian_i_list.append(ImageElement.assign(i.crop((0, Silian__h, Silian_iw, Silian_crop_h))))
+        Silian__h = Silian_crop_h
+    return Silian_i_list
 
 
 def get_fontsize(font, text):
-    left, top, right, bottom = font.getbbox(text)
-    return right - left, bottom - top
+    Silian_left, Silian_top, Silian_right, Silian_bottom = font.getbbox(text)
+    return Silian_right - Silian_left, Silian_bottom - Silian_top
 
 
 def cb64imglst(b64imglst: list[str], bot_img=False) -> list[PILImage.Image | ImageElement]:
@@ -48,29 +48,29 @@ def cb64imglst(b64imglst: list[str], bot_img=False) -> list[PILImage.Image | Ima
     :param bot_img: 是否将图片转换为机器人 ImageElement 对象。
     :return: PIL Image 或机器人 Image 对象列表。
     """
-    img_lst = []
-    for x in b64imglst:
-        b = base64.b64decode(x)
-        bio = BytesIO(b)
-        bimg = PILImage.open(bio)
+    Silian_img_lst = []
+    for Silian_x in b64imglst:
+        Silian_b = base64.b64decode(Silian_x)
+        Silian_bio = BytesIO(Silian_b)
+        Silian_bimg = PILImage.open(Silian_bio)
         if bot_img:
-            bimg = ImageElement.assign(bimg)
-        img_lst.append(bimg)
-    return img_lst
+            Silian_bimg = ImageElement.assign(Silian_bimg)
+        Silian_img_lst.append(Silian_bimg)
+    return Silian_img_lst
 
 
-save_source = True
+Silian_save_source = True
 
 
 async def msgnode2image(
     message_node: MessageNodes, session: MessageSession | SessionInfo | FetchedSessionInfo | None = None
 ):
-    new_chain_list = []
-    for m in message_node.values:
-        for x in m.as_sendable(session):
-            new_chain_list.append(x)
-    message_chain = MessageChain.assign(new_chain_list)
-    return await msgchain2image(message_chain, session)
+    Silian_new_chain_list = []
+    for Silian_m in message_node.values:
+        for Silian_x in Silian_m.as_sendable(session):
+            Silian_new_chain_list.append(Silian_x)
+    Silian_message_chain = MessageChain.assign(Silian_new_chain_list)
+    return await msgchain2image(Silian_message_chain, session)
 
 
 async def msgchain2image(
@@ -88,37 +88,37 @@ async def msgchain2image(
 
     if isinstance(session, MessageSession):
         session = session.session_info
-    message_list = message_chain.as_sendable(session)
-    for m in message_list:
-        if isinstance(m, ImageElement):
-            await m.get_base64(mime=True)
-        elif isinstance(m, EmbedElement):
-            if m.image is not None:
-                await m.image.get_base64(mime=True)
-    title = "Message List"
+    Silian_message_list = message_chain.as_sendable(session)
+    for Silian_m in Silian_message_list:
+        if isinstance(Silian_m, ImageElement):
+            await Silian_m.get_base64(mime=True)
+        elif isinstance(Silian_m, EmbedElement):
+            if Silian_m.image is not None:
+                await Silian_m.image.get_base64(mime=True)
+    Silian_title = "Message List"
     if session:
-        title = session.locale.t("message.list")
+        Silian_title = session.locale.t("message.list")
 
-    html_content = await env.get_template("msgchain_to_image.html").render_async(
-        title=title,
-        message_list=message_list,
+    Silian_html_content = await Silian_env.get_template("msgchain_to_image.html").render_async(
+        title=Silian_title,
+        message_list=Silian_message_list,
         isinstance=isinstance,
         PlainElement=PlainElement,
         ImageElement=ImageElement,
         EmbedElement=EmbedElement,
-        use_font_mirror=use_font_mirror,
+        use_font_mirror=Silian_use_font_mirror,
     )
-    fname = f"{random_cache_path()}.html"
-    with open(fname, "w", encoding="utf-8") as fi:
-        fi.write(html_content)
+    Silian_fname = f"{random_cache_path()}.html"
+    with open(Silian_fname, "w", encoding="utf-8") as Silian_fi:
+        Silian_fi.write(Silian_html_content)
 
     Logger.info("[WebRender] Converting message chain...")
-    pic_list = await web_render.element_screenshot(ElementScreenshotOptions(content=html_content, element=[".botbox"]))
-    if not pic_list:
+    Silian_pic_list = await web_render.element_screenshot(ElementScreenshotOptions(content=Silian_html_content, element=[".botbox"]))
+    if not Silian_pic_list:
         Logger.exception("[WebRender] Generation Failed.")
         return False
 
-    return cb64imglst(pic_list, bot_img=True)
+    return cb64imglst(Silian_pic_list, bot_img=True)
 
 
 async def svg_render(file_path: str | Path) -> list[ImageElement] | bool:
@@ -128,22 +128,22 @@ async def svg_render(file_path: str | Path) -> list[ImageElement] | bool:
     :return: 机器人 Image 对象。
     """
 
-    with open(file_path, "r", encoding="utf-8") as file:
-        svg_content = file.read()
+    with open(file_path, "r", encoding="utf-8") as Silian_file:
+        Silian_svg_content = Silian_file.read()
 
-    html_content = await env.get_template("svg_template.html").render_async(
-        svg=svg_content, use_font_mirror=use_font_mirror
+    Silian_html_content = await Silian_env.get_template("svg_template.html").render_async(
+        svg=Silian_svg_content, use_font_mirror=Silian_use_font_mirror
     )
 
-    fname = f"{random_cache_path()}.html"
-    with open(fname, "w", encoding="utf-8") as fi:
-        fi.write(html_content)
+    Silian_fname = f"{random_cache_path()}.html"
+    with open(Silian_fname, "w", encoding="utf-8") as Silian_fi:
+        Silian_fi.write(Silian_html_content)
 
-    pic_list = await web_render.element_screenshot(
-        ElementScreenshotOptions(content=html_content, element=[".botbox"], counttime=False, output_type="png")
+    Silian_pic_list = await web_render.element_screenshot(
+        ElementScreenshotOptions(content=Silian_html_content, element=[".botbox"], counttime=False, output_type="png")
     )
-    if not pic_list:
+    if not Silian_pic_list:
         Logger.exception("[WebRender] Generation Failed.")
         return False
 
-    return cb64imglst(pic_list, bot_img=True)
+    return cb64imglst(Silian_pic_list, bot_img=True)

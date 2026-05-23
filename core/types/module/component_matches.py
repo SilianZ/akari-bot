@@ -9,13 +9,13 @@ from .component_meta import *
 class BaseMatches:
     set: list[ModuleMeta] = field(factory=list)
 
-    def add(self, meta):
-        self.set.append(meta)
-        return self.set
+    def add(Silian_self, meta):
+        Silian_self.set.append(meta)
+        return Silian_self.set
 
     @classmethod
-    def init(cls):
-        return deepcopy(cls())
+    def init(Silian_cls):
+        return deepcopy(Silian_cls())
 
 
 @define
@@ -23,32 +23,32 @@ class CommandMatches(BaseMatches):
     set: list[CommandMeta] = field(factory=list)
 
     def get(
-        self,
+        Silian_self,
         target_from: str | None = None,
         show_required_superuser: bool = False,
         show_required_base_superuser: bool = False,
     ) -> list[CommandMeta]:
-        metas = []
-        for meta in self.set:
-            if not show_required_base_superuser and meta.required_base_superuser:
+        Silian_metas = []
+        for Silian_meta in Silian_self.set:
+            if not show_required_base_superuser and Silian_meta.required_base_superuser:
                 continue
-            if not show_required_superuser and meta.required_superuser:
+            if not show_required_superuser and Silian_meta.required_superuser:
                 continue
-            if not meta.load:
+            if not Silian_meta.load:
                 continue
             if target_from:
                 if "|" in target_from:
-                    client_name = target_from.split("|")[0]
+                    Silian_client_name = target_from.split("|")[0]
                 else:
-                    client_name = target_from
+                    Silian_client_name = target_from
 
-                if target_from in meta.exclude_from or client_name in meta.exclude_from:
+                if target_from in Silian_meta.exclude_from or Silian_client_name in Silian_meta.exclude_from:
                     continue
-                if target_from in meta.available_for or client_name in meta.available_for or "*" in meta.available_for:
-                    metas.append(meta)
+                if target_from in Silian_meta.available_for or Silian_client_name in Silian_meta.available_for or "*" in Silian_meta.available_for:
+                    Silian_metas.append(Silian_meta)
             else:
-                metas.append(meta)
-        return metas
+                Silian_metas.append(Silian_meta)
+        return Silian_metas
 
 
 @define
@@ -56,32 +56,32 @@ class RegexMatches(BaseMatches):
     set: list[RegexMeta] = field(factory=list)
 
     def get(
-        self,
+        Silian_self,
         target_from: str | None = None,
         show_required_superuser: bool = False,
         show_required_base_superuser: bool = False,
     ) -> list[RegexMeta]:
-        metas = []
-        for meta in self.set:
-            if not show_required_base_superuser and meta.required_base_superuser:
+        Silian_metas = []
+        for Silian_meta in Silian_self.set:
+            if not show_required_base_superuser and Silian_meta.required_base_superuser:
                 continue
-            if not show_required_superuser and meta.required_superuser:
+            if not show_required_superuser and Silian_meta.required_superuser:
                 continue
-            if not meta.load:
+            if not Silian_meta.load:
                 continue
             if target_from:
                 if "|" in target_from:
-                    client_name = target_from.split("|")[0]
+                    Silian_client_name = target_from.split("|")[0]
                 else:
-                    client_name = target_from
+                    Silian_client_name = target_from
 
-                if target_from in meta.exclude_from or client_name in meta.exclude_from:
+                if target_from in Silian_meta.exclude_from or Silian_client_name in Silian_meta.exclude_from:
                     continue
-                if target_from in meta.available_for or client_name in meta.available_for or "*" in meta.available_for:
-                    metas.append(meta)
+                if target_from in Silian_meta.available_for or Silian_client_name in Silian_meta.available_for or "*" in Silian_meta.available_for:
+                    Silian_metas.append(Silian_meta)
             else:
-                metas.append(meta)
-        return metas
+                Silian_metas.append(Silian_meta)
+        return Silian_metas
 
 
 @define

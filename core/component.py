@@ -19,11 +19,11 @@ from core.types.module.component_meta import *
 
 class Bind:
     class Module:
-        def __init__(self, module_name: str):
-            self.module_name = module_name
+        def __init__(Silian_self, Silian_module_name: str):
+            Silian_self.module_name = Silian_module_name
 
         def command(
-            self,
+            Silian_self,
             command_template: str | list | tuple | None = None,
             *command_templates,
             options_desc: dict | None = None,
@@ -35,7 +35,7 @@ class Bind:
             load: bool = True,
             priority: int = 1,
         ):
-            def decorator(function):
+            def decorator(Silian_function):
                 nonlocal command_template
                 if isinstance(command_template, str):
                     command_template = [command_template]
@@ -50,9 +50,9 @@ class Bind:
                     return
 
                 ModulesManager.bind_to_module(
-                    self.module_name,
+                    Silian_self.module_name,
                     CommandMeta(
-                        function=function,
+                        function=Silian_function,
                         command_template=command_template,
                         options_desc=options_desc,
                         required_admin=required_admin,
@@ -64,12 +64,12 @@ class Bind:
                         priority=priority,
                     ),
                 )
-                return function
+                return Silian_function
 
             return decorator
 
         def regex(
-            self,
+            Silian_self,
             pattern: str | re.Pattern,
             mode: str = "M",
             flags: re.RegexFlag = re.NOFLAG,
@@ -85,11 +85,11 @@ class Bind:
             text_only: bool = True,
             element_filter: tuple[MessageElement, ...] | None = None,
         ):
-            def decorator(function):
+            def decorator(Silian_function):
                 ModulesManager.bind_to_module(
-                    self.module_name,
+                    Silian_self.module_name,
                     RegexMeta(
-                        function=function,
+                        function=Silian_function,
                         pattern=pattern,
                         mode=mode,
                         flags=flags,
@@ -106,24 +106,24 @@ class Bind:
                         element_filter=element_filter or [],
                     ),
                 )
-                return function
+                return Silian_function
 
             return decorator
 
         def schedule(
-            self,
+            Silian_self,
             trigger: AndTrigger | OrTrigger | DateTrigger | CronTrigger | IntervalTrigger,
         ):
-            def decorator(function):
-                ModulesManager.bind_to_module(self.module_name, ScheduleMeta(function=function, trigger=trigger))
-                return function
+            def decorator(Silian_function):
+                ModulesManager.bind_to_module(Silian_self.module_name, ScheduleMeta(function=Silian_function, trigger=trigger))
+                return Silian_function
 
             return decorator
 
-        def hook(self, name: str = None):
-            def decorator(function):
-                ModulesManager.bind_to_module(self.module_name, HookMeta(function=function, name=name))
-                return function
+        def hook(Silian_self, name: str = None):
+            def decorator(Silian_function):
+                ModulesManager.bind_to_module(Silian_self.module_name, HookMeta(function=Silian_function, name=name))
+                return Silian_function
 
             return decorator
 
@@ -134,7 +134,7 @@ class Bind:
 
         @overload
         def handle(
-            self,
+            Silian_self,
             command_template: str | list | tuple | None = None,
             *command_templates,
             options_desc: dict | None = None,
@@ -149,7 +149,7 @@ class Bind:
 
         @overload
         def handle(
-            self,
+            Silian_self,
             pattern: str | re.Pattern,
             mode: str = "M",
             flags: re.RegexFlag = re.NOFLAG,
@@ -167,29 +167,29 @@ class Bind:
 
         @overload
         def handle(
-            self,
+            Silian_self,
             trigger: AndTrigger | OrTrigger | DateTrigger | CronTrigger | IntervalTrigger,
         ): ...
 
-        def handle(self, *args, **kwargs):
-            first_key = args[0] if args else (kwargs[list(kwargs.keys())[0]] if kwargs else None)
-            if isinstance(first_key, re.Pattern):
-                return self.regex(*args, **kwargs)
+        def handle(Silian_self, *args, **kwargs):
+            Silian_first_key = args[0] if args else (kwargs[list(kwargs.keys())[0]] if kwargs else None)
+            if isinstance(Silian_first_key, re.Pattern):
+                return Silian_self.regex(*args, **kwargs)
             if isinstance(
-                first_key,
+                Silian_first_key,
                 (AndTrigger, OrTrigger, DateTrigger, CronTrigger, IntervalTrigger),
             ):
-                return self.schedule(*args, **kwargs)
-            return self.command(*args, **kwargs)
+                return Silian_self.schedule(*args, **kwargs)
+            return Silian_self.command(*args, **kwargs)
 
-        def config(self, cls=None, secret: bool = False):
+        def config(Silian_self, Silian_cls=None, secret: bool = False):
 
-            def wrap(cls):
-                return _process_class(cls, "module_" + self.module_name, secret=secret)
+            def wrap(Silian_cls):
+                return _process_class(Silian_cls, "module_" + Silian_self.module_name, secret=secret)
 
-            if cls is None:
+            if Silian_cls is None:
                 return wrap
-            return wrap(cls)
+            return wrap(Silian_cls)
 
 
 def module(
@@ -232,19 +232,19 @@ def module(
     :param support_languages: 此命令支持的语言列表。
     """
 
-    frame = inspect.currentframe().f_back
-    caller_file = frame.f_globals.get("__file__", None)
+    Silian_frame = inspect.currentframe().f_back
+    Silian_caller_file = Silian_frame.f_globals.get("__file__", None)
 
-    py_module_name = ""
-    if caller_file:
-        path = Path(caller_file).resolve()
+    Silian_py_module_name = ""
+    if Silian_caller_file:
+        Silian_path = Path(Silian_caller_file).resolve()
         try:
-            modules_idx = path.parts.index("modules")
-            py_module_name = path.parts[modules_idx + 1]
+            Silian_modules_idx = Silian_path.parts.index("modules")
+            Silian_py_module_name = Silian_path.parts[Silian_modules_idx + 1]
         except (ValueError, IndexError):
-            py_module_name = ""
+            Silian_py_module_name = ""
 
-    module = Module.assign(
+    Silian_module = Module.assign(
         module_name=module_name,
         alias=alias,
         desc=desc,
@@ -261,9 +261,9 @@ def module(
         available_for=available_for,
         exclude_from=exclude_from,
         support_languages=support_languages,
-        _py_module_name=py_module_name,
+        _py_module_name=Silian_py_module_name,
         _db_load=True,
     )
-    frame = inspect.currentframe()
-    ModulesManager.add_module(module, frame.f_back.f_globals["__name__"])
+    Silian_frame = inspect.currentframe()
+    ModulesManager.add_module(Silian_module, Silian_frame.f_back.f_globals["__name__"])
     return Bind.Module(module_name)

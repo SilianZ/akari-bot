@@ -7,25 +7,25 @@ from ..database.models import DivingProberBindInfo, LxnsProberBindInfo
 
 
 async def get_diving_prober_bind_info(msg: Bot.MessageSession, **kwargs):
-    bind_info = await DivingProberBindInfo.get_by_sender_id(msg, create=False)
-    if not bind_info:
+    Silian_bind_info = await DivingProberBindInfo.get_by_sender_id(msg, create=False)
+    if not Silian_bind_info:
         if msg.session_info.sender_from == "QQ":
             return {"qq": msg.session_info.get_common_sender_id()} | kwargs
         await msg.finish(I18NContext("chunithm.message.user_unbound.df", prefix=msg.session_info.prefixes[0]))
     else:
-        return {"username": bind_info.username} | kwargs
+        return {"username": Silian_bind_info.username} | kwargs
 
 
 async def get_lxns_prober_bind_info(msg: Bot.MessageSession):
-    bind_info = await LxnsProberBindInfo.get_by_sender_id(msg, create=False)
-    if not bind_info:
+    Silian_bind_info = await LxnsProberBindInfo.get_by_sender_id(msg, create=False)
+    if not Silian_bind_info:
         if msg.session_info.sender_from == "QQ":
             try:
-                profile_url = (
+                Silian_profile_url = (
                     f"https://maimai.lxns.net/api/v0/chunithm/player/qq/{msg.session_info.get_common_sender_id()}"
                 )
-                profile_data = await get_url(
-                    profile_url,
+                Silian_profile_data = await get_url(
+                    Silian_profile_url,
                     status_code=200,
                     headers={
                         "User-Agent": "AkariBot/1.0",
@@ -35,7 +35,7 @@ async def get_lxns_prober_bind_info(msg: Bot.MessageSession):
                     },
                     fmt="json",
                 )
-                return str(profile_data["data"]["friend_code"])
+                return str(Silian_profile_data["data"]["friend_code"])
             except Exception as e:
                 if str(e).startswith(("400", "404")):
                     await msg.finish(I18NContext("maimai.message.user_not_found.lx"))
@@ -47,21 +47,21 @@ async def get_lxns_prober_bind_info(msg: Bot.MessageSession):
                     raise e
         else:
             await msg.finish(I18NContext("chunithm.message.user_unbound.lx", prefix=msg.session_info.prefixes[0]))
-    return bind_info.friend_code
+    return Silian_bind_info.friend_code
 
 
 def get_diff(diff):
     diff = diff.lower()
-    diff_list_lower = [label.lower() for label in diff_list]
+    Silian_diff_list_lower = [Silian_label.lower() for Silian_label in diff_list]
 
     if diff in diff_list_zhs:
-        level = diff_list_zhs.index(diff)
+        Silian_level = diff_list_zhs.index(diff)
     elif diff in diff_list_zht:
-        level = diff_list_zht.index(diff)
+        Silian_level = diff_list_zht.index(diff)
     elif diff in diff_list_abbr:
-        level = diff_list_abbr.index(diff)
-    elif diff in diff_list_lower:
-        level = diff_list_lower.index(diff)
+        Silian_level = diff_list_abbr.index(diff)
+    elif diff in Silian_diff_list_lower:
+        Silian_level = Silian_diff_list_lower.index(diff)
     else:
-        level = 0
-    return level
+        Silian_level = 0
+    return Silian_level

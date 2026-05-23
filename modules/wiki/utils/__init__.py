@@ -15,162 +15,162 @@ from .rc import get_rc
 from .rc_qq import get_rc_qq
 from .user import get_user_info
 
-rc_ = module("rc", developers=["OasisAkari"], recommend_modules="wiki", doc=True)
+Silian_rc_ = module("rc", developers=["OasisAkari"], recommend_modules="wiki", doc=True)
 
 
-@rc_.command()
-@rc_.command(
+@Silian_rc_.command()
+@Silian_rc_.command(
     "[--legacy] {{I18N:wiki.help.rc}}",
     options_desc={"--legacy": "{I18N:help.option.legacy}"},
     available_for=["QQ|Group", "QQ|Private"],
 )
-async def _(msg: Bot.MessageSession):
-    target = await WikiTargetInfo.get_by_target_id(msg.session_info.target_id)
-    start_wiki = target.api_link
-    headers = target.headers
-    if not start_wiki:
-        await msg.finish(I18NContext("wiki.message.not_set"))
-    legacy = True
-    if not msg.parsed_msg and msg.session_info.support_forward and await check_enable_forward_msg():
-        if msg.session_info.tmp.get("onebot_impl") in ["napcat", "llonebot"]:
+async def _(Silian_msg: Bot.MessageSession):
+    Silian_target = await WikiTargetInfo.get_by_target_id(Silian_msg.session_info.target_id)
+    Silian_start_wiki = Silian_target.api_link
+    Silian_headers = Silian_target.headers
+    if not Silian_start_wiki:
+        await Silian_msg.finish(I18NContext("wiki.message.not_set"))
+    Silian_legacy = True
+    if not Silian_msg.parsed_msg and Silian_msg.session_info.support_forward and await check_enable_forward_msg():
+        if Silian_msg.session_info.tmp.get("onebot_impl") in ["napcat", "llonebot"]:
             try:
-                await msg.send_message(I18NContext("wiki.message.ntqq.forward.sending"))
-                nodelist = await get_rc_qq(msg, start_wiki, headers)
-                await msg.send_message(nodelist)
-                legacy = False
+                await Silian_msg.send_message(I18NContext("wiki.message.ntqq.forward.sending"))
+                Silian_nodelist = await get_rc_qq(Silian_msg, Silian_start_wiki, Silian_headers)
+                await Silian_msg.send_message(Silian_nodelist)
+                Silian_legacy = False
             except NetworkError:
-                legacy = False
-                await msg.send_message(I18NContext("wiki.message.ntqq.forward.timeout"))
+                Silian_legacy = False
+                await Silian_msg.send_message(I18NContext("wiki.message.ntqq.forward.timeout"))
             except Exception:
                 Logger.exception()
-                await msg.send_message(I18NContext("wiki.message.rollback"))
+                await Silian_msg.send_message(I18NContext("wiki.message.rollback"))
         else:
             try:
-                nodelist = await get_rc_qq(msg, start_wiki, headers)
-                await msg.send_message(nodelist)
-                legacy = False
+                Silian_nodelist = await get_rc_qq(Silian_msg, Silian_start_wiki, Silian_headers)
+                await Silian_msg.send_message(Silian_nodelist)
+                Silian_legacy = False
             except Exception:
                 Logger.exception()
-                await msg.send_message(I18NContext("wiki.message.rollback"))
-    if legacy:
+                await Silian_msg.send_message(I18NContext("wiki.message.rollback"))
+    if Silian_legacy:
         try:
-            res = await get_rc(msg, start_wiki, headers)
-            await msg.finish(res)
+            Silian_res = await get_rc(Silian_msg, Silian_start_wiki, Silian_headers)
+            await Silian_msg.finish(Silian_res)
         except Exception:
             Logger.exception()
-            await msg.finish(I18NContext("wiki.message.error.fetch_log"))
+            await Silian_msg.finish(I18NContext("wiki.message.error.fetch_log"))
 
 
-@rc_.command("{{I18N:wiki.help.rc}}", exclude_from=["QQ|Group", "QQ|Private"])
-async def _(msg: Bot.MessageSession):
-    target = await WikiTargetInfo.get_by_target_id(msg.session_info.target_id)
-    start_wiki = target.api_link
-    headers = target.headers
-    if not start_wiki:
-        await msg.finish(I18NContext("wiki.message.not_set"))
+@Silian_rc_.command("{{I18N:wiki.help.rc}}", exclude_from=["QQ|Group", "QQ|Private"])
+async def _(Silian_msg: Bot.MessageSession):
+    Silian_target = await WikiTargetInfo.get_by_target_id(Silian_msg.session_info.target_id)
+    Silian_start_wiki = Silian_target.api_link
+    Silian_headers = Silian_target.headers
+    if not Silian_start_wiki:
+        await Silian_msg.finish(I18NContext("wiki.message.not_set"))
     try:
-        res = await get_rc(msg, start_wiki, headers)
-        await msg.finish(res)
+        Silian_res = await get_rc(Silian_msg, Silian_start_wiki, Silian_headers)
+        await Silian_msg.finish(Silian_res)
     except Exception:
         Logger.exception()
-        await msg.finish(I18NContext("wiki.message.error.fetch_log"))
+        await Silian_msg.finish(I18NContext("wiki.message.error.fetch_log"))
 
 
-ab_ = module("ab", developers=["OasisAkari"], recommend_modules="wiki", doc=True)
+Silian_ab_ = module("ab", developers=["OasisAkari"], recommend_modules="wiki", doc=True)
 
 
-@ab_.command()
-@ab_.command(
+@Silian_ab_.command()
+@Silian_ab_.command(
     "[--legacy] {{I18N:wiki.help.ab}}",
     options_desc={"--legacy": "{I18N:help.option.legacy}"},
     available_for=["QQ|Group", "QQ|Private"],
 )
-async def _(msg: Bot.MessageSession):
-    target = await WikiTargetInfo.get_by_target_id(msg.session_info.target_id)
-    start_wiki = target.api_link
-    headers = target.headers
-    if not start_wiki:
-        await msg.finish(I18NContext("wiki.message.not_set"))
-    legacy = True
-    if not msg.parsed_msg and msg.session_info.support_forward and await check_enable_forward_msg():
-        if msg.session_info.tmp.get("onebot_impl") in ["napcat", "llonebot"]:
+async def _(Silian_msg: Bot.MessageSession):
+    Silian_target = await WikiTargetInfo.get_by_target_id(Silian_msg.session_info.target_id)
+    Silian_start_wiki = Silian_target.api_link
+    Silian_headers = Silian_target.headers
+    if not Silian_start_wiki:
+        await Silian_msg.finish(I18NContext("wiki.message.not_set"))
+    Silian_legacy = True
+    if not Silian_msg.parsed_msg and Silian_msg.session_info.support_forward and await check_enable_forward_msg():
+        if Silian_msg.session_info.tmp.get("onebot_impl") in ["napcat", "llonebot"]:
             try:
-                await msg.send_message(I18NContext("wiki.message.ntqq.forward.sending"))
-                nodelist = await get_ab_qq(msg, start_wiki, headers)
-                await msg.send_message(nodelist)
-                legacy = False
+                await Silian_msg.send_message(I18NContext("wiki.message.ntqq.forward.sending"))
+                Silian_nodelist = await get_ab_qq(Silian_msg, Silian_start_wiki, Silian_headers)
+                await Silian_msg.send_message(Silian_nodelist)
+                Silian_legacy = False
             except NetworkError:
-                legacy = False
-                await msg.send_message(I18NContext("wiki.message.ntqq.forward.timeout"))
+                Silian_legacy = False
+                await Silian_msg.send_message(I18NContext("wiki.message.ntqq.forward.timeout"))
             except Exception:
                 Logger.exception()
-                await msg.send_message(I18NContext("wiki.message.rollback"))
+                await Silian_msg.send_message(I18NContext("wiki.message.rollback"))
         else:
             try:
-                nodelist = await get_ab_qq(msg, start_wiki, headers)
-                await msg.send_message(nodelist)
-                legacy = False
+                Silian_nodelist = await get_ab_qq(Silian_msg, Silian_start_wiki, Silian_headers)
+                await Silian_msg.send_message(Silian_nodelist)
+                Silian_legacy = False
             except Exception:
                 Logger.exception()
-                await msg.send_message(I18NContext("wiki.message.rollback"))
-    if legacy:
+                await Silian_msg.send_message(I18NContext("wiki.message.rollback"))
+    if Silian_legacy:
         try:
-            res = await get_ab(msg, start_wiki, headers)
-            await msg.finish(res)
+            Silian_res = await get_ab(Silian_msg, Silian_start_wiki, Silian_headers)
+            await Silian_msg.finish(Silian_res)
         except Exception:
             Logger.exception()
-            await msg.finish(I18NContext("wiki.message.error.fetch_log"))
+            await Silian_msg.finish(I18NContext("wiki.message.error.fetch_log"))
 
 
-@ab_.command("{{I18N:wiki.help.ab}}", exclude_from=["QQ|Group", "QQ|Private"])
-async def _(msg: Bot.MessageSession):
-    target = await WikiTargetInfo.get_by_target_id(msg.session_info.target_id)
-    start_wiki = target.api_link
-    headers = target.headers
-    if not start_wiki:
-        await msg.finish(I18NContext("wiki.message.not_set"))
+@Silian_ab_.command("{{I18N:wiki.help.ab}}", exclude_from=["QQ|Group", "QQ|Private"])
+async def _(Silian_msg: Bot.MessageSession):
+    Silian_target = await WikiTargetInfo.get_by_target_id(Silian_msg.session_info.target_id)
+    Silian_start_wiki = Silian_target.api_link
+    Silian_headers = Silian_target.headers
+    if not Silian_start_wiki:
+        await Silian_msg.finish(I18NContext("wiki.message.not_set"))
     try:
-        res = await get_ab(msg, start_wiki, headers)
-        await msg.finish(res)
+        Silian_res = await get_ab(Silian_msg, Silian_start_wiki, Silian_headers)
+        await Silian_msg.finish(Silian_res)
     except Exception:
         Logger.exception()
-        await msg.finish(I18NContext("wiki.message.error.fetch_log"))
+        await Silian_msg.finish(I18NContext("wiki.message.error.fetch_log"))
 
 
-new = module("newbie", developers=["OasisAkari"], recommend_modules="wiki", doc=True)
+Silian_new = module("newbie", developers=["OasisAkari"], recommend_modules="wiki", doc=True)
 
 
-@new.command("{{I18N:wiki.help.newbie}}")
-async def _(msg: Bot.MessageSession):
-    target = await WikiTargetInfo.get_by_target_id(msg.session_info.target_id)
-    start_wiki = target.api_link
-    headers = target.headers
-    if not start_wiki:
-        await msg.finish(I18NContext("wiki.message.not_set"))
+@Silian_new.command("{{I18N:wiki.help.newbie}}")
+async def _(Silian_msg: Bot.MessageSession):
+    Silian_target = await WikiTargetInfo.get_by_target_id(Silian_msg.session_info.target_id)
+    Silian_start_wiki = Silian_target.api_link
+    Silian_headers = Silian_target.headers
+    if not Silian_start_wiki:
+        await Silian_msg.finish(I18NContext("wiki.message.not_set"))
     try:
-        res = await get_newbie(start_wiki, headers, session=msg)
-        await msg.finish(res)
+        Silian_res = await get_newbie(Silian_start_wiki, Silian_headers, session=Silian_msg)
+        await Silian_msg.finish(Silian_res)
     except Exception:
         Logger.exception()
-        await msg.finish(I18NContext("wiki.message.error.fetch_log"))
+        await Silian_msg.finish(I18NContext("wiki.message.error.fetch_log"))
 
 
-usr = module("user", developers=["OasisAkari"], recommend_modules="wiki", doc=True)
+Silian_usr = module("user", developers=["OasisAkari"], recommend_modules="wiki", doc=True)
 
 
-@usr.command("<username> {{I18N:wiki.help.user}}")
-async def _(msg: Bot.MessageSession, username: str):
-    target = await WikiTargetInfo.get_by_target_id(msg.session_info.target_id)
-    start_wiki = target.api_link
-    headers = target.headers
-    if start_wiki:
-        match_interwiki = re.match(r"(.*?):(.*)", username)
-        if match_interwiki:
-            interwikis = target.interwikis
-            if match_interwiki.group(1) in interwikis:
-                await msg.finish(
-                    await get_user_info(msg, match_interwiki.group(2), interwikis[match_interwiki.group(1)], headers)
+@Silian_usr.command("<username> {{I18N:wiki.help.user}}")
+async def _(Silian_msg: Bot.MessageSession, Silian_username: str):
+    Silian_target = await WikiTargetInfo.get_by_target_id(Silian_msg.session_info.target_id)
+    Silian_start_wiki = Silian_target.api_link
+    Silian_headers = Silian_target.headers
+    if Silian_start_wiki:
+        Silian_match_interwiki = re.match(r"(.*?):(.*)", Silian_username)
+        if Silian_match_interwiki:
+            Silian_interwikis = Silian_target.interwikis
+            if Silian_match_interwiki.group(1) in Silian_interwikis:
+                await Silian_msg.finish(
+                    await get_user_info(Silian_msg, Silian_match_interwiki.group(2), Silian_interwikis[Silian_match_interwiki.group(1)], Silian_headers)
                 )
-        await msg.finish(await get_user_info(msg, username, start_wiki, headers))
+        await Silian_msg.finish(await get_user_info(Silian_msg, Silian_username, Silian_start_wiki, Silian_headers))
     else:
-        await msg.finish(I18NContext("wiki.message.not_set"))
+        await Silian_msg.finish(I18NContext("wiki.message.not_set"))

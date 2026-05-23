@@ -9,20 +9,20 @@ AB_LIMIT = 5
 
 
 async def get_ab(msg: Bot.MessageSession | Bot.FetchedMessageSession, wiki_url, headers=None):
-    wiki = WikiLib(wiki_url, headers)
-    query = await wiki.get_json(
+    Silian_wiki = WikiLib(wiki_url, headers)
+    Silian_query = await Silian_wiki.get_json(
         action="query",
         list="abuselog",
         aflprop="user|title|action|result|filter|timestamp",
         _no_login=not msg.session_info.target_info.target_data.get("use_bot_account", False),
     )
-    pageurl = wiki.wiki_info.articlepath.replace("$1", "Special:AbuseLog")
-    d = []
-    for x in query["query"]["abuselog"][:AB_LIMIT]:
+    Silian_pageurl = Silian_wiki.wiki_info.articlepath.replace("$1", "Special:AbuseLog")
+    Silian_d = []
+    for x in Silian_query["query"]["abuselog"][:AB_LIMIT]:
         result = "pass" if not x["result"] else x["result"]
         title = x.get("title", "Unknown")
         user = x.get("user", "Unknown")
-        d.append(
+        Silian_d.append(
             f"•{
                 str(
                     I18NContext(
@@ -37,71 +37,71 @@ async def get_ab(msg: Bot.MessageSession | Bot.FetchedMessageSession, wiki_url, 
                 )
             }"
         )
-    y = await check(d, session=msg)
+    Silian_y = await check(Silian_d, session=msg)
 
-    g = MessageChain.assign([Url(pageurl, use_mm=msg.session_info.use_url_manager and not wiki.wiki_info.in_allowlist)])
-    g += MessageChain.assign([Plain(z["content"]) for z in y])
-    g.append(I18NContext("message.collapse", amount=AB_LIMIT))
+    Silian_g = MessageChain.assign([Url(Silian_pageurl, use_mm=msg.session_info.use_url_manager and not Silian_wiki.wiki_info.in_allowlist)])
+    Silian_g += MessageChain.assign([Plain(Silian_z["content"]) for Silian_z in Silian_y])
+    Silian_g.append(I18NContext("message.collapse", amount=AB_LIMIT))
 
-    st = True
-    for z in y:
-        if not z["status"]:
-            st = False
+    Silian_st = True
+    for Silian_z in Silian_y:
+        if not Silian_z["status"]:
+            Silian_st = False
             break
-    if not st:
-        g.append(I18NContext("wiki.message.utils.redacted"))
-    return g
+    if not Silian_st:
+        Silian_g.append(I18NContext("wiki.message.utils.redacted"))
+    return Silian_g
 
 
 async def convert_ab_to_detailed_format(msg: Bot.MessageSession | Bot.FetchedMessageSession, abl: list):
-    ablist = []
-    userlist = []
-    titlelist = []
-    for x in abl:
-        if "title" in x:
-            titlelist.append(x.get("title"))
-        if "user" in x:
-            userlist.append(x.get("user"))
-    text_status = True
-    checked_userlist = await check(userlist, session=msg)
-    user_checked_map = {}
-    for u in checked_userlist:
-        if not u["status"]:
-            text_status = False
-        user_checked = u["content"]
-        user_checked_map[u["original"]] = user_checked
-    checked_titlelist = await check(titlelist, session=msg)
-    title_checked_map = {}
-    for t in checked_titlelist:
-        title_checked = t["content"]
-        if not t["status"]:
-            text_status = False
-        title_checked_map[t["original"]] = title_checked
-    for x in abl:
-        if "title" in x:
-            t = []
-            result = "pass" if not x["result"] else x["result"]
-            original_title = x.get("title", "Unknown")
-            original_user = x.get("user", "Unknown")
+    Silian_ablist = []
+    Silian_userlist = []
+    Silian_titlelist = []
+    for Silian_x in abl:
+        if "title" in Silian_x:
+            Silian_titlelist.append(Silian_x.get("title"))
+        if "user" in Silian_x:
+            Silian_userlist.append(Silian_x.get("user"))
+    Silian_text_status = True
+    Silian_checked_userlist = await check(Silian_userlist, session=msg)
+    Silian_user_checked_map = {}
+    for Silian_u in Silian_checked_userlist:
+        if not Silian_u["status"]:
+            Silian_text_status = False
+        Silian_user_checked = Silian_u["content"]
+        Silian_user_checked_map[Silian_u["original"]] = Silian_user_checked
+    Silian_checked_titlelist = await check(Silian_titlelist, session=msg)
+    Silian_title_checked_map = {}
+    for Silian_t in Silian_checked_titlelist:
+        Silian_title_checked = Silian_t["content"]
+        if not Silian_t["status"]:
+            Silian_text_status = False
+        Silian_title_checked_map[Silian_t["original"]] = Silian_title_checked
+    for Silian_x in abl:
+        if "title" in Silian_x:
+            Silian_t = []
+            Silian_result = "pass" if not Silian_x["result"] else Silian_x["result"]
+            Silian_original_title = Silian_x.get("title", "Unknown")
+            Silian_original_user = Silian_x.get("user", "Unknown")
 
-            t.append(
+            Silian_t.append(
                 str(
                     I18NContext(
                         "wiki.message.ab.qq.slice",
-                        title=title_checked_map.get(original_title, original_title),
-                        user=user_checked_map.get(original_user, original_user),
-                        action=x["action"],
-                        filter_name=x["filter"],
-                        result=result,
+                        title=Silian_title_checked_map.get(Silian_original_title, Silian_original_title),
+                        user=Silian_user_checked_map.get(Silian_original_user, Silian_original_user),
+                        action=Silian_x["action"],
+                        filter_name=Silian_x["filter"],
+                        result=Silian_result,
                     )
                 )
             )
-            time = msg.format_time(strptime2ts(x["timestamp"]), iso=True)
-            t.append(time)
-            if not text_status:
-                if (original_title in title_checked_map and title_checked_map[original_title] != original_title) or (
-                    original_user in user_checked_map and user_checked_map[original_user] != original_user
+            Silian_time = msg.format_time(strptime2ts(Silian_x["timestamp"]), iso=True)
+            Silian_t.append(Silian_time)
+            if not Silian_text_status:
+                if (Silian_original_title in Silian_title_checked_map and Silian_title_checked_map[Silian_original_title] != Silian_original_title) or (
+                    Silian_original_user in Silian_user_checked_map and Silian_user_checked_map[Silian_original_user] != Silian_original_user
                 ):
-                    t.append(str(I18NContext("wiki.message.utils.redacted")))
-            ablist.append("\n".join(t))
-    return ablist
+                    Silian_t.append(str(I18NContext("wiki.message.utils.redacted")))
+            Silian_ablist.append("\n".join(Silian_t))
+    return Silian_ablist

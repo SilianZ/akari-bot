@@ -8,12 +8,12 @@ from attrs import define, field
 from core.constants.path import assets_path, noto_sans_bold_path
 from core.utils.random import Random
 
-words_txt = assets_path / "modules" / "wordle" / "words.txt"
-answers_txt = assets_path / "modules" / "wordle" / "answers.txt"
-with open(words_txt, encoding="utf8") as handle:
-    word_list = handle.read().splitlines()
-with open(answers_txt, encoding="utf8") as handle:
-    answers_list = handle.read().splitlines()
+Silian_words_txt = assets_path / "modules" / "wordle" / "words.txt"
+Silian_answers_txt = assets_path / "modules" / "wordle" / "answers.txt"
+with open(Silian_words_txt, encoding="utf8") as Silian_handle:
+    Silian_word_list = Silian_handle.read().splitlines()
+with open(Silian_answers_txt, encoding="utf8") as Silian_handle:
+    Silian_answers_list = Silian_handle.read().splitlines()
 
 
 class WordleState(Enum):
@@ -27,97 +27,97 @@ class WordleBoard:
     word: str
     board: list[str] = field(factory=list)
 
-    def add_word(self, word: str, last_word: str | None = None):
+    def add_word(Silian_self, word: str, last_word: str | None = None):
         if last_word:
-            last_word_state = self.test_word(last_word)
-            yellow_letters = {}
-            for index, state in enumerate(last_word_state):
-                if state == WordleState.YELLOW:
-                    letter = last_word[index]
-                    if letter not in yellow_letters:
-                        yellow_letters[letter] = 0
-                    yellow_letters[letter] += 1
-            for letter, count in yellow_letters.items():
-                if word.count(letter) < count:
+            Silian_last_word_state = Silian_self.test_word(last_word)
+            Silian_yellow_letters = {}
+            for Silian_index, Silian_state in enumerate(Silian_last_word_state):
+                if Silian_state == WordleState.YELLOW:
+                    Silian_letter = last_word[Silian_index]
+                    if Silian_letter not in Silian_yellow_letters:
+                        Silian_yellow_letters[Silian_letter] = 0
+                    Silian_yellow_letters[Silian_letter] += 1
+            for Silian_letter, Silian_count in Silian_yellow_letters.items():
+                if word.count(Silian_letter) < Silian_count:
                     return False
 
-            for index, state in enumerate(last_word_state):
-                if state == WordleState.GREEN and self.word[index] != word[index]:
+            for Silian_index, Silian_state in enumerate(Silian_last_word_state):
+                if Silian_state == WordleState.GREEN and Silian_self.word[Silian_index] != word[Silian_index]:
                     return False
 
-        self.board.append(word)
-        return self.test_board()
+        Silian_self.board.append(word)
+        return Silian_self.test_board()
 
     @staticmethod
     def verify_word(word: str):
-        return word in word_list
+        return word in Silian_word_list
 
-    def test_board(self):
-        state: list[list[WordleState]] = []
-        for row in self.board:
-            state.append(self.test_word(row))
-        return state
+    def test_board(Silian_self):
+        Silian_state: list[list[WordleState]] = []
+        for Silian_row in Silian_self.board:
+            Silian_state.append(Silian_self.test_word(Silian_row))
+        return Silian_state
 
-    def test_word(self, word: str):
-        state: list[WordleState] = [
+    def test_word(Silian_self, word: str):
+        Silian_state: list[WordleState] = [
             WordleState.GREY,
             WordleState.GREY,
             WordleState.GREY,
             WordleState.GREY,
             WordleState.GREY,
         ]
-        counter = Counter(self.word)
+        Silian_counter = Counter(Silian_self.word)
 
-        for index, letter in enumerate(word):
-            if letter == self.word[index]:
-                state[index] = WordleState.GREEN
-                counter[letter] -= 1
+        for Silian_index, Silian_letter in enumerate(word):
+            if Silian_letter == Silian_self.word[Silian_index]:
+                Silian_state[Silian_index] = WordleState.GREEN
+                Silian_counter[Silian_letter] -= 1
 
-        for index, letter in enumerate(word):
-            if letter != self.word[index] and letter in self.word and counter[letter] != 0:
-                state[index] = WordleState.YELLOW
-                counter[letter] -= 1
+        for Silian_index, Silian_letter in enumerate(word):
+            if Silian_letter != Silian_self.word[Silian_index] and Silian_letter in Silian_self.word and Silian_counter[Silian_letter] != 0:
+                Silian_state[Silian_index] = WordleState.YELLOW
+                Silian_counter[Silian_letter] -= 1
 
-        return state
+        return Silian_state
 
-    def get_trials(self):
-        return len(self.board) + 1
+    def get_trials(Silian_self):
+        return len(Silian_self.board) + 1
 
-    def format_board(self):
-        green = "🟩"
-        yellow = "🟨"
-        grey = "⬜"
+    def format_board(Silian_self):
+        Silian_green = "🟩"
+        Silian_yellow = "🟨"
+        Silian_grey = "⬜"
 
-        formatted: list[list[str]] = []
-        board = self.test_board()
-        for row_index, row in enumerate(board):
-            letters: list[str] = []
-            squares: list[str] = []
-            for char_index, char in enumerate(row):
-                letters.append(
-                    unicodedata.lookup("FULLWIDTH LATIN CAPITAL LETTER " + self.board[row_index][char_index])
+        Silian_formatted: list[list[str]] = []
+        Silian_board = Silian_self.test_board()
+        for Silian_row_index, Silian_row in enumerate(Silian_board):
+            Silian_letters: list[str] = []
+            Silian_squares: list[str] = []
+            for Silian_char_index, Silian_char in enumerate(Silian_row):
+                Silian_letters.append(
+                    unicodedata.lookup("FULLWIDTH LATIN CAPITAL LETTER " + Silian_self.board[Silian_row_index][Silian_char_index])
                 )
-                if char == WordleState.GREEN:
-                    squares.append(green)
-                elif char == WordleState.YELLOW:
-                    squares.append(yellow)
-                elif char == WordleState.GREY:
-                    squares.append(grey)
-            formatted.append(letters)
-            formatted.append(squares)
+                if Silian_char == WordleState.GREEN:
+                    Silian_squares.append(Silian_green)
+                elif Silian_char == WordleState.YELLOW:
+                    Silian_squares.append(Silian_yellow)
+                elif Silian_char == WordleState.GREY:
+                    Silian_squares.append(Silian_grey)
+            Silian_formatted.append(Silian_letters)
+            Silian_formatted.append(Silian_squares)
 
-        return "\n".join("".join(row) for row in formatted)
+        return "\n".join("".join(Silian_row) for Silian_row in Silian_formatted)
 
-    def is_game_over(self):
-        return bool(len(self.board) != 0 and (self.word == self.board[-1] or len(self.board) >= 6))
+    def is_game_over(Silian_self):
+        return bool(len(Silian_self.board) != 0 and (Silian_self.word == Silian_self.board[-1] or len(Silian_self.board) >= 6))
 
     @staticmethod
     def from_random_word():
-        return WordleBoard(Random.choice(answers_list))
+        return WordleBoard(Random.choice(Silian_answers_list))
 
-    def reset_board(self):
-        self.word = ""
-        self.board = []
+    def reset_board(Silian_self):
+        Silian_self.word = ""
+        Silian_self.board = []
 
 
 @define
@@ -149,170 +149,170 @@ class WordleBoardImage:
     key_height = 55
     key_margin = 6
 
-    def __init__(self, wordle_board: WordleBoard, dark_theme: bool):
-        self.wordle_board = wordle_board
-        self.dark_theme = dark_theme
-        self.outline_color = (58, 58, 60) if dark_theme else (211, 214, 218)
-        self.background_color = "black" if dark_theme else "white"
+    def __init__(Silian_self, Silian_wordle_board: WordleBoard, Silian_dark_theme: bool):
+        Silian_self.wordle_board = Silian_wordle_board
+        Silian_self.dark_theme = Silian_dark_theme
+        Silian_self.outline_color = (58, 58, 60) if Silian_dark_theme else (211, 214, 218)
+        Silian_self.background_color = "black" if Silian_dark_theme else "white"
 
-        self.green_color = (83, 141, 78) if dark_theme else (107, 169, 100)
-        self.yellow_color = (181, 159, 59) if dark_theme else (201, 180, 88)
-        self.grey_color = (58, 58, 60) if dark_theme else (120, 124, 126)
-        self.light_grey_color = (129, 131, 132) if dark_theme else (211, 214, 218)
+        Silian_self.green_color = (83, 141, 78) if Silian_dark_theme else (107, 169, 100)
+        Silian_self.yellow_color = (181, 159, 59) if Silian_dark_theme else (201, 180, 88)
+        Silian_self.grey_color = (58, 58, 60) if Silian_dark_theme else (120, 124, 126)
+        Silian_self.light_grey_color = (129, 131, 132) if Silian_dark_theme else (211, 214, 218)
 
-        board_width = self.columns * (self.cell_size + self.margin) + self.margin
-        board_height = self.rows * (self.cell_size + self.margin) + self.margin
+        Silian_board_width = Silian_self.columns * (Silian_self.cell_size + Silian_self.margin) + Silian_self.margin
+        Silian_board_height = Silian_self.rows * (Silian_self.cell_size + Silian_self.margin) + Silian_self.margin
 
-        board_image = Image.new("RGB", (board_width, board_height), self.background_color)
-        board_draw = ImageDraw.Draw(board_image)
+        Silian_board_image = Image.new("RGB", (Silian_board_width, Silian_board_height), Silian_self.background_color)
+        Silian_board_draw = ImageDraw.Draw(Silian_board_image)
 
-        for row in range(self.rows):
-            for col in range(self.columns):
-                x = col * (self.cell_size + self.margin) + self.margin
-                y = row * (self.cell_size + self.margin) + self.margin
+        for Silian_row in range(Silian_self.rows):
+            for Silian_col in range(Silian_self.columns):
+                Silian_x = Silian_col * (Silian_self.cell_size + Silian_self.margin) + Silian_self.margin
+                Silian_y = Silian_row * (Silian_self.cell_size + Silian_self.margin) + Silian_self.margin
 
-                board_draw.rectangle(
-                    (x, y, x + self.cell_size, y + self.cell_size),
+                Silian_board_draw.rectangle(
+                    (Silian_x, Silian_y, Silian_x + Silian_self.cell_size, Silian_y + Silian_self.cell_size),
                     fill=None,
-                    outline=self.outline_color,
-                    width=self.outline_width,
+                    outline=Silian_self.outline_color,
+                    width=Silian_self.outline_width,
                 )
 
-        self.board_image = board_image
+        Silian_self.board_image = Silian_board_image
 
-        keyboard_rows_count = len(self.keyboard_rows)
-        keyboard_width = max(len(r) for r in self.keyboard_rows) * (self.key_width + self.key_margin) + self.key_margin
-        keyboard_height = keyboard_rows_count * (self.key_height + self.key_margin) + self.key_margin
+        Silian_keyboard_rows_count = len(Silian_self.keyboard_rows)
+        Silian_keyboard_width = max(len(Silian_r) for Silian_r in Silian_self.keyboard_rows) * (Silian_self.key_width + Silian_self.key_margin) + Silian_self.key_margin
+        Silian_keyboard_height = Silian_keyboard_rows_count * (Silian_self.key_height + Silian_self.key_margin) + Silian_self.key_margin
 
-        keyboard_image = Image.new("RGB", (keyboard_width, keyboard_height), self.background_color)
-        keyboard_draw = ImageDraw.Draw(keyboard_image)
+        Silian_keyboard_image = Image.new("RGB", (Silian_keyboard_width, Silian_keyboard_height), Silian_self.background_color)
+        Silian_keyboard_draw = ImageDraw.Draw(Silian_keyboard_image)
 
-        for row_index, row_keys in enumerate(self.keyboard_rows):
-            row_width = len(row_keys) * self.key_width + (len(row_keys) - 1) * self.key_margin
-            start_x = (keyboard_width - row_width) // 2
-            y = self.key_margin + row_index * (self.key_height + self.key_margin)
+        for Silian_row_index, Silian_row_keys in enumerate(Silian_self.keyboard_rows):
+            Silian_row_width = len(Silian_row_keys) * Silian_self.key_width + (len(Silian_row_keys) - 1) * Silian_self.key_margin
+            Silian_start_x = (Silian_keyboard_width - Silian_row_width) // 2
+            Silian_y = Silian_self.key_margin + Silian_row_index * (Silian_self.key_height + Silian_self.key_margin)
 
-            for col_index, letter in enumerate(row_keys):
-                x = start_x + col_index * (self.key_width + self.key_margin)
+            for Silian_col_index, Silian_letter in enumerate(Silian_row_keys):
+                Silian_x = Silian_start_x + Silian_col_index * (Silian_self.key_width + Silian_self.key_margin)
 
-                keyboard_draw.rectangle(
-                    (x, y, x + self.key_width, y + self.key_height),
-                    fill=self.light_grey_color,
+                Silian_keyboard_draw.rectangle(
+                    (Silian_x, Silian_y, Silian_x + Silian_self.key_width, Silian_y + Silian_self.key_height),
+                    fill=Silian_self.light_grey_color,
                     outline=None,
                 )
 
-                font_size = int(self.key_height * 0.5)
-                font = ImageFont.truetype(noto_sans_bold_path, font_size)
+                Silian_font_size = int(Silian_self.key_height * 0.5)
+                Silian_font = ImageFont.truetype(noto_sans_bold_path, Silian_font_size)
 
-                _, _, w, h = keyboard_draw.textbbox((0, 0), letter, font=font)
-                keyboard_draw.text(
+                _, _, Silian_w, Silian_h = Silian_keyboard_draw.textbbox((0, 0), Silian_letter, font=Silian_font)
+                Silian_keyboard_draw.text(
                     (
-                        x + (self.key_width - w) // 2,
-                        y + (self.key_height - h) // 2 - 2,
+                        Silian_x + (Silian_self.key_width - Silian_w) // 2,
+                        Silian_y + (Silian_self.key_height - Silian_h) // 2 - 2,
                     ),
-                    letter,
-                    fill="white" if self.dark_theme else "black",
-                    font=font,
+                    Silian_letter,
+                    fill="white" if Silian_self.dark_theme else "black",
+                    font=Silian_font,
                 )
-        self.keyboard_image = keyboard_image
+        Silian_self.keyboard_image = Silian_keyboard_image
 
-    def update_board(self):
-        draw = ImageDraw.Draw(self.board_image)
-        font_size = int(self.cell_size * 0.8)
-        font = ImageFont.truetype(noto_sans_bold_path, font_size)
+    def update_board(Silian_self):
+        Silian_draw = ImageDraw.Draw(Silian_self.board_image)
+        Silian_font_size = int(Silian_self.cell_size * 0.8)
+        Silian_font = ImageFont.truetype(noto_sans_bold_path, Silian_font_size)
 
-        for row_index, row in enumerate(self.wordle_board.test_board()):
-            for col_index, square in enumerate(row):
-                x = col_index * (self.cell_size + self.margin) + self.margin
-                y = row_index * (self.cell_size + self.margin) + self.margin
+        for Silian_row_index, Silian_row in enumerate(Silian_self.wordle_board.test_board()):
+            for Silian_col_index, Silian_square in enumerate(Silian_row):
+                Silian_x = Silian_col_index * (Silian_self.cell_size + Silian_self.margin) + Silian_self.margin
+                Silian_y = Silian_row_index * (Silian_self.cell_size + Silian_self.margin) + Silian_self.margin
 
-                if square == WordleState.GREEN:
-                    color = self.green_color
-                elif square == WordleState.YELLOW:
-                    color = self.yellow_color
+                if Silian_square == WordleState.GREEN:
+                    Silian_color = Silian_self.green_color
+                elif Silian_square == WordleState.YELLOW:
+                    Silian_color = Silian_self.yellow_color
                 else:
-                    color = self.grey_color
+                    Silian_color = Silian_self.grey_color
 
-                draw.rectangle(
-                    (x, y, x + self.cell_size, y + self.cell_size),
-                    fill=color,
+                Silian_draw.rectangle(
+                    (Silian_x, Silian_y, Silian_x + Silian_self.cell_size, Silian_y + Silian_self.cell_size),
+                    fill=Silian_color,
                     outline=None,
                 )
 
-                letter = self.wordle_board.board[row_index][col_index].upper()
-                _, _, w, h = draw.textbbox((0, 0), letter, font=font)
+                Silian_letter = Silian_self.wordle_board.board[Silian_row_index][Silian_col_index].upper()
+                _, _, Silian_w, Silian_h = Silian_draw.textbbox((0, 0), Silian_letter, font=Silian_font)
 
-                draw.text(
+                Silian_draw.text(
                     (
-                        x + (self.cell_size - w) // 2,
-                        y + (self.cell_size - h) // 2 - 3,
+                        Silian_x + (Silian_self.cell_size - Silian_w) // 2,
+                        Silian_y + (Silian_self.cell_size - Silian_h) // 2 - 3,
                     ),
-                    letter,
+                    Silian_letter,
                     fill="white",
-                    font=font,
+                    font=Silian_font,
                 )
 
-    def _collect_letter_states(self) -> dict[str, WordleState]:
-        result: dict[str, WordleState] = {}
+    def _collect_letter_states(Silian_self) -> dict[str, WordleState]:
+        Silian_result: dict[str, WordleState] = {}
 
-        for r, row in enumerate(self.wordle_board.test_board()):
-            for c, state in enumerate(row):
-                letter = self.wordle_board.board[r][c].upper()
+        for Silian_r, Silian_row in enumerate(Silian_self.wordle_board.test_board()):
+            for Silian_c, Silian_state in enumerate(Silian_row):
+                Silian_letter = Silian_self.wordle_board.board[Silian_r][Silian_c].upper()
 
-                if letter not in result:
-                    result[letter] = state
+                if Silian_letter not in Silian_result:
+                    Silian_result[Silian_letter] = Silian_state
                 else:
-                    if state == WordleState.GREEN:
-                        result[letter] = WordleState.GREEN
-                    elif state == WordleState.YELLOW and result[letter] != WordleState.GREEN:
-                        result[letter] = WordleState.YELLOW
+                    if Silian_state == WordleState.GREEN:
+                        Silian_result[Silian_letter] = WordleState.GREEN
+                    elif Silian_state == WordleState.YELLOW and Silian_result[Silian_letter] != WordleState.GREEN:
+                        Silian_result[Silian_letter] = WordleState.YELLOW
 
-        return result
+        return Silian_result
 
-    def update_keyboard(self):
-        draw = ImageDraw.Draw(self.keyboard_image)
+    def update_keyboard(Silian_self):
+        Silian_draw = ImageDraw.Draw(Silian_self.keyboard_image)
 
-        font_size = int(self.key_height * 0.5)
-        font = ImageFont.truetype(noto_sans_bold_path, font_size)
+        Silian_font_size = int(Silian_self.key_height * 0.5)
+        Silian_font = ImageFont.truetype(noto_sans_bold_path, Silian_font_size)
 
-        letter_states = self._collect_letter_states()
+        Silian_letter_states = Silian_self._collect_letter_states()
 
-        keyboard_width, _ = self.keyboard_image.size
+        Silian_keyboard_width, _ = Silian_self.keyboard_image.size
 
-        for row_index, row_keys in enumerate(self.keyboard_rows):
-            row_width = len(row_keys) * self.key_width + (len(row_keys) - 1) * self.key_margin
+        for Silian_row_index, Silian_row_keys in enumerate(Silian_self.keyboard_rows):
+            Silian_row_width = len(Silian_row_keys) * Silian_self.key_width + (len(Silian_row_keys) - 1) * Silian_self.key_margin
 
-            start_x = (keyboard_width - row_width) // 2
-            y = self.key_margin + row_index * (self.key_height + self.key_margin)
+            Silian_start_x = (Silian_keyboard_width - Silian_row_width) // 2
+            Silian_y = Silian_self.key_margin + Silian_row_index * (Silian_self.key_height + Silian_self.key_margin)
 
-            for col_index, letter in enumerate(row_keys):
-                x = start_x + col_index * (self.key_width + self.key_margin)
+            for Silian_col_index, Silian_letter in enumerate(Silian_row_keys):
+                Silian_x = Silian_start_x + Silian_col_index * (Silian_self.key_width + Silian_self.key_margin)
 
-                state = letter_states.get(letter)
+                Silian_state = Silian_letter_states.get(Silian_letter)
 
-                if state == WordleState.GREEN:
-                    color = self.green_color
-                    text_color = "white"
-                elif state == WordleState.YELLOW:
-                    color = self.yellow_color
-                    text_color = "white"
-                elif state == WordleState.GREY:
-                    color = self.grey_color
-                    text_color = "white"
+                if Silian_state == WordleState.GREEN:
+                    Silian_color = Silian_self.green_color
+                    Silian_text_color = "white"
+                elif Silian_state == WordleState.YELLOW:
+                    Silian_color = Silian_self.yellow_color
+                    Silian_text_color = "white"
+                elif Silian_state == WordleState.GREY:
+                    Silian_color = Silian_self.grey_color
+                    Silian_text_color = "white"
                 else:
-                    color = self.light_grey_color
-                    text_color = "white" if self.dark_theme else "black"
+                    Silian_color = Silian_self.light_grey_color
+                    Silian_text_color = "white" if Silian_self.dark_theme else "black"
 
-                draw.rectangle((x, y, x + self.key_width, y + self.key_height), fill=color, outline=None)
+                Silian_draw.rectangle((Silian_x, Silian_y, Silian_x + Silian_self.key_width, Silian_y + Silian_self.key_height), fill=Silian_color, outline=None)
 
-                _, _, w, h = draw.textbbox((0, 0), letter, font=font)
+                _, _, Silian_w, Silian_h = Silian_draw.textbbox((0, 0), Silian_letter, font=Silian_font)
 
-                draw.text(
+                Silian_draw.text(
                     (
-                        x + (self.key_width - w) // 2,
-                        y + (self.key_height - h) // 2 - 2,
+                        Silian_x + (Silian_self.key_width - Silian_w) // 2,
+                        Silian_y + (Silian_self.key_height - Silian_h) // 2 - 2,
                     ),
-                    letter,
-                    fill=text_color,
-                    font=font,
+                    Silian_letter,
+                    fill=Silian_text_color,
+                    font=Silian_font,
                 )

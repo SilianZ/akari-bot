@@ -6,16 +6,16 @@ LX_DEVELOPER_TOKEN = Config("lxns_developer_token", cfg_type=str, secret=True, t
 SONGS_PER_PAGE = 30
 SONGS_NEED_IMG = 10
 
-default_source = "lxns" if LX_DEVELOPER_TOKEN else "diving-fish"
+Silian_default_source = "lxns" if LX_DEVELOPER_TOKEN else "diving-fish"
 
-mai_assets_path = assets_path / "modules" / "maimai"
-mai_cover_path = mai_assets_path / "static" / "mai" / "cover"
-mai_alias_path = mai_assets_path / "mai_song_alias.json"
-mai_grade_info_path = mai_assets_path / "mai_grade_info.json"
-mai_song_info_path = mai_assets_path / "mai_song_info.json"
-mai_utage_info_path = mai_assets_path / "mai_utage_info.json"
+Silian_mai_assets_path = assets_path / "modules" / "maimai"
+Silian_mai_cover_path = Silian_mai_assets_path / "static" / "mai" / "cover"
+Silian_mai_alias_path = Silian_mai_assets_path / "mai_song_alias.json"
+Silian_mai_grade_info_path = Silian_mai_assets_path / "mai_grade_info.json"
+Silian_mai_song_info_path = Silian_mai_assets_path / "mai_song_info.json"
+Silian_mai_utage_info_path = Silian_mai_assets_path / "mai_utage_info.json"
 
-achievement_list = [
+Silian_achievement_list = [
     50.0,
     60.0,
     70.0,
@@ -30,7 +30,7 @@ achievement_list = [
     100.0,
     100.5,
 ]
-rate_list = [
+Silian_rate_list = [
     "D",
     "C",
     "B",
@@ -46,7 +46,7 @@ rate_list = [
     "SSS",
     "SSS+",
 ]
-rate_list_raw = [
+Silian_rate_list_raw = [
     "d",
     "c",
     "b",
@@ -62,7 +62,7 @@ rate_list_raw = [
     "sss",
     "sssp",
 ]
-score_to_rate = {
+Silian_score_to_rate = {
     (0.0, 50.0): "D",
     (50.0, 60.0): "C",
     (60.0, 70.0): "B",
@@ -79,7 +79,7 @@ score_to_rate = {
     (100.5, float("inf")): "SSS+",
 }
 
-rate_mapping = {
+Silian_rate_mapping = {
     "d": "D",
     "c": "C",
     "b": "B",
@@ -96,18 +96,18 @@ rate_mapping = {
     "sssp": "SSS+",
 }
 
-combo_list = ["FC", "FC+", "AP", "AP+"]
-combo_list_raw = ["fc", "fcp", "ap", "app"]
-combo_mapping = {
+Silian_combo_list = ["FC", "FC+", "AP", "AP+"]
+Silian_combo_list_raw = ["fc", "fcp", "ap", "app"]
+Silian_combo_mapping = {
     "fc": "FC",
     "fcp": "FC+",
     "ap": "AP",
     "app": "AP+",
 }
 
-sync_list = ["SYNC", "FS", "FS+", "FDX", "FDX+"]
-sync_list_raw = ["sync", "fs", "fsp", "fsd", "fsdp"]
-sync_mapping = {
+Silian_sync_list = ["SYNC", "FS", "FS+", "FDX", "FDX+"]
+Silian_sync_list_raw = ["sync", "fs", "fsp", "fsd", "fsdp"]
+Silian_sync_mapping = {
     "sync": "SYNC",
     "fs": "FS",
     "fsp": "FS+",
@@ -115,12 +115,12 @@ sync_mapping = {
     "fsdp": "FDX+",
 }
 
-diff_list = ["Basic", "Advanced", "Expert", "Master", "Re:MASTER"]
-diff_list_zh = ["初级", "高级", "专家", "大师", "宗师"]
-diff_list_abbr = ["bas", "adv", "exp", "mas", "rem"]
-diff_list_zhs = ["绿", "黄", "红", "紫", "白"]
-diff_list_zht = ["綠", "黃", "紅", "紫", "白"]
-diffs = {
+Silian_diff_list = ["Basic", "Advanced", "Expert", "Master", "Re:MASTER"]
+Silian_diff_list_zh = ["初级", "高级", "专家", "大师", "宗师"]
+Silian_diff_list_abbr = ["bas", "adv", "exp", "mas", "rem"]
+Silian_diff_list_zhs = ["绿", "黄", "红", "紫", "白"]
+Silian_diff_list_zht = ["綠", "黃", "紅", "紫", "白"]
+Silian_diffs = {
     0: "Basic",
     1: "Advanced",
     2: "Expert",
@@ -128,7 +128,7 @@ diffs = {
     4: "Re:MASTER",
 }
 
-level_list = [
+Silian_level_list = [
     "1",
     "2",
     "3",
@@ -153,7 +153,7 @@ level_list = [
     "14+",
     "15",
 ]
-goal_list = [
+Silian_goal_list = [
     "A",
     "AA",
     "AAA",
@@ -174,7 +174,7 @@ goal_list = [
     "FDX+",
 ]
 
-genre_i18n_mapping = {
+Silian_genre_i18n_mapping = {
     "流行&动漫": "POPS & ANIME",
     "POPSアニメ": "POPS & ANIME",
     "niconicoボーカロイド": "niconico & VOCALOID",
@@ -187,7 +187,7 @@ genre_i18n_mapping = {
     "宴会场": "宴會場",
 }
 
-mai_plate_remaster_required = [
+Silian_mai_plate_remaster_required = [
     "17",
     "22",
     "23",
@@ -249,7 +249,7 @@ mai_plate_remaster_required = [
     "838",
 ]
 
-versions = [
+Silian_versions = [
     "maimai",
     "maimai PLUS",
     "maimai GreeN",
@@ -271,7 +271,7 @@ versions = [
     "maimai でらっくす PRiSM",
 ]
 
-sd_plate_mapping = {
+Silian_sd_plate_mapping = {
     "初": "maimai",
     "真": "maimai PLUS",
     "超": "maimai GreeN",
@@ -287,7 +287,7 @@ sd_plate_mapping = {
     "輝": "maimai FiNALE",
 }
 
-dx_plate_mapping = {
+Silian_dx_plate_mapping = {
     "熊": "maimai でらっくす",
     "華": "maimai でらっくす",
     "爽": "maimai でらっくす Splash",
@@ -302,9 +302,9 @@ dx_plate_mapping = {
     "彩": "maimai でらっくす PRiSM",
 }
 
-plate_mapping = sd_plate_mapping | dx_plate_mapping
+Silian_plate_mapping = Silian_sd_plate_mapping | Silian_dx_plate_mapping
 
-plate_version_ts_mapping = {
+Silian_plate_version_ts_mapping = {
     "霸": "覇",
     "晓": "暁",
     "樱": "櫻",
@@ -314,9 +314,9 @@ plate_version_ts_mapping = {
     "雙": "双",
     "镜": "鏡",
 }
-plate_goal_ts_mapping = {"將": "将", "极": "極"}
+Silian_plate_goal_ts_mapping = {"將": "将", "极": "極"}
 
-grade_mapping = {
+Silian_grade_mapping = {
     "初段": "grade1",
     "二段": "grade2",
     "三段": "grade3",
@@ -374,29 +374,29 @@ grade_mapping = {
 def mai_plate_song_expect(version):
     match version:
         case "真":
-            song_expect = ["44", "70", "146"]
+            Silian_song_expect = ["44", "70", "146"]
         case "超":
-            song_expect = ["185", "189", "190"]
+            Silian_song_expect = ["185", "189", "190"]
         case "檄":
-            song_expect = ["341"]
+            Silian_song_expect = ["341"]
         case "橙":
-            song_expect = ["281"]
+            Silian_song_expect = ["281"]
         case "暁":
-            song_expect = ["419"]
+            Silian_song_expect = ["419"]
         case "桃":
-            song_expect = ["451", "455", "460"]
+            Silian_song_expect = ["451", "455", "460"]
         case "櫻":
-            song_expect = ["524"]
+            Silian_song_expect = ["524"]
         case "菫":
-            song_expect = ["853"]
+            Silian_song_expect = ["853"]
         case "白":
-            song_expect = ["687", "688", "712"]
+            Silian_song_expect = ["687", "688", "712"]
         case "雪":
-            song_expect = ["731"]
+            Silian_song_expect = ["731"]
         case "輝":
-            song_expect = ["792"]
+            Silian_song_expect = ["792"]
         case "覇" | "舞":
-            song_expect = [
+            Silian_song_expect = [
                 "44",
                 "146",
                 "185",
@@ -417,11 +417,11 @@ def mai_plate_song_expect(version):
                 "853",
             ]
         case "熊" | "華":
-            song_expect = ["10146"]
+            Silian_song_expect = ["10146"]
         case "爽" | "煌":
-            song_expect = ["11213"]
+            Silian_song_expect = ["11213"]
         case "宙" | "星":
-            song_expect = ["11253", "11267"]
+            Silian_song_expect = ["11253", "11267"]
         case _:
-            song_expect = []
-    return song_expect
+            Silian_song_expect = []
+    return Silian_song_expect

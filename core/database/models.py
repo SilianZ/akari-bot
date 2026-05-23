@@ -39,7 +39,7 @@ class SenderInfo(DBModel):
     class Meta:
         table = "sender_info"
 
-    async def switch_identity(self, trust: bool, enable: bool = True) -> bool:
+    async def switch_identity(Silian_self, trust: bool, enable: bool = True) -> bool:
         """
         修改用户身份。
 
@@ -47,44 +47,44 @@ class SenderInfo(DBModel):
         :param enable: 是否要加入身份，若 False 则取消身份。
         """
         if enable:
-            self.trusted = trust
-            self.blocked = not trust
+            Silian_self.trusted = trust
+            Silian_self.blocked = not trust
         else:
-            self.trusted = False
-            self.blocked = False
+            Silian_self.trusted = False
+            Silian_self.blocked = False
 
-        await self.save()
+        await Silian_self.save()
         return True
 
-    async def warn_user(self, amount: int = 1) -> bool:
+    async def warn_user(Silian_self, amount: int = 1) -> bool:
         """
         警告用户。
 
         :param amount: 警告用户次数。
         """
-        self.warns = self.warns + amount
-        await self.save()
+        Silian_self.warns = Silian_self.warns + amount
+        await Silian_self.save()
         return True
 
-    async def modify_petal(self, amount: str | int | Decimal) -> bool:
+    async def modify_petal(Silian_self, amount: str | int | Decimal) -> bool:
         """
         修改用户花瓣数量。
 
         :param amount: 要添加或减少的花瓣数量。
         """
-        self.petal += int(amount)
-        await self.save()
+        Silian_self.petal += int(amount)
+        await Silian_self.save()
         return True
 
-    async def clear_petal(self) -> bool:
+    async def clear_petal(Silian_self) -> bool:
         """
         清空用户花瓣数量。
         """
-        self.petal = 0
-        await self.save()
+        Silian_self.petal = 0
+        await Silian_self.save()
         return True
 
-    async def edit_sender_data(self, key: str, value: Any | None = None) -> bool:
+    async def edit_sender_data(Silian_self, key: str, value: Any | None = None) -> bool:
         """
         设置用户数据。
 
@@ -92,17 +92,17 @@ class SenderInfo(DBModel):
         :param value: 值，若留空则删除该键值对。
         """
         if value is None:
-            if key in self.sender_data:
-                del self.sender_data[key]
+            if key in Silian_self.sender_data:
+                del Silian_self.sender_data[key]
         else:
-            self.sender_data[key] = value
+            Silian_self.sender_data[key] = value
 
-        await self.save()
+        await Silian_self.save()
         return True
 
-    async def edit_attr(self, key: str, value: Any) -> bool:
-        setattr(self, key, value)
-        await self.save()
+    async def edit_attr(Silian_self, key: str, value: Any) -> bool:
+        setattr(Silian_self, key, value)
+        await Silian_self.save()
         return True
 
 
@@ -132,36 +132,36 @@ class TargetInfo(DBModel):
     class Meta:
         table = "target_info"
 
-    async def config_module(self, module_name: str | list | tuple, enable: bool = True) -> bool:
+    async def config_module(Silian_self, module_name: str | list | tuple, enable: bool = True) -> bool:
         """
         设置会话内可用模块。
 
         :param module_name: 指定的模块名称。
         :param enable: 是否要开启模块，若 False 则关闭模块。
         """
-        module_names = convert_list(module_name)
-        for mname in module_names:
+        Silian_module_names = convert_list(module_name)
+        for Silian_mname in Silian_module_names:
             if enable:
-                if mname not in self.modules:
-                    self.modules.append(mname)
+                if Silian_mname not in Silian_self.modules:
+                    Silian_self.modules.append(Silian_mname)
             else:
-                if mname in self.modules:
-                    self.modules.remove(mname)
-        self.modules = list(set(self.modules))
-        await self.save()
+                if Silian_mname in Silian_self.modules:
+                    Silian_self.modules.remove(Silian_mname)
+        Silian_self.modules = list(set(Silian_self.modules))
+        await Silian_self.save()
         return True
 
-    async def switch_mute(self) -> bool:
+    async def switch_mute(Silian_self) -> bool:
         """
         切换是否在会话中禁用机器人。
 
         :return: 机器人是否被禁用。
         """
-        self.muted = not self.muted
-        await self.save()
-        return self.muted
+        Silian_self.muted = not Silian_self.muted
+        await Silian_self.save()
+        return Silian_self.muted
 
-    async def edit_target_data(self, key: str, value: Any | None = None) -> bool:
+    async def edit_target_data(Silian_self, key: str, value: Any | None = None) -> bool:
         """
         设置会话数据。
 
@@ -169,60 +169,60 @@ class TargetInfo(DBModel):
         :param value: 值，若留空则删除该键值对。
         """
         if value is None:
-            if key in self.target_data:
-                del self.target_data[key]
+            if key in Silian_self.target_data:
+                del Silian_self.target_data[key]
         else:
-            self.target_data[key] = value
+            Silian_self.target_data[key] = value
 
-        await self.save()
+        await Silian_self.save()
         return True
 
-    async def config_custom_admin(self, sender_id: str, enable: bool = True) -> bool:
+    async def config_custom_admin(Silian_self, sender_id: str, enable: bool = True) -> bool:
         """
         设置会话内管理员。
 
         :param sender_id: 指定的用户 ID。
         :param enable: 是否要设置用户为会话内管理员，若 False 则移除管理员。
         """
-        custom_admins = self.custom_admins
+        Silian_custom_admins = Silian_self.custom_admins
         if enable:
-            if sender_id not in custom_admins:
-                custom_admins.append(sender_id)
+            if sender_id not in Silian_custom_admins:
+                Silian_custom_admins.append(sender_id)
             else:
                 return False
-        elif sender_id in custom_admins:
-            custom_admins.remove(sender_id)
+        elif sender_id in Silian_custom_admins:
+            Silian_custom_admins.remove(sender_id)
 
-        self.custom_admins = custom_admins
-        await self.save()
+        Silian_self.custom_admins = Silian_custom_admins
+        await Silian_self.save()
         return True
 
-    async def config_banned_user(self, sender_id: str, enable: bool = True) -> bool:
+    async def config_banned_user(Silian_self, sender_id: str, enable: bool = True) -> bool:
         """
         设置会话内被限制用户。
 
         :param sender_id: 指定的用户 ID。
         :param enable: 是否要设置会话内用户限制使用机器人，若 False 则取消限制。
         """
-        banned_users = self.banned_users
+        Silian_banned_users = Silian_self.banned_users
         if enable:
-            if sender_id not in banned_users:
-                banned_users.append(sender_id)
+            if sender_id not in Silian_banned_users:
+                Silian_banned_users.append(sender_id)
             else:
                 return False
         else:
-            if sender_id in banned_users:
-                banned_users.remove(sender_id)
+            if sender_id in Silian_banned_users:
+                Silian_banned_users.remove(sender_id)
             else:
                 return False
 
-        self.banned_users = banned_users
-        await self.save()
+        Silian_self.banned_users = Silian_banned_users
+        await Silian_self.save()
         return True
 
     @classmethod
     async def get_target_list_by_module(
-        cls, module_name: str | list[str] | tuple[str, ...] | None, id_prefix: str | None = None
+        Silian_cls, module_name: str | list[str] | tuple[str, ...] | None, id_prefix: str | None = None
     ) -> list[TargetInfo]:
         """
         获取开启此模块的所有会话列表。
@@ -231,21 +231,21 @@ class TargetInfo(DBModel):
         :param id_prefix: 指定的 ID 前缀。
         :return: 符合要求的会话 ID 列表。
         """
-        all_targets = await cls.filter(target_id__startswith=id_prefix or "")
+        Silian_all_targets = await Silian_cls.filter(target_id__startswith=id_prefix or "")
 
         if module_name:
-            result = []
-            for target in all_targets:
-                modules = target.modules or []
-                if any(mod in modules for mod in convert_list(module_name)):
-                    result.append(target)
-            return result
+            Silian_result = []
+            for Silian_target in Silian_all_targets:
+                Silian_modules = Silian_target.modules or []
+                if any(Silian_mod in Silian_modules for Silian_mod in convert_list(module_name)):
+                    Silian_result.append(Silian_target)
+            return Silian_result
 
-        return list(all_targets)
+        return list(Silian_all_targets)
 
-    async def edit_attr(self, key: str, value: Any) -> bool:
-        setattr(self, key, value)
-        await self.save()
+    async def edit_attr(Silian_self, key: str, value: Any) -> bool:
+        setattr(Silian_self, key, value)
+        await Silian_self.save()
         return True
 
 
@@ -288,31 +288,31 @@ class AnalyticsData(DBModel):
         table = "analytics_data"
 
     @classmethod
-    async def get_data_by_times(cls, new, old, module_name=None):
-        query = cls.filter(timestamp__gte=old, timestamp__lte=new)
+    async def get_data_by_times(Silian_cls, new, old, module_name=None):
+        Silian_query = Silian_cls.filter(timestamp__gte=old, timestamp__lte=new)
         if module_name is not None:
-            query = query.filter(module_name=module_name)
-        return await query.all()
+            Silian_query = Silian_query.filter(module_name=module_name)
+        return await Silian_query.all()
 
     @classmethod
-    async def get_values_by_times(cls, new, old, module_name=None):
-        query = cls.filter(timestamp__gte=old, timestamp__lte=new)
+    async def get_values_by_times(Silian_cls, new, old, module_name=None):
+        Silian_query = Silian_cls.filter(timestamp__gte=old, timestamp__lte=new)
         if module_name is not None:
-            query = query.filter(module_name=module_name)
-        return await query.values()
+            Silian_query = Silian_query.filter(module_name=module_name)
+        return await Silian_query.values()
 
     @classmethod
-    async def get_count_by_times(cls, new, old, module_name=None):
-        query = cls.filter(timestamp__gte=old, timestamp__lte=new)
+    async def get_count_by_times(Silian_cls, new, old, module_name=None):
+        Silian_query = Silian_cls.filter(timestamp__gte=old, timestamp__lte=new)
         if module_name is not None:
-            query = query.filter(module_name=module_name)
-        return await query.count()
+            Silian_query = Silian_query.filter(module_name=module_name)
+        return await Silian_query.count()
 
     @classmethod
-    async def get_modules_count(cls):
-        analytics = await cls.all().values("module_name")
-        module_counter = Counter([entry["module_name"] for entry in analytics])
-        return dict(module_counter)
+    async def get_modules_count(Silian_cls):
+        Silian_analytics = await Silian_cls.all().values("module_name")
+        Silian_module_counter = Counter([Silian_entry["module_name"] for Silian_entry in Silian_analytics])
+        return dict(Silian_module_counter)
 
 
 class ModuleStatus(DBModel):
@@ -330,41 +330,41 @@ class ModuleStatus(DBModel):
         table = "module_status"
 
     @classmethod
-    async def init_modules(cls, modules_list: list[str]):
+    async def init_modules(Silian_cls, modules_list: list[str]):
         async with in_transaction("default"):
-            existing = await cls.all().values_list("module_name", flat=True)
-            existing_set = set(existing)
-            input_set = set(modules_list)
+            Silian_existing = await Silian_cls.all().values_list("module_name", flat=True)
+            Silian_existing_set = set(Silian_existing)
+            Silian_input_set = set(modules_list)
 
-            to_add = input_set.difference(existing_set)
-            to_remove = existing_set.difference(input_set)
+            Silian_to_add = Silian_input_set.difference(Silian_existing_set)
+            Silian_to_remove = Silian_existing_set.difference(Silian_input_set)
 
-            if to_add:
-                await cls.bulk_create([cls(module_name=m, load=True) for m in to_add])
+            if Silian_to_add:
+                await Silian_cls.bulk_create([Silian_cls(module_name=Silian_m, load=True) for Silian_m in Silian_to_add])
 
-            if to_remove:
-                await cls.filter(module_name__in=to_remove).delete()
+            if Silian_to_remove:
+                await Silian_cls.filter(module_name__in=Silian_to_remove).delete()
 
     @classmethod
-    async def set_module_loaded(cls, module_name: str, load: bool = True):
-        module = await cls.filter(module_name=module_name).first()
-        if module:
-            module.load = load
-            await module.save()
+    async def set_module_loaded(Silian_cls, module_name: str, load: bool = True):
+        Silian_module = await Silian_cls.filter(module_name=module_name).first()
+        if Silian_module:
+            Silian_module.load = load
+            await Silian_module.save()
         else:
             raise ValueError(f"Module '{module_name}' not found")
 
     @classmethod
-    async def get_all_modules(cls) -> list[str]:
-        return await cls.all().values_list("module_name", flat=True)
+    async def get_all_modules(Silian_cls) -> list[str]:
+        return await Silian_cls.all().values_list("module_name", flat=True)
 
     @classmethod
-    async def get_loaded_modules(cls) -> list[str]:
-        return await cls.filter(load=True).values_list("module_name", flat=True)
+    async def get_loaded_modules(Silian_cls) -> list[str]:
+        return await Silian_cls.filter(load=True).values_list("module_name", flat=True)
 
     @classmethod
-    async def get_unloaded_modules(cls) -> list[str]:
-        return await cls.filter(load=False).values_list("module_name", flat=True)
+    async def get_unloaded_modules(Silian_cls) -> list[str]:
+        return await Silian_cls.filter(load=False).values_list("module_name", flat=True)
 
 
 class DBVersion(DBModel):
@@ -402,7 +402,7 @@ class UnfriendlyActionRecords(DBModel):
         table = "unfriendly_actions"
 
     @classmethod
-    async def check_mute(cls, target_id) -> bool:
+    async def check_mute(Silian_cls, target_id) -> bool:
         """检查会话的禁言行为记录。
 
         :return: 如果：
@@ -412,22 +412,22 @@ class UnfriendlyActionRecords(DBModel):
 
         则返回 True。
         """
-        records = await cls.filter(target_id=target_id, action="mute").all()
-        unfriendly_list = [
-            record
-            for record in records
-            if (datetime.now(UTC) - record.timestamp).total_seconds() < 432000  # 5 days
+        Silian_records = await Silian_cls.filter(target_id=target_id, action="mute").all()
+        Silian_unfriendly_list = [
+            Silian_record
+            for Silian_record in Silian_records
+            if (datetime.now(UTC) - Silian_record.timestamp).total_seconds() < 432000  # 5 days
         ]
 
-        if len(unfriendly_list) > 5:
+        if len(Silian_unfriendly_list) > 5:
             return True
 
-        count = {}
-        for record in unfriendly_list:
-            if (datetime.now(UTC) - record.timestamp).total_seconds() < 86400:  # 1 day
-                count[record.sender_id] = count.get(record.sender_id, 0) + 1
+        Silian_count = {}
+        for Silian_record in Silian_unfriendly_list:
+            if (datetime.now(UTC) - Silian_record.timestamp).total_seconds() < 86400:  # 1 day
+                Silian_count[Silian_record.sender_id] = Silian_count.get(Silian_record.sender_id, 0) + 1
 
-        if len(count) >= 3 or any(c >= 3 for c in count.values()):
+        if len(Silian_count) >= 3 or any(Silian_c >= 3 for Silian_c in Silian_count.values()):
             return True
 
         return False
@@ -458,41 +458,41 @@ class JobQueuesTable(DBModel):
         table = "job_queues"
 
     @classmethod
-    async def add_task(cls, target_client: str, action: str, args: dict) -> str:
-        task_id = str(uuid.uuid4())
-        await cls.create(task_id=task_id, target_client=target_client, action=action, args=args)
-        return task_id
+    async def add_task(Silian_cls, target_client: str, action: str, args: dict) -> str:
+        Silian_task_id = str(uuid.uuid4())
+        await Silian_cls.create(task_id=Silian_task_id, target_client=target_client, action=action, args=args)
+        return Silian_task_id
 
-    async def set_val(self, value, status) -> bool:
-        self.result = value
-        self.status = status
-        await self.save()
+    async def set_val(Silian_self, value, status) -> bool:
+        Silian_self.result = value
+        Silian_self.status = status
+        await Silian_self.save()
         return True
 
-    async def set_status(self, status):
-        self.status = status
-        await self.save()
+    async def set_status(Silian_self, status):
+        Silian_self.status = status
+        await Silian_self.save()
         return True
 
     @classmethod
-    async def clear_task(cls, time=3600) -> bool:
+    async def clear_task(Silian_cls, time=3600) -> bool:
         timestamp = datetime.now(UTC) - timedelta(seconds=time)
         Logger.debug(f"Clearing tasks older than {timestamp}...")
 
-        await cls.filter(timestamp__lt=timestamp).delete()
+        await Silian_cls.filter(timestamp__lt=timestamp).delete()
         return True
 
     @classmethod
-    async def get_first(cls, target_clients: str | list[str]):
+    async def get_first(Silian_cls, target_clients: str | list[str]):
         if isinstance(target_clients, str):
             target_clients = [target_clients]
-        return await cls.filter(target_client__in=target_clients, status="pending").first()
+        return await Silian_cls.filter(target_client__in=target_clients, status="pending").first()
 
     @classmethod
-    async def get_all(cls, target_clients: str | list[str]):
+    async def get_all(Silian_cls, target_clients: str | list[str]):
         if isinstance(target_clients, str):
             target_clients = [target_clients]
-        return await cls.filter(target_client__in=target_clients, status="pending").all()
+        return await Silian_cls.filter(target_client__in=target_clients, status="pending").all()
 
 
 class MaliciousLoginRecords(DBModel):
@@ -514,5 +514,5 @@ class MaliciousLoginRecords(DBModel):
         table = "malicious_login"
 
     @classmethod
-    async def check_blocked(cls, ip_address: str) -> bool:
-        return await cls.filter(ip_address=ip_address, blocked_until__gt=datetime.now(UTC)).exists()
+    async def check_blocked(Silian_cls, ip_address: str) -> bool:
+        return await Silian_cls.filter(ip_address=ip_address, blocked_until__gt=datetime.now(UTC)).exists()

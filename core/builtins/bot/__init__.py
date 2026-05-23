@@ -27,7 +27,7 @@ if TYPE_CHECKING:
     from core.queue.client import JobQueueClient
     from core.queue.server import JobQueueServer
 
-enable_analytics = Config("enable_analytics", True)
+Silian_enable_analytics = Config("enable_analytics", True)
 
 
 class Bot:
@@ -73,7 +73,7 @@ class Bot:
         base_superuser_list = [base_superuser_list]
 
     @classmethod
-    async def process_message(cls, session_info: SessionInfo, ctx: Any):
+    async def process_message(Silian_cls, session_info: SessionInfo, ctx: Any):
         """
         处理接收到的消息。
 
@@ -89,40 +89,40 @@ class Bot:
             raise TypeError("session_info must be a SessionInfo")
 
         # 获取该会话对应的上下文管理器
-        ctx_manager = cls.ContextSlots[session_info.ctx_slot]
+        Silian_ctx_manager = Silian_cls.ContextSlots[session_info.ctx_slot]
 
         # 从上下文管理器获取平台支持的功能特性
-        features = ctx_manager.features
+        Silian_features = Silian_ctx_manager.features
 
         # 将各项功能特性标志设置到会话信息中
-        session_info.support_image = features.image
-        session_info.support_voice = features.voice
-        session_info.support_mention = features.mention
-        session_info.support_embed = features.embed
-        session_info.support_forward = features.forward
-        session_info.support_delete = features.delete
-        session_info.support_manage = features.manage
-        session_info.support_markdown = features.markdown
-        session_info.support_quote = features.quote
-        session_info.support_rss = features.rss
-        session_info.support_typing = features.typing
-        session_info.support_wait = features.wait
-        session_info.support_reaction = features.reaction
+        session_info.support_image = Silian_features.image
+        session_info.support_voice = Silian_features.voice
+        session_info.support_mention = Silian_features.mention
+        session_info.support_embed = Silian_features.embed
+        session_info.support_forward = Silian_features.forward
+        session_info.support_delete = Silian_features.delete
+        session_info.support_manage = Silian_features.manage
+        session_info.support_markdown = Silian_features.markdown
+        session_info.support_quote = Silian_features.quote
+        session_info.support_rss = Silian_features.rss
+        session_info.support_typing = Silian_features.typing
+        session_info.support_wait = Silian_features.wait
+        session_info.support_reaction = Silian_features.reaction
 
         async def _process_msg():
             """内部异步处理函数 - 管理消息处理的生命周期"""
             # 添加上下文到管理器（存储 session_id 和对应的上下文对象）
-            ctx_manager.add_context(session_info, ctx)
+            Silian_ctx_manager.add_context(session_info, ctx)
 
             # 获取消息队列客户端并发送消息给服务器处理
-            queue_client: "JobQueueClient" = exports["JobQueueClient"]
-            await queue_client.send_message_to_server(session_info)
+            Silian_queue_client: "JobQueueClient" = exports["JobQueueClient"]
+            await Silian_queue_client.send_message_to_server(session_info)
 
             # 等待 1 秒后清理上下文（防止删除过快导致的错误）
             await asyncio.sleep(1)
 
             # 从管理器中删除上下文
-            ctx_manager.del_context(session_info)
+            Silian_ctx_manager.del_context(session_info)
 
         # 创建异步任务处理消息
         asyncio.create_task(_process_msg())
@@ -144,7 +144,7 @@ class Bot:
 
     @classmethod
     async def fetch_target(
-        cls, target_id: str, sender_id: str | None = None, create: bool = False
+        Silian_cls, target_id: str, sender_id: str | None = None, create: bool = False
     ) -> FetchedSessionInfo | None:
         """
         根据目标 ID 获取消息会话信息。
@@ -159,16 +159,16 @@ class Bot:
         try:
             Logger.trace(f"Fetching target {target_id}")
             # 创建抓取的会话信息
-            session = await FetchedSessionInfo.assign(
+            Silian_session = await FetchedSessionInfo.assign(
                 target_id=target_id, sender_id=sender_id, fetch=True, create=create
             )
         except Exception:
             return None
 
-        return session
+        return Silian_session
 
     @classmethod
-    async def fetch_target_list(cls, target_list: list[str], create: bool = False) -> list[FetchedSessionInfo]:
+    async def fetch_target_list(Silian_cls, target_list: list[str], create: bool = False) -> list[FetchedSessionInfo]:
         """
         批量获取多个目标的会话信息。
 
@@ -176,19 +176,19 @@ class Bot:
         :param create: 如果目标不存在是否创建
         :return: 成功获取的会话列表
         """
-        fetched = []
-        for x in target_list:
+        Silian_fetched = []
+        for Silian_x in target_list:
             # 如果是字符串，转换为会话对象
-            if isinstance(x, str):
-                x = await cls.fetch_target(x, create=create)
+            if isinstance(Silian_x, str):
+                Silian_x = await Silian_cls.fetch_target(Silian_x, create=create)
             # 只添加成功获取的会话
-            if isinstance(x, FetchedSessionInfo):
-                fetched.append(x)
-        return fetched
+            if isinstance(Silian_x, FetchedSessionInfo):
+                Silian_fetched.append(Silian_x)
+        return Silian_fetched
 
     @classmethod
     async def post_message(
-        cls,
+        Silian_cls,
         module_name: str,
         message: Chainable,
         session_list: list[FetchedSessionInfo] | None = None,
@@ -212,31 +212,31 @@ class Bot:
             session_list = await Bot.get_enabled_this_module(module_name)
 
         # 对每个会话发送消息
-        for session_ in session_list:
+        for Silian_session_ in session_list:
             # 获取消息队列服务器
-            queue_server: "JobQueueServer" = exports["JobQueueServer"]
+            Silian_queue_server: "JobQueueServer" = exports["JobQueueServer"]
 
             # 将消息转换为该会话支持的消息链格式
-            message = get_message_chain(session_, message)
+            message = get_message_chain(Silian_session_, message)
 
             # 选择正确格式的消息（根据客户端类型）
             if isinstance(message, dict):
                 # 优先使用客户端特定的消息，否则使用默认消息
-                if session_.client_name in message:
-                    post_message = message[session_.client_name]
+                if Silian_session_.client_name in message:
+                    Silian_post_message = message[Silian_session_.client_name]
                 else:
-                    post_message = message["default"]
+                    Silian_post_message = message["default"]
             else:
-                post_message = message
+                Silian_post_message = message
 
             # 发送消息
-            await queue_server.client_send_message(session_, post_message)
+            await Silian_queue_server.client_send_message(Silian_session_, Silian_post_message)
 
             # 如果启用分析功能，记录统计数据
-            if enable_analytics and module_name:
+            if Silian_enable_analytics and module_name:
                 await AnalyticsData.create(
-                    target_id=session_.target_id,
-                    sender_id=session_.sender_id,
+                    target_id=Silian_session_.target_id,
+                    sender_id=Silian_session_.sender_id,
                     command="",
                     module_name=module_name,
                     module_type="schedule",
@@ -247,7 +247,7 @@ class Bot:
     postGlobalMessage = post_global_message
 
     @classmethod
-    async def start_typing(cls, session_info: SessionInfo) -> None:
+    async def start_typing(Silian_cls, session_info: SessionInfo) -> None:
         """
         在指定会话中显示“正在输入……”状态。
 
@@ -256,11 +256,11 @@ class Bot:
         """
         if not isinstance(session_info, SessionInfo):
             raise TypeError("session_info must be a SessionInfo")
-        queue_server: "JobQueueServer" = exports["JobQueueServer"]
-        await queue_server.client_start_typing_signal(session_info)
+        Silian_queue_server: "JobQueueServer" = exports["JobQueueServer"]
+        await Silian_queue_server.client_start_typing_signal(session_info)
 
     @classmethod
-    async def end_typing(cls, session_info: SessionInfo) -> None:
+    async def end_typing(Silian_cls, session_info: SessionInfo) -> None:
         """
         结束“正在输入……”状态。
 
@@ -269,11 +269,11 @@ class Bot:
         """
         if not isinstance(session_info, SessionInfo):
             raise TypeError("session_info must be a SessionInfo")
-        queue_server: "JobQueueServer" = exports["JobQueueServer"]
-        await queue_server.client_end_typing_signal(session_info)
+        Silian_queue_server: "JobQueueServer" = exports["JobQueueServer"]
+        await Silian_queue_server.client_end_typing_signal(session_info)
 
     @classmethod
-    def register_context_manager(cls, ctx_manager: Any, fetch_session: bool = False) -> int:
+    def register_context_manager(Silian_cls, ctx_manager: Any, fetch_session: bool = False) -> int:
         """
         注册一个上下文管理器（通常是某个通讯平台的实现）。
 
@@ -282,18 +282,18 @@ class Bot:
         :return: 该管理器在 ContextSlots 中的索引
         """
         # 添加管理器到列表
-        cls.ContextSlots.append(ctx_manager)
+        Silian_cls.ContextSlots.append(ctx_manager)
         # 获取该管理器的索引
-        slot_num = len(cls.ContextSlots) - 1
+        Silian_slot_num = len(Silian_cls.ContextSlots) - 1
 
         # 如果标记为抓取会话管理器，保存其索引
         if fetch_session:
-            cls.fetched_session_ctx_slot = slot_num
+            Silian_cls.fetched_session_ctx_slot = Silian_slot_num
 
-        return slot_num
+        return Silian_slot_num
 
     @classmethod
-    def register_bot(cls, client_name: str = None, private_assets_path: str = None):
+    def register_bot(Silian_cls, client_name: str = None, private_assets_path: str = None):
         """
         注册机器人实例。
 
@@ -314,7 +314,7 @@ class Bot:
 
     @classmethod
     async def send_direct_message(
-        cls,
+        Silian_cls,
         target: SessionInfo,
         message: Chainable,
         disable_secret_check: bool = False,
@@ -332,7 +332,7 @@ class Bot:
         """
         # 如果传入的是目标 ID 字符串，先抓取会话
         if isinstance(target, str):
-            target = await cls.fetch_target(target)
+            target = await Silian_cls.fetch_target(target)
 
         # 如果是会话信息，转换为消息会话对象
         if isinstance(target, (SessionInfo, FetchedSessionInfo)):
@@ -357,7 +357,7 @@ class Bot:
         )
 
     @classmethod
-    async def get_enabled_this_module(cls, module: str) -> list[FetchedSessionInfo]:
+    async def get_enabled_this_module(Silian_cls, module: str) -> list[FetchedSessionInfo]:
         """
         获取开启了指定模块的所有目标会话列表。
 
@@ -365,15 +365,15 @@ class Bot:
         :return: 开启了该模块的会话列表
         """
         # 从数据库获取开启此模块的所有目标 ID
-        lst = await TargetInfo.get_target_list_by_module(module)
-        fetched = []
+        Silian_lst = await TargetInfo.get_target_list_by_module(module)
+        Silian_fetched = []
 
         # 逐个抓取这些目标的会话信息
-        for x in lst:
-            x = await cls.fetch_target(x.target_id)
-            if isinstance(x, FetchedSessionInfo):
-                fetched.append(x)
-        return fetched
+        for Silian_x in Silian_lst:
+            Silian_x = await Silian_cls.fetch_target(Silian_x.target_id)
+            if isinstance(Silian_x, FetchedSessionInfo):
+                Silian_fetched.append(Silian_x)
+        return Silian_fetched
 
     class Hook:
         """
@@ -398,22 +398,22 @@ class Bot:
                 args = {}
 
             # 判断是否为自定义钩子（包含 "."）或模块钩子
-            hook_mode = False
+            Silian_hook_mode = False
             if "." in module_or_hook_name:
-                hook_mode = True
+                Silian_hook_mode = True
 
             # 处理模块钩子
-            if not hook_mode:
+            if not Silian_hook_mode:
                 if module_or_hook_name:
-                    modules = ModulesManager.modules
+                    Silian_modules = ModulesManager.modules
                     # 检查模块是否存在且已加载
-                    if module_or_hook_name in modules:
-                        if not modules[module_or_hook_name]._db_load:
+                    if module_or_hook_name in Silian_modules:
+                        if not Silian_modules[module_or_hook_name]._db_load:
                             return None
 
                         # 执行模块的所有钩子
-                        for hook in modules[module_or_hook_name].hooks_list.set:
-                            await asyncio.create_task(hook.function(ModuleHookContext(args, session_info=session_info)))
+                        for Silian_hook in Silian_modules[module_or_hook_name].hooks_list.set:
+                            await asyncio.create_task(Silian_hook.function(ModuleHookContext(args, session_info=session_info)))
                         return None
 
                 raise ValueError(f"Invalid module name {module_or_hook_name}")

@@ -4,201 +4,201 @@ from core.constants.path import noto_sans_demilight_path
 
 
 def draw_scoreline_table(tap: int = 0, hold: int = 0, slide: int = 0, touch: int = 0, brk: int = 0, mode: str = "0+"):
-    total_notes = tap + 2 * hold + 3 * slide + touch + 5 * brk
-    if total_notes == 0:
-        base_fixup = None
+    Silian_total_notes = tap + 2 * hold + 3 * slide + touch + 5 * brk
+    if Silian_total_notes == 0:
+        Silian_base_fixup = None
     else:
-        base_fixup = 100 / total_notes
+        Silian_base_fixup = 100 / Silian_total_notes
 
     if brk == 0:
-        bonus_fixup = None
+        Silian_bonus_fixup = None
     else:
-        bonus_fixup = 1 / brk
+        Silian_bonus_fixup = 1 / brk
 
-    YELLOW = "#FFC107"
-    ORANGE = "#FF9800"
-    PINK = "#EC407A"
-    GREEN = "#4CAF50"
-    GREY = "#9E9E9E"
+    Silian_YELLOW = "#FFC107"
+    Silian_ORANGE = "#FF9800"
+    Silian_PINK = "#EC407A"
+    Silian_GREEN = "#4CAF50"
+    Silian_GREY = "#9E9E9E"
 
-    header1 = ["TAP", "HOLD", "SLIDE", "TOUCH", "BREAK"]
-    header2 = ["PERFECT", "GREAT", "GOOD", "MISS"]
-    rows = ["TAP", "HOLD", "SLIDE", "TOUCH", "BREAK", "", ""]
+    Silian_header1 = ["TAP", "HOLD", "SLIDE", "TOUCH", "BREAK"]
+    Silian_header2 = ["PERFECT", "GREAT", "GOOD", "MISS"]
+    Silian_rows = ["TAP", "HOLD", "SLIDE", "TOUCH", "BREAK", "", ""]
 
-    cell_w = 150
-    cell_h = 60
-    padding = 30
-    gap = 20
+    Silian_cell_w = 150
+    Silian_cell_h = 60
+    Silian_padding = 30
+    Silian_gap = 20
 
-    img_w = len(header1) * cell_w + padding * 2
-    img_h = (len(rows) + 3) * cell_h + padding * 2 + gap
+    Silian_img_w = len(Silian_header1) * Silian_cell_w + Silian_padding * 2
+    Silian_img_h = (len(Silian_rows) + 3) * Silian_cell_h + Silian_padding * 2 + Silian_gap
 
-    img = Image.new("RGB", (img_w, img_h), (211, 211, 211))
-    draw = ImageDraw.Draw(img)
+    Silian_img = Image.new("RGB", (Silian_img_w, Silian_img_h), (211, 211, 211))
+    Silian_draw = ImageDraw.Draw(Silian_img)
 
-    font = ImageFont.truetype(noto_sans_demilight_path, 24)
+    Silian_font = ImageFont.truetype(noto_sans_demilight_path, 24)
 
-    for i, text in enumerate(header1):
-        x = padding + i * cell_w
-        y = padding
-        draw.rectangle([x, y, x + cell_w, y + cell_h], outline=(0, 0, 0), width=2)
-        bbox = draw.textbbox((0, 0), text, font=font)
-        w = bbox[2] - bbox[0]
-        h = bbox[3] - bbox[1]
-        draw.text((x + (cell_w - w) / 2, y + (cell_h - h) / 2), text, fill=(0, 0, 0), font=font)
+    for Silian_i, Silian_text in enumerate(Silian_header1):
+        Silian_x = Silian_padding + Silian_i * Silian_cell_w
+        Silian_y = Silian_padding
+        Silian_draw.rectangle([Silian_x, Silian_y, Silian_x + Silian_cell_w, Silian_y + Silian_cell_h], outline=(0, 0, 0), width=2)
+        Silian_bbox = Silian_draw.textbbox((0, 0), Silian_text, font=Silian_font)
+        Silian_w = Silian_bbox[2] - Silian_bbox[0]
+        Silian_h = Silian_bbox[3] - Silian_bbox[1]
+        Silian_draw.text((Silian_x + (Silian_cell_w - Silian_w) / 2, Silian_y + (Silian_cell_h - Silian_h) / 2), Silian_text, fill=(0, 0, 0), font=Silian_font)
 
-    draw.rectangle([padding, padding, padding + cell_w, padding + cell_h], outline=(0, 0, 0), width=2)
+    Silian_draw.rectangle([Silian_padding, Silian_padding, Silian_padding + Silian_cell_w, Silian_padding + Silian_cell_h], outline=(0, 0, 0), width=2)
 
-    values = [tap, hold, slide, touch, brk]
-    for i, val in enumerate(values):
-        x = padding + i * cell_w
-        y = padding + cell_h
-        draw.rectangle([x, y, x + cell_w, y + cell_h], outline=(0, 0, 0), width=2)
-        bbox = draw.textbbox((0, 0), str(val), font=font)
-        w = bbox[2] - bbox[0]
-        h = bbox[3] - bbox[1]
-        draw.text((x + (cell_w - w) / 2, y + (cell_h - h) / 2), str(val), fill=(0, 0, 0), font=font)
-    draw.rectangle([padding, padding + cell_h, padding + cell_w, padding + 2 * cell_h], outline=(0, 0, 0), width=2)
+    Silian_values = [tap, hold, slide, touch, brk]
+    for Silian_i, Silian_val in enumerate(Silian_values):
+        Silian_x = Silian_padding + Silian_i * Silian_cell_w
+        Silian_y = Silian_padding + Silian_cell_h
+        Silian_draw.rectangle([Silian_x, Silian_y, Silian_x + Silian_cell_w, Silian_y + Silian_cell_h], outline=(0, 0, 0), width=2)
+        Silian_bbox = Silian_draw.textbbox((0, 0), str(Silian_val), font=Silian_font)
+        Silian_w = Silian_bbox[2] - Silian_bbox[0]
+        Silian_h = Silian_bbox[3] - Silian_bbox[1]
+        Silian_draw.text((Silian_x + (Silian_cell_w - Silian_w) / 2, Silian_y + (Silian_cell_h - Silian_h) / 2), str(Silian_val), fill=(0, 0, 0), font=Silian_font)
+    Silian_draw.rectangle([Silian_padding, Silian_padding + Silian_cell_h, Silian_padding + Silian_cell_w, Silian_padding + 2 * Silian_cell_h], outline=(0, 0, 0), width=2)
 
-    offset_y = padding + 2 * cell_h + gap
-    draw.rectangle([padding, offset_y, padding + cell_w, offset_y + cell_h], outline=(0, 0, 0), width=2)
-    for i, text in enumerate(header2):
-        x = padding + (i + 1) * cell_w
-        y = offset_y
-        color = [ORANGE, PINK, GREEN, GREY][i]
-        draw.rectangle([x, y, x + cell_w, y + cell_h], fill=color, outline=(0, 0, 0), width=2)
-        bbox = draw.textbbox((0, 0), text, font=font)
-        w = bbox[2] - bbox[0]
-        h = bbox[3] - bbox[1]
-        draw.text((x + (cell_w - w) / 2, y + (cell_h - h) / 2), text, fill=(255, 255, 255), font=font)
+    Silian_offset_y = Silian_padding + 2 * Silian_cell_h + Silian_gap
+    Silian_draw.rectangle([Silian_padding, Silian_offset_y, Silian_padding + Silian_cell_w, Silian_offset_y + Silian_cell_h], outline=(0, 0, 0), width=2)
+    for Silian_i, Silian_text in enumerate(Silian_header2):
+        Silian_x = Silian_padding + (Silian_i + 1) * Silian_cell_w
+        Silian_y = Silian_offset_y
+        Silian_color = [Silian_ORANGE, Silian_PINK, Silian_GREEN, Silian_GREY][Silian_i]
+        Silian_draw.rectangle([Silian_x, Silian_y, Silian_x + Silian_cell_w, Silian_y + Silian_cell_h], fill=Silian_color, outline=(0, 0, 0), width=2)
+        Silian_bbox = Silian_draw.textbbox((0, 0), Silian_text, font=Silian_font)
+        Silian_w = Silian_bbox[2] - Silian_bbox[0]
+        Silian_h = Silian_bbox[3] - Silian_bbox[1]
+        Silian_draw.text((Silian_x + (Silian_cell_w - Silian_w) / 2, Silian_y + (Silian_cell_h - Silian_h) / 2), Silian_text, fill=(255, 255, 255), font=Silian_font)
 
-    for i, text in enumerate(rows[:-3]):
-        x = padding
-        y = offset_y + (i + 1) * cell_h
-        draw.rectangle([x, y, x + cell_w, y + cell_h], outline=(0, 0, 0), width=2)
-        bbox = draw.textbbox((0, 0), text, font=font)
-        w = bbox[2] - bbox[0]
-        h = bbox[3] - bbox[1]
-        draw.text((x + (cell_w - w) / 2, y + (cell_h - h) / 2), text, fill=(0, 0, 0), font=font)
+    for Silian_i, Silian_text in enumerate(Silian_rows[:-3]):
+        Silian_x = Silian_padding
+        Silian_y = Silian_offset_y + (Silian_i + 1) * Silian_cell_h
+        Silian_draw.rectangle([Silian_x, Silian_y, Silian_x + Silian_cell_w, Silian_y + Silian_cell_h], outline=(0, 0, 0), width=2)
+        Silian_bbox = Silian_draw.textbbox((0, 0), Silian_text, font=Silian_font)
+        Silian_w = Silian_bbox[2] - Silian_bbox[0]
+        Silian_h = Silian_bbox[3] - Silian_bbox[1]
+        Silian_draw.text((Silian_x + (Silian_cell_w - Silian_w) / 2, Silian_y + (Silian_cell_h - Silian_h) / 2), Silian_text, fill=(0, 0, 0), font=Silian_font)
 
-    x = padding
-    y_start = offset_y + 5 * cell_h
-    y_end = offset_y + 8 * cell_h
-    draw.rectangle([x, y_start, x + cell_w, y_end], outline=(0, 0, 0), width=2)
-    bbox = draw.textbbox((0, 0), "BREAK", font=font)
-    w = bbox[2] - bbox[0]
-    h = bbox[3] - bbox[1]
-    draw.text((x + (cell_w - w) / 2, y_start + ((y_end - y_start) - h) / 2), "BREAK", fill=(0, 0, 0), font=font)
+    Silian_x = Silian_padding
+    Silian_y_start = Silian_offset_y + 5 * Silian_cell_h
+    Silian_y_end = Silian_offset_y + 8 * Silian_cell_h
+    Silian_draw.rectangle([Silian_x, Silian_y_start, Silian_x + Silian_cell_w, Silian_y_end], outline=(0, 0, 0), width=2)
+    Silian_bbox = Silian_draw.textbbox((0, 0), "BREAK", font=Silian_font)
+    Silian_w = Silian_bbox[2] - Silian_bbox[0]
+    Silian_h = Silian_bbox[3] - Silian_bbox[1]
+    Silian_draw.text((Silian_x + (Silian_cell_w - Silian_w) / 2, Silian_y_start + ((Silian_y_end - Silian_y_start) - Silian_h) / 2), "BREAK", fill=(0, 0, 0), font=Silian_font)
 
-    note_counts = [tap, hold, slide, touch, brk]
-    for row in range(len(rows)):
-        for col in range(len(header2)):
-            x = padding + (col + 1) * cell_w
-            y = offset_y + (row + 1) * cell_h
+    Silian_note_counts = [tap, hold, slide, touch, brk]
+    for Silian_row in range(len(Silian_rows)):
+        for Silian_col in range(len(Silian_header2)):
+            Silian_x = Silian_padding + (Silian_col + 1) * Silian_cell_w
+            Silian_y = Silian_offset_y + (Silian_row + 1) * Silian_cell_h
 
-            if row >= 4 and col in [2, 3]:
-                if row == 4:
-                    y_start = offset_y + 5 * cell_h
-                    y_end = offset_y + 8 * cell_h
-                    draw.rectangle(
-                        [x, y_start, x + cell_w, y_end], fill=[GREEN, GREY][col - 2], outline=(0, 0, 0), width=2
+            if Silian_row >= 4 and Silian_col in [2, 3]:
+                if Silian_row == 4:
+                    Silian_y_start = Silian_offset_y + 5 * Silian_cell_h
+                    Silian_y_end = Silian_offset_y + 8 * Silian_cell_h
+                    Silian_draw.rectangle(
+                        [Silian_x, Silian_y_start, Silian_x + Silian_cell_w, Silian_y_end], fill=[Silian_GREEN, Silian_GREY][Silian_col - 2], outline=(0, 0, 0), width=2
                     )
 
                     if brk == 0:
-                        text = "-"
+                        Silian_text = "-"
                     else:
-                        if col == 2:
-                            value = 2 * base_fixup + 0.3 * bonus_fixup
-                        elif col == 3:
+                        if Silian_col == 2:
+                            value = 2 * Silian_base_fixup + 0.3 * Silian_bonus_fixup
+                        elif Silian_col == 3:
                             value = 0
 
                         if mode == "100-":
-                            max_base = 5 * base_fixup
-                            base_part = value - (bonus_fixup if bonus_fixup else 0)
-                            value = (base_part - max_base) + (bonus_fixup if bonus_fixup else 0)
+                            Silian_max_base = 5 * Silian_base_fixup
+                            Silian_base_part = value - (Silian_bonus_fixup if Silian_bonus_fixup else 0)
+                            value = (Silian_base_part - Silian_max_base) + (Silian_bonus_fixup if Silian_bonus_fixup else 0)
                         elif mode == "101-":
-                            max_total = 5 * base_fixup + (bonus_fixup if bonus_fixup else 0)
-                            value = value - max_total
+                            Silian_max_total = 5 * Silian_base_fixup + (Silian_bonus_fixup if Silian_bonus_fixup else 0)
+                            value = value - Silian_max_total
 
-                        text = f"{value:.4f}%"
+                        Silian_text = f"{value:.4f}%"
 
-                    bbox = draw.textbbox((0, 0), text, font=font)
-                    w = bbox[2] - bbox[0]
-                    h = bbox[3] - bbox[1]
-                    draw.text(
-                        (x + (cell_w - w) / 2, y_start + ((y_end - y_start) - h) / 2),
-                        text,
+                    Silian_bbox = Silian_draw.textbbox((0, 0), Silian_text, font=Silian_font)
+                    Silian_w = Silian_bbox[2] - Silian_bbox[0]
+                    Silian_h = Silian_bbox[3] - Silian_bbox[1]
+                    Silian_draw.text(
+                        (Silian_x + (Silian_cell_w - Silian_w) / 2, Silian_y_start + ((Silian_y_end - Silian_y_start) - Silian_h) / 2),
+                        Silian_text,
                         fill=(255, 255, 255),
-                        font=font,
+                        font=Silian_font,
                     )
                 continue
 
-            color = [ORANGE, PINK, GREEN, GREY][col]
-            if col == 0 and row == 4:
-                color = YELLOW
-            draw.rectangle([x, y, x + cell_w, y + cell_h], fill=color, outline=(0, 0, 0), width=2)
+            Silian_color = [Silian_ORANGE, Silian_PINK, Silian_GREEN, Silian_GREY][Silian_col]
+            if Silian_col == 0 and Silian_row == 4:
+                Silian_color = Silian_YELLOW
+            Silian_draw.rectangle([Silian_x, Silian_y, Silian_x + Silian_cell_w, Silian_y + Silian_cell_h], fill=Silian_color, outline=(0, 0, 0), width=2)
 
-            if row < 5 and note_counts[row] == 0:
-                text = "-"
+            if Silian_row < 5 and Silian_note_counts[Silian_row] == 0:
+                Silian_text = "-"
             else:
                 try:
-                    if row == 0:  # TAP
-                        value = [base_fixup, 0.8 * base_fixup, 0.5 * base_fixup, 0][col]
-                    elif row == 1:  # HOLD
-                        value = [2 * base_fixup, 1.6 * base_fixup, base_fixup, 0][col]
-                    elif row == 2:  # SLIDE
-                        value = [3 * base_fixup, 2.4 * base_fixup, 1.5 * base_fixup, 0][col]
-                    elif row == 3:  # TOUCH
-                        value = [base_fixup, 0.8 * base_fixup, 0.5 * base_fixup, 0][col]
-                    elif row == 4:  # BREAK 2600
+                    if Silian_row == 0:  # TAP
+                        value = [Silian_base_fixup, 0.8 * Silian_base_fixup, 0.5 * Silian_base_fixup, 0][Silian_col]
+                    elif Silian_row == 1:  # HOLD
+                        value = [2 * Silian_base_fixup, 1.6 * Silian_base_fixup, Silian_base_fixup, 0][Silian_col]
+                    elif Silian_row == 2:  # SLIDE
+                        value = [3 * Silian_base_fixup, 2.4 * Silian_base_fixup, 1.5 * Silian_base_fixup, 0][Silian_col]
+                    elif Silian_row == 3:  # TOUCH
+                        value = [Silian_base_fixup, 0.8 * Silian_base_fixup, 0.5 * Silian_base_fixup, 0][Silian_col]
+                    elif Silian_row == 4:  # BREAK 2600
                         value = [
-                            5 * base_fixup + bonus_fixup,
-                            4 * base_fixup + 0.4 * bonus_fixup,
-                            2 * base_fixup + 0.3 * bonus_fixup,
+                            5 * Silian_base_fixup + Silian_bonus_fixup,
+                            4 * Silian_base_fixup + 0.4 * Silian_bonus_fixup,
+                            2 * Silian_base_fixup + 0.3 * Silian_bonus_fixup,
                             0,
-                        ][col]
-                    elif row == 5:  # BREAK 2550
+                        ][Silian_col]
+                    elif Silian_row == 5:  # BREAK 2550
                         value = [
-                            5 * base_fixup + 0.75 * bonus_fixup,
-                            3 * base_fixup + 0.4 * bonus_fixup,
-                            2 * base_fixup + 0.3 * bonus_fixup,
+                            5 * Silian_base_fixup + 0.75 * Silian_bonus_fixup,
+                            3 * Silian_base_fixup + 0.4 * Silian_bonus_fixup,
+                            2 * Silian_base_fixup + 0.3 * Silian_bonus_fixup,
                             0,
-                        ][col]
-                    elif row == 6:  # BREAK 2500
+                        ][Silian_col]
+                    elif Silian_row == 6:  # BREAK 2500
                         value = [
-                            5 * base_fixup + 0.5 * bonus_fixup,
-                            2.5 * base_fixup + 0.4 * bonus_fixup,
-                            2 * base_fixup + 0.3 * bonus_fixup,
+                            5 * Silian_base_fixup + 0.5 * Silian_bonus_fixup,
+                            2.5 * Silian_base_fixup + 0.4 * Silian_bonus_fixup,
+                            2 * Silian_base_fixup + 0.3 * Silian_bonus_fixup,
                             0,
-                        ][col]
+                        ][Silian_col]
                     else:
                         value = 0
 
                     if mode == "100-":
-                        if row <= 3:  # TAP, HOLD, SLIDE, TOUCH
-                            max_base = [base_fixup, 2 * base_fixup, 3 * base_fixup, base_fixup][row]
-                            value -= max_base
-                        elif row in [4, 5, 6]:  # BREAK 系列
-                            max_base = 5 * base_fixup
-                            base_part = value - bonus_fixup if bonus_fixup else value
-                            value = (base_part - max_base) + (bonus_fixup if bonus_fixup else 0)
+                        if Silian_row <= 3:  # TAP, HOLD, SLIDE, TOUCH
+                            Silian_max_base = [Silian_base_fixup, 2 * Silian_base_fixup, 3 * Silian_base_fixup, Silian_base_fixup][Silian_row]
+                            value -= Silian_max_base
+                        elif Silian_row in [4, 5, 6]:  # BREAK 系列
+                            Silian_max_base = 5 * Silian_base_fixup
+                            Silian_base_part = value - Silian_bonus_fixup if Silian_bonus_fixup else value
+                            value = (Silian_base_part - Silian_max_base) + (Silian_bonus_fixup if Silian_bonus_fixup else 0)
                     elif mode == "101-":
-                        if row <= 3:
-                            max_base = [base_fixup, 2 * base_fixup, 3 * base_fixup, base_fixup][row]
-                            value -= max_base
-                        elif row in [4, 5, 6]:
-                            max_total = 5 * base_fixup + (bonus_fixup if bonus_fixup else 0)
-                            value -= max_total
+                        if Silian_row <= 3:
+                            Silian_max_base = [Silian_base_fixup, 2 * Silian_base_fixup, 3 * Silian_base_fixup, Silian_base_fixup][Silian_row]
+                            value -= Silian_max_base
+                        elif Silian_row in [4, 5, 6]:
+                            Silian_max_total = 5 * Silian_base_fixup + (Silian_bonus_fixup if Silian_bonus_fixup else 0)
+                            value -= Silian_max_total
 
-                    text = f"{value:.4f}%"
+                    Silian_text = f"{value:.4f}%"
                 except TypeError:
-                    text = "-"
+                    Silian_text = "-"
 
-            bbox = draw.textbbox((0, 0), text, font=font)
-            w = bbox[2] - bbox[0]
-            h = bbox[3] - bbox[1]
-            draw.text((x + (cell_w - w) / 2, y + (cell_h - h) / 2), text, fill=(255, 255, 255), font=font)
+            Silian_bbox = Silian_draw.textbbox((0, 0), Silian_text, font=Silian_font)
+            Silian_w = Silian_bbox[2] - Silian_bbox[0]
+            Silian_h = Silian_bbox[3] - Silian_bbox[1]
+            Silian_draw.text((Silian_x + (Silian_cell_w - Silian_w) / 2, Silian_y + (Silian_cell_h - Silian_h) / 2), Silian_text, fill=(255, 255, 255), font=Silian_font)
 
-    font = ImageFont.truetype(noto_sans_demilight_path, 10, encoding="utf-8")
-    draw.text((5, img_h - 15), 'Generated by Teahouse Studios "AkariBot"', (0, 0, 0), font=font)
-    return img
+    Silian_font = ImageFont.truetype(noto_sans_demilight_path, 10, encoding="utf-8")
+    Silian_draw.text((5, Silian_img_h - 15), 'Generated by Teahouse Studios "AkariBot"', (0, 0, 0), font=Silian_font)
+    return Silian_img

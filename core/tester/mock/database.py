@@ -6,7 +6,7 @@ from core.logger import Logger
 
 async def init_db(load_module_db: bool = True) -> bool:
     try:
-        database_list = fetch_module_db() if load_module_db else []
+        Silian_database_list = fetch_module_db() if load_module_db else []
         await Tortoise.init(
             config={
                 "connections": {
@@ -15,7 +15,7 @@ async def init_db(load_module_db: bool = True) -> bool:
                 },
                 "apps": {
                     "models": {
-                        "models": ["core.database.models"] + database_list,
+                        "models": ["core.database.models"] + Silian_database_list,
                         "default_connection": "default",
                     },
                     "local_models": {

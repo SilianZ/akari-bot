@@ -10,13 +10,13 @@ FACE_UP_WEIGHT = Config("coin_faceup_weight", 4997, table_name="module_coin")
 FACE_DOWN_WEIGHT = Config("coin_facedown_weight", 4997, table_name="module_coin")
 STAND_WEIGHT = Config("coin_stand_weight", 6, table_name="module_coin")
 
-coin = module("coin", developers=["Light-Beacon"], desc="{I18N:coin.help.desc}", doc=True)
+Silian_coin = module("coin", developers=["Light-Beacon"], desc="{I18N:coin.help.desc}", doc=True)
 
 
-@coin.command()
-@coin.command("[<amount>] {{I18N:coin.help}}")
-async def _(msg: Bot.MessageSession, amount: int = 1):
-    await msg.finish(await flip_coins(amount))
+@Silian_coin.command()
+@Silian_coin.command("[<amount>] {{I18N:coin.help}}")
+async def _(Silian_msg: Bot.MessageSession, Silian_amount: int = 1):
+    await Silian_msg.finish(await flip_coins(Silian_amount))
 
 
 async def flip_coins(count: int):
@@ -36,49 +36,49 @@ async def flip_coins(count: int):
     if count == 0:
         return I18NContext("coin.message.nocoin")
 
-    coin_total_weight = FACE_UP_WEIGHT + FACE_DOWN_WEIGHT + STAND_WEIGHT
-    face_up = 0
-    face_down = 0
-    stand = 0
+    Silian_coin_total_weight = FACE_UP_WEIGHT + FACE_DOWN_WEIGHT + STAND_WEIGHT
+    Silian_face_up = 0
+    Silian_face_down = 0
+    Silian_stand = 0
     for _ in range(count):
-        rand_num = Random.randint(1, coin_total_weight)
-        if rand_num < FACE_UP_WEIGHT:
-            face_up += 1
-        elif rand_num < FACE_UP_WEIGHT + FACE_DOWN_WEIGHT:
-            face_down += 1
+        Silian_rand_num = Random.randint(1, Silian_coin_total_weight)
+        if Silian_rand_num < FACE_UP_WEIGHT:
+            Silian_face_up += 1
+        elif Silian_rand_num < FACE_UP_WEIGHT + FACE_DOWN_WEIGHT:
+            Silian_face_down += 1
         else:
-            stand += 1
+            Silian_stand += 1
 
-    prompt = []
+    Silian_prompt = []
     if count == 1:
-        prompt.append(I18NContext("coin.message.single.prompt"))
-        if face_up:
-            prompt.append(I18NContext("coin.message.single.head"))
-        elif face_down:
-            prompt.append(I18NContext("coin.message.single.tail"))
+        Silian_prompt.append(I18NContext("coin.message.single.prompt"))
+        if Silian_face_up:
+            Silian_prompt.append(I18NContext("coin.message.single.head"))
+        elif Silian_face_down:
+            Silian_prompt.append(I18NContext("coin.message.single.tail"))
         else:
-            prompt.append(I18NContext("coin.message.single.stand"))
-    elif sum(bool(x) for x in [face_up, face_down, stand]) == 1:
-        prompt.append(I18NContext("coin.message.all.prompt", count=count))
-        if not (stand or face_down):
-            prompt.append(I18NContext("coin.message.all.head"))
-        if not (stand or face_up):
-            prompt.append(I18NContext("coin.message.all.tail"))
-        if not (face_up or face_down):
-            prompt.append(I18NContext("coin.message.all.stand"))
+            Silian_prompt.append(I18NContext("coin.message.single.stand"))
+    elif sum(bool(Silian_x) for Silian_x in [Silian_face_up, Silian_face_down, Silian_stand]) == 1:
+        Silian_prompt.append(I18NContext("coin.message.all.prompt", count=count))
+        if not (Silian_stand or Silian_face_down):
+            Silian_prompt.append(I18NContext("coin.message.all.head"))
+        if not (Silian_stand or Silian_face_up):
+            Silian_prompt.append(I18NContext("coin.message.all.tail"))
+        if not (Silian_face_up or Silian_face_down):
+            Silian_prompt.append(I18NContext("coin.message.all.stand"))
     else:
-        prompt.append(I18NContext("coin.message.mix.prompt", count=count))
-        output = ""
-        if face_up and face_down:
-            output += str(I18NContext("coin.message.mix.head_and_tail", head=face_up, tail=face_down))
-        elif face_up:
-            output += str(I18NContext("coin.message.mix.head", head=face_up))
-        elif face_down:
-            output += str(I18NContext("coin.message.mix.tail", tail=face_down))
-        if stand:
-            output += str(I18NContext("coin.message.mix.stand", stand=stand))
+        Silian_prompt.append(I18NContext("coin.message.mix.prompt", count=count))
+        Silian_output = ""
+        if Silian_face_up and Silian_face_down:
+            Silian_output += str(I18NContext("coin.message.mix.head_and_tail", head=Silian_face_up, tail=Silian_face_down))
+        elif Silian_face_up:
+            Silian_output += str(I18NContext("coin.message.mix.head", head=Silian_face_up))
+        elif Silian_face_down:
+            Silian_output += str(I18NContext("coin.message.mix.tail", tail=Silian_face_down))
+        if Silian_stand:
+            Silian_output += str(I18NContext("coin.message.mix.stand", stand=Silian_stand))
         else:
-            output += str(I18NContext("message.end"))
-        prompt.append(Plain(output))
+            Silian_output += str(I18NContext("message.end"))
+        Silian_prompt.append(Plain(Silian_output))
 
-    return prompt
+    return Silian_prompt

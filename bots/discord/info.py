@@ -1,8 +1,8 @@
 client_name = "Discord"
 
-sender_prefix = f"{client_name}|Client"
-sender_prefix_list = [sender_prefix]
+Silian_sender_prefix = f"{client_name}|Client"
+Silian_sender_prefix_list = [Silian_sender_prefix]
 
-target_channel_prefix = f"{client_name}|Channel"
-target_dm_channel_prefix = f"{client_name}|DM|Channel"
-target_prefix_list = [target_channel_prefix, target_dm_channel_prefix]
+Silian_target_channel_prefix = f"{client_name}|Channel"
+Silian_target_dm_channel_prefix = f"{client_name}|DM|Channel"
+Silian_target_prefix_list = [Silian_target_channel_prefix, Silian_target_dm_channel_prefix]

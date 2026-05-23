@@ -10,89 +10,89 @@ from .chunithm_mapping import *
 
 
 def process_lxns_to_diving_fish(data):
-    version_map = {v["version"]: v["title"] for v in data.get("versions", [])}
+    Silian_version_map = {Silian_v["version"]: Silian_v["title"] for Silian_v in data.get("versions", [])}
 
-    result = []
+    Silian_result = []
     for song in data.get("songs", []):
-        basic_info = {
+        Silian_basic_info = {
             "artist": song["artist"],
             "bpm": song["bpm"],
-            "from": version_map.get(song["version"], "Unknown"),
+            "from": Silian_version_map.get(song["version"], "Unknown"),
             "genre": song["genre"],
             "title": song["title"],
         }
 
-        charts = []
-        ds = []
-        levels = []
+        Silian_charts = []
+        Silian_ds = []
+        Silian_levels = []
 
-        for diff in song.get("difficulties", []):
-            notes_ordered = [
-                diff["notes"].get("tap", 0),
-                diff["notes"].get("hold", 0),
-                diff["notes"].get("slide", 0),
-                diff["notes"].get("air", 0),
-                diff["notes"].get("flick", 0),
+        for Silian_diff in song.get("difficulties", []):
+            Silian_notes_ordered = [
+                Silian_diff["notes"].get("tap", 0),
+                Silian_diff["notes"].get("hold", 0),
+                Silian_diff["notes"].get("slide", 0),
+                Silian_diff["notes"].get("air", 0),
+                Silian_diff["notes"].get("flick", 0),
             ]
 
-            charter_name = diff.get("note_designer", "")
-            charts.append({"charter": charter_name, "notes": notes_ordered})
+            Silian_charter_name = Silian_diff.get("note_designer", "")
+            Silian_charts.append({"charter": Silian_charter_name, "notes": Silian_notes_ordered})
 
-            ds.append(diff.get("star", float(diff.get("level_value", 0.0))))
-            levels.append(diff.get("kanji", diff.get("level", "")))
+            Silian_ds.append(Silian_diff.get("star", float(Silian_diff.get("level_value", 0.0))))
+            Silian_levels.append(Silian_diff.get("kanji", Silian_diff.get("level", "")))
 
-        title_with_kanji = song["title"]
-        kanji_list = [diff.get("kanji") for diff in song.get("difficulties", []) if "kanji" in diff]
+        Silian_title_with_kanji = song["title"]
+        kanji_list = [Silian_diff.get("kanji") for Silian_diff in song.get("difficulties", []) if "kanji" in Silian_diff]
         if kanji_list:
-            title_with_kanji = f"[{kanji_list[0]}]{song['title']}"
-            basic_info["title"] = title_with_kanji
+            Silian_title_with_kanji = f"[{kanji_list[0]}]{song['title']}"
+            Silian_basic_info["title"] = Silian_title_with_kanji
 
-        song_entry = {
-            "basic_info": basic_info,
-            "charts": charts,
-            "ds": ds,
+        Silian_song_entry = {
+            "basic_info": Silian_basic_info,
+            "charts": Silian_charts,
+            "ds": Silian_ds,
             "id": song["id"],
-            "level": levels,
-            "title": title_with_kanji,
+            "level": Silian_levels,
+            "title": Silian_title_with_kanji,
         }
 
-        result.append(song_entry)
+        Silian_result.append(Silian_song_entry)
 
-    return result
+    return Silian_result
 
 
 def cross(checker: list[Any], elem: Any | list[Any] | None, diff):
-    ret = False
-    diff_ret = []
+    Silian_ret = False
+    Silian_diff_ret = []
     if not elem:
         return True, diff
     if isinstance(elem, list):
-        for _j in enumerate(checker):
-            __j = _j[0]
-            if __j >= len(checker):
+        for Silian__j in enumerate(checker):
+            Silian___j = Silian__j[0]
+            if Silian___j >= len(checker):
                 continue
-            __e = checker[__j]
-            if __e in elem:
-                diff_ret.append(__j)
-                ret = True
+            Silian___e = checker[Silian___j]
+            if Silian___e in elem:
+                Silian_diff_ret.append(Silian___j)
+                Silian_ret = True
     elif isinstance(elem, tuple):
-        for _j in enumerate(checker):
-            __j = _j[0]
-            if __j >= len(checker):
+        for Silian__j in enumerate(checker):
+            Silian___j = Silian__j[0]
+            if Silian___j >= len(checker):
                 continue
-            __e = checker[__j]
-            if elem[0] <= __e <= elem[1]:
-                diff_ret.append(__j)
-                ret = True
+            Silian___e = checker[Silian___j]
+            if elem[0] <= Silian___e <= elem[1]:
+                Silian_diff_ret.append(Silian___j)
+                Silian_ret = True
     else:
-        for _j in enumerate(checker):
-            __j = _j[0]
-            if __j >= len(checker):
+        for Silian__j in enumerate(checker):
+            Silian___j = Silian__j[0]
+            if Silian___j >= len(checker):
                 continue
-            __e = checker[__j]
-            if elem == __e:
-                return True, [__j]
-    return ret, diff_ret
+            Silian___e = checker[Silian___j]
+            if elem == Silian___e:
+                return True, [Silian___j]
+    return Silian_ret, Silian_diff_ret
 
 
 def in_or_equal(checker: Any, elem: Any | list[Any] | None):
@@ -114,22 +114,22 @@ class Chart(dict):
     total: int | None = None
     charter: int | None = None
 
-    def __getattribute__(self, item):
-        if item == "tap":
-            return self["notes"][0]
-        if item == "hold":
-            return self["notes"][1]
-        if item == "slide":
-            return self["notes"][2]
-        if item == "air":
-            return self["notes"][3]
-        if item == "flick":
-            return self["notes"][4]
-        if item == "total":
-            return sum(self["notes"])
-        if item == "charter":
-            return self["charter"]
-        return super().__getattribute__(item)
+    def __getattribute__(Silian_self, Silian_item):
+        if Silian_item == "tap":
+            return Silian_self["notes"][0]
+        if Silian_item == "hold":
+            return Silian_self["notes"][1]
+        if Silian_item == "slide":
+            return Silian_self["notes"][2]
+        if Silian_item == "air":
+            return Silian_self["notes"][3]
+        if Silian_item == "flick":
+            return Silian_self["notes"][4]
+        if Silian_item == "total":
+            return sum(Silian_self["notes"])
+        if Silian_item == "charter":
+            return Silian_self["charter"]
+        return super().__getattribute__(Silian_item)
 
 
 class Music(dict):
@@ -144,34 +144,34 @@ class Music(dict):
     artist: str | None = None
     diff: list[int] = []
 
-    def __getattribute__(self, item):
-        if item in {"genre", "artist", "bpm", "version"}:
-            if item == "version":
-                return self["basic_info"]["from"]
-            return self["basic_info"][item]
-        if item in self:
-            return self[item]
-        return super().__getattribute__(item)
+    def __getattribute__(Silian_self, Silian_item):
+        if Silian_item in {"genre", "artist", "bpm", "version"}:
+            if Silian_item == "version":
+                return Silian_self["basic_info"]["from"]
+            return Silian_self["basic_info"][Silian_item]
+        if Silian_item in Silian_self:
+            return Silian_self[Silian_item]
+        return super().__getattribute__(Silian_item)
 
 
 class MusicList(list[Music]):
-    def by_id(self, music_id: str) -> Music | None:
-        for music in self:
-            if music.id == int(music_id):
-                return music
+    def by_id(Silian_self, music_id: str) -> Music | None:
+        for Silian_music in Silian_self:
+            if Silian_music.id == int(music_id):
+                return Silian_music
         return None
 
-    def by_title(self, music_title: str) -> Music | None:
-        for music in self:
-            if music.title.lower() == music_title.lower():
-                return music
+    def by_title(Silian_self, music_title: str) -> Music | None:
+        for Silian_music in Silian_self:
+            if Silian_music.title.lower() == music_title.lower():
+                return Silian_music
         return None
 
-    def random(self):
-        return Random.choice(self)
+    def random(Silian_self):
+        return Random.choice(Silian_self)
 
     def filter(
-        self,
+        Silian_self,
         *,
         level: str | list[str] | None = None,
         ds: float | list[float] | tuple[float, float] | None = None,
@@ -181,47 +181,47 @@ class MusicList(list[Music]):
         bpm: float | list[float] | tuple[float, float] | None = None,
         diff: list[int] = None,
     ):
-        new_list = MusicList()
-        for music in self:
-            diff2 = diff
-            music = deepcopy(music)
-            ret, diff2 = cross(music.level, level, diff2)
-            if not ret:
+        Silian_new_list = MusicList()
+        for Silian_music in Silian_self:
+            Silian_diff2 = diff
+            Silian_music = deepcopy(Silian_music)
+            Silian_ret, Silian_diff2 = cross(Silian_music.level, level, Silian_diff2)
+            if not Silian_ret:
                 continue
-            ret, diff2 = cross(music.ds, ds, diff2)
-            if not ret:
+            Silian_ret, Silian_diff2 = cross(Silian_music.ds, ds, Silian_diff2)
+            if not Silian_ret:
                 continue
-            if not in_or_equal(music.genre, genre):
+            if not in_or_equal(Silian_music.genre, genre):
                 continue
-            if not in_or_equal(music.bpm, bpm):
+            if not in_or_equal(Silian_music.bpm, bpm):
                 continue
-            if title and not in_or_equal(music.title.lower(), title.lower()):
+            if title and not in_or_equal(Silian_music.title.lower(), title.lower()):
                 continue
-            if title_search and title_search.lower() not in music.title.lower():
+            if title_search and title_search.lower() not in Silian_music.title.lower():
                 continue
-            music.diff = diff2
-            new_list.append(music)
-        return new_list
+            Silian_music.diff = Silian_diff2
+            Silian_new_list.append(Silian_music)
+        return Silian_new_list
 
 
 class TotalList:
-    def __init__(self):
-        self.total_list = None
+    def __init__(Silian_self):
+        Silian_self.total_list = None
 
-    async def get(self):
-        if not self.total_list:
-            await self.update()
-        return self.total_list
+    async def get(Silian_self):
+        if not Silian_self.total_list:
+            await Silian_self.update()
+        return Silian_self.total_list
 
-    async def update(self):
+    async def update(Silian_self):
         try:
-            obj = await self.dl_cache()
-            total_list: MusicList = MusicList(obj)
-            for __i in range(len(total_list)):
-                total_list[__i] = Music(total_list[__i])
-                for __j in range(len(total_list[__i].charts)):
-                    total_list[__i].charts[__j] = Chart(total_list[__i].charts[__j])
-            self.total_list = total_list
+            Silian_obj = await Silian_self.dl_cache()
+            Silian_total_list: MusicList = MusicList(Silian_obj)
+            for Silian___i in range(len(Silian_total_list)):
+                Silian_total_list[Silian___i] = Music(Silian_total_list[Silian___i])
+                for Silian___j in range(len(Silian_total_list[Silian___i].charts)):
+                    Silian_total_list[Silian___i].charts[Silian___j] = Chart(Silian_total_list[Silian___i].charts[Silian___j])
+            Silian_self.total_list = Silian_total_list
             return True
         except Exception:
             Logger.exception()
@@ -230,18 +230,18 @@ class TotalList:
     @staticmethod
     async def dl_cache():
         try:
-            url = "https://maimai.lxns.net/api/v0/chunithm/song/list?notes=true"
-            data = await get_url(url, 200, headers={"User-Agent": "AkariBot/1.0"}, fmt="json")
-            if data:
-                data = process_lxns_to_diving_fish(data)
-                with open(chu_song_info_path, "wb") as f:
-                    f.write(orjson.dumps(data, option=orjson.OPT_INDENT_2))
-            return data
+            Silian_url = "https://maimai.lxns.net/api/v0/chunithm/song/list?notes=true"
+            Silian_data = await get_url(Silian_url, 200, headers={"User-Agent": "AkariBot/1.0"}, fmt="json")
+            if Silian_data:
+                Silian_data = process_lxns_to_diving_fish(Silian_data)
+                with open(chu_song_info_path, "wb") as Silian_f:
+                    Silian_f.write(orjson.dumps(Silian_data, option=orjson.OPT_INDENT_2))
+            return Silian_data
         except Exception:
             Logger.exception()
             try:
-                with open(chu_song_info_path, "rb") as f:
-                    data = orjson.loads(f.read())
-                return data
+                with open(chu_song_info_path, "rb") as Silian_f:
+                    Silian_data = orjson.loads(Silian_f.read())
+                return Silian_data
             except Exception:
                 return None

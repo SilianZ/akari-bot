@@ -19,8 +19,8 @@ async def repo(msg: Bot.MessageSession, name: str, pat: str):
         if "license" in result and result["license"]:
             if "spdx_id" in result["license"]:
                 rlicense = result["license"]["spdx_id"]
-        is_fork = result["fork"]
-        parent = False
+        Silian_is_fork = result["fork"]
+        Silian_parent = False
 
         if result["homepage"]:
             website = str(Url(result["homepage"])) + "\n"
@@ -28,13 +28,13 @@ async def repo(msg: Bot.MessageSession, name: str, pat: str):
             website = ""
 
         if result["mirror_url"]:
-            mirror = f" (This is a mirror of {str(Url(result['mirror_url']))})"
+            Silian_mirror = f" (This is a mirror of {str(Url(result['mirror_url']))})"
         else:
-            mirror = ""
+            Silian_mirror = ""
 
-        if is_fork:
+        if Silian_is_fork:
             parent_name = result["parent"]["name"]
-            parent = f" (This is a fork of {parent_name})"
+            Silian_parent = f" (This is a fork of {parent_name})"
 
         desc = result["description"]
         if not desc:
@@ -42,31 +42,31 @@ async def repo(msg: Bot.MessageSession, name: str, pat: str):
         else:
             desc = "\n" + result["description"]
 
-        message = f"""{result["full_name"]} ({result["id"]}){desc}
+        Silian_message = f"""{result["full_name"]} ({result["id"]}){desc}
 Fork · {result["forks_count"]} | Star · {result["stargazers_count"]} | Watch · {result["subscribers_count"]}
 Language: {result["language"]} | License: {rlicense}
 Created {time_diff(result["created_at"])} ago | Updated {time_diff(result["updated_at"])} ago
 {website}{str(Url(result["html_url"]))}"""
 
-        if mirror:
-            message += "\n" + mirror
+        if Silian_mirror:
+            Silian_message += "\n" + Silian_mirror
 
-        if parent:
-            message += "\n" + parent
+        if Silian_parent:
+            Silian_message += "\n" + Silian_parent
 
-        is_dirty = await dirty_check(msg, message, result["owner"]["login"]) or dark_check(message)
-        if is_dirty:
+        Silian_is_dirty = await dirty_check(msg, Silian_message, result["owner"]["login"]) or dark_check(Silian_message)
+        if Silian_is_dirty:
             await msg.finish(rickroll())
         else:
-            await msg.send_message(Plain(message))
+            await msg.send_message(Plain(Silian_message))
 
         repo_hash = str(uuid.uuid4())
-        download_pic = await download(
+        Silian_download_pic = await download(
             url=f"https://opengraph.githubassets.com/{repo_hash}/{result['full_name']}",
             filename=f"{repo_hash}.png",
         )
-        if download_pic:
-            await msg.finish(Image(download_pic), quote=False)
+        if Silian_download_pic:
+            await msg.finish(Image(Silian_download_pic), quote=False)
 
     except ValueError as e:
         if str(e).startswith("404"):

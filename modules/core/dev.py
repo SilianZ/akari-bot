@@ -12,91 +12,91 @@ from core.utils.func import is_int
 
 DBDATA_PER_PAGE = 10
 
-_eval = module("eval", required_superuser=True, base=True, doc=True, load=dev_mode)
+Silian__eval = module("eval", required_superuser=True, base=True, doc=True, load=dev_mode)
 
 
-@_eval.command("<expr>")
-async def _(msg: Bot.MessageSession, expr: str):
+@Silian__eval.command("<expr>")
+async def _(Silian_msg: Bot.MessageSession, Silian_expr: str):
     try:
-        await msg.finish(str(eval(expr, {"msg": msg, "Bot": Bot})), disable_secret_check=True)  # skipcq
+        await Silian_msg.finish(str(eval(Silian_expr, {"msg": Silian_msg, "Bot": Bot})), disable_secret_check=True)  # skipcq
     except Exception as e:
         raise NoReportException(str(e))
 
 
-db = module("database", alias="db", required_superuser=True, base=True, doc=True, load=dev_mode)
+Silian_db = module("database", alias="db", required_superuser=True, base=True, doc=True, load=dev_mode)
 
 
-@db.command("model")
-async def _(msg: Bot.MessageSession):
-    models_path = ["core.database.models"] + fetch_module_db()
-    table_lst = sorted(get_model_names(models_path))
-    await msg.finish([I18NContext("core.message.database.list")] + table_lst)
+@Silian_db.command("model")
+async def _(Silian_msg: Bot.MessageSession):
+    Silian_models_path = ["core.database.models"] + fetch_module_db()
+    Silian_table_lst = sorted(get_model_names(Silian_models_path))
+    await Silian_msg.finish([I18NContext("core.message.database.list")] + Silian_table_lst)
 
 
-@db.command("field <model> [--legacy]")
-async def _(msg: Bot.MessageSession, model: str):
-    models_path = ["core.database.models"] + fetch_module_db()
-    result = get_model_fields(models_path, model)
+@Silian_db.command("field <model> [--legacy]")
+async def _(Silian_msg: Bot.MessageSession, Silian_model: str):
+    Silian_models_path = ["core.database.models"] + fetch_module_db()
+    Silian_result = get_model_fields(Silian_models_path, Silian_model)
 
-    if not result:
-        await msg.finish(I18NContext("core.message.database.no_result"))
+    if not Silian_result:
+        await Silian_msg.finish(I18NContext("core.message.database.no_result"))
 
-    headers = list(result[0].keys())
-    data = [[str(v) for v in r.values()] for r in result]
+    Silian_headers = list(Silian_result[0].keys())
+    Silian_data = [[str(Silian_v) for Silian_v in Silian_r.values()] for Silian_r in Silian_result]
 
-    if not msg.parsed_msg.get("--legacy", False) and msg.session_info.support_image:
-        table = ImageTable(data=data, headers=headers, session_info=msg.session_info, disable_joke=True)
-        imgs = await image_table_render(table)
+    if not Silian_msg.parsed_msg.get("--legacy", False) and Silian_msg.session_info.support_image:
+        Silian_table = ImageTable(data=Silian_data, headers=Silian_headers, session_info=Silian_msg.session_info, disable_joke=True)
+        Silian_imgs = await image_table_render(Silian_table)
     else:
-        imgs = None
+        Silian_imgs = None
 
-    if imgs:
-        img_list = [Image(ii) for ii in imgs]
-        await msg.finish(img_list)
+    if Silian_imgs:
+        Silian_img_list = [Image(Silian_ii) for Silian_ii in Silian_imgs]
+        await Silian_msg.finish(Silian_img_list)
     else:
-        table_str = tabulate(data, headers=headers, tablefmt="grid")
-        await msg.finish(Plain(table_str, disable_joke=True))
+        Silian_table_str = tabulate(Silian_data, headers=Silian_headers, tablefmt="grid")
+        await Silian_msg.finish(Plain(Silian_table_str, disable_joke=True))
 
 
-@db.command("exec <sql> [-p <page>] [--legacy]")
-async def _(msg: Bot.MessageSession, sql: str):
+@Silian_db.command("exec <sql> [-p <page>] [--legacy]")
+async def _(Silian_msg: Bot.MessageSession, Silian_sql: str):
     try:
-        conn = Tortoise.get_connection("default")
-        if sql.upper().startswith("SELECT"):
-            result = await conn.execute_query_dict(sql)
+        Silian_conn = Tortoise.get_connection("default")
+        if Silian_sql.upper().startswith("SELECT"):
+            Silian_result = await Silian_conn.execute_query_dict(Silian_sql)
 
-            if not result:
-                await msg.finish(I18NContext("core.message.database.no_result"))
+            if not Silian_result:
+                await Silian_msg.finish(I18NContext("core.message.database.no_result"))
 
-            headers = list(result[0].keys())
-            data = [[str(v) for v in r.values()] for r in result]
+            Silian_headers = list(Silian_result[0].keys())
+            Silian_data = [[str(Silian_v) for Silian_v in Silian_r.values()] for Silian_r in Silian_result]
 
-            total_pages = (len(data) + DBDATA_PER_PAGE - 1) // DBDATA_PER_PAGE
-            get_page = msg.parsed_msg.get("-p", False)
+            Silian_total_pages = (len(Silian_data) + DBDATA_PER_PAGE - 1) // DBDATA_PER_PAGE
+            Silian_get_page = Silian_msg.parsed_msg.get("-p", False)
 
-            page = max(min(int(get_page["<page>"]), total_pages), 1) if get_page and is_int(get_page["<page>"]) else 1
-            start_index = (page - 1) * DBDATA_PER_PAGE
-            end_index = page * DBDATA_PER_PAGE
-            page_data = data[start_index:end_index]
+            Silian_page = max(min(int(Silian_get_page["<page>"]), Silian_total_pages), 1) if Silian_get_page and is_int(Silian_get_page["<page>"]) else 1
+            Silian_start_index = (Silian_page - 1) * DBDATA_PER_PAGE
+            Silian_end_index = Silian_page * DBDATA_PER_PAGE
+            Silian_page_data = Silian_data[Silian_start_index:Silian_end_index]
 
-            footer = I18NContext(
-                "core.message.database.pages", page=page, total_pages=total_pages, data_count=len(data)
+            Silian_footer = I18NContext(
+                "core.message.database.pages", page=Silian_page, total_pages=Silian_total_pages, data_count=len(Silian_data)
             )
 
-            if not msg.parsed_msg.get("--legacy", False) and msg.session_info.support_image:
-                table = ImageTable(data=page_data, headers=headers, session_info=msg.session_info, disable_joke=True)
-                imgs = await image_table_render(table)
+            if not Silian_msg.parsed_msg.get("--legacy", False) and Silian_msg.session_info.support_image:
+                Silian_table = ImageTable(data=Silian_page_data, headers=Silian_headers, session_info=Silian_msg.session_info, disable_joke=True)
+                Silian_imgs = await image_table_render(Silian_table)
             else:
-                imgs = None
+                Silian_imgs = None
 
-            if imgs:
-                img_list = [Image(ii) for ii in imgs]
-                await msg.finish(img_list + [footer])
+            if Silian_imgs:
+                Silian_img_list = [Image(Silian_ii) for Silian_ii in Silian_imgs]
+                await Silian_msg.finish(Silian_img_list + [Silian_footer])
             else:
-                table_str = tabulate(page_data, headers=headers, tablefmt="grid")
-                await msg.finish([Plain(table_str, disable_joke=True), footer])
+                Silian_table_str = tabulate(Silian_page_data, headers=Silian_headers, tablefmt="grid")
+                await Silian_msg.finish([Plain(Silian_table_str, disable_joke=True), Silian_footer])
 
-        rows, _ = await conn.execute_query(sql)
-        await msg.finish(I18NContext("core.message.database.success", rows=rows))
+        Silian_rows, _ = await Silian_conn.execute_query(Silian_sql)
+        await Silian_msg.finish(I18NContext("core.message.database.success", rows=Silian_rows))
     except OperationalError as e:
         raise NoReportException(str(e))

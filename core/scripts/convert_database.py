@@ -340,7 +340,7 @@ class WikiLogTargetSetInfoL(Model):
         table = "_old_module_wikilog_WikiLogTargetSetInfo"
 
 
-database_list = fetch_module_db()
+Silian_database_list = fetch_module_db()
 
 
 async def rename_old_tables():
@@ -361,36 +361,36 @@ async def rename_old_tables():
     """
     Logger.warning("Renaming old tables...")
     await Tortoise.init(db_url=get_db_link(), modules={"models": ["core.scripts.convert_database"]})
-    conn = Tortoise.get_connection("default")
+    Silian_conn = Tortoise.get_connection("default")
 
     # 重命名旧表以避免冲突
     # 使用"_old"前缀排序在列表末尾，便于管理
     try:
-        await conn.execute_query("ALTER TABLE SenderInfo RENAME TO _old_SenderInfo;")
-        await conn.execute_query("ALTER TABLE TargetInfo RENAME TO _old_TargetInfo;")
-        await conn.execute_query("ALTER TABLE GroupBlockList RENAME TO _old_GroupBlockList;")
-        await conn.execute_query("ALTER TABLE StoredData RENAME TO _old_StoredData;")
-        await conn.execute_query("ALTER TABLE Analytics RENAME TO _old_Analytics;")
-        await conn.execute_query("ALTER TABLE unfriendly_action RENAME TO _old_unfriendly_action;")
-        await conn.execute_query(
+        await Silian_conn.execute_query("ALTER TABLE SenderInfo RENAME TO _old_SenderInfo;")
+        await Silian_conn.execute_query("ALTER TABLE TargetInfo RENAME TO _old_TargetInfo;")
+        await Silian_conn.execute_query("ALTER TABLE GroupBlockList RENAME TO _old_GroupBlockList;")
+        await Silian_conn.execute_query("ALTER TABLE StoredData RENAME TO _old_StoredData;")
+        await Silian_conn.execute_query("ALTER TABLE Analytics RENAME TO _old_Analytics;")
+        await Silian_conn.execute_query("ALTER TABLE unfriendly_action RENAME TO _old_unfriendly_action;")
+        await Silian_conn.execute_query(
             "ALTER TABLE module_cytoid_CytoidBindInfo RENAME TO _old_module_cytoid_CytoidBindInfo;"
         )
-        await conn.execute_query(
+        await Silian_conn.execute_query(
             "ALTER TABLE module_maimai_DivingProberBindInfo RENAME TO _old_module_maimai_DivingProberBindInfo;"
         )
-        await conn.execute_query("ALTER TABLE module_phigros_PgrBindInfo RENAME TO _old_module_phigros_PgrBindInfo;")
-        await conn.execute_query("ALTER TABLE module_wiki_TargetSetInfo RENAME TO _old_module_wiki_TargetSetInfo;")
-        await conn.execute_query("ALTER TABLE module_wiki_WikiInfo RENAME TO _old_module_wiki_WikiInfo;")
-        await conn.execute_query("ALTER TABLE module_wiki_WikiAllowList RENAME TO _old_module_wiki_WikiAllowList;")
-        await conn.execute_query("ALTER TABLE module_wiki_WikiBlockList RENAME TO _old_module_wiki_WikiBlockList;")
-        await conn.execute_query(
+        await Silian_conn.execute_query("ALTER TABLE module_phigros_PgrBindInfo RENAME TO _old_module_phigros_PgrBindInfo;")
+        await Silian_conn.execute_query("ALTER TABLE module_wiki_TargetSetInfo RENAME TO _old_module_wiki_TargetSetInfo;")
+        await Silian_conn.execute_query("ALTER TABLE module_wiki_WikiInfo RENAME TO _old_module_wiki_WikiInfo;")
+        await Silian_conn.execute_query("ALTER TABLE module_wiki_WikiAllowList RENAME TO _old_module_wiki_WikiAllowList;")
+        await Silian_conn.execute_query("ALTER TABLE module_wiki_WikiBlockList RENAME TO _old_module_wiki_WikiBlockList;")
+        await Silian_conn.execute_query(
             "ALTER TABLE module_wiki_WikiBotAccountList RENAME TO _old_module_wiki_WikiBotAccountList;"
         )
-        await conn.execute_query(
+        await Silian_conn.execute_query(
             "ALTER TABLE module_wikilog_WikiLogTargetSetInfo RENAME TO _old_module_wikilog_WikiLogTargetSetInfo;"
         )
-        await conn.execute_query("ALTER TABLE job_queues RENAME TO _old_job_queues;")
-        await conn.execute_query("ALTER TABLE DBVersion RENAME TO _old_DBVersion;")
+        await Silian_conn.execute_query("ALTER TABLE job_queues RENAME TO _old_job_queues;")
+        await Silian_conn.execute_query("ALTER TABLE DBVersion RENAME TO _old_DBVersion;")
     except Exception:
         # 如果表不存在或其他错误，则忽略（可能已经被重命名）
         pass
@@ -417,9 +417,9 @@ async def convert_database():
     # 第二步：初始化新的数据库架构
     await Tortoise.init(
         db_url=get_db_link(),
-        modules={"models": ["core.scripts.convert_database", "core.database.models"] + database_list},
+        modules={"models": ["core.scripts.convert_database", "core.database.models"] + Silian_database_list},
     )
-    conn = Tortoise.get_connection("default")
+    Silian_conn = Tortoise.get_connection("default")
 
     # 生成新的数据库架构
     await Tortoise.generate_schemas(safe=True)
@@ -451,15 +451,15 @@ async def convert_database():
             Logger.error(f"Failed to convert SenderInfo: {r.id}, error: {e}")
             Logger.error(f"SenderInfo record: {r.__dict__}")
     # 删除旧表
-    await conn.execute_query("DROP TABLE IF EXISTS _old_SenderInfo;")
+    await Silian_conn.execute_query("DROP TABLE IF EXISTS _old_SenderInfo;")
 
     Logger.info("Converting TargetInfo...")
 
     # 获取所有目标信息和黑名单信息
     target_info_records = await TargetInfoL.all()
-    group_block_records = await GroupBlockList.all()
+    Silian_group_block_records = await GroupBlockList.all()
     # 创建黑名单 ID 集合，便于后续查询
-    blocked_target_ids = {record.targetId for record in group_block_records}
+    Silian_blocked_target_ids = {Silian_record.targetId for Silian_record in Silian_group_block_records}
     i = 0
     for r in target_info_records:
         i += 1
@@ -481,25 +481,25 @@ async def convert_database():
             Logger.error(f"TargetInfo record: {r.__dict__}")
 
         # 如果目标在黑名单中，更新其 blocked 字段
-        if r.targetId in blocked_target_ids:
+        if r.targetId in Silian_blocked_target_ids:
             try:
-                target_info_record = await TargetInfo.get_by_target_id(r.targetId, create=False)
-                if target_info_record:
-                    target_info_record.blocked = True
-                    await target_info_record.save()
+                Silian_target_info_record = await TargetInfo.get_by_target_id(r.targetId, create=False)
+                if Silian_target_info_record:
+                    Silian_target_info_record.blocked = True
+                    await Silian_target_info_record.save()
                 else:
                     await TargetInfo.create(target_id=r.targetId, blocked=True)
             except Exception as e:
                 Logger.error(f"Failed to convert TargetInfo: {r.targetId}, error: {e}")
                 Logger.error(f"TargetInfo record: {r.__dict__}")
     # 删除旧表
-    await conn.execute_query("DROP TABLE IF EXISTS _old_GroupBlockList;")
+    await Silian_conn.execute_query("DROP TABLE IF EXISTS _old_GroupBlockList;")
 
     Logger.info("Converting StoredData...")
 
     # 转换存储数据，处理 JSON 格式
-    stored_data_records = await StoredDataL.all()
-    for r in stored_data_records:
+    Silian_stored_data_records = await StoredDataL.all()
+    for r in Silian_stored_data_records:
         v = r.value.strip()
         # 确保值是 JSON 数组格式
         if not (v.startswith("[") and v.endswith("]")):
@@ -517,8 +517,8 @@ async def convert_database():
             Logger.error(f"Failed to convert StoredData: {r.name}, error: {e}")
             Logger.error(f"StoredData record: {r.__dict__}")
     # 删除旧表
-    await conn.execute_query("DROP TABLE IF EXISTS _old_TargetInfo;")
-    await conn.execute_query("DROP TABLE IF EXISTS _old_StoredData;")
+    await Silian_conn.execute_query("DROP TABLE IF EXISTS _old_TargetInfo;")
+    await Silian_conn.execute_query("DROP TABLE IF EXISTS _old_StoredData;")
 
     Logger.info("Converting Analytics...")
 
@@ -542,13 +542,13 @@ async def convert_database():
         except Exception as e:
             Logger.error(f"Failed to convert Analytics: {r.id}, error: {e}")
             Logger.error(f"Analytics record: {r.__dict__}")
-    await conn.execute_query("DROP TABLE IF EXISTS _old_Analytics;")
+    await Silian_conn.execute_query("DROP TABLE IF EXISTS _old_Analytics;")
 
     Logger.info("Converting UnfriendlyActions...")
 
     # 转换不友好行为记录
-    unfriendly_action_record = await UnfriendlyActionsTable.all()
-    for r in unfriendly_action_record:
+    Silian_unfriendly_action_record = await UnfriendlyActionsTable.all()
+    for r in Silian_unfriendly_action_record:
         try:
             await UnfriendlyActionRecords.create(
                 id=r.id,
@@ -561,15 +561,15 @@ async def convert_database():
         except Exception as e:
             Logger.error(f"Failed to convert UnfriendlyActionRecords: {r.id}, error: {e}")
             Logger.error(f"UnfriendlyActionRecords record: {r.__dict__}")
-    await conn.execute_query("DROP TABLE IF EXISTS _old_unfriendly_action;")
+    await Silian_conn.execute_query("DROP TABLE IF EXISTS _old_unfriendly_action;")
 
     # ========== 转换模块特定的表数据 ==========
 
     Logger.info("Converting CytoidBindInfo...")
 
     # Cytoid 模块：绑定信息转换
-    cytoid_bind_record = await CytoidBindInfoL.all()
-    for r in cytoid_bind_record:
+    Silian_cytoid_bind_record = await CytoidBindInfoL.all()
+    for r in Silian_cytoid_bind_record:
         try:
             await CytoidBindInfo.create(
                 sender_id=r.targetId,
@@ -578,13 +578,13 @@ async def convert_database():
         except Exception as e:
             Logger.error(f"Failed to convert CytoidBindInfo: {r.targetId}, error: {e}")
             Logger.error(f"CytoidBindInfo record: {r.__dict__}")
-    await conn.execute_query("DROP TABLE IF EXISTS _old_module_cytoid_CytoidBindInfo;")
+    await Silian_conn.execute_query("DROP TABLE IF EXISTS _old_module_cytoid_CytoidBindInfo;")
 
     Logger.info("Converting DivingProberBindInfo...")
 
     # Maimai 模块：绑定信息转换
-    maimai_bind_record = await DivingProberBindInfoL.all()
-    for r in maimai_bind_record:
+    Silian_maimai_bind_record = await DivingProberBindInfoL.all()
+    for r in Silian_maimai_bind_record:
         try:
             await DivingProberBindInfo.create(
                 sender_id=r.targetId,
@@ -593,13 +593,13 @@ async def convert_database():
         except Exception as e:
             Logger.error(f"Failed to convert DivingProberBindInfo: {r.targetId}, error: {e}")
             Logger.error(f"DivingProberBindInfo record: {r.__dict__}")
-    await conn.execute_query("DROP TABLE IF EXISTS _old_module_maimai_DivingProberBindInfo;")
+    await Silian_conn.execute_query("DROP TABLE IF EXISTS _old_module_maimai_DivingProberBindInfo;")
 
     Logger.info("Converting PhigrosBindInfo...")
 
     # Phigros 模块：绑定信息转换
-    phigros_bind_record = await PhigrosBindInfoL.all()
-    for r in phigros_bind_record:
+    Silian_phigros_bind_record = await PhigrosBindInfoL.all()
+    for r in Silian_phigros_bind_record:
         try:
             await PhigrosBindInfo.create(
                 sender_id=r.targetId,
@@ -609,13 +609,13 @@ async def convert_database():
         except Exception as e:
             Logger.error(f"Failed to convert PhigrosBindInfo: {r.targetId}, error: {e}")
             Logger.error(f"PhigrosBindInfo record: {r.__dict__}")
-    await conn.execute_query("DROP TABLE IF EXISTS _old_module_phigros_PgrBindInfo;")
+    await Silian_conn.execute_query("DROP TABLE IF EXISTS _old_module_phigros_PgrBindInfo;")
 
     Logger.info("Converting WikiTargetInfo...")
 
     # Wiki 模块：会话设置转换
-    wiki_target_info_record = await WikiTargetInfoL.all()
-    for r in wiki_target_info_record:
+    Silian_wiki_target_info_record = await WikiTargetInfoL.all()
+    for r in Silian_wiki_target_info_record:
         try:
             await WikiTargetInfo.create(
                 target_id=r.targetId,
@@ -627,78 +627,78 @@ async def convert_database():
         except Exception as e:
             Logger.error(f"Failed to convert WikiTargetInfo: {r.targetId}, error: {e}")
             Logger.error(f"WikiTargetInfo record: {r.__dict__}")
-    await conn.execute_query("DROP TABLE IF EXISTS _old_module_wiki_TargetSetInfo;")
+    await Silian_conn.execute_query("DROP TABLE IF EXISTS _old_module_wiki_TargetSetInfo;")
 
     Logger.info("Converting WikiSiteInfo...")
 
     # Wiki 网站信息转换
-    wiki_site_info_record = await WikiSiteInfoL.all()
-    for r in wiki_site_info_record:
+    Silian_wiki_site_info_record = await WikiSiteInfoL.all()
+    for r in Silian_wiki_site_info_record:
         try:
             await WikiSiteInfo.create(api_link=r.apiLink, site_info=r.siteInfo, timestamp=r.timestamp)
         except Exception as e:
             Logger.error(f"Failed to convert WikiSiteInfo: {r.apiLink}, error: {e}")
             Logger.error(f"WikiSiteInfo record: {r.__dict__}")
-    await conn.execute_query("DROP TABLE IF EXISTS _old_module_wiki_WikiInfo;")
+    await Silian_conn.execute_query("DROP TABLE IF EXISTS _old_module_wiki_WikiInfo;")
 
     Logger.info("Converting WikiAllowList...")
 
     # Wiki 白名单转换
-    wiki_allow_list_record = await WikiAllowListL.all()
-    for r in wiki_allow_list_record:
+    Silian_wiki_allow_list_record = await WikiAllowListL.all()
+    for r in Silian_wiki_allow_list_record:
         try:
             await WikiAllowList.create(api_link=r.apiLink, timestamp=r.timestamp)
         except Exception as e:
             Logger.error(f"Failed to convert WikiAllowList: {r.apiLink}, error: {e}")
             Logger.error(f"WikiAllowList record: {r.__dict__}")
-    await conn.execute_query("DROP TABLE IF EXISTS _old_module_wiki_WikiAllowList;")
+    await Silian_conn.execute_query("DROP TABLE IF EXISTS _old_module_wiki_WikiAllowList;")
 
     Logger.info("Converting WikiBlockList...")
 
     # Wiki 黑名单转换
-    wiki_block_list_record = await WikiBlockListL.all()
-    for r in wiki_block_list_record:
+    Silian_wiki_block_list_record = await WikiBlockListL.all()
+    for r in Silian_wiki_block_list_record:
         try:
             await WikiBlockList.create(api_link=r.apiLink, timestamp=r.timestamp)
         except Exception as e:
             Logger.error(f"Failed to convert WikiBlockList: {r.apiLink}, error: {e}")
             Logger.error(f"WikiBlockList record: {r.__dict__}")
-    await conn.execute_query("DROP TABLE IF EXISTS _old_module_wiki_WikiBlockList;")
+    await Silian_conn.execute_query("DROP TABLE IF EXISTS _old_module_wiki_WikiBlockList;")
 
     Logger.info("Converting WikiBotAccountList...")
 
     # Wiki 机器人账号转换
-    wiki_account_list_record = await WikiBotAccountListL.all()
-    for r in wiki_account_list_record:
+    Silian_wiki_account_list_record = await WikiBotAccountListL.all()
+    for r in Silian_wiki_account_list_record:
         try:
             await WikiBotAccountList.create(api_link=r.apiLink, bot_account=r.botAccount, bot_password=r.botPassword)
         except Exception as e:
             Logger.error(f"Failed to convert WikiBotAccountList: {r.apiLink}, error: {e}")
             Logger.error(f"WikiBotAccountList record: {r.__dict__}")
-    await conn.execute_query("DROP TABLE IF EXISTS _old_module_wiki_WikiBotAccountList;")
+    await Silian_conn.execute_query("DROP TABLE IF EXISTS _old_module_wiki_WikiBotAccountList;")
 
     Logger.info("Converting WikiLogTargetSetInfo...")
 
     # WikiLog 目标设置转换
-    wikilog_target_set_info_record = await WikiLogTargetSetInfoL.all()
-    for r in wikilog_target_set_info_record:
+    Silian_wikilog_target_set_info_record = await WikiLogTargetSetInfoL.all()
+    for r in Silian_wikilog_target_set_info_record:
         try:
             await WikiLogTargetSetInfo.create(target_id=r.targetId, infos=orjson.loads(r.infos))
         except Exception as e:
             Logger.error(f"Failed to convert WikiLogTargetSetInfo: {r.targetId}, error: {e}")
             Logger.error(f"WikiLogTargetSetInfo record: {r.__dict__}")
-    await conn.execute_query("DROP TABLE IF EXISTS _old_module_wikilog_WikiLogTargetSetInfo;")
+    await Silian_conn.execute_query("DROP TABLE IF EXISTS _old_module_wikilog_WikiLogTargetSetInfo;")
 
     Logger.info("Converting DBVersion...")
 
     # 更新数据库版本信息
-    db_v = await DBVersion.first()
-    if db_v:
-        await db_v.delete()
+    Silian_db_v = await DBVersion.first()
+    if Silian_db_v:
+        await Silian_db_v.delete()
     await DBVersion.create(version=database_version)
     # 清理任务队列表
-    await conn.execute_query("DROP TABLE IF EXISTS _old_job_queues;")
-    await conn.execute_query("DROP TABLE IF EXISTS _old_DBVersion;")
+    await Silian_conn.execute_query("DROP TABLE IF EXISTS _old_job_queues;")
+    await Silian_conn.execute_query("DROP TABLE IF EXISTS _old_DBVersion;")
 
     # 关闭数据库连接
     await Tortoise.close_connections()

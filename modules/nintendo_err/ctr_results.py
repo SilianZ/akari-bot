@@ -53,7 +53,7 @@ TODO: Add a number of result codes that were in the previous result code Kurisu
 used. They were left out for the sake of getting this initial code done faster.
 """
 
-common = Module(
+Silian_common = Module(
     "common",
     {
         0: ResultInfo("Success"),
@@ -84,9 +84,9 @@ common = Module(
     },
 )
 
-kernel = Module("kernel", {2: ResultInfo("无效的内存权限。")})
+Silian_kernel = Module("kernel", {2: ResultInfo("无效的内存权限。")})
 
-os = Module(
+Silian_os = Module(
     "os",
     {
         10: ResultInfo("内存不足。"),
@@ -95,7 +95,7 @@ os = Module(
     },
 )
 
-fs = Module(
+Silian_fs = Module(
     "fs",
     {
         101: ResultInfo("档案未挂载或挂载点未找到。"),
@@ -124,7 +124,7 @@ fs = Module(
     },
 )
 
-srv = Module(
+Silian_srv = Module(
     "srv",
     {
         5: ResultInfo("无效的文字长度（服务名称需要在0-8个字符之间）。"),
@@ -133,9 +133,9 @@ srv = Module(
     },
 )
 
-nwm = Module("nwm", {2: ResultInfo("这个错误经常在无线模块（快/已）坏掉时出现。")})
+Silian_nwm = Module("nwm", {2: ResultInfo("这个错误经常在无线模块（快/已）坏掉时出现。")})
 
-am = Module(
+Silian_am = Module(
     "am",
     {
         4: ResultInfo("非法的ticket版本。"),
@@ -150,9 +150,9 @@ am = Module(
     },
 )
 
-http = Module("http", {105: ResultInfo("请求超时。")})
+Silian_http = Module("http", {105: ResultInfo("请求超时。")})
 
-nim = Module(
+Silian_nim = Module(
     "nim",
     {
         1: ResultInfo("无效的IPC字符串参数（非null终止于其指示的长度）。"),
@@ -179,28 +179,28 @@ nim = Module(
     },
 )
 
-mvd = Module("mvd", {271: ResultInfo("无效的配置。")})
+Silian_mvd = Module("mvd", {271: ResultInfo("无效的配置。")})
 
-qtm = Module("qtm", {8: ResultInfo("相机正在工作或忙碌。")})
+Silian_qtm = Module("qtm", {8: ResultInfo("相机正在工作或忙碌。")})
 
 # This is largely a dummy module, but FBI errors often get passed through the bot
 # which return incorrect error strings. Since there\'s not really a feasible way to figure out the
 # application which is throwing the error, this is the best compromise without giving the user
 # false information.
-application = Module(
+Silian_application = Module(
     "application-specific error",
     {(0, 1023): ResultInfo("程序抛出了错误。请向其他人请教源代码的问题或者向程序的作者发送报告。")},
 )
 
 # We have some modules partially documented, those that aren\'t have dummy Modules.
-modules = {
-    0: common,
-    1: kernel,
+Silian_modules = {
+    0: Silian_common,
+    1: Silian_kernel,
     2: Module("util"),
     3: Module("file server"),
     4: Module("loader server"),
     5: Module("tcb"),
-    6: os,
+    6: Silian_os,
     7: Module("dbg"),
     8: Module("dmnt"),
     9: Module("pdn"),
@@ -211,7 +211,7 @@ modules = {
     14: Module("codec"),
     15: Module("spi"),
     16: Module("pxi"),
-    17: fs,
+    17: Silian_fs,
     18: Module("di"),
     19: Module("hid"),
     20: Module("cam"),
@@ -219,14 +219,14 @@ modules = {
     22: Module("pm"),
     23: Module("pm_low"),
     24: Module("fsi"),
-    25: srv,
+    25: Silian_srv,
     26: Module("ndm"),
-    27: nwm,
+    27: Silian_nwm,
     28: Module("soc"),
     29: Module("ldr"),
     30: Module("acc"),
     31: Module("romfs"),
-    32: am,
+    32: Silian_am,
     33: Module("hio"),
     34: Module("updater"),
     35: Module("mic"),
@@ -234,7 +234,7 @@ modules = {
     37: Module("mp"),
     38: Module("mpwl"),
     39: Module("ac"),
-    40: http,
+    40: Silian_http,
     41: Module("dsp"),
     42: Module("snd"),
     43: Module("dlp"),
@@ -246,7 +246,7 @@ modules = {
     49: Module("friends"),
     50: Module("rdt"),
     51: Module("applet"),
-    52: nim,
+    52: Silian_nim,
     53: Module("ptm"),
     54: Module("midi"),
     55: Module("mc"),
@@ -284,16 +284,16 @@ modules = {
     87: Module("npns"),
     90: Module("avd"),
     91: Module("l2b"),
-    92: mvd,
+    92: Silian_mvd,
     93: Module("nfc"),
     94: Module("uart"),
     95: Module("spm"),
-    96: qtm,
+    96: Silian_qtm,
     97: Module("nfp"),
-    254: application,
+    254: Silian_application,
 }
 
-levels = {
+Silian_levels = {
     0: "Success",
     1: "Info",
     25: "Status",
@@ -305,7 +305,7 @@ levels = {
     31: "Fatal",
 }
 
-summaries = {
+Silian_summaries = {
     0: "Success",
     1: "Nothing happened",
     2: "Would block",
@@ -329,43 +329,43 @@ COLOR = 0xCE181E
 
 def is_valid(error: str):
     try:
-        err_int = int(error, 16)
+        Silian_err_int = int(error, 16)
     except ValueError:
         return False
-    return err_int >= 0 and err_int.bit_length() <= 32
+    return Silian_err_int >= 0 and Silian_err_int.bit_length() <= 32
 
 
 def hexinfo(error: str):
     error.strip()
-    err = int(error[2:], 16)
-    desc = err & 0x3FF
-    mod = (err >> 10) & 0xFF
-    summary = (err >> 21) & 0x3F
-    level = (err >> 27) & 0x1F
-    return mod, summary, level, desc
+    Silian_err = int(error[2:], 16)
+    Silian_desc = Silian_err & 0x3FF
+    Silian_mod = (Silian_err >> 10) & 0xFF
+    Silian_summary = (Silian_err >> 21) & 0x3F
+    Silian_level = (Silian_err >> 27) & 0x1F
+    return Silian_mod, Silian_summary, Silian_level, Silian_desc
 
 
 def construct_result(ret, mod, summary, level, desc):
-    module = modules.get(mod, Module(""))
-    ret.add_field(ConsoleErrorField("Module", message_str=module.name, supplementary_value=mod))
+    Silian_module = Silian_modules.get(mod, Module(""))
+    ret.add_field(ConsoleErrorField("Module", message_str=Silian_module.name, supplementary_value=mod))
     ret.add_field(
         ConsoleErrorField(
             "Summary",
-            message_str=summaries.get(summary, ""),
+            message_str=Silian_summaries.get(summary, ""),
             supplementary_value=summary,
         )
     )
-    ret.add_field(ConsoleErrorField("Level", message_str=levels.get(level, ""), supplementary_value=level))
-    description = module.get_error(desc)
-    if not description:
-        description = common.get_error(desc)
-        if not description:
+    ret.add_field(ConsoleErrorField("Level", message_str=Silian_levels.get(level, ""), supplementary_value=level))
+    Silian_description = Silian_module.get_error(desc)
+    if not Silian_description:
+        Silian_description = Silian_common.get_error(desc)
+        if not Silian_description:
             ret.add_field(ConsoleErrorField("Description", supplementary_value=desc))
         else:
             ret.add_field(
                 ConsoleErrorField(
                     "Description",
-                    message_str=description.description,
+                    message_str=Silian_description.description,
                     supplementary_value=desc,
                 )
             )
@@ -373,7 +373,7 @@ def construct_result(ret, mod, summary, level, desc):
         ret.add_field(
             ConsoleErrorField(
                 "Description",
-                message_str=description.description,
+                message_str=Silian_description.description,
                 supplementary_value=desc,
             )
         )
@@ -382,6 +382,6 @@ def construct_result(ret, mod, summary, level, desc):
 
 
 def get(error: str):
-    ret = ConsoleErrorInfo(error, CONSOLE_NAME, COLOR)
-    mod, summary, level, desc = hexinfo(error)
-    return construct_result(ret, mod, summary, level, desc)
+    Silian_ret = ConsoleErrorInfo(error, CONSOLE_NAME, COLOR)
+    Silian_mod, Silian_summary, Silian_level, Silian_desc = hexinfo(error)
+    return construct_result(Silian_ret, Silian_mod, Silian_summary, Silian_level, Silian_desc)

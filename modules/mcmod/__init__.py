@@ -2,7 +2,7 @@ from core.builtins.bot import Bot
 from core.component import module
 from .mcmod import mcmod as m
 
-mcmod = module(
+Silian_mcmod = module(
     module_name="mcmod",
     desc="{I18N:mcmod.help.desc}",
     doc=True,
@@ -12,11 +12,11 @@ mcmod = module(
 )
 
 
-@mcmod.command("<mod_name> {{I18N:mcmod.help.mod_name}}")
-async def _(msg: Bot.MessageSession, mod_name: str):
-    await msg.finish(await m(mod_name))
+@Silian_mcmod.command("<mod_name> {{I18N:mcmod.help.mod_name}}")
+async def _(Silian_msg: Bot.MessageSession, Silian_mod_name: str):
+    await Silian_msg.finish(await m(Silian_mod_name))
 
 
-@mcmod.command("details <content> {{I18N:mcmod.help.details}}")
-async def _(msg: Bot.MessageSession, content: str):
-    await msg.finish(await m(content, detail=True))
+@Silian_mcmod.command("details <content> {{I18N:mcmod.help.details}}")
+async def _(Silian_msg: Bot.MessageSession, Silian_content: str):
+    await Silian_msg.finish(await m(Silian_content, detail=True))

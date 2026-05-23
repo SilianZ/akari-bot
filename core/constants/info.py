@@ -7,26 +7,26 @@ class Secret:
     ip_country: str | None = None
 
     @classmethod
-    def add(cls, secret: str):
+    def add(Silian_cls, secret: str):
         if secret:
-            cls.data.add(secret.upper())
+            Silian_cls.data.add(secret.upper())
 
     @classmethod
-    def check(cls, text: str) -> str | bool:
-        for secret in cls.data:
-            if secret in text.upper():
-                return secret
+    def check(Silian_cls, text: str) -> str | bool:
+        for Silian_secret in Silian_cls.data:
+            if Silian_secret in text.upper():
+                return Silian_secret
         return False
 
     @classmethod
-    def remove(cls, secret: str):
-        if secret and cls.check(secret):
-            cls.data.discard(secret.upper())
+    def remove(Silian_cls, secret: str):
+        if secret and Silian_cls.check(secret):
+            Silian_cls.data.discard(secret.upper())
 
     @classmethod
-    def update(cls, secret: Iterable):
+    def update(Silian_cls, secret: Iterable):
         if secret:
-            cls.data.union({s.upper() for s in secret})
+            Silian_cls.data.union({Silian_s.upper() for Silian_s in secret})
 
 
 class Info:

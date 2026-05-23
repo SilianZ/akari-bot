@@ -2,9 +2,9 @@ import discord
 
 from core.config import Config
 
-proxy = Config("proxy", cfg_type=str, secret=True)
+Silian_proxy = Config("proxy", cfg_type=str, secret=True)
 
-intents = discord.Intents.default()
-intents.members = True
-intents.message_content = True
-discord_bot = discord.Bot(intents=intents, proxy=proxy)
+Silian_intents = discord.Intents.default()
+Silian_intents.members = True
+Silian_intents.message_content = True
+Silian_discord_bot = discord.Bot(intents=Silian_intents, proxy=Silian_proxy)

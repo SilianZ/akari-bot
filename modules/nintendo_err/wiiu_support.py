@@ -41,7 +41,7 @@ Sources used to compile this list of results:
 https://github.com/Kinnay/NintendoClients/wiki/Wii-U-Error-Codes
 """
 
-fp = Module(
+Silian_fp = Module(
     "fp (friends)",
     {
         0: ResultInfo("Success."),
@@ -214,7 +214,7 @@ fp = Module(
     },
 )
 
-act = Module(
+Silian_act = Module(
     "act (accounts)",
     {
         0: ResultInfo("Success."),
@@ -356,7 +356,7 @@ act = Module(
     },
 )
 
-nex = Module(
+Silian_nex = Module(
     "nex (game servers)",
     {
         102: ResultInfo("The reason for the error is unknown."),
@@ -443,9 +443,9 @@ nex = Module(
     },
 )
 
-eshop_api = Module("eshop(api)", {3190: ResultInfo("Wishlist is full.")})
+Silian_eshop_api = Module("eshop(api)", {3190: ResultInfo("Wishlist is full.")})
 
-eshop_web = Module(
+Silian_eshop_web = Module(
     "eshop (web)",
     {
         9000: ResultInfo("Close application (Connection timeout issue?)."),
@@ -456,7 +456,7 @@ eshop_web = Module(
     },
 )
 
-unknown2 = Module(
+Silian_unknown2 = Module(
     "unknown (browser?)",
     {
         1037: ResultInfo(
@@ -468,7 +468,7 @@ unknown2 = Module(
     },
 )
 
-olv = Module(
+Silian_olv = Module(
     "olv (miiverse)",
     {
         1009: ResultInfo("Console is permanently banned from Miiverse.", is_ban=True),
@@ -476,7 +476,7 @@ olv = Module(
     },
 )
 
-eshop_unk = Module(
+Silian_eshop_unk = Module(
     "eShop (unknown)",
     {
         9622: ResultInfo(
@@ -485,7 +485,7 @@ eshop_unk = Module(
     },
 )
 
-fs = Module(
+Silian_fs = Module(
     "fs",
     {
         1031: ResultInfo(
@@ -498,7 +498,7 @@ fs = Module(
     },
 )
 
-syserr = Module(
+Silian_syserr = Module(
     "system error",
     {
         101: ResultInfo("Generic error. Can happen when formatting a console that has CBHC installed."),
@@ -519,11 +519,11 @@ syserr = Module(
     },
 )
 
-vpad_gamepad = Module(
+Silian_vpad_gamepad = Module(
     "vpad (gamepad)", {9901: ResultInfo("Error when updating a GamePad with a different region from the console.")}
 )
 
-unknown = Module(
+Silian_unknown = Module(
     "unknown/misc.",
     {
         9999: ResultInfo(
@@ -533,28 +533,28 @@ unknown = Module(
 )
 
 # We have some modules partially documented, those that aren't have dummy Modules.
-modules = {
-    101: fp,
-    102: act,
+Silian_modules = {
+    101: Silian_fp,
+    102: Silian_act,
     103: Module("ac (internet connection)"),
     104: Module("boss(spotpass)"),
     105: Module("nim (title installation)"),
-    106: nex,
-    107: eshop_api,
-    111: eshop_web,
-    112: unknown2,
-    115: olv,
+    106: Silian_nex,
+    107: Silian_eshop_api,
+    111: Silian_eshop_web,
+    112: Silian_unknown2,
+    115: Silian_olv,
     118: Module("pia (peer-to-peer)"),
     124: Module("ec (e-commerce)"),
-    126: eshop_unk,
-    150: fs,
+    126: Silian_eshop_unk,
+    150: Silian_fs,
     151: Module("kpad (wiimote)"),
     155: Module("save"),
-    160: syserr,
-    165: vpad_gamepad,
+    160: Silian_syserr,
+    165: Silian_vpad_gamepad,
     166: Module("aoc (dlc)"),
     187: Module("nfp (amiibo)"),
-    199: unknown,
+    199: Silian_unknown,
 }
 
 # regex for Wii U result code format "1XX-YYYY"
@@ -571,20 +571,20 @@ def is_valid(error):
 
 
 def construct_support(ret, mod, desc):
-    category = modules.get(mod, Module(""))
-    if category.name:
-        ret.add_field(ConsoleErrorField("Category", message_str=category.name))
+    Silian_category = Silian_modules.get(mod, Module(""))
+    if Silian_category.name:
+        ret.add_field(ConsoleErrorField("Category", message_str=Silian_category.name))
     else:
         ret.add_field(ConsoleErrorField("Category", supplementary_value=mod))
-    summary = category.get_summary(desc)
-    if summary:
-        ret.add_field(ConsoleErrorField("Summary", message_str=summary))
-    description = category.get_error(desc)
-    if description and description.description:
-        ret.add_field(ConsoleErrorField("Description", message_str=description.description))
-        if description.support_url:
-            ret.add_field(ConsoleErrorField("Further information", message_str=description.support_url))
-        if description.is_ban:
+    Silian_summary = Silian_category.get_summary(desc)
+    if Silian_summary:
+        ret.add_field(ConsoleErrorField("Summary", message_str=Silian_summary))
+    Silian_description = Silian_category.get_error(desc)
+    if Silian_description and Silian_description.description:
+        ret.add_field(ConsoleErrorField("Description", message_str=Silian_description.description))
+        if Silian_description.support_url:
+            ret.add_field(ConsoleErrorField("Further information", message_str=Silian_description.support_url))
+        if Silian_description.is_ban:
             ret.add_field(BANNED_FIELD)
             ret.color = WARNING_COLOR
     else:
@@ -593,7 +593,7 @@ def construct_support(ret, mod, desc):
 
 
 def get(error):
-    mod = int(error[:3])
-    desc = int(error[4:])
-    ret = ConsoleErrorInfo(error, CONSOLE_NAME, COLOR)
-    return construct_support(ret, mod, desc)
+    Silian_mod = int(error[:3])
+    Silian_desc = int(error[4:])
+    Silian_ret = ConsoleErrorInfo(error, CONSOLE_NAME, COLOR)
+    return construct_support(Silian_ret, Silian_mod, Silian_desc)

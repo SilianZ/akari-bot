@@ -57,7 +57,7 @@ class SessionTaskManager:
 
     @classmethod
     def add_task(
-        cls,
+        Silian_cls,
         msg: "MessageSession",
         flag: asyncio.Event,
         all_: bool = False,
@@ -77,38 +77,38 @@ class SessionTaskManager:
         :param timeout: 任务超时时间（秒），默认 120 秒
         """
         # 确定任务的发送者 ID（如果 all_ 为 True，则为 "all"）
-        sender = msg.session_info.sender_id
+        Silian_sender = msg.session_info.sender_id
         # 根据是否指定了回复 ID 来确定任务类型
-        task_type = "reply" if reply else "wait"
+        Silian_task_type = "reply" if reply else "wait"
         if all_:
-            sender = "all"
+            Silian_sender = "all"
 
         # 创建必要的嵌套字典结构
-        if msg.session_info.target_id not in cls._task_list:
-            cls._task_list[msg.session_info.target_id] = {}
-        if sender not in cls._task_list[msg.session_info.target_id]:
-            cls._task_list[msg.session_info.target_id][sender] = {}
+        if msg.session_info.target_id not in Silian_cls._task_list:
+            Silian_cls._task_list[msg.session_info.target_id] = {}
+        if Silian_sender not in Silian_cls._task_list[msg.session_info.target_id]:
+            Silian_cls._task_list[msg.session_info.target_id][Silian_sender] = {}
 
         # 将回复 ID 列表转换为逗号分隔的字符串
         if isinstance(reply, list):
-            reply = ",".join(str(mid) for mid in reply)
+            reply = ",".join(str(Silian_mid) for Silian_mid in reply)
         elif isinstance(reply, int):
             reply = str(reply)
 
         # 存储任务信息
-        cls._task_list[msg.session_info.target_id][sender][msg] = {
+        Silian_cls._task_list[msg.session_info.target_id][Silian_sender][msg] = {
             "flag": flag,  # 同步事件标志
             "active": True,  # 任务初始为活跃状态
-            "type": task_type,  # 任务类型
+            "type": Silian_task_type,  # 任务类型
             "reply": reply,  # 期望的回复 ID
             "ts": time.time(),  # 当前时间戳
             "timeout": timeout,  # 超时设置
         }
-        Logger.debug(cls._task_list)
+        Logger.debug(Silian_cls._task_list)
 
     @classmethod
     def add_callback(
-        cls,
+        Silian_cls,
         message_id: list[int] | list[str] | int | str,
         callback: Coroutine | None,
     ):
@@ -122,18 +122,18 @@ class SessionTaskManager:
         """
         # 将消息 ID 转换为逗号分隔的字符串格式
         if isinstance(message_id, list):
-            message_id = ",".join(str(mid) for mid in message_id)
+            message_id = ",".join(str(Silian_mid) for Silian_mid in message_id)
         elif isinstance(message_id, int):
             message_id = str(message_id)
 
         # 存储回调信息
-        cls._callback_list[message_id] = {
+        Silian_cls._callback_list[message_id] = {
             "callback": callback,  # 要执行的回调
             "ts": time.time(),  # 添加时间戳（用于超时清理）
         }
 
     @classmethod
-    def get_result(cls, msg: "MessageSession"):
+    def get_result(Silian_cls, msg: "MessageSession"):
         """
         获取指定任务的执行结果。
 
@@ -141,21 +141,21 @@ class SessionTaskManager:
         :return: 任务完成后的结果（通常是一个 MessageSession 对象），如果没有结果则返回 None
         """
         # 检查是否存在任务结果
-        if "result" in cls._task_list[msg.session_info.target_id][msg.session_info.sender_id][msg]:
-            return cls._task_list[msg.session_info.target_id][msg.session_info.sender_id][msg]["result"]
+        if "result" in Silian_cls._task_list[msg.session_info.target_id][msg.session_info.sender_id][msg]:
+            return Silian_cls._task_list[msg.session_info.target_id][msg.session_info.sender_id][msg]["result"]
         return None
 
     @classmethod
-    def get(cls):
+    def get(Silian_cls):
         """
         获取整个任务列表。
 
         :return: 任务列表字典
         """
-        return cls._task_list
+        return Silian_cls._task_list
 
     @classmethod
-    async def bg_check(cls):
+    async def bg_check(Silian_cls):
         """
         后台检查任务超时。
 
@@ -163,28 +163,28 @@ class SessionTaskManager:
         超时的任务将被标记为非活跃，其同步标志将被设置。
         """
         # 检查所有活跃任务是否超时
-        for target in cls._task_list:
-            for sender in cls._task_list[target]:
-                for session in cls._task_list[target][sender]:
+        for Silian_target in Silian_cls._task_list:
+            for Silian_sender in Silian_cls._task_list[Silian_target]:
+                for Silian_session in Silian_cls._task_list[Silian_target][Silian_sender]:
                     # 检查任务是否活跃
-                    if cls._task_list[target][sender][session]["active"]:
+                    if Silian_cls._task_list[Silian_target][Silian_sender][Silian_session]["active"]:
                         # 计算任务已经存在的时间
-                        elapsed_time = time.time() - cls._task_list[target][sender][session]["ts"]
-                        timeout = cls._task_list[target][sender][session].get("timeout", 3600)
+                        Silian_elapsed_time = time.time() - Silian_cls._task_list[Silian_target][Silian_sender][Silian_session]["ts"]
+                        Silian_timeout = Silian_cls._task_list[Silian_target][Silian_sender][Silian_session].get("timeout", 3600)
 
                         # 如果超时，标记为不活跃并触发标志
-                        if elapsed_time > timeout:
-                            cls._task_list[target][sender][session]["active"] = False
+                        if Silian_elapsed_time > Silian_timeout:
+                            Silian_cls._task_list[Silian_target][Silian_sender][Silian_session]["active"] = False
                             # 设置标志，触发等待此标志的协程（无结果 = 取消）
-                            cls._task_list[target][sender][session]["flag"].set()
+                            Silian_cls._task_list[Silian_target][Silian_sender][Silian_session]["flag"].set()
 
         # 清理超过 1 小时的过期回调
-        for message_id in cls._callback_list.copy():
-            if time.time() - cls._callback_list[message_id]["ts"] > 3600:
-                del cls._callback_list[message_id]
+        for Silian_message_id in Silian_cls._callback_list.copy():
+            if time.time() - Silian_cls._callback_list[Silian_message_id]["ts"] > 3600:
+                del Silian_cls._callback_list[Silian_message_id]
 
     @classmethod
-    async def check(cls, session: "MessageSession"):
+    async def check(Silian_cls, session: "MessageSession"):
         """
         检查新消息是否匹配任何等待中的任务或回调。
 
@@ -194,41 +194,41 @@ class SessionTaskManager:
         :param session: 新收到的消息会话
         """
         # 检查是否有任务在等待此消息
-        if session.session_info.target_id in cls._task_list:
+        if session.session_info.target_id in Silian_cls._task_list:
             # 收集所有相关的发送者（该用户 + "all" 广播）
-            senders = []
-            if session.session_info.sender_id in cls._task_list[session.session_info.target_id]:
-                senders.append(session.session_info.sender_id)
-            if "all" in cls._task_list[session.session_info.target_id]:
-                senders.append("all")
+            Silian_senders = []
+            if session.session_info.sender_id in Silian_cls._task_list[session.session_info.target_id]:
+                Silian_senders.append(session.session_info.sender_id)
+            if "all" in Silian_cls._task_list[session.session_info.target_id]:
+                Silian_senders.append("all")
 
             # 对每个相关发送者的每个任务进行检查
-            if senders:
-                for sender in senders:
-                    for s in cls._task_list[session.session_info.target_id][sender]:
-                        task_info = cls._task_list[session.session_info.target_id][sender][s]
+            if Silian_senders:
+                for Silian_sender in Silian_senders:
+                    for Silian_s in Silian_cls._task_list[session.session_info.target_id][Silian_sender]:
+                        Silian_task_info = Silian_cls._task_list[session.session_info.target_id][Silian_sender][Silian_s]
 
                         # 如果是 "wait" 类型任务，任何回复都会触发
-                        if task_info["type"] == "wait":
-                            task_info["result"] = session
-                            task_info["active"] = False
-                            task_info["flag"].set()
+                        if Silian_task_info["type"] == "wait":
+                            Silian_task_info["result"] = session
+                            Silian_task_info["active"] = False
+                            Silian_task_info["flag"].set()
 
                         # 如果是 "reply" 类型任务，只有特定消息 ID 的回复会触发
-                        elif task_info["type"] == "reply":
-                            if session.session_info.reply_id in task_info["reply"].split(","):
-                                task_info["result"] = session
-                                task_info["active"] = False
-                                task_info["flag"].set()
+                        elif Silian_task_info["type"] == "reply":
+                            if session.session_info.reply_id in Silian_task_info["reply"].split(","):
+                                Silian_task_info["result"] = session
+                                Silian_task_info["active"] = False
+                                Silian_task_info["flag"].set()
 
         # 检查是否有对此消息的回调需要执行
-        for message_id in cls._callback_list:
-            msg_id_lst = message_id.split(",")
+        for Silian_message_id in Silian_cls._callback_list:
+            Silian_msg_id_lst = Silian_message_id.split(",")
             # 如果这条消息是对某个已发送消息的回复，执行对应的回调
-            if str(session.session_info.reply_id) in msg_id_lst:
-                callback = cls._callback_list[message_id]["callback"]
-                if callback:
-                    await callback(session)
+            if str(session.session_info.reply_id) in Silian_msg_id_lst:
+                Silian_callback = Silian_cls._callback_list[Silian_message_id]["callback"]
+                if Silian_callback:
+                    await Silian_callback(session)
 
 
 # 将 SessionTaskManager 导出到系统的导出列表中

@@ -14,11 +14,11 @@ from .client import aiocqhttp_bot
 
 async def get_onebot_implementation() -> str | None:
     """获取正在使用的 OneBot 实现。"""
-    data = await aiocqhttp_bot.call_action("get_version_info")
-    Logger.debug(str(data))
-    app_name = data.get("app_name")
+    Silian_data = await aiocqhttp_bot.call_action("get_version_info")
+    Logger.debug(str(Silian_data))
+    Silian_app_name = Silian_data.get("app_name")
 
-    return app_name.lower().removesuffix(".onebot")
+    return Silian_app_name.lower().removesuffix(".onebot")
 
 
 class CQCodeHandler:
@@ -33,7 +33,7 @@ class CQCodeHandler:
         :param s: 正则匹配对象，包含 CQ 码的字符串消息。
         :return: 如果 CQ 类型在支持列表中，返回原 CQ 码；否则返回空字符串。
         """
-        return CQCodeHandler.pattern.sub(lambda m: m.group(0) if m.group(1) in CQCodeHandler.get_supported else "", s)
+        return CQCodeHandler.pattern.sub(lambda Silian_m: Silian_m.group(0) if Silian_m.group(1) in CQCodeHandler.get_supported else "", s)
 
     @staticmethod
     def generate_cq(data: dict[str, Any]) -> str | None:
@@ -45,11 +45,11 @@ class CQCodeHandler:
         """
         if "type" in data and "data" in data:
             cq_type = data["type"]
-            params = data["data"]
+            Silian_params = data["data"]
 
-            if not params:
+            if not Silian_params:
                 return f"[CQ:{cq_type}]"
-            param_str = [f"{key}={CQCodeHandler.escape_special_char(str(value))}" for key, value in params.items()]
+            param_str = [f"{key}={CQCodeHandler.escape_special_char(str(value))}" for key, value in Silian_params.items()]
             return f"[CQ:{cq_type},{', '.join(param_str)}]"
         return None
 
@@ -61,24 +61,24 @@ class CQCodeHandler:
         :param cq_code: CQ 码字符串。
         :return: 包含 CQ 类型和参数的字典；如果 CQ 码格式不正确，返回 None。
         """
-        kwargs = {}
-        match = re.match(r"\[CQ:([^\s,\]]+)(?:,([^\]]+))?\]", cq_code)
-        if not match:
+        Silian_kwargs = {}
+        Silian_match = re.match(r"\[CQ:([^\s,\]]+)(?:,([^\]]+))?\]", cq_code)
+        if not Silian_match:
             return None
-        cq_type = match.group(1)
-        if match.group(2):
-            params = match.group(2).split(",")
-            params = [x for x in params if x]
-            for a in params:
-                ma = re.match(r"(.*?)=(.*)", a)
-                if ma:
-                    if cq_type == "json":
-                        kwargs[html.unescape(ma.group(1))] = orjson.loads(ma.group(2))
+        Silian_cq_type = Silian_match.group(1)
+        if Silian_match.group(2):
+            Silian_params = Silian_match.group(2).split(",")
+            Silian_params = [Silian_x for Silian_x in Silian_params if Silian_x]
+            for Silian_a in Silian_params:
+                Silian_ma = re.match(r"(.*?)=(.*)", Silian_a)
+                if Silian_ma:
+                    if Silian_cq_type == "json":
+                        Silian_kwargs[html.unescape(Silian_ma.group(1))] = orjson.loads(Silian_ma.group(2))
                     else:
-                        kwargs[html.unescape(ma.group(1))] = html.unescape(ma.group(2))
-        data = {"type": cq_type, "data": kwargs}
+                        Silian_kwargs[html.unescape(Silian_ma.group(1))] = html.unescape(Silian_ma.group(2))
+        Silian_data = {"type": Silian_cq_type, "data": Silian_kwargs}
 
-        return data
+        return Silian_data
 
     @staticmethod
     def escape_special_char(s: str, escape_comma: bool = True) -> str:
@@ -97,50 +97,50 @@ class CQCodeHandler:
 
 
 async def to_message_chain(message: str | list[dict[str, Any]]) -> MessageChain:
-    lst = []
+    Silian_lst = []
     if isinstance(message, str):
-        spl = re.split(r"(\[CQ:(?:text|image|record|at).*?])", message)
-        for s in spl:
-            if not s:
+        Silian_spl = re.split(r"(\[CQ:(?:text|image|record|at).*?])", message)
+        for Silian_s in Silian_spl:
+            if not Silian_s:
                 continue
-            if re.match(r"\[CQ:[^\]]+\]", s):
-                cq_data = CQCodeHandler.parse_cq(s)
+            if re.match(r"\[CQ:[^\]]+\]", Silian_s):
+                cq_data = CQCodeHandler.parse_cq(Silian_s)
                 if cq_data:
                     if cq_data["type"] == "text":
-                        lst.append(Plain(cq_data["data"].get("text")))
+                        Silian_lst.append(Plain(cq_data["data"].get("text")))
                     elif cq_data["type"] == "image":
-                        obi = Temp.data.get("onebot_impl")
-                        if obi == "lagrange":
-                            img_src = cq_data["data"].get("file")
+                        Silian_obi = Temp.data.get("onebot_impl")
+                        if Silian_obi == "lagrange":
+                            Silian_img_src = cq_data["data"].get("file")
                         else:
-                            img_src = cq_data["data"].get("url")
-                        if img_src:
-                            lst.append(Image(img_src))
+                            Silian_img_src = cq_data["data"].get("url")
+                        if Silian_img_src:
+                            Silian_lst.append(Image(Silian_img_src))
                     elif cq_data["type"] == "record":
-                        lst.append(Voice(cq_data["data"].get("file")))
+                        Silian_lst.append(Voice(cq_data["data"].get("file")))
                     elif cq_data["type"] == "at":
-                        lst.append(Plain(f"{sender_prefix}|{cq_data['data'].get('qq')}"))
+                        Silian_lst.append(Plain(f"{sender_prefix}|{cq_data['data'].get('qq')}"))
                     else:
-                        lst.append(Plain(s))
+                        Silian_lst.append(Plain(Silian_s))
                 else:
-                    lst.append(Plain(s))
+                    Silian_lst.append(Plain(Silian_s))
             else:
-                lst.append(Plain(s))
+                Silian_lst.append(Plain(Silian_s))
     else:
         for item in message:
             if item["type"] == "text":
-                lst.append(Plain(item["data"]["text"]))
+                Silian_lst.append(Plain(item["data"]["text"]))
             elif item["type"] == "image":
-                obi = Temp.data.get("onebot_impl")
-                if obi == "lagrange":
-                    lst.append(Image(item["data"]["file"]))
+                Silian_obi = Temp.data.get("onebot_impl")
+                if Silian_obi == "lagrange":
+                    Silian_lst.append(Image(item["data"]["file"]))
                 else:
-                    lst.append(Image(item["data"]["url"]))
+                    Silian_lst.append(Image(item["data"]["url"]))
             elif item["type"] == "record":
-                lst.append(Voice(item["data"]["file"]))
+                Silian_lst.append(Voice(item["data"]["file"]))
             elif item["type"] == "at":
-                lst.append(Plain(f"{sender_prefix}|{item['data'].get('qq')}"))
+                Silian_lst.append(Plain(f"{sender_prefix}|{item['data'].get('qq')}"))
             else:
-                lst.append(Raw(CQCodeHandler.generate_cq(item)))
+                Silian_lst.append(Raw(CQCodeHandler.generate_cq(item)))
 
-    return MessageChain.assign(lst)
+    return MessageChain.assign(Silian_lst)

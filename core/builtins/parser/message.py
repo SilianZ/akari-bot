@@ -55,55 +55,55 @@ if TYPE_CHECKING:
 # ========== 全局配置项 ==========
 
 # 忽略的发送者列表 - 这些用户的消息不会被处理
-ignored_sender = Config("ignored_sender", ignored_sender_default)
+Silian_ignored_sender = Config("ignored_sender", ignored_sender_default)
 
 # ========== 功能开关 ==========
 
 # 是否启用服务条款检查（检查用户是否同意 ToS）
-enable_tos = Config("enable_tos", True)
+Silian_enable_tos = Config("enable_tos", True)
 
 # 是否启用分析统计（记录命令执行情况）
-enable_analytics = Config("enable_analytics", True)
+Silian_enable_analytics = Config("enable_analytics", True)
 
 # 错误报告的目标列表（将错误信息发送给这些用户）
-report_targets = Config("report_targets", [])
+Silian_report_targets = Config("report_targets", [])
 
 # 是否启用模块无效提示（用户输入错误的模块名时是否提示）
-enable_module_invalid_prompt = Config("enable_module_invalid_prompt", False)
+Silian_enable_module_invalid_prompt = Config("enable_module_invalid_prompt", False)
 
 # Bug 报告的 URL
-bug_report_url = Config("bug_report_url", bug_report_url_default)
+Silian_bug_report_url = Config("bug_report_url", bug_report_url_default)
 
 # ========== 错字检查的分数阈值 ==========
 # 这些阈值用于模糊匹配（当用户输入可能有错字时）
 
 # 模块名的相似度阈值
-typo_check_module_score = Config("typo_check_module_score", 0.6)
+Silian_typo_check_module_score = Config("typo_check_module_score", 0.6)
 
 # 命令名的相似度阈值
-typo_check_command_score = Config("typo_check_command_score", 0.3)
+Silian_typo_check_command_score = Config("typo_check_command_score", 0.3)
 
 # 参数的相似度阈值
-typo_check_args_score = Config("typo_check_args_score", 0.5)
+Silian_typo_check_args_score = Config("typo_check_args_score", 0.5)
 
 # 选项的相似度阈值
-typo_check_options_score = Config("typo_check_options_score", 0.3)
+Silian_typo_check_options_score = Config("typo_check_options_score", 0.3)
 
 # ========== 频率限制相关 ==========
 
 # 命令使用次数计数（重复使用单一命令）
 # 用于检测用户是否过度使用同一命令
-buckets_same = ExpiringTempDict()
+Silian_buckets_same = ExpiringTempDict()
 
 # 命令使用次数计数（使用所有命令）
 # 用于检测用户是否过度使用命令（整体频率）
-buckets_all = ExpiringTempDict()
+Silian_buckets_all = ExpiringTempDict()
 
 # 冷却计数 - 记录被暂时禁止的用户和禁止时长
-target_cooldown_counter = ExpiringTempDict()
+Silian_target_cooldown_counter = ExpiringTempDict()
 
 # 匹配哈希缓存 - 缓存消息与模块的匹配结果，加速处理
-match_hash_cache = ExpiringTempDict()
+Silian_match_hash_cache = ExpiringTempDict()
 
 
 async def parser(msg: "Bot.MessageSession"):
@@ -134,7 +134,7 @@ async def parser(msg: "Bot.MessageSession"):
     identify_str = f"[{msg.session_info.sender_id} ({msg.session_info.target_id})]"
 
     # 检查发送者是否在忽略列表中
-    if msg.session_info.sender_id in ignored_sender:
+    if msg.session_info.sender_id in Silian_ignored_sender:
         return
 
     try:
@@ -143,7 +143,7 @@ async def parser(msg: "Bot.MessageSession"):
         await SessionTaskManager.check(msg)
 
         # 获取该平台和客户端的所有可用模块
-        modules = ModulesManager.return_modules_list(msg.session_info.target_from, msg.session_info.client_name)
+        Silian_modules = ModulesManager.return_modules_list(msg.session_info.target_from, msg.session_info.client_name)
 
         # 将消息转换为易读的显示格式
         msg.trigger_msg = normalize_space(msg.as_display())
@@ -165,38 +165,38 @@ async def parser(msg: "Bot.MessageSession"):
 
         # ========== 步骤 3: 命令匹配 ==========
         # 检查消息是否以命令前缀开头
-        disable_prefix, in_prefix_list = _get_prefixes(msg)
+        Silian_disable_prefix, Silian_in_prefix_list = _get_prefixes(msg)
 
-        if in_prefix_list or disable_prefix:  # 检查消息前缀
+        if Silian_in_prefix_list or Silian_disable_prefix:  # 检查消息前缀
             Logger.info(f"{identify_str} -> [Bot]: {msg.trigger_msg}")
-            command_first_word = await _process_command(msg, modules, disable_prefix, in_prefix_list)
-            if command_first_word:
+            Silian_command_first_word = await _process_command(msg, Silian_modules, Silian_disable_prefix, Silian_in_prefix_list)
+            if Silian_command_first_word:
                 if not ExecutionLockList.check(msg):  # 加锁
                     ExecutionLockList.add(msg)
                 else:
                     await msg.send_message(I18NContext("parser.command.running.prompt"))
                     return
 
-            if msg.session_info.muted and command_first_word != "mute":  # 检查机器人在会话中是否被禁言
+            if msg.session_info.muted and Silian_command_first_word != "mute":  # 检查机器人在会话中是否被禁言
                 return
 
-            if command_first_word in modules:  # 检查触发命令是否在模块列表中
-                if modules[command_first_word]._db_load:  # 检查模块是否已加载
-                    await _execute_module(msg, modules, command_first_word, identify_str)
+            if Silian_command_first_word in Silian_modules:  # 检查触发命令是否在模块列表中
+                if Silian_modules[Silian_command_first_word]._db_load:  # 检查模块是否已加载
+                    await _execute_module(msg, Silian_modules, Silian_command_first_word, identify_str)
                 else:
-                    await msg.send_message(I18NContext("parser.module.unloaded", module=command_first_word))
+                    await msg.send_message(I18NContext("parser.module.unloaded", module=Silian_command_first_word))
             elif msg.session_info.sender_info.sender_data.get("typo_check", True):
-                new_msg, new_command_first_word, confirmed = await _command_typo_check(msg, modules, command_first_word)
-                if new_msg:
-                    if modules[new_command_first_word]._db_load:  # 检查模块是否已加载
-                        await _execute_module(new_msg, modules, new_command_first_word, identify_str)
+                Silian_new_msg, Silian_new_command_first_word, Silian_confirmed = await _command_typo_check(msg, Silian_modules, Silian_command_first_word)
+                if Silian_new_msg:
+                    if Silian_modules[Silian_new_command_first_word]._db_load:  # 检查模块是否已加载
+                        await _execute_module(Silian_new_msg, Silian_modules, Silian_new_command_first_word, identify_str)
                     else:
-                        await msg.send_message(I18NContext("parser.module.unloaded", module=new_command_first_word))
-                elif enable_module_invalid_prompt and not confirmed:
+                        await msg.send_message(I18NContext("parser.module.unloaded", module=Silian_new_command_first_word))
+                elif Silian_enable_module_invalid_prompt and not Silian_confirmed:
                     await msg.send_message(
                         I18NContext("parser.command.invalid.module", prefix=msg.session_info.prefixes[0])
                     )
-            elif enable_module_invalid_prompt:
+            elif Silian_enable_module_invalid_prompt:
                 await msg.send_message(
                     I18NContext("parser.command.invalid.module", prefix=msg.session_info.prefixes[0])
                 )
@@ -211,7 +211,7 @@ async def parser(msg: "Bot.MessageSession"):
                 if ExecutionLockList.check(msg):
                     return await msg.send_message(I18NContext("parser.command.running.prompt2"))
 
-        await _execute_regex(msg, modules, identify_str)
+        await _execute_regex(msg, Silian_modules, identify_str)
         return msg
 
     except WaitCancelException:  # 出现于等待被取消的情况
@@ -224,7 +224,7 @@ async def parser(msg: "Bot.MessageSession"):
         Info.message_parsed += 1
 
 
-def _transform_alias(msg, command: str):
+def _transform_alias(Silian_msg, Silian_command: str):
     """
     转换自定义命令别名为实际命令。
 
@@ -239,67 +239,67 @@ def _transform_alias(msg, command: str):
     :return: 转换后的命令字符串（如果没有匹配的别名，返回原命令）
     """
     # 从目标信息中获取自定义别名字典
-    aliases = dict(msg.session_info.target_info.target_data.get("command_alias", {}).items())
+    Silian_aliases = dict(Silian_msg.session_info.target_info.target_data.get("command_alias", {}).items())
 
     # 存储所有匹配的别名模板，格式: (占位符数量, 模式, 替换, 占位符列表, 匹配对象)
-    matched_aliases = []
+    Silian_matched_aliases = []
 
     # ========== 处理带占位符的别名 ==========
-    for pattern, replacement in aliases.items():
+    for Silian_pattern, Silian_replacement in Silian_aliases.items():
         # 检查模式中是否包含占位符（格式: ${name}）
-        if re.search(r"\${[^}]*}", pattern):
+        if re.search(r"\${[^}]*}", Silian_pattern):
             # 处理连在一起的多个占位符，在它们之间插入空格
             # 例如: "${a}${b}" -> "${a} ${b}"
-            normalized_pattern = re.sub(r"(\$\{\w+})(?=\$\{\w+})", r"\1 ", pattern)
+            Silian_normalized_pattern = re.sub(r"(\$\{\w+})(?=\$\{\w+})", r"\1 ", Silian_pattern)
 
             # 提取所有占位符的名称
             # 例如: "${keyword} ${type}" -> ["keyword", "type"]
-            placeholders = re.findall(r"\$\{([^{}$]+)}", normalized_pattern)
+            Silian_placeholders = re.findall(r"\$\{([^{}$]+)}", Silian_normalized_pattern)
 
             # 构造用于匹配的正则表达式
             # 将占位符替换为捕获组 (\S+)，用于匹配非空白字符
-            regex_pattern = re.escape(normalized_pattern)
-            for ph in placeholders:
-                regex_pattern = regex_pattern.replace(re.escape(f"${{{ph}}}"), r"(\S+)")
+            Silian_regex_pattern = re.escape(Silian_normalized_pattern)
+            for ph in Silian_placeholders:
+                Silian_regex_pattern = Silian_regex_pattern.replace(re.escape(f"${{{ph}}}"), r"(\S+)")
 
             # 尝试匹配命令
-            match = re.match(regex_pattern, command)
-            if match:
+            Silian_match = re.match(Silian_regex_pattern, Silian_command)
+            if Silian_match:
                 # 记录匹配结果：(占位符数量, 原始模式, 替换文本, 占位符列表, 匹配对象)
-                matched_aliases.append((len(placeholders), pattern, replacement, placeholders, match))
+                Silian_matched_aliases.append((len(Silian_placeholders), Silian_pattern, Silian_replacement, Silian_placeholders, Silian_match))
 
     # ========== 选择最佳匹配 ==========
     # 如果有多个匹配，按占位符数量降序排列（复杂度高的优先）
-    if matched_aliases:
-        matched_aliases.sort(key=lambda x: x[0], reverse=True)
+    if Silian_matched_aliases:
+        Silian_matched_aliases.sort(key=lambda Silian_x: Silian_x[0], reverse=True)
 
         # 使用复杂度最高的匹配
-        _, pattern, replacement, placeholders, match = matched_aliases[0]
-        groups = match.groups()
+        _, Silian_pattern, Silian_replacement, Silian_placeholders, Silian_match = Silian_matched_aliases[0]
+        Silian_groups = Silian_match.groups()
 
         # 创建占位符到实际值的映射字典
-        placeholder_dict = {placeholders[i]: groups[i] for i in range(len(groups))}
+        Silian_placeholder_dict = {Silian_placeholders[Silian_i]: Silian_groups[Silian_i] for Silian_i in range(len(Silian_groups))}
 
         # 使用字符串模板替换占位符
-        result = stringTemplate(replacement).safe_substitute(placeholder_dict)
-        Logger.debug(msg.session_info.prefixes[0] + result)
-        return msg.session_info.prefixes[0] + result
+        Silian_result = stringTemplate(Silian_replacement).safe_substitute(Silian_placeholder_dict)
+        Logger.debug(Silian_msg.session_info.prefixes[0] + Silian_result)
+        return Silian_msg.session_info.prefixes[0] + Silian_result
 
     # ========== 处理不带占位符的简单别名 ==========
     # 例如: "h" -> "help"
-    for pattern, replacement in aliases.items():
-        if not re.search(r"\${[^}]*}", pattern):
+    for Silian_pattern, Silian_replacement in Silian_aliases.items():
+        if not re.search(r"\${[^}]*}", Silian_pattern):
             # 如果命令以该模式开头，进行替换
-            if command.startswith(pattern):
-                new_command = command.replace(pattern, msg.session_info.prefixes[0] + replacement, 1)
-                Logger.debug(new_command)
-                return new_command
+            if Silian_command.startswith(Silian_pattern):
+                Silian_new_command = Silian_command.replace(Silian_pattern, Silian_msg.session_info.prefixes[0] + Silian_replacement, 1)
+                Logger.debug(Silian_new_command)
+                return Silian_new_command
 
     # 没有匹配的别名，返回原命令
-    return command
+    return Silian_command
 
 
-def _get_prefixes(msg: "Bot.MessageSession"):
+def _get_prefixes(Silian_msg: "Bot.MessageSession"):
     """
     检查并处理消息的命令前缀。
 
@@ -315,43 +315,43 @@ def _get_prefixes(msg: "Bot.MessageSession"):
              - in_prefix_list: 消息是否以某个前缀开头
     """
     # ========== 步骤 1: 处理自定义别名 ==========
-    if msg.session_info.target_info.target_data.get("command_alias"):
+    if Silian_msg.session_info.target_info.target_data.get("command_alias"):
         # 将自定义别名替换为实际命令
-        msg.trigger_msg = _transform_alias(msg, msg.trigger_msg)
+        Silian_msg.trigger_msg = _transform_alias(Silian_msg, Silian_msg.trigger_msg)
 
     # ========== 步骤 2: 检查前缀配置 ==========
-    disable_prefix = False
+    Silian_disable_prefix = False
     # 如果上游指定了命令前缀，使用指定的命令前缀
-    if msg.session_info.prefixes:
+    if Silian_msg.session_info.prefixes:
         # 如果前缀列表中包含空字符串，表示禁用前缀检查
-        if "" in msg.session_info.prefixes:
-            disable_prefix = True
+        if "" in Silian_msg.session_info.prefixes:
+            Silian_disable_prefix = True
 
-    display_prefix = ""
-    in_prefix_list = False
+    Silian_display_prefix = ""
+    Silian_in_prefix_list = False
 
     # ========== 步骤 3: 检查消息是否以前缀开头 ==========
-    for cp in msg.session_info.prefixes:
-        if msg.trigger_msg.startswith(cp):
-            display_prefix = cp
-            in_prefix_list = True
+    for Silian_cp in Silian_msg.session_info.prefixes:
+        if Silian_msg.trigger_msg.startswith(Silian_cp):
+            Silian_display_prefix = Silian_cp
+            Silian_in_prefix_list = True
             break
 
     # ========== 步骤 4: 前缀验证和优化 ==========
-    if in_prefix_list or disable_prefix:
+    if Silian_in_prefix_list or Silian_disable_prefix:
         # 排除特殊情况：消息太短或是删除线格式（~~xxx~~）
-        if len(msg.trigger_msg) <= 1 or msg.trigger_msg[:2] == "~~":
+        if len(Silian_msg.trigger_msg) <= 1 or Silian_msg.trigger_msg[:2] == "~~":
             return False, False
 
         # 如果匹配到前缀，将其移到列表首位
-        if in_prefix_list:
-            msg.session_info.prefixes.remove(display_prefix)
-            msg.session_info.prefixes.insert(0, display_prefix)
+        if Silian_in_prefix_list:
+            Silian_msg.session_info.prefixes.remove(Silian_display_prefix)
+            Silian_msg.session_info.prefixes.insert(0, Silian_display_prefix)
 
-    return disable_prefix, in_prefix_list
+    return Silian_disable_prefix, Silian_in_prefix_list
 
 
-async def _process_command(msg: "Bot.MessageSession", modules, disable_prefix, in_prefix_list):
+async def _process_command(Silian_msg: "Bot.MessageSession", Silian_modules, Silian_disable_prefix, Silian_in_prefix_list):
     """
     处理和解析命令字符串。
 
@@ -373,62 +373,62 @@ async def _process_command(msg: "Bot.MessageSession", modules, disable_prefix, i
     :return: 命令的第一个词（模块名）
     """
     # ========== 步骤 1: 移除命令前缀 ==========
-    if disable_prefix and not in_prefix_list:
+    if Silian_disable_prefix and not Silian_in_prefix_list:
         # 禁用前缀模式，使用完整消息作为命令
-        command = msg.trigger_msg
+        Silian_command = Silian_msg.trigger_msg
     else:
         # 移除前缀，提取实际命令
-        command = msg.trigger_msg[len(msg.session_info.prefixes[0]) :]
+        Silian_command = Silian_msg.trigger_msg[len(Silian_msg.session_info.prefixes[0]) :]
 
-    command = command.strip()
-    command_split: list = command.split(" ")  # 切割消息为单词列表
+    Silian_command = Silian_command.strip()
+    Silian_command_split: list = Silian_command.split(" ")  # 切割消息为单词列表
 
     # ========== 步骤 2: 检查是否为实际模块名 ==========
-    not_alias = False
-    cm = ""
-    for module_name in modules:
-        if command_split[0] == module_name:
+    Silian_not_alias = False
+    Silian_cm = ""
+    for Silian_module_name in Silian_modules:
+        if Silian_command_split[0] == Silian_module_name:
             # 找到了匹配的模块，标记为非别名
-            not_alias = True
-            cm = module_name
+            Silian_not_alias = True
+            Silian_cm = Silian_module_name
             break
 
     # ========== 步骤 3: 收集可能匹配的别名 ==========
-    alias_list = []
-    for alias, _ in ModulesManager.modules_aliases.items():
-        alias_words = alias.split(" ")
-        cmd_words = command.split(" ")
+    Silian_alias_list = []
+    for Silian_alias, _ in ModulesManager.modules_aliases.items():
+        Silian_alias_words = Silian_alias.split(" ")
+        Silian_cmd_words = Silian_command.split(" ")
 
-        if not not_alias:
+        if not Silian_not_alias:
             # 如果第一个词不是模块名，检查所有别名
-            if cmd_words[: len(alias_words)] == alias_words:
-                alias_list.append(alias)
+            if Silian_cmd_words[: len(Silian_alias_words)] == Silian_alias_words:
+                Silian_alias_list.append(Silian_alias)
         else:
             # 如果第一个词是模块名，只检查该模块下的别名
-            if alias.startswith(cm):
-                if cmd_words[: len(alias_words)] == alias_words:
-                    alias_list.append(alias)
+            if Silian_alias.startswith(Silian_cm):
+                if Silian_cmd_words[: len(Silian_alias_words)] == Silian_alias_words:
+                    Silian_alias_list.append(Silian_alias)
 
     # ========== 步骤 4: 应用最长匹配的别名 ==========
-    if alias_list:
+    if Silian_alias_list:
         # 选择最长的别名（避免短别名误匹配）
-        max_alias = str(max(alias_list, key=len))
+        Silian_max_alias = str(max(Silian_alias_list, key=len))
         # 获取别名对应的实际模块名
-        real_name = ModulesManager.modules_aliases[max_alias]
+        Silian_real_name = ModulesManager.modules_aliases[Silian_max_alias]
 
         # 重构命令：实际模块名 + 别名后的剩余参数
-        command_words = command.split(" ")
-        command_words = real_name.split(" ") + command_words[len(max_alias.split(" ")) :]
-        command = " ".join(command_words)
+        Silian_command_words = Silian_command.split(" ")
+        Silian_command_words = Silian_real_name.split(" ") + Silian_command_words[len(Silian_max_alias.split(" ")) :]
+        Silian_command = " ".join(Silian_command_words)
 
     # 更新消息的触发命令
-    msg.trigger_msg = command
+    Silian_msg.trigger_msg = Silian_command
 
     # 返回命令的第一个词（模块名）
-    return command.split(" ")[0]
+    return Silian_command.split(" ")[0]
 
 
-async def _execute_module(msg: "Bot.MessageSession", modules, command_first_word, identify_str):
+async def _execute_module(Silian_msg: "Bot.MessageSession", Silian_modules, Silian_command_first_word, identify_str):
     """
     执行模块的命令处理逻辑。
 
@@ -450,142 +450,142 @@ async def _execute_module(msg: "Bot.MessageSession", modules, command_first_word
     :param command_first_word: 命令的第一个词（模块名）
     :param identify_str: 用于日志的标识字符串
     """
-    time_start = time.perf_counter()
-    bot: "Bot" = exports["Bot"]
-    _typing = False  # 标记是否正在显示“正在输入……”状态
+    Silian_time_start = time.perf_counter()
+    Silian_bot: "Bot" = exports["Bot"]
+    Silian__typing = False  # 标记是否正在显示“正在输入……”状态
     try:
         # ========== 步骤 1: 冷却检查 ==========
         # 检查目标是否在冷却期内（被临时禁止）
-        await _check_target_cooldown(msg)
+        await _check_target_cooldown(Silian_msg)
 
         # ========== 步骤 2: ToS 临时封禁检查 ==========
-        if enable_tos:
-            await _tos_temp_ban(msg)
+        if Silian_enable_tos:
+            await _tos_temp_ban(Silian_msg)
 
         # ========== 步骤 3: 获取模块并检查是否有可用命令 ==========
-        module: Module = modules[command_first_word]
-        if not module.command_list.set:
+        Silian_module: Module = Silian_modules[Silian_command_first_word]
+        if not Silian_module.command_list.set:
             # 模块没有可用的命令，展示模块简介
-            if module.rss and not msg.session_info.support_rss:
+            if Silian_module.rss and not Silian_msg.session_info.support_rss:
                 # RSS 模块但平台不支持，直接返回
                 return
-            if module.desc:
+            if Silian_module.desc:
                 # 发送模块描述
-                desc = [I18NContext("parser.module.desc", desc=msg.session_info.locale.t_str(module.desc))]
-                if command_first_word not in msg.session_info.enabled_modules:
+                Silian_desc = [I18NContext("parser.module.desc", desc=Silian_msg.session_info.locale.t_str(Silian_module.desc))]
+                if Silian_command_first_word not in Silian_msg.session_info.enabled_modules:
                     # 模块未启用，添加提示
-                    desc.append(
+                    Silian_desc.append(
                         I18NContext(
                             "parser.module.disabled.prompt",
-                            module=command_first_word,
-                            prefix=msg.session_info.prefixes[0],
+                            module=Silian_command_first_word,
+                            prefix=Silian_msg.session_info.prefixes[0],
                         )
                     )
-                await msg.send_message(desc)
+                await Silian_msg.send_message(Silian_desc)
             else:
                 # 没有描述，报告未绑定
-                await msg.send_message(I18NContext("error.module.unbound", module=command_first_word))
+                await Silian_msg.send_message(I18NContext("error.module.unbound", module=Silian_command_first_word))
             return
 
         # ========== 步骤 4: 权限检查 ==========
-        if module.required_base_superuser:
+        if Silian_module.required_base_superuser:
             # 需要基础超级用户权限
-            if msg.session_info.sender_id not in bot.base_superuser_list:
-                await msg.send_message(I18NContext("parser.superuser.permission.denied"))
+            if Silian_msg.session_info.sender_id not in Silian_bot.base_superuser_list:
+                await Silian_msg.send_message(I18NContext("parser.superuser.permission.denied"))
                 return
-        elif module.required_superuser:
+        elif Silian_module.required_superuser:
             # 需要超级用户权限
-            if not msg.check_super_user():
-                await msg.send_message(I18NContext("parser.superuser.permission.denied"))
+            if not Silian_msg.check_super_user():
+                await Silian_msg.send_message(I18NContext("parser.superuser.permission.denied"))
                 return
-        elif not module.base:
+        elif not Silian_module.base:
             # 普通模块，检查是否已启用
-            if command_first_word not in msg.session_info.enabled_modules and msg.session_info.require_enable_modules:
+            if Silian_command_first_word not in Silian_msg.session_info.enabled_modules and Silian_msg.session_info.require_enable_modules:
                 # 模块未启用
-                if await msg.check_permission():
+                if await Silian_msg.check_permission():
                     # 用户有权限，询问是否启用
-                    await msg.send_message(
+                    await Silian_msg.send_message(
                         I18NContext(
                             "parser.module.disabled.prompt",
-                            module=command_first_word,
-                            prefix=msg.session_info.prefixes[0],
+                            module=Silian_command_first_word,
+                            prefix=Silian_msg.session_info.prefixes[0],
                         )
                     )
-                    if await msg.wait_confirm(I18NContext("parser.module.disabled.to_enable"), no_confirm_action=False):
+                    if await Silian_msg.wait_confirm(I18NContext("parser.module.disabled.to_enable"), no_confirm_action=False):
                         # 用户确认启用
-                        await msg.session_info.target_info.config_module(command_first_word)
-                        await msg.send_message(
-                            I18NContext("core.message.module.enable.success", module=command_first_word)
+                        await Silian_msg.session_info.target_info.config_module(Silian_command_first_word)
+                        await Silian_msg.send_message(
+                            I18NContext("core.message.module.enable.success", module=Silian_command_first_word)
                         )
                     else:
                         # 用户取消，终止执行
                         return
                 else:
                     # 用户无权限，直接拒绝
-                    await msg.finish(I18NContext("parser.module.disabled", module=command_first_word))
-        elif module.required_admin:
+                    await Silian_msg.finish(I18NContext("parser.module.disabled", module=Silian_command_first_word))
+        elif Silian_module.required_admin:
             # 需要管理员权限
-            if not await msg.check_permission():
-                await msg.send_message(I18NContext("parser.admin.permission.denied.module", module=command_first_word))
+            if not await Silian_msg.check_permission():
+                await Silian_msg.send_message(I18NContext("parser.admin.permission.denied.module", module=Silian_command_first_word))
                 return
 
         # ========== 步骤 5: ToS 消息计数 ==========
-        if not module.base:
-            if enable_tos:
+        if not Silian_module.base:
+            if Silian_enable_tos:
                 # 记录消息使用情况（用于滥用检测）
-                await _tos_msg_counter(msg, msg.trigger_msg)
+                await _tos_msg_counter(Silian_msg, Silian_msg.trigger_msg)
             else:
                 Logger.debug("Tos is disabled, check the configuration if it is not work as expected.")
 
         # ========== 步骤 6: 检查并处理命令模板 ==========
-        none_templates = True  # 标记模块是否有命令模板
-        for func in module.command_list.get(msg.session_info.target_from):
-            if func.command_template:
-                none_templates = False
+        Silian_none_templates = True  # 标记模块是否有命令模板
+        for Silian_func in Silian_module.command_list.get(Silian_msg.session_info.target_from):
+            if Silian_func.command_template:
+                Silian_none_templates = False
                 break
 
-        if not none_templates:
+        if not Silian_none_templates:
             # 有命令模板，进行命令解析
-            await _execute_module_command(msg, module, command_first_word)
-            raise SessionFinished(msg.sent)  # 如果模块没有使用 msg.finish，手动结束会话
+            await _execute_module_command(Silian_msg, Silian_module, Silian_command_first_word)
+            raise SessionFinished(Silian_msg.sent)  # 如果模块没有使用 msg.finish，手动结束会话
 
         # ========== 步骤 7: 无模板，直接传递消息 ==========
         # 模块没有命令模板，直接将消息传给模块处理
-        msg.parsed_msg = None
-        for func in module.command_list.set:
-            if not func.command_template:
+        Silian_msg.parsed_msg = None
+        for Silian_func in Silian_module.command_list.set:
+            if not Silian_func.command_template:
                 # 显示“正在输入……”状态（如果用户启用）
-                if msg.session_info.sender_info.sender_data.get("typing_prompt", True):
-                    await msg.start_typing()
-                    _typing = True
+                if Silian_msg.session_info.sender_info.sender_data.get("typing_prompt", True):
+                    await Silian_msg.start_typing()
+                    Silian__typing = True
                 # 执行模块函数
-                await func.function(msg)
-                raise SessionFinished(msg.sent)
+                await Silian_func.function(Silian_msg)
+                raise SessionFinished(Silian_msg.sent)
 
         # ========== 步骤 8: 错字检查 ==========
-        if msg.session_info.sender_info.sender_data.get("typo_check", True):
+        if Silian_msg.session_info.sender_info.sender_data.get("typo_check", True):
             # 用户启用了错字检查，尝试纠正命令
-            new_msg, new_command_first_word, confirmed = await _command_typo_check(msg, modules, command_first_word)
-            if new_msg:
+            Silian_new_msg, Silian_new_command_first_word, Silian_confirmed = await _command_typo_check(Silian_msg, Silian_modules, Silian_command_first_word)
+            if Silian_new_msg:
                 # 找到了可能的正确命令
-                if modules[new_command_first_word]._db_load:  # 检查模块是否已加载
-                    await _execute_module(new_msg, modules, new_command_first_word, identify_str)
+                if Silian_modules[Silian_new_command_first_word]._db_load:  # 检查模块是否已加载
+                    await _execute_module(Silian_new_msg, Silian_modules, Silian_new_command_first_word, identify_str)
                 else:
-                    await msg.send_message(I18NContext("parser.module.unloaded", module=new_command_first_word))
-            elif not confirmed:
+                    await Silian_msg.send_message(I18NContext("parser.module.unloaded", module=Silian_new_command_first_word))
+            elif not Silian_confirmed:
                 # 没有找到匹配的命令，提示语法错误
-                await msg.send_message(
+                await Silian_msg.send_message(
                     I18NContext(
-                        "parser.command.invalid.syntax", module=command_first_word, prefix=msg.session_info.prefixes[0]
+                        "parser.command.invalid.syntax", module=Silian_command_first_word, prefix=Silian_msg.session_info.prefixes[0]
                     )
                 )
     except SendMessageFailed:
-        await _process_send_message_failed(msg)
+        await _process_send_message_failed(Silian_msg)
 
     # ========== 异常处理 ==========
     except SessionFinished as e:
         # 会话正常结束
-        time_used = time.perf_counter() - time_start
+        time_used = time.perf_counter() - Silian_time_start
         Logger.success(
             f"Successfully finished session from {identify_str}, returns: {str(e)}. Times take up: {time_used:06f}s"
         )
@@ -593,45 +593,45 @@ async def _execute_module(msg: "Bot.MessageSession", modules, command_first_word
         Info.command_parsed += 1
 
         # 记录分析数据
-        if enable_analytics:
+        if Silian_enable_analytics:
             await AnalyticsData.create(
-                target_id=msg.session_info.target_id,
-                sender_id=msg.session_info.sender_id,
-                command=msg.trigger_msg,
-                module_name=command_first_word,
+                target_id=Silian_msg.session_info.target_id,
+                sender_id=Silian_msg.session_info.sender_id,
+                command=Silian_msg.trigger_msg,
+                module_name=Silian_command_first_word,
                 module_type="normal",
             )
 
     except ExternalException as e:
         # 外部异常（如网络错误、API 错误）
-        await _process_external_exception(msg, e)
+        await _process_external_exception(Silian_msg, e)
 
     except AbuseWarning as e:
         # ToS 滥用警告
-        await _process_tos_abuse_warning(msg, e)
+        await _process_tos_abuse_warning(Silian_msg, e)
 
     except NoReportException as e:
         # 无需报告的异常（已知的用户错误）
-        await _process_noreport_exception(msg, e)
+        await _process_noreport_exception(Silian_msg, e)
 
     except Exception as e:
         # 其他未预期的异常
         if "timeout" in str(e).lower().replace(" ", ""):
             # 超时相关的异常作为外部异常处理
-            await _process_external_exception(msg, e)
+            await _process_external_exception(Silian_msg, e)
         else:
             # 其他异常，记录详细信息并报告
-            await _process_exception(msg, e)
+            await _process_exception(Silian_msg, e)
     finally:
         # 清理工作
-        if _typing:
+        if Silian__typing:
             # 结束“正在输入……”状态
-            await msg.end_typing()
+            await Silian_msg.end_typing()
         # 释放执行锁
-        ExecutionLockList.remove(msg)
+        ExecutionLockList.remove(Silian_msg)
 
 
-async def _execute_regex(msg: "Bot.MessageSession", modules, identify_str):
+async def _execute_regex(msg: "Bot.MessageSession", Silian_modules, identify_str):
     """
     执行正则表达式匹配的模块。
 
@@ -650,121 +650,121 @@ async def _execute_regex(msg: "Bot.MessageSession", modules, identify_str):
     :param modules: 可用的模块字典
     :param identify_str: 用于日志的标识字符串
     """
-    bot: "Bot" = exports["Bot"]
+    Silian_bot: "Bot" = exports["Bot"]
 
     # ========== 遍历所有模块 ==========
-    for m in modules:
+    for Silian_m in Silian_modules:
         # 跳过未加载的模块
-        if not modules[m]._db_load:
+        if not Silian_modules[Silian_m]._db_load:
             continue
 
         try:
             # ========== 步骤 1: 检查模块是否已启用且有正则表达式 ==========
-            if m in msg.session_info.enabled_modules and modules[m].regex_list.set:
-                regex_module: Module = modules[m]
+            if Silian_m in msg.session_info.enabled_modules and Silian_modules[Silian_m].regex_list.set:
+                Silian_regex_module: Module = Silian_modules[Silian_m]
 
                 # ========== 步骤 2: 权限检查 ==========
-                if regex_module.required_base_superuser:
+                if Silian_regex_module.required_base_superuser:
                     # 需要基础超级用户权限
-                    if msg.session_info.sender_id not in bot.base_superuser_list:
+                    if msg.session_info.sender_id not in Silian_bot.base_superuser_list:
                         continue
-                elif regex_module.required_superuser:
+                elif Silian_regex_module.required_superuser:
                     # 需要超级用户权限
                     if not msg.check_super_user():
                         continue
-                elif regex_module.required_admin:
+                elif Silian_regex_module.required_admin:
                     # 需要管理员权限
                     if not await msg.check_permission():
                         continue
 
                 # ========== 步骤 3: 检查模块可用性和平台限制 ==========
                 if (
-                    not regex_module.load  # 模块未加载
-                    or msg.session_info.target_from in regex_module.exclude_from  # 平台被排除
-                    or msg.session_info.client_name in regex_module.exclude_from  # 客户端被排除
+                    not Silian_regex_module.load  # 模块未加载
+                    or msg.session_info.target_from in Silian_regex_module.exclude_from  # 平台被排除
+                    or msg.session_info.client_name in Silian_regex_module.exclude_from  # 客户端被排除
                     or (
-                        "*" not in regex_module.available_for  # 不是对所有平台可用
-                        and msg.session_info.target_from not in regex_module.available_for  # 且当前平台不在列表中
-                        and msg.session_info.client_name not in regex_module.available_for
+                        "*" not in Silian_regex_module.available_for  # 不是对所有平台可用
+                        and msg.session_info.target_from not in Silian_regex_module.available_for  # 且当前平台不在列表中
+                        and msg.session_info.client_name not in Silian_regex_module.available_for
                     )
                 ):
                     continue
 
                 # ========== 步骤 4: 遍历模块的所有正则表达式 ==========
-                for rfunc in regex_module.regex_list.set:
-                    time_start = time.perf_counter()
-                    matched = False  # 标记是否匹配成功
-                    _typing = False  # 标记是否显示“正在输入……”
+                for Silian_rfunc in Silian_regex_module.regex_list.set:
+                    Silian_time_start = time.perf_counter()
+                    Silian_matched = False  # 标记是否匹配成功
+                    Silian__typing = False  # 标记是否显示“正在输入……”
                     try:
-                        matched_hash = 0  # 用于检测重复匹配
+                        Silian_matched_hash = 0  # 用于检测重复匹配
 
                         # 获取要匹配的消息文本（可能只包含纯文本或过滤特定元素）
-                        trigger_msg = msg.as_display(text_only=rfunc.text_only, element_filter=rfunc.element_filter)
+                        Silian_trigger_msg = msg.as_display(text_only=Silian_rfunc.text_only, element_filter=Silian_rfunc.element_filter)
 
                         # ========== 步骤 5: 执行正则表达式匹配 ==========
-                        if rfunc.mode.upper() in ["M", "MATCH"]:
+                        if Silian_rfunc.mode.upper() in ["M", "MATCH"]:
                             # 使用 re.match（从字符串开头匹配）
-                            msg.matched_msg = re.match(rfunc.pattern, trigger_msg, flags=rfunc.flags)
+                            msg.matched_msg = re.match(Silian_rfunc.pattern, Silian_trigger_msg, flags=Silian_rfunc.flags)
                             if msg.matched_msg:
-                                matched = True
-                                matched_hash = hash(msg.matched_msg.groups())
-                        elif rfunc.mode.upper() in ["A", "FINDALL"]:
+                                Silian_matched = True
+                                Silian_matched_hash = hash(msg.matched_msg.groups())
+                        elif Silian_rfunc.mode.upper() in ["A", "FINDALL"]:
                             # 使用 re.findall（查找所有匹配）
-                            msg.matched_msg = tuple(set(re.findall(rfunc.pattern, trigger_msg, flags=rfunc.flags)))
+                            msg.matched_msg = tuple(set(re.findall(Silian_rfunc.pattern, Silian_trigger_msg, flags=Silian_rfunc.flags)))
                             if msg.matched_msg:
-                                matched = True
-                                matched_hash = hash(msg.matched_msg)
+                                Silian_matched = True
+                                Silian_matched_hash = hash(msg.matched_msg)
 
                         # ========== 步骤 6: 处理匹配成功的情况 ==========
                         if (
-                            matched
-                            and regex_module.load
+                            Silian_matched
+                            and Silian_regex_module.load
                             and not (
-                                msg.session_info.target_from in regex_module.exclude_from
-                                or msg.session_info.client_name in regex_module.exclude_from
+                                msg.session_info.target_from in Silian_regex_module.exclude_from
+                                or msg.session_info.client_name in Silian_regex_module.exclude_from
                                 or (
-                                    "*" not in regex_module.available_for
-                                    and msg.session_info.target_from not in regex_module.available_for
-                                    and msg.session_info.client_name not in regex_module.available_for
+                                    "*" not in Silian_regex_module.available_for
+                                    and msg.session_info.target_from not in Silian_regex_module.available_for
+                                    and msg.session_info.client_name not in Silian_regex_module.available_for
                                 )
                             )
                         ):
                             # 记录日志
-                            if rfunc.logging:
+                            if Silian_rfunc.logging:
                                 Logger.info(f"{identify_str} -> [Bot]: {msg.trigger_msg}")
-                            Logger.debug("Matched hash:" + str(matched_hash))
+                            Logger.debug("Matched hash:" + str(Silian_matched_hash))
 
                             # ========== 循环匹配检测 ==========
                             # 获取冷却时间设置
-                            cooldown_time = int(msg.session_info.target_info.target_data.get("cooldown_time", 0) or 3)
+                            Silian_cooldown_time = int(msg.session_info.target_info.target_data.get("cooldown_time", 0) or 3)
 
                             # 检查是否重复匹配
-                            if rfunc.logging and matched_hash in match_hash_cache[msg.session_info.target_id]:
+                            if Silian_rfunc.logging and Silian_matched_hash in Silian_match_hash_cache[msg.session_info.target_id]:
                                 Logger.warning("Match loop detected, skipping...")
                                 continue
 
                             # 记录匹配哈希到缓存
-                            match_hash_cache[msg.session_info.target_id][matched_hash] = ExpiringTempDict(
-                                exp=cooldown_time, root=False
+                            Silian_match_hash_cache[msg.session_info.target_id][Silian_matched_hash] = ExpiringTempDict(
+                                exp=Silian_cooldown_time, root=False
                             )
 
                             # ========== ToS 和冷却检查 ==========
-                            if enable_tos and rfunc.show_typing:
+                            if Silian_enable_tos and Silian_rfunc.show_typing:
                                 await _tos_temp_ban(msg)
-                            if rfunc.show_typing:
+                            if Silian_rfunc.show_typing:
                                 await _check_target_cooldown(msg)
 
                             # ========== 正则表达式级别的权限检查 ==========
-                            if rfunc.required_superuser:
+                            if Silian_rfunc.required_superuser:
                                 if not msg.check_super_user():
                                     continue
-                            elif rfunc.required_admin:
+                            elif Silian_rfunc.required_admin:
                                 if not await msg.check_permission():
                                     continue
 
                             # ========== ToS 消息计数 ==========
-                            if not regex_module.base:
-                                if enable_tos and rfunc.show_typing:
+                            if not Silian_regex_module.base:
+                                if Silian_enable_tos and Silian_rfunc.show_typing:
                                     await _tos_msg_counter(msg, msg.trigger_msg)
                                 else:
                                     Logger.debug(
@@ -776,32 +776,32 @@ async def _execute_regex(msg: "Bot.MessageSession", modules, identify_str):
                             else:
                                 return await msg.send_message(I18NContext("parser.command.running.prompt"))
 
-                            if rfunc.show_typing and msg.session_info.sender_info.sender_data.get(
+                            if Silian_rfunc.show_typing and msg.session_info.sender_info.sender_data.get(
                                 "typing_prompt", True
                             ):
                                 await msg.start_typing()
-                                _typing = True
-                                await rfunc.function(msg)  # 将msg传入下游模块
+                                Silian__typing = True
+                                await Silian_rfunc.function(msg)  # 将msg传入下游模块
 
                             else:
-                                await rfunc.function(msg)  # 将msg传入下游模块
+                                await Silian_rfunc.function(msg)  # 将msg传入下游模块
                             ExecutionLockList.remove(msg)
                             raise SessionFinished(msg.sent)  # if not using msg.finish
                     except SessionFinished as e:
-                        time_used = time.perf_counter() - time_start
-                        if rfunc.logging:
+                        time_used = time.perf_counter() - Silian_time_start
+                        if Silian_rfunc.logging:
                             Logger.success(
                                 f"Successfully finished session from {identify_str}, returns: {str(e)}. "
                                 f"Times take up: {time_used:06f}s"
                             )
 
                         Info.command_parsed += 1
-                        if enable_analytics:
+                        if Silian_enable_analytics:
                             await AnalyticsData.create(
                                 target_id=msg.session_info.target_id,
                                 sender_id=msg.session_info.sender_id,
                                 command=msg.trigger_msg,
-                                module_name=m,
+                                module_name=Silian_m,
                                 module_type="regex",
                             )
                         continue
@@ -821,7 +821,7 @@ async def _execute_regex(msg: "Bot.MessageSession", modules, identify_str):
                         else:
                             await _process_exception(msg, e)
                     finally:
-                        if _typing:
+                        if Silian__typing:
                             await msg.end_typing()
                         ExecutionLockList.remove(msg)
 
@@ -830,7 +830,7 @@ async def _execute_regex(msg: "Bot.MessageSession", modules, identify_str):
             continue
 
 
-async def _check_target_cooldown(msg: "Bot.MessageSession"):
+async def _check_target_cooldown(Silian_msg: "Bot.MessageSession"):
     """
     检查目标是否在冷却期内。
 
@@ -847,41 +847,41 @@ async def _check_target_cooldown(msg: "Bot.MessageSession"):
     :raises NoReportException: 如果用户在冷却期内
     """
     # 获取目标配置的冷却时间（秒）
-    cooldown_time = int(msg.session_info.target_info.target_data.get("cooldown_time", 0))
+    Silian_cooldown_time = int(Silian_msg.session_info.target_info.target_data.get("cooldown_time", 0))
 
     # 如果没有配置冷却时间或用户有管理权限，直接返回
-    if not cooldown_time or await msg.check_permission():
+    if not Silian_cooldown_time or await Silian_msg.check_permission():
         return
 
     # 获取该目标的冷却记录
-    target_record = target_cooldown_counter[msg.session_info.target_id]
+    Silian_target_record = Silian_target_cooldown_counter[Silian_msg.session_info.target_id]
 
     # 获取该发送者的冷却记录
-    sender_record = target_record.get(msg.session_info.sender_id)
+    Silian_sender_record = Silian_target_record.get(Silian_msg.session_info.sender_id)
 
     # 如果不存在，则创建并跳过冷却提示
-    if not sender_record:
-        sender_record = ExpiringTempDict(data={"notified": False}, exp=cooldown_time, root=False)
-        target_record[msg.session_info.sender_id] = sender_record
+    if not Silian_sender_record:
+        Silian_sender_record = ExpiringTempDict(data={"notified": False}, exp=Silian_cooldown_time, root=False)
+        Silian_target_record[Silian_msg.session_info.sender_id] = Silian_sender_record
         return
 
     # 检查是否还在冷却期内
-    if not sender_record.is_expired():
+    if not Silian_sender_record.is_expired():
         # 如果还没有通知过用户，发送冷却提示
-        if not sender_record.get("notified", False):
-            sender_record["notified"] = True
+        if not Silian_sender_record.get("notified", False):
+            Silian_sender_record["notified"] = True
             # 计算剩余冷却时间
-            elapsed = cooldown_time - (time.time() - sender_record.ts)
-            await msg.finish(I18NContext("message.cooldown.manual", time=int(elapsed)))
-        await msg.finish()
+            Silian_elapsed = Silian_cooldown_time - (time.time() - Silian_sender_record.ts)
+            await Silian_msg.finish(I18NContext("message.cooldown.manual", time=int(Silian_elapsed)))
+        await Silian_msg.finish()
 
     # 重置冷却期
-    sender_record.refresh()
-    sender_record["notified"] = False
-    sender_record.exp = cooldown_time
+    Silian_sender_record.refresh()
+    Silian_sender_record["notified"] = False
+    Silian_sender_record.exp = Silian_cooldown_time
 
 
-async def _tos_temp_ban(msg: "Bot.MessageSession"):
+async def _tos_temp_ban(Silian_msg: "Bot.MessageSession"):
     """
     检查用户是否被临时封禁（ToS 违规）。
 
@@ -898,39 +898,39 @@ async def _tos_temp_ban(msg: "Bot.MessageSession"):
     :raises SessionFinished: 如果用户被封禁，终止会话
     """
     # 获取用户的封禁信息
-    ban_info = temp_ban_counter.get(msg.session_info.sender_id)
+    Silian_ban_info = temp_ban_counter.get(Silian_msg.session_info.sender_id)
 
-    if ban_info and not ban_info.is_expired():
+    if Silian_ban_info and not Silian_ban_info.is_expired():
         # 用户在封禁期内
 
         # 超级用户可以自动解除封禁
-        if msg.check_super_user():
-            await remove_temp_ban(msg.session_info.sender_id)
+        if Silian_msg.check_super_user():
+            await remove_temp_ban(Silian_msg.session_info.sender_id)
             return None
 
         # 计算剩余封禁时间
-        ban_time = time.time() - ban_info.ts
-        remaining = int(TOS_TEMPBAN_TIME - ban_time)
+        Silian_ban_time = time.time() - Silian_ban_info.ts
+        Silian_remaining = int(TOS_TEMPBAN_TIME - Silian_ban_time)
 
         # 初始化尝试次数计数器
-        if not ban_info.get("count", 0):
-            ban_info["count"] = 0
+        if not Silian_ban_info.get("count", 0):
+            Silian_ban_info["count"] = 0
 
         # 根据尝试次数显示不同级别的警告
-        if ban_info["count"] < 2:
+        if Silian_ban_info["count"] < 2:
             # 前两次尝试：显示普通封禁消息
-            ban_info["count"] += 1
-            await msg.finish(I18NContext("tos.message.tempbanned", ban_time=remaining))
-        elif ban_info["count"] <= 3:
+            Silian_ban_info["count"] += 1
+            await Silian_msg.finish(I18NContext("tos.message.tempbanned", ban_time=Silian_remaining))
+        elif Silian_ban_info["count"] <= 3:
             # 第 3-4 次尝试：显示严重警告
-            ban_info["count"] += 1
-            await msg.finish(I18NContext("tos.message.tempbanned.warning", ban_time=remaining))
+            Silian_ban_info["count"] += 1
+            await Silian_msg.finish(I18NContext("tos.message.tempbanned.warning", ban_time=Silian_remaining))
         else:
             # 第 4 次以上尝试：抛出滥用警告
             raise AbuseWarning("{I18N:tos.message.reason.ignore}")
 
 
-async def _tos_msg_counter(msg: "Bot.MessageSession", command: str):
+async def _tos_msg_counter(Silian_msg: "Bot.MessageSession", Silian_command: str):
     """
     ToS 消息计数器 - 检测命令使用频率防止滥用。
 
@@ -946,28 +946,28 @@ async def _tos_msg_counter(msg: "Bot.MessageSession", command: str):
     """
     # ========== 单命令频率检查 ==========
     # 检查同一命令的使用频率
-    bucket_same = buckets_same[msg.session_info.sender_id][command]
-    if "bucket" not in bucket_same:
+    Silian_bucket_same = Silian_buckets_same[Silian_msg.session_info.sender_id][Silian_command]
+    if "bucket" not in Silian_bucket_same:
         # 初始化令牌桶：容量 10，每 300 秒恢复满
-        bucket_same["bucket"] = TokenBucket(10, 300)
+        Silian_bucket_same["bucket"] = TokenBucket(10, 300)
 
-    if not bucket_same["bucket"].consume():
+    if not Silian_bucket_same["bucket"].consume():
         # 令牌耗尽，单命令使用过于频繁
         raise AbuseWarning("{I18N:tos.message.reason.cooldown}")
 
     # ========== 全局命令频率检查 ==========
     # 检查所有命令的总体使用频率
-    bucket_all = buckets_all[msg.session_info.sender_id]
-    if "bucket" not in bucket_all:
+    Silian_bucket_all = Silian_buckets_all[Silian_msg.session_info.sender_id]
+    if "bucket" not in Silian_bucket_all:
         # 初始化令牌桶：容量 20，每 300 秒恢复满
-        bucket_all["bucket"] = TokenBucket(20, 300)
+        Silian_bucket_all["bucket"] = TokenBucket(20, 300)
 
-    if not bucket_all["bucket"].consume():
+    if not Silian_bucket_all["bucket"].consume():
         # 令牌耗尽，整体命令使用过于频繁
         raise AbuseWarning("{I18N:tos.message.reason.abuse}")
 
 
-async def _execute_module_command(msg: "Bot.MessageSession", module, command_first_word):
+async def _execute_module_command(Silian_msg: "Bot.MessageSession", Silian_module, Silian_command_first_word):
     """
     执行模块的命令解析和处理。
 
@@ -983,132 +983,132 @@ async def _execute_module_command(msg: "Bot.MessageSession", module, command_fir
     :param module: 模块对象
     :param command_first_word: 命令的第一个词（模块名）
     """
-    bot: "Bot" = exports["Bot"]
-    _typing = False  # 标记是否显示“正在输入……”状态
+    Silian_bot: "Bot" = exports["Bot"]
+    Silian__typing = False  # 标记是否显示“正在输入……”状态
     try:
         # ========== 步骤 1: 解析命令参数 ==========
-        command_parser = CommandParser(
-            module, msg=msg, module_name=command_first_word, command_prefixes=msg.session_info.prefixes
+        Silian_command_parser = CommandParser(
+            Silian_module, msg=Silian_msg, module_name=Silian_command_first_word, command_prefixes=Silian_msg.session_info.prefixes
         )
         try:
-            parsed_msg = command_parser.parse(msg.trigger_msg)  # 解析模块的子功能命令
-            command: CommandMeta = parsed_msg[0]
-            msg.parsed_msg = parsed_msg[1]  # 使用命令模板解析后的消息
-            Logger.trace("Parsed message: " + str(msg.parsed_msg))
+            Silian_parsed_msg = Silian_command_parser.parse(Silian_msg.trigger_msg)  # 解析模块的子功能命令
+            command: CommandMeta = Silian_parsed_msg[0]
+            Silian_msg.parsed_msg = Silian_parsed_msg[1]  # 使用命令模板解析后的消息
+            Logger.trace("Parsed message: " + str(Silian_msg.parsed_msg))
 
             # ========== 步骤 2: 验证发送者权限 ==========
 
             if command.required_base_superuser:
-                if msg.session_info.sender_id not in bot.base_superuser_list:
-                    await msg.send_message(I18NContext("parser.superuser.permission.denied"))
+                if Silian_msg.session_info.sender_id not in Silian_bot.base_superuser_list:
+                    await Silian_msg.send_message(I18NContext("parser.superuser.permission.denied"))
                     return
             elif command.required_superuser:
-                if not msg.check_super_user():
-                    await msg.send_message(I18NContext("parser.superuser.permission.denied"))
+                if not Silian_msg.check_super_user():
+                    await Silian_msg.send_message(I18NContext("parser.superuser.permission.denied"))
                     return
             elif command.required_admin:
-                if not await msg.check_permission():
-                    await msg.send_message(I18NContext("parser.admin.permission.denied.command"))
+                if not await Silian_msg.check_permission():
+                    await Silian_msg.send_message(I18NContext("parser.admin.permission.denied.command"))
                     return
 
             # ========== 步骤 3: 检查命令是否在会话内有效 ==========
 
             if (
                 not command.load
-                or msg.session_info.target_from in command.exclude_from
-                or msg.session_info.client_name in command.exclude_from
+                or Silian_msg.session_info.target_from in command.exclude_from
+                or Silian_msg.session_info.client_name in command.exclude_from
                 or (
                     "*" not in command.available_for
-                    and msg.session_info.target_from not in command.available_for
-                    and msg.session_info.client_name not in command.available_for
+                    and Silian_msg.session_info.target_from not in command.available_for
+                    and Silian_msg.session_info.client_name not in command.available_for
                 )
             ):
                 raise InvalidCommandFormatError
 
             # ========== 步骤 4: 构建函数参数 ==========
             # 根据命令函数的签名，准备调用参数
-            kwargs = {}
-            func_params = inspect.signature(command.function).parameters
+            Silian_kwargs = {}
+            Silian_func_params = inspect.signature(command.function).parameters
 
-            if len(func_params) > 1 and msg.parsed_msg:
+            if len(Silian_func_params) > 1 and Silian_msg.parsed_msg:
                 # 函数有多个参数，需要映射解析后的参数
-                parsed_msg_ = msg.parsed_msg.copy()
-                no_message_session = True  # 标记是否缺少 MessageSession 参数
+                Silian_parsed_msg_ = Silian_msg.parsed_msg.copy()
+                Silian_no_message_session = True  # 标记是否缺少 MessageSession 参数
 
                 # 遍历函数的所有参数
-                for param_name, param_obj in func_params.items():
+                for param_name, param_obj in Silian_func_params.items():
                     # ========== 处理 MessageSession 参数 ==========
-                    if param_obj.annotation == bot.MessageSession:
-                        kwargs[param_name] = msg
-                        no_message_session = False
+                    if param_obj.annotation == Silian_bot.MessageSession:
+                        Silian_kwargs[param_name] = Silian_msg
+                        Silian_no_message_session = False
 
                     # ========== 处理自定义 Param 类型 ==========
                     elif isinstance(param_obj.annotation, Param):
-                        if param_obj.annotation.name in parsed_msg_:
+                        if param_obj.annotation.name in Silian_parsed_msg_:
                             # 检查类型是否匹配
-                            if isinstance(parsed_msg_[param_obj.annotation.name], param_obj.annotation.type):
-                                kwargs[param_name] = parsed_msg_[param_obj.annotation.name]
-                                del parsed_msg_[param_obj.annotation.name]
+                            if isinstance(Silian_parsed_msg_[param_obj.annotation.name], param_obj.annotation.type):
+                                Silian_kwargs[param_name] = Silian_parsed_msg_[param_obj.annotation.name]
+                                del Silian_parsed_msg_[param_obj.annotation.name]
                             else:
                                 Logger.warning(f"{param_obj.annotation.name} is not a {param_obj.annotation.type}")
                         else:
                             Logger.warning(f"{param_obj.annotation.name} is not in parsed_msg")
 
                     # ========== 处理普通参数 ==========
-                    param_name_ = param_name
+                    Silian_param_name_ = param_name
 
                     # 检查是否使用了 <param> 格式
-                    if (param_name__ := f"<{param_name}>") in parsed_msg_:
-                        param_name_ = param_name__
+                    if (Silian_param_name__ := f"<{param_name}>") in Silian_parsed_msg_:
+                        Silian_param_name_ = Silian_param_name__
 
-                    if param_name_ in parsed_msg_:
+                    if Silian_param_name_ in Silian_parsed_msg_:
                         # 参数在解析结果中
-                        kwargs[param_name] = parsed_msg_[param_name_]
+                        Silian_kwargs[param_name] = Silian_parsed_msg_[Silian_param_name_]
                         try:
                             # 尝试根据类型注解进行类型转换
                             if param_obj.annotation == int:
-                                kwargs[param_name] = int(parsed_msg_[param_name_])
+                                Silian_kwargs[param_name] = int(Silian_parsed_msg_[Silian_param_name_])
                             elif param_obj.annotation == float:
-                                kwargs[param_name] = float(parsed_msg_[param_name_])
+                                Silian_kwargs[param_name] = float(Silian_parsed_msg_[Silian_param_name_])
                             elif param_obj.annotation == bool:
-                                kwargs[param_name] = bool(parsed_msg_[param_name_])
-                            del parsed_msg_[param_name_]
+                                Silian_kwargs[param_name] = bool(Silian_parsed_msg_[Silian_param_name_])
+                            del Silian_parsed_msg_[Silian_param_name_]
                         except (KeyError, ValueError):
                             # 类型转换失败，命令格式错误
                             raise InvalidCommandFormatError
                     else:
                         # 参数不在解析结果中，使用默认值或 None
-                        if param_name_ not in kwargs:
+                        if Silian_param_name_ not in Silian_kwargs:
                             if param_obj.default is not inspect.Parameter.empty:
-                                kwargs[param_name_] = param_obj.default
+                                Silian_kwargs[Silian_param_name_] = param_obj.default
                             else:
-                                kwargs[param_name_] = None
+                                Silian_kwargs[Silian_param_name_] = None
 
                 # 警告：函数缺少 MessageSession 参数（可能导致运行时错误）
-                if no_message_session:
+                if Silian_no_message_session:
                     Logger.warning(
                         f"{command.function.__name__} has no Bot.MessageSession parameter, did you forgot to add it?\n"
                         "Remember: MessageSession IS NOT Bot.MessageSession"
                     )
             else:
                 # 函数只有一个参数，直接传入 MessageSession
-                kwargs[func_params[list(func_params.keys())[0]].name] = msg
+                Silian_kwargs[Silian_func_params[list(Silian_func_params.keys())[0]].name] = Silian_msg
 
             # ========== 步骤 5: 显示“正在输入……”状态 ==========
-            if msg.session_info.target_info.target_data.get("typing_prompt", True):
-                await msg.start_typing()
-                _typing = True
+            if Silian_msg.session_info.target_info.target_data.get("typing_prompt", True):
+                await Silian_msg.start_typing()
+                Silian__typing = True
 
             # ========== 步骤 6: 执行命令函数 ==========
-            await parsed_msg[0].function(**kwargs)
+            await Silian_parsed_msg[0].function(**Silian_kwargs)
 
             # 如果函数没有使用 msg.finish，手动结束会话
-            raise SessionFinished(msg.sent)
+            raise SessionFinished(Silian_msg.sent)
         except InvalidCommandFormatError:
-            if not msg.session_info.sender_info.sender_data.get("typo_check", True):
-                await msg.send_message(
+            if not Silian_msg.session_info.sender_info.sender_data.get("typo_check", True):
+                await Silian_msg.send_message(
                     I18NContext(
-                        "parser.command.invalid.syntax", module=command_first_word, prefix=msg.session_info.prefixes[0]
+                        "parser.command.invalid.syntax", module=Silian_command_first_word, prefix=Silian_msg.session_info.prefixes[0]
                     )
                 )
             return
@@ -1116,14 +1116,14 @@ async def _execute_module_command(msg: "Bot.MessageSession", module, command_fir
             raise e
     except InvalidHelpDocTypeError:
         Logger.exception()
-        await msg.send_message(I18NContext("error.module.helpdoc_invalid", module=command_first_word))
+        await Silian_msg.send_message(I18NContext("error.module.helpdoc_invalid", module=Silian_command_first_word))
         return
     finally:
-        if _typing:
-            await msg.end_typing()
+        if Silian__typing:
+            await Silian_msg.end_typing()
 
 
-async def _process_tos_abuse_warning(msg: "Bot.MessageSession", e: AbuseWarning):
+async def _process_tos_abuse_warning(Silian_msg: "Bot.MessageSession", Silian_e: AbuseWarning):
     """
     处理 ToS 滥用警告。
 
@@ -1136,17 +1136,17 @@ async def _process_tos_abuse_warning(msg: "Bot.MessageSession", e: AbuseWarning)
     :param msg: 消息会话对象
     :param e: 滥用警告异常对象
     """
-    if enable_tos and Config("tos_warning_counts", 5) >= 1 and not msg.check_super_user():
-        await abuse_warn_target(msg, str(e))
-        temp_ban_counter[msg.session_info.sender_id] = {"count": 1, "ts": time.time()}
+    if Silian_enable_tos and Config("tos_warning_counts", 5) >= 1 and not Silian_msg.check_super_user():
+        await abuse_warn_target(Silian_msg, str(Silian_e))
+        temp_ban_counter[Silian_msg.session_info.sender_id] = {"count": 1, "ts": time.time()}
     else:
-        err_msg_chain = MessageChain.assign(I18NContext("error.message.prompt"))
-        err_msg_chain.append(Plain(msg.session_info.locale.t_str(str(e))))
-        err_msg_chain.append(I18NContext("error.message.prompt.noreport"))
-        await msg.send_message(err_msg_chain)
+        Silian_err_msg_chain = MessageChain.assign(I18NContext("error.message.prompt"))
+        Silian_err_msg_chain.append(Plain(Silian_msg.session_info.locale.t_str(str(Silian_e))))
+        Silian_err_msg_chain.append(I18NContext("error.message.prompt.noreport"))
+        await Silian_msg.send_message(Silian_err_msg_chain)
 
 
-async def _process_send_message_failed(msg: "Bot.MessageSession"):
+async def _process_send_message_failed(Silian_msg: "Bot.MessageSession"):
     """
     处理消息发送失败的情况。
 
@@ -1155,11 +1155,11 @@ async def _process_send_message_failed(msg: "Bot.MessageSession"):
 
     :param msg: 消息会话对象
     """
-    await msg.handle_error_signal()
-    await msg.send_message(I18NContext("error.message.limited"))
+    await Silian_msg.handle_error_signal()
+    await Silian_msg.send_message(I18NContext("error.message.limited"))
 
 
-async def _process_noreport_exception(msg: "Bot.MessageSession", e: NoReportException):
+async def _process_noreport_exception(Silian_msg: "Bot.MessageSession", Silian_e: NoReportException):
     """
     处理无需报告的异常。
 
@@ -1170,15 +1170,15 @@ async def _process_noreport_exception(msg: "Bot.MessageSession", e: NoReportExce
     :param e: 无需报告的异常对象
     """
     Logger.exception()
-    err_msg_chain = MessageChain.assign(I18NContext("error.message.prompt"))
-    err_msg = msg.session_info.locale.t_str(str(e))
-    err_msg_chain += match_kecode(err_msg)
-    err_msg_chain.append(I18NContext("error.message.prompt.noreport"))
-    await msg.handle_error_signal()
-    await msg.send_message(err_msg_chain)
+    Silian_err_msg_chain = MessageChain.assign(I18NContext("error.message.prompt"))
+    Silian_err_msg = Silian_msg.session_info.locale.t_str(str(Silian_e))
+    Silian_err_msg_chain += match_kecode(Silian_err_msg)
+    Silian_err_msg_chain.append(I18NContext("error.message.prompt.noreport"))
+    await Silian_msg.handle_error_signal()
+    await Silian_msg.send_message(Silian_err_msg_chain)
 
 
-async def _process_external_exception(msg: "Bot.MessageSession", e: Exception):
+async def _process_external_exception(Silian_msg: "Bot.MessageSession", Silian_e: Exception):
     """
     处理外部异常（如网络错误、API 错误等）。
 
@@ -1189,17 +1189,17 @@ async def _process_external_exception(msg: "Bot.MessageSession", e: Exception):
     :param e: 外部异常对象
     """
     Logger.exception()
-    err_msg_chain = MessageChain.assign(I18NContext("error.message.prompt"))
-    err_msg = msg.session_info.locale.t_str(str(e))
-    err_msg_chain += match_kecode(err_msg)
-    err_msg_chain.append(I18NContext("error.message.prompt.external"))
-    if bug_report_url:
-        err_msg_chain.append(I18NContext("error.message.prompt.address", url=bug_report_url))
-    await msg.handle_error_signal()
-    await msg.send_message(err_msg_chain)
+    Silian_err_msg_chain = MessageChain.assign(I18NContext("error.message.prompt"))
+    Silian_err_msg = Silian_msg.session_info.locale.t_str(str(Silian_e))
+    Silian_err_msg_chain += match_kecode(Silian_err_msg)
+    Silian_err_msg_chain.append(I18NContext("error.message.prompt.external"))
+    if Silian_bug_report_url:
+        Silian_err_msg_chain.append(I18NContext("error.message.prompt.address", url=Silian_bug_report_url))
+    await Silian_msg.handle_error_signal()
+    await Silian_msg.send_message(Silian_err_msg_chain)
 
 
-async def _process_exception(msg: "Bot.MessageSession", e: Exception):
+async def _process_exception(Silian_msg: "Bot.MessageSession", Silian_e: Exception):
     """
     处理未预期的内部异常。
 
@@ -1214,44 +1214,44 @@ async def _process_exception(msg: "Bot.MessageSession", e: Exception):
     :param msg: 消息会话对象
     :param e: 异常对象
     """
-    bot: "Bot" = exports["Bot"]
+    Silian_bot: "Bot" = exports["Bot"]
 
     # 获取完整的错误堆栈
-    tb = traceback.format_exc()
-    Logger.error(tb)
+    Silian_tb = traceback.format_exc()
+    Logger.error(Silian_tb)
 
     # 构建用户错误消息
-    err_msg_chain = MessageChain.assign(I18NContext("error.message.prompt"))
-    err_msg = msg.session_info.locale.t_str(str(e))
-    err_msg_chain += match_kecode(err_msg)
-    err_msg_chain.append(I18NContext("error.message.prompt.report"))
+    Silian_err_msg_chain = MessageChain.assign(I18NContext("error.message.prompt"))
+    Silian_err_msg = Silian_msg.session_info.locale.t_str(str(Silian_e))
+    Silian_err_msg_chain += match_kecode(Silian_err_msg)
+    Silian_err_msg_chain.append(I18NContext("error.message.prompt.report"))
 
     # 添加 bug 报告地址
-    if bug_report_url:
-        err_msg_chain.append(I18NContext("error.message.prompt.address", url=bug_report_url))
+    if Silian_bug_report_url:
+        Silian_err_msg_chain.append(I18NContext("error.message.prompt.address", url=Silian_bug_report_url))
 
     # 触发错误信号并发送消息
-    await msg.handle_error_signal()
-    await msg.send_message(err_msg_chain)
+    await Silian_msg.handle_error_signal()
+    await Silian_msg.send_message(Silian_err_msg_chain)
 
     # ========== 发送错误报告给管理员 ==========
-    if report_targets:
-        for target in report_targets:
+    if Silian_report_targets:
+        for Silian_target in Silian_report_targets:
             # 获取报告目标
-            if f := await bot.fetch_target(target):
+            if Silian_f := await Silian_bot.fetch_target(Silian_target):
                 # 发送详细的错误报告
-                await bot.send_direct_message(
-                    f,
+                await Silian_bot.send_direct_message(
+                    Silian_f,
                     [
-                        I18NContext("error.message.report", command=msg.trigger_msg),
-                        Plain(tb.strip(), disable_joke=True),
+                        I18NContext("error.message.report", command=Silian_msg.trigger_msg),
+                        Plain(Silian_tb.strip(), disable_joke=True),
                     ],
                     enable_parse_message=False,
                     disable_secret_check=True,
                 )
 
 
-async def _command_typo_check(msg: "Bot.MessageSession", modules, command_first_word):
+async def _command_typo_check(msg: "Bot.MessageSession", Silian_modules, command_first_word):
     """
     命令错字检查和纠正。
 
@@ -1278,161 +1278,161 @@ async def _command_typo_check(msg: "Bot.MessageSession", modules, command_first_
              - 如果纠正成功且用户确认，返回新的消息会话
              - 如果用户拒绝或无法纠正，返回 (None, None, confirmed)
     """
-    bot: "Bot" = exports["Bot"]
+    Silian_bot: "Bot" = exports["Bot"]
 
     # ========== 步骤 1: 获取用户权限 ==========
-    is_base_superuser = msg.session_info.sender_id in bot.base_superuser_list
-    is_superuser = msg.check_super_user()
+    Silian_is_base_superuser = msg.session_info.sender_id in Silian_bot.base_superuser_list
+    Silian_is_superuser = msg.check_super_user()
 
     # ========== 步骤 2: 收集用户可用的模块列表 ==========
-    available_modules = []
-    for x in modules:
+    Silian_available_modules = []
+    for Silian_x in Silian_modules:
         # 筛选条件：基础模块或已启用的模块
-        if modules[x].base or (x in msg.session_info.enabled_modules):
+        if Silian_modules[Silian_x].base or (Silian_x in msg.session_info.enabled_modules):
             # 跳过隐藏模块
-            if modules[x].hidden:
+            if Silian_modules[Silian_x].hidden:
                 continue
             # 跳过需要超级用户权限的模块（如果用户不是超级用户）
-            if modules[x].required_superuser and not is_superuser:
+            if Silian_modules[Silian_x].required_superuser and not Silian_is_superuser:
                 continue
             # 跳过需要基础超级用户权限的模块
-            if modules[x].required_base_superuser and not is_base_superuser:
+            if Silian_modules[Silian_x].required_base_superuser and not Silian_is_base_superuser:
                 continue
-            available_modules.append(x)
+            Silian_available_modules.append(Silian_x)
 
     # ========== 步骤 3: 模块名相似度匹配 ==========
     # 使用 difflib 找出最接近的模块名
     match_close_module: list = difflib.get_close_matches(
-        command_first_word, available_modules, 1, typo_check_module_score
+        command_first_word, Silian_available_modules, 1, Silian_typo_check_module_score
     )
 
     if match_close_module:
         # 找到了相似的模块
         Logger.debug(f"Match module: {command_first_word} -> {match_close_module[0]}")
-        module: Module = modules[match_close_module[0]]
+        Silian_module: Module = Silian_modules[match_close_module[0]]
 
         # ========== 步骤 4: 检查模块是否有命令模板 ==========
-        none_template = True
-        for func in module.command_list.get(msg.session_info.target_from):
-            if func.command_template:
-                none_template = False
+        Silian_none_template = True
+        for Silian_func in Silian_module.command_list.get(msg.session_info.target_from):
+            if Silian_func.command_template:
+                Silian_none_template = False
                 break
 
         command_split = msg.trigger_msg.split(" ")
-        len_command_split = len(command_split)
+        Silian_len_command_split = len(command_split)
 
         # ========== 步骤 5: 命令参数匹配（仅对有模板的模块）==========
-        if not none_template and len_command_split > 1:
-            get_commands: list[CommandMeta] = module.command_list.get(msg.session_info.target_from)
+        if not Silian_none_template and Silian_len_command_split > 1:
+            Silian_get_commands: list[CommandMeta] = Silian_module.command_list.get(msg.session_info.target_from)
 
             # 根据参数数量对命令模板分组
             # 格式: [参数数量 -> [模板列表]]
-            command_templates = {}
-            for func in get_commands:
-                command_template: list[argsTemplate] = copy.deepcopy(func.command_template)
-                for ct in command_template:
+            Silian_command_templates = {}
+            for Silian_func in Silian_get_commands:
+                Silian_command_template: list[argsTemplate] = copy.deepcopy(Silian_func.command_template)
+                for Silian_ct in Silian_command_template:
                     # 只保留 ArgumentPattern（过滤描述等）
-                    ct.args_ = [a for a in ct.args if isinstance(a, ArgumentPattern)]
-                    if (len_args := len(ct.args)) not in command_templates:
-                        command_templates[len_args] = [ct]
+                    Silian_ct.args_ = [Silian_a for Silian_a in Silian_ct.args if isinstance(Silian_a, ArgumentPattern)]
+                    if (Silian_len_args := len(Silian_ct.args)) not in Silian_command_templates:
+                        Silian_command_templates[Silian_len_args] = [Silian_ct]
                     else:
-                        command_templates[len_args].append(ct)
+                        Silian_command_templates[Silian_len_args].append(Silian_ct)
 
             # ========== 步骤 6: 选择最合适的命令模板组 ==========
-            if len_command_split - 1 > len(command_templates):
+            if Silian_len_command_split - 1 > len(Silian_command_templates):
                 # 用户输入的参数比所有模板都多，选择参数最多的模板
-                select_templates = command_templates[max(command_templates)]
+                Silian_select_templates = Silian_command_templates[max(Silian_command_templates)]
             else:
                 try:
                     # 选择参数数量刚好匹配的模板组
-                    select_templates = command_templates[len_command_split - 1]
+                    Silian_select_templates = Silian_command_templates[Silian_len_command_split - 1]
                 except KeyError:
                     # 没有精确匹配，找一个最接近的
-                    select_templates = command_templates[
-                        max(command_templates.keys(), key=lambda k: min(abs(k - (len_command_split - 1)), k))
+                    Silian_select_templates = Silian_command_templates[
+                        max(Silian_command_templates.keys(), key=lambda Silian_k: min(abs(Silian_k - (Silian_len_command_split - 1)), Silian_k))
                     ]
 
             # ========== 步骤 7: 命令字符串相似度匹配 ==========
             match_close_command: list = difflib.get_close_matches(
-                " ".join(command_split[1:]), templates_to_str(select_templates), 1, typo_check_command_score
+                " ".join(command_split[1:]), templates_to_str(Silian_select_templates), 1, Silian_typo_check_command_score
             )
 
             if match_close_command:
                 # 找到了相似的命令
                 Logger.debug(f"Match command: {' '.join(command_split[1:])} -> {match_close_command[0]}")
-                match_split = match_close_command[0]
+                Silian_match_split = match_close_command[0]
 
                 # ========== 步骤 8: 分离可选参数 ==========
                 # 切割可选参数（[...]）和必需参数
-                m_split_options = filter(None, re.split(r"(\[.*?\])", match_split))
+                Silian_m_split_options = filter(None, re.split(r"(\[.*?\])", Silian_match_split))
                 old_command_split = command_split.copy()
                 del old_command_split[0]  # 删除模块名
-                new_command_split = [match_close_module[0]]
-                for m_ in m_split_options:
-                    if m_.startswith("["):  # 如果是可选参数
-                        m_split = m_.split(" ")  # 切割可选参数中的空格（说明存在多个子必须参数）
+                Silian_new_command_split = [match_close_module[0]]
+                for Silian_m_ in Silian_m_split_options:
+                    if Silian_m_.startswith("["):  # 如果是可选参数
+                        m_split = Silian_m_.split(" ")  # 切割可选参数中的空格（说明存在多个子必须参数）
                         if len(m_split) > 1:
                             match_close_options = difflib.get_close_matches(
-                                m_split[0][1:], old_command_split, 1, typo_check_options_score
+                                m_split[0][1:], old_command_split, 1, Silian_typo_check_options_score
                             )  # 进一步匹配可选参数
                             if match_close_options:
                                 Logger.debug(f"Match close options: {m_split[0][1:]} -> {match_close_options[0]}")
-                                position = old_command_split.index(match_close_options[0])  # 定位可选参数的位置
-                                new_command_split.append(m_split[0][1:])  # 将可选参数插入到新命令列表中
-                                new_command_split += old_command_split[position + 1 : position + len(m_split)]
-                                del old_command_split[position : position + len(m_split)]  # 删除原命令列表中的可选参数
+                                Silian_position = old_command_split.index(match_close_options[0])  # 定位可选参数的位置
+                                Silian_new_command_split.append(m_split[0][1:])  # 将可选参数插入到新命令列表中
+                                Silian_new_command_split += old_command_split[Silian_position + 1 : Silian_position + len(m_split)]
+                                del old_command_split[Silian_position : Silian_position + len(m_split)]  # 删除原命令列表中的可选参数
                         else:
                             if m_split[0][1] == "<":
-                                new_command_split.append(old_command_split[0])
+                                Silian_new_command_split.append(old_command_split[0])
                                 del old_command_split[0]
                             else:
-                                new_command_split.append(m_split[0][1:-1])
+                                Silian_new_command_split.append(m_split[0][1:-1])
                     else:
-                        m__ = filter(None, m_.split(" "))  # 必须参数
-                        for mm in m__:
+                        Silian_m__ = filter(None, Silian_m_.split(" "))  # 必须参数
+                        for Silian_mm in Silian_m__:
                             if len(old_command_split) > 0:
-                                if mm.startswith("<"):
-                                    new_command_split.append(old_command_split[0])
+                                if Silian_mm.startswith("<"):
+                                    Silian_new_command_split.append(old_command_split[0])
                                     del old_command_split[0]
                                 else:
                                     match_close_args = difflib.get_close_matches(
-                                        old_command_split[0], [mm], 1, typo_check_args_score
+                                        old_command_split[0], [Silian_mm], 1, Silian_typo_check_args_score
                                     )  # 进一步匹配参数
                                     if match_close_args:
                                         Logger.debug(
                                             f"Match close args: {old_command_split[0]} -> {match_close_args[0]}"
                                         )
-                                        new_command_split.append(mm)
+                                        Silian_new_command_split.append(Silian_mm)
                                         del old_command_split[0]
                                     else:
-                                        new_command_split.append(old_command_split[0])
+                                        Silian_new_command_split.append(old_command_split[0])
                                         del old_command_split[0]
                             else:
-                                new_command_split.append(mm)
-                new_command_display = " ".join(new_command_split)
+                                Silian_new_command_split.append(Silian_mm)
+                new_command_display = " ".join(Silian_new_command_split)
                 if new_command_display != msg.trigger_msg:
-                    wait_confirm = await msg.wait_confirm(
+                    Silian_wait_confirm = await msg.wait_confirm(
                         I18NContext(
                             "parser.command.fixup.confirm",
                             command=f"{msg.session_info.prefixes[0]}{new_command_display}",
                         )
                     )
-                    if wait_confirm:
-                        command_first_word = new_command_split[0]
-                        msg.trigger_msg = " ".join(new_command_split)
+                    if Silian_wait_confirm:
+                        command_first_word = Silian_new_command_split[0]
+                        msg.trigger_msg = " ".join(Silian_new_command_split)
                         return msg, command_first_word, True
                     return None, None, True
             else:
-                if len_command_split - 1 == 1:
+                if Silian_len_command_split - 1 == 1:
                     new_command_display = f"{match_close_module[0]} {' '.join(command_split[1:])}"
                     if new_command_display != msg.trigger_msg:
-                        wait_confirm = await msg.wait_confirm(
+                        Silian_wait_confirm = await msg.wait_confirm(
                             I18NContext(
                                 "parser.command.fixup.confirm",
                                 command=f"{msg.session_info.prefixes[0]}{new_command_display}",
                             )
                         )
-                        if wait_confirm:
+                        if Silian_wait_confirm:
                             command_first_word = match_close_module[0]
                             msg.trigger_msg = " ".join([match_close_module[0]] + command_split[1:])
                             return msg, command_first_word, True
@@ -1442,12 +1442,12 @@ async def _command_typo_check(msg: "Bot.MessageSession", modules, command_first_
                 f"{match_close_module[0] + (' ' + ' '.join(command_split[1:]) if len(command_split) > 1 else '')}"
             )
             if new_command_display != msg.trigger_msg:
-                wait_confirm = await msg.wait_confirm(
+                Silian_wait_confirm = await msg.wait_confirm(
                     I18NContext(
                         "parser.command.fixup.confirm", command=f"{msg.session_info.prefixes[0]}{new_command_display}"
                     )
                 )
-                if wait_confirm:
+                if Silian_wait_confirm:
                     command_first_word = match_close_module[0]
                     msg.trigger_msg = match_close_module[0]
                     return msg, command_first_word, True

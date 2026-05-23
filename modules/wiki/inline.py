@@ -23,7 +23,7 @@ from .utils.utils import check_svg
 from .utils.wikilib import WikiLib
 from .wiki import query_pages
 
-wiki_inline = module(
+Silian_wiki_inline = module(
     "wiki_inline",
     desc="{I18N:wiki.help.wiki_inline.desc}",
     doc=True,
@@ -33,40 +33,40 @@ wiki_inline = module(
 )
 
 
-@wiki_inline.regex(r"\[\[(.*?)\]\]", flags=re.I, mode="A", desc="{I18N:wiki.help.wiki_inline.page}")
-async def _(msg: Bot.MessageSession):
-    query_list = []
-    for x in msg.matched_msg:
-        if x != "" and x not in query_list and x[0] != "#":
-            query_list.append(x.split("|")[0])
-    if query_list:
-        await query_pages(msg, query_list[:5], inline_mode=True)
+@Silian_wiki_inline.regex(r"\[\[(.*?)\]\]", flags=re.I, mode="A", desc="{I18N:wiki.help.wiki_inline.page}")
+async def _(Silian_msg: Bot.MessageSession):
+    Silian_query_list = []
+    for Silian_x in Silian_msg.matched_msg:
+        if Silian_x != "" and Silian_x not in Silian_query_list and Silian_x[0] != "#":
+            Silian_query_list.append(Silian_x.split("|")[0])
+    if Silian_query_list:
+        await query_pages(Silian_msg, Silian_query_list[:5], inline_mode=True)
 
 
-@wiki_inline.regex(r"\{\{(.*?)\}\}", flags=re.I, mode="A", desc="{I18N:wiki.help.wiki_inline.template}")
-async def _(msg: Bot.MessageSession):
-    query_list = []
-    for x in msg.matched_msg:
-        if x != "" and x not in query_list and x[0] != "#" and x.find("{") == -1:
-            query_list.append(x.split("|")[0])
-    if query_list:
-        await query_pages(msg, query_list[:5], template=True, inline_mode=True)
+@Silian_wiki_inline.regex(r"\{\{(.*?)\}\}", flags=re.I, mode="A", desc="{I18N:wiki.help.wiki_inline.template}")
+async def _(Silian_msg: Bot.MessageSession):
+    Silian_query_list = []
+    for Silian_x in Silian_msg.matched_msg:
+        if Silian_x != "" and Silian_x not in Silian_query_list and Silian_x[0] != "#" and Silian_x.find("{") == -1:
+            Silian_query_list.append(Silian_x.split("|")[0])
+    if Silian_query_list:
+        await query_pages(Silian_msg, Silian_query_list[:5], template=True, inline_mode=True)
 
 
-@wiki_inline.regex(
+@Silian_wiki_inline.regex(
     r"≺(.*?)≻|⧼(.*?)⧽", flags=re.I, mode="A", show_typing=False, desc="{I18N:wiki.help.wiki_inline.mediawiki}"
 )
-async def _(msg: Bot.MessageSession):
-    query_list = []
-    for x in msg.matched_msg:
-        for y in x:
-            if y != "" and y not in query_list and y[0] != "#":
-                query_list.append(y)
-    if query_list:
-        await query_pages(msg, query_list[:5], mediawiki=True, inline_mode=True)
+async def _(Silian_msg: Bot.MessageSession):
+    Silian_query_list = []
+    for Silian_x in Silian_msg.matched_msg:
+        for Silian_y in Silian_x:
+            if Silian_y != "" and Silian_y not in Silian_query_list and Silian_y[0] != "#":
+                Silian_query_list.append(Silian_y)
+    if Silian_query_list:
+        await query_pages(Silian_msg, Silian_query_list[:5], mediawiki=True, inline_mode=True)
 
 
-@wiki_inline.regex(
+@Silian_wiki_inline.regex(
     r"(https?://[-a-zA-Z0-9@:%._+~#=]{2,256}\.[a-z]{2,4}\b[-a-zA-Z0-9@:%_+.~#?&/=]*)",
     flags=re.I,
     mode="A",
@@ -74,38 +74,38 @@ async def _(msg: Bot.MessageSession):
     logging=False,
     desc="{I18N:wiki.help.wiki_inline.url}",
 )
-async def _(msg: Bot.MessageSession):
-    match_msg = msg.matched_msg
+async def _(Silian_msg: Bot.MessageSession):
+    Silian_match_msg = Silian_msg.matched_msg
 
-    async def bgtask(query_list):
-        Logger.info(query_list)
-        for q in query_list:
-            img_send = False
-            for qq in q:
-                wiki_ = WikiLib(qq)
-                articlepath = q[qq].articlepath.replace("$1", "(.*)")
-                get_id = re.sub(r".*curid=(\d+)", "\\1", qq)
-                get_title = re.sub(r"" + articlepath, "\\1", qq)
-                get_page = None
-                if is_int(get_id):
-                    get_page = await wiki_.parse_page_info(pageid=int(get_id), session=msg)
-                    if not q[qq].in_allowlist and msg.session_info.use_url_manager:
-                        for result in await check(get_page.title, session=msg):
-                            if not result["status"]:
+    async def bgtask(Silian_query_list):
+        Logger.info(Silian_query_list)
+        for Silian_q in Silian_query_list:
+            Silian_img_send = False
+            for Silian_qq in Silian_q:
+                Silian_wiki_ = WikiLib(Silian_qq)
+                Silian_articlepath = Silian_q[Silian_qq].articlepath.replace("$1", "(.*)")
+                Silian_get_id = re.sub(r".*curid=(\d+)", "\\1", Silian_qq)
+                Silian_get_title = re.sub(r"" + Silian_articlepath, "\\1", Silian_qq)
+                Silian_get_page = None
+                if is_int(Silian_get_id):
+                    Silian_get_page = await Silian_wiki_.parse_page_info(pageid=int(Silian_get_id), session=Silian_msg)
+                    if not Silian_q[Silian_qq].in_allowlist and Silian_msg.session_info.use_url_manager:
+                        for Silian_result in await check(Silian_get_page.title, session=Silian_msg):
+                            if not Silian_result["status"]:
                                 return
-                elif get_title != "":
-                    title = urllib.parse.unquote(get_title)
-                    if not q[qq].in_allowlist and msg.session_info.use_url_manager:
-                        for result in await check(title, session=msg):
-                            if not result["status"]:
+                elif Silian_get_title != "":
+                    Silian_title = urllib.parse.unquote(Silian_get_title)
+                    if not Silian_q[Silian_qq].in_allowlist and Silian_msg.session_info.use_url_manager:
+                        for Silian_result in await check(Silian_title, session=Silian_msg):
+                            if not Silian_result["status"]:
                                 return
-                    get_page = await wiki_.parse_page_info(title, session=msg)
-                if get_page:
-                    if get_page.status and get_page.file:
-                        dl = await download(get_page.file)
-                        guess_type = filetype.guess(dl)
-                        if guess_type:
-                            if guess_type.extension in [
+                    Silian_get_page = await Silian_wiki_.parse_page_info(Silian_title, session=Silian_msg)
+                if Silian_get_page:
+                    if Silian_get_page.status and Silian_get_page.file:
+                        Silian_dl = await download(Silian_get_page.file)
+                        Silian_guess_type = filetype.guess(Silian_dl)
+                        if Silian_guess_type:
+                            if Silian_guess_type.extension in [
                                 "png",
                                 "gif",
                                 "jpg",
@@ -114,205 +114,205 @@ async def _(msg: Bot.MessageSession):
                                 "bmp",
                                 "ico",
                             ]:
-                                if msg.session_info.support_image:
-                                    await msg.send_message(
+                                if Silian_msg.session_info.support_image:
+                                    await Silian_msg.send_message(
                                         [
                                             I18NContext(
                                                 "wiki.message.wiki_inline.flies",
-                                                file=get_page.file,
+                                                file=Silian_get_page.file,
                                             ),
-                                            Image(dl),
+                                            Image(Silian_dl),
                                         ],
                                         quote=False,
                                     )
-                                    img_send = True
-                            elif guess_type.extension in [
+                                    Silian_img_send = True
+                            elif Silian_guess_type.extension in [
                                 "oga",
                                 "ogg",
                                 "flac",
                                 "mp3",
                                 "wav",
                             ]:
-                                if msg.session_info.support_voice:
-                                    await msg.send_message(
+                                if Silian_msg.session_info.support_voice:
+                                    await Silian_msg.send_message(
                                         [
                                             I18NContext(
                                                 "wiki.message.wiki_inline.flies",
-                                                file=get_page.file,
+                                                file=Silian_get_page.file,
                                             ),
-                                            Voice(dl),
+                                            Voice(Silian_dl),
                                         ],
                                         quote=False,
                                     )
-                        elif check_svg(dl):
-                            rd = await svg_render(dl)
-                            if msg.session_info.support_image and rd:
-                                chain = [
+                        elif check_svg(Silian_dl):
+                            Silian_rd = await svg_render(Silian_dl)
+                            if Silian_msg.session_info.support_image and Silian_rd:
+                                Silian_chain = [
                                     I18NContext(
                                         "wiki.message.wiki_inline.flies",
-                                        file=get_page.file,
+                                        file=Silian_get_page.file,
                                     ),
-                                ] + rd
-                                await msg.send_message(chain, quote=False)
+                                ] + Silian_rd
+                                await Silian_msg.send_message(Silian_chain, quote=False)
 
-                    if msg.session_info.support_image:
+                    if Silian_msg.session_info.support_image:
                         if (
-                            get_page.status
-                            and get_page.title
-                            and (wiki_.wiki_info.in_allowlist or not msg.session_info.use_url_manager)
+                            Silian_get_page.status
+                            and Silian_get_page.title
+                            and (Silian_wiki_.wiki_info.in_allowlist or not Silian_msg.session_info.use_url_manager)
                         ):
-                            if wiki_.wiki_info.realurl not in generate_screenshot_v2_blocklist:
-                                is_disambiguation = False
-                                if get_page.templates:
-                                    is_disambiguation = (
-                                        "Template:Disambiguation" in get_page.templates
-                                        or "Template:Version disambiguation" in get_page.templates
+                            if Silian_wiki_.wiki_info.realurl not in generate_screenshot_v2_blocklist:
+                                Silian_is_disambiguation = False
+                                if Silian_get_page.templates:
+                                    Silian_is_disambiguation = (
+                                        "Template:Disambiguation" in Silian_get_page.templates
+                                        or "Template:Version disambiguation" in Silian_get_page.templates
                                     )
-                                content_mode = (
-                                    get_page.has_template_doc
-                                    or get_page.title.split(":")[0] in ["User"]
-                                    or is_disambiguation
-                                    or get_page.is_forum_topic
+                                Silian_content_mode = (
+                                    Silian_get_page.has_template_doc
+                                    or Silian_get_page.title.split(":")[0] in ["User"]
+                                    or Silian_is_disambiguation
+                                    or Silian_get_page.is_forum_topic
                                 )
-                                get_infobox = await generate_screenshot_v2(
-                                    qq,
-                                    allow_special_page=(q[qq].in_allowlist or not msg.session_info.use_url_manager),
-                                    content_mode=content_mode,
-                                    locale=msg.session_info.locale.locale,
+                                Silian_get_infobox = await generate_screenshot_v2(
+                                    Silian_qq,
+                                    allow_special_page=(Silian_q[Silian_qq].in_allowlist or not Silian_msg.session_info.use_url_manager),
+                                    content_mode=Silian_content_mode,
+                                    locale=Silian_msg.session_info.locale.locale,
                                 )
-                                if get_infobox:
-                                    imgs = []
-                                    for img in get_infobox:
-                                        imgs.append(Image(img))
-                                    await msg.send_message(imgs, quote=False)
+                                if Silian_get_infobox:
+                                    Silian_imgs = []
+                                    for Silian_img in Silian_get_infobox:
+                                        Silian_imgs.append(Image(Silian_img))
+                                    await Silian_msg.send_message(Silian_imgs, quote=False)
                             else:
-                                get_infobox = await generate_screenshot_v1(q[qq].realurl, qq, headers)
-                                if get_infobox:
-                                    imgs = []
-                                    for img in get_infobox:
-                                        imgs.append(Image(img))
-                                    await msg.send_message(imgs, quote=False)
+                                Silian_get_infobox = await generate_screenshot_v1(Silian_q[Silian_qq].realurl, Silian_qq, Silian_headers)
+                                if Silian_get_infobox:
+                                    Silian_imgs = []
+                                    for Silian_img in Silian_get_infobox:
+                                        Silian_imgs.append(Image(Silian_img))
+                                    await Silian_msg.send_message(Silian_imgs, quote=False)
                         if (
                             (
-                                get_page.invalid_section
-                                and (wiki_.wiki_info.in_allowlist or not msg.session_info.use_url_manager)
+                                Silian_get_page.invalid_section
+                                and (Silian_wiki_.wiki_info.in_allowlist or not Silian_msg.session_info.use_url_manager)
                             )
-                            or (get_page.is_talk_page and not get_page.selected_section)
+                            or (Silian_get_page.is_talk_page and not Silian_get_page.selected_section)
                             and Bot.Info.web_render_status
                         ):
-                            i_msg_lst = []
-                            if get_page.sections:
-                                session_data = [
-                                    [str(i + 1), get_page.sections[i]] for i in range(len(get_page.sections))
+                            Silian_i_msg_lst = []
+                            if Silian_get_page.sections:
+                                Silian_session_data = [
+                                    [str(Silian_i + 1), Silian_get_page.sections[Silian_i]] for Silian_i in range(len(Silian_get_page.sections))
                                 ]
-                                i_msg_lst.append(
+                                Silian_i_msg_lst.append(
                                     I18NContext(
                                         "wiki.message.invalid_section.prompt"
                                         if (
-                                            get_page.invalid_section
-                                            and (wiki_.wiki_info.in_allowlist or not msg.session_info.use_url_manager)
+                                            Silian_get_page.invalid_section
+                                            and (Silian_wiki_.wiki_info.in_allowlist or not Silian_msg.session_info.use_url_manager)
                                         )
                                         else "wiki.message.talk_page.prompt"
                                     )
                                 )
-                                i_msg_lst += [
-                                    Image(ii)
-                                    for ii in await image_table_render(
+                                Silian_i_msg_lst += [
+                                    Image(Silian_ii)
+                                    for Silian_ii in await image_table_render(
                                         ImageTable(
-                                            session_data,
+                                            Silian_session_data,
                                             [
                                                 "{I18N:wiki.message.table.header.id}",
                                                 "{I18N:wiki.message.table.header.section}",
                                             ],
-                                            msg.session_info,
+                                            Silian_msg.session_info,
                                         )
                                     )
                                 ]
-                                i_msg_lst.append(I18NContext("wiki.message.invalid_section.select"))
-                                i_msg_lst.append(I18NContext("message.reply.prompt"))
+                                Silian_i_msg_lst.append(I18NContext("wiki.message.invalid_section.select"))
+                                Silian_i_msg_lst.append(I18NContext("message.reply.prompt"))
 
-                                async def _callback(msg: Bot.MessageSession):
-                                    display = msg.as_display(text_only=True)
-                                    if is_int(display):
-                                        display = int(display)
-                                        if display <= len(get_page.sections):
-                                            get_page.selected_section = display - 1
+                                async def _callback(Silian_msg: Bot.MessageSession):
+                                    Silian_display = Silian_msg.as_display(text_only=True)
+                                    if is_int(Silian_display):
+                                        Silian_display = int(Silian_display)
+                                        if Silian_display <= len(Silian_get_page.sections):
+                                            Silian_get_page.selected_section = Silian_display - 1
                                             await query_pages(
-                                                msg,
-                                                title=get_page.title + "#" + get_page.sections[display - 1],
-                                                start_wiki_api=get_page.info.api,
+                                                Silian_msg,
+                                                title=Silian_get_page.title + "#" + Silian_get_page.sections[Silian_display - 1],
+                                                start_wiki_api=Silian_get_page.info.api,
                                             )
 
-                                await msg.send_message(i_msg_lst, callback=_callback)
+                                await Silian_msg.send_message(Silian_i_msg_lst, callback=_callback)
                             else:
-                                await msg.send_message(I18NContext("wiki.message.invalid_section"))
-                        if get_page.is_forum:
-                            forum_data = get_page.forum_data
-                            img_table_data = []
-                            img_table_headers = ["#"]
-                            for x in forum_data:
-                                if x == "#":
-                                    img_table_headers += forum_data[x]["data"]
+                                await Silian_msg.send_message(I18NContext("wiki.message.invalid_section"))
+                        if Silian_get_page.is_forum:
+                            Silian_forum_data = Silian_get_page.forum_data
+                            Silian_img_table_data = []
+                            Silian_img_table_headers = ["#"]
+                            for Silian_x in Silian_forum_data:
+                                if Silian_x == "#":
+                                    Silian_img_table_headers += Silian_forum_data[Silian_x]["data"]
                                 else:
-                                    img_table_data.append([x] + forum_data[x]["data"])
-                            img_table = ImageTable(img_table_data, img_table_headers)
-                            i_msg_lst = []
-                            i_msg_lst.append(I18NContext("wiki.message.forum.prompt"))
-                            i_msg_lst += [Image(ii) for ii in await image_table_render(img_table)]
-                            i_msg_lst.append(I18NContext("wiki.message.invalid_section.select"))
-                            i_msg_lst.append(I18NContext("message.reply.prompt"))
+                                    Silian_img_table_data.append([Silian_x] + Silian_forum_data[Silian_x]["data"])
+                            Silian_img_table = ImageTable(Silian_img_table_data, Silian_img_table_headers)
+                            Silian_i_msg_lst = []
+                            Silian_i_msg_lst.append(I18NContext("wiki.message.forum.prompt"))
+                            Silian_i_msg_lst += [Image(Silian_ii) for Silian_ii in await image_table_render(Silian_img_table)]
+                            Silian_i_msg_lst.append(I18NContext("wiki.message.invalid_section.select"))
+                            Silian_i_msg_lst.append(I18NContext("message.reply.prompt"))
 
-                            async def _callback(msg: Bot.MessageSession):
-                                display = msg.as_display(text_only=True)
-                                if is_int(display) and int(display) <= len(forum_data) - 1:
+                            async def _callback(Silian_msg: Bot.MessageSession):
+                                Silian_display = Silian_msg.as_display(text_only=True)
+                                if is_int(Silian_display) and int(Silian_display) <= len(Silian_forum_data) - 1:
                                     await query_pages(
-                                        msg,
-                                        title=forum_data[display]["text"],
-                                        start_wiki_api=get_page.info.api,
+                                        Silian_msg,
+                                        title=Silian_forum_data[Silian_display]["text"],
+                                        start_wiki_api=Silian_get_page.info.api,
                                     )
 
-                            await msg.send_message(i_msg_lst, callback=_callback)
-            if len(query_list) == 1 and img_send:
+                            await Silian_msg.send_message(Silian_i_msg_lst, callback=_callback)
+            if len(Silian_query_list) == 1 and Silian_img_send:
                 return
-            if msg.session_info.support_image:
-                for qq in q:
-                    section_ = []
-                    quote_code = False
-                    page_name = urllib.parse.unquote(qq)
-                    for qs in page_name:
-                        if qs == "#":
-                            quote_code = True
-                        if qs == "?":
-                            quote_code = False
-                        if quote_code:
-                            section_.append(qs)
-                    if section_:
-                        s = urllib.parse.unquote("".join(section_)[1:])
-                        if q[qq].realurl and (q[qq].in_allowlist or not msg.session_info.use_url_manager):
-                            if q[qq].realurl in generate_screenshot_v2_blocklist:
-                                get_section = await generate_screenshot_v1(q[qq].realurl, qq, headers, section=s)
+            if Silian_msg.session_info.support_image:
+                for Silian_qq in Silian_q:
+                    Silian_section_ = []
+                    Silian_quote_code = False
+                    Silian_page_name = urllib.parse.unquote(Silian_qq)
+                    for Silian_qs in Silian_page_name:
+                        if Silian_qs == "#":
+                            Silian_quote_code = True
+                        if Silian_qs == "?":
+                            Silian_quote_code = False
+                        if Silian_quote_code:
+                            Silian_section_.append(Silian_qs)
+                    if Silian_section_:
+                        Silian_s = urllib.parse.unquote("".join(Silian_section_)[1:])
+                        if Silian_q[Silian_qq].realurl and (Silian_q[Silian_qq].in_allowlist or not Silian_msg.session_info.use_url_manager):
+                            if Silian_q[Silian_qq].realurl in generate_screenshot_v2_blocklist:
+                                Silian_get_section = await generate_screenshot_v1(Silian_q[Silian_qq].realurl, Silian_qq, Silian_headers, section=Silian_s)
                             else:
-                                get_section = await generate_screenshot_v2(
-                                    qq, section=s, locale=msg.session_info.locale.locale
+                                Silian_get_section = await generate_screenshot_v2(
+                                    Silian_qq, section=Silian_s, locale=Silian_msg.session_info.locale.locale
                                 )
-                            if get_section:
-                                imgs = []
-                                for img in get_section:
-                                    imgs.append(Image(img))
-                                await msg.send_message(imgs, quote=False)
-        await msg.release()
+                            if Silian_get_section:
+                                Silian_imgs = []
+                                for Silian_img in Silian_get_section:
+                                    Silian_imgs.append(Image(Silian_img))
+                                await Silian_msg.send_message(Silian_imgs, quote=False)
+        await Silian_msg.release()
 
-    _query_list = []
-    target = await WikiTargetInfo.get_by_target_id(msg.session_info.target_id)
-    headers = target.headers
-    for x in match_msg:
-        wiki_ = WikiLib(x)
-        if check_from_database := await wiki_.check_wiki_info_from_database_cache():
-            if check_from_database.available:
-                check_from_api = await wiki_.check_wiki_available()
-                if check_from_api.available:
-                    _query_list.append({x: check_from_api.value})
-    if _query_list:
-        await msg.hold()
-        asyncio.create_task(bgtask(_query_list))
+    Silian__query_list = []
+    Silian_target = await WikiTargetInfo.get_by_target_id(Silian_msg.session_info.target_id)
+    Silian_headers = Silian_target.headers
+    for Silian_x in Silian_match_msg:
+        Silian_wiki_ = WikiLib(Silian_x)
+        if Silian_check_from_database := await Silian_wiki_.check_wiki_info_from_database_cache():
+            if Silian_check_from_database.available:
+                Silian_check_from_api = await Silian_wiki_.check_wiki_available()
+                if Silian_check_from_api.available:
+                    Silian__query_list.append({Silian_x: Silian_check_from_api.value})
+    if Silian__query_list:
+        await Silian_msg.hold()
+        asyncio.create_task(bgtask(Silian__query_list))
     # await bgtask()

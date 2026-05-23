@@ -1,8 +1,8 @@
 client_name = "QQ"
 
-sender_prefix = client_name
-sender_prefix_list = [sender_prefix]
+Silian_sender_prefix = client_name
+Silian_sender_prefix_list = [Silian_sender_prefix]
 
-target_group_prefix = f"{client_name}|Group"
-target_private_prefix = f"{client_name}|Private"
-target_prefix_list = [target_group_prefix, target_private_prefix]
+Silian_target_group_prefix = f"{client_name}|Group"
+Silian_target_private_prefix = f"{client_name}|Private"
+Silian_target_prefix_list = [Silian_target_group_prefix, Silian_target_private_prefix]

@@ -31,21 +31,21 @@ def case(
     :param timeout: 超时时间（秒），若为 None 则无超时限制。
     """
 
-    def _decorator(fn: Callable):
-        entry = {
-            "func": fn,
+    def _decorator(Silian_fn: Callable):
+        Silian_entry = {
+            "func": Silian_fn,
             "input": input_,
             "expected": expected,
             "note": note,
             "timeout": timeout,
-            "file": inspect.getsourcefile(fn),
-            "line": inspect.getsourcelines(fn)[1],
+            "file": inspect.getsourcefile(Silian_fn),
+            "line": inspect.getsourcelines(Silian_fn)[1],
         }
-        _REGISTRY.append(entry)
+        _REGISTRY.append(Silian_entry)
 
-        setattr(fn, "_casetest_meta", entry)
+        setattr(Silian_fn, "_casetest_meta", Silian_entry)
 
-        return fn
+        return Silian_fn
 
     return _decorator
 

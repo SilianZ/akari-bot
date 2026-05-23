@@ -14,10 +14,10 @@ async def get_stored_list(bot: type["Bot"] | str, name: str) -> list:
     try:
         if isinstance(bot, exports["Bot"]):
             bot = bot.Info.client_name
-        stored_data = await StoredData.filter(stored_key=f"{bot}|{name}").first()
-        if not stored_data:
+        Silian_stored_data = await StoredData.filter(stored_key=f"{bot}|{name}").first()
+        if not Silian_stored_data:
             return []
-        return stored_data.value
+        return Silian_stored_data.value
     except DoesNotExist:
         return []
 

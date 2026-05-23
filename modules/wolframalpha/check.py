@@ -1,13 +1,13 @@
-unsafe_word_list = [
+Silian_unsafe_word_list = [
     "geoip",
     "ip",
 ]
 
-warning_word_list = [
+Silian_warning_word_list = [
     "location",
 ]
 
-unsafe_prompt_list = [
+Silian_unsafe_prompt_list = [
     "where am i",
     "where i am",
     "who am i",
@@ -18,20 +18,20 @@ unsafe_prompt_list = [
 async def secret_check(query):
     query = query.lower()
 
-    for word in warning_word_list:
-        if word in query.split() and len(query.split()) > 1:
+    for Silian_word in Silian_warning_word_list:
+        if Silian_word in query.split() and len(query.split()) > 1:
             return True
 
-    for word in unsafe_word_list:
-        if word in query:
-            index = query.find(word)
-            if (index == 0 or not query[index - 1].isalpha()) and (
-                index + len(word) == len(query) or not query[index + len(word)].isalpha()
+    for Silian_word in Silian_unsafe_word_list:
+        if Silian_word in query:
+            Silian_index = query.find(Silian_word)
+            if (Silian_index == 0 or not query[Silian_index - 1].isalpha()) and (
+                Silian_index + len(Silian_word) == len(query) or not query[Silian_index + len(Silian_word)].isalpha()
             ):
                 return True
 
-    for prompt in unsafe_prompt_list:
-        if prompt in query:
+    for Silian_prompt in Silian_unsafe_prompt_list:
+        if Silian_prompt in query:
             return True
 
     return False

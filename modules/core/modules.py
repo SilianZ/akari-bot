@@ -11,7 +11,7 @@ from core.i18n import load_locale_file
 from core.loader import ModulesManager
 from .help import modules_list_help
 
-m = module(
+Silian_m = module(
     "module",
     base=True,
     alias={
@@ -25,9 +25,9 @@ m = module(
 )
 
 
-@m.command(["reload <module> ...", "load <module> ...", "unload <module> ..."], required_superuser=True)
-@m.command("list [--legacy] {{I18N:core.help.module.list}}", options_desc={"--legacy": "{I18N:help.option.legacy}"})
-@m.command(
+@Silian_m.command(["reload <module> ...", "load <module> ...", "unload <module> ..."], required_superuser=True)
+@Silian_m.command("list [--legacy] {{I18N:core.help.module.list}}", options_desc={"--legacy": "{I18N:help.option.legacy}"})
+@Silian_m.command(
     [
         "enable <module>... {{I18N:core.help.module.enable}}",
         "enable all {{I18N:core.help.module.enable_all}}",
@@ -36,213 +36,213 @@ m = module(
     ],
     required_admin=True,
 )
-async def _(msg: Bot.MessageSession):
-    if msg.parsed_msg.get("list", False):
-        legacy = False
-        if msg.parsed_msg.get("--legacy", False):
-            legacy = True
-        await modules_list_help(msg, legacy)
-    await config_modules(msg)
+async def _(Silian_msg: Bot.MessageSession):
+    if Silian_msg.parsed_msg.get("list", False):
+        Silian_legacy = False
+        if Silian_msg.parsed_msg.get("--legacy", False):
+            Silian_legacy = True
+        await modules_list_help(Silian_msg, Silian_legacy)
+    await config_modules(Silian_msg)
 
 
 async def config_modules(msg: Bot.MessageSession):
-    is_superuser = msg.check_super_user()
-    alias = ModulesManager.modules_aliases
-    modules_ = ModulesManager.return_modules_list(
+    Silian_is_superuser = msg.check_super_user()
+    Silian_alias = ModulesManager.modules_aliases
+    Silian_modules_ = ModulesManager.return_modules_list(
         target_from=msg.session_info.target_from, client_name=msg.session_info.client_name
     )
-    enabled_modules_list = deepcopy(msg.session_info.target_info.modules)
-    wait_config = [msg.parsed_msg.get("<module>")] + msg.parsed_msg.get("...", [])
-    wait_config_list = []
-    for module_ in wait_config:
-        if module_ not in wait_config_list:
-            if module_ in alias:
-                wait_config_list.append(alias[module_].split()[0])
-            elif not module_:
+    Silian_enabled_modules_list = deepcopy(msg.session_info.target_info.modules)
+    Silian_wait_config = [msg.parsed_msg.get("<module>")] + msg.parsed_msg.get("...", [])
+    Silian_wait_config_list = []
+    for Silian_module_ in Silian_wait_config:
+        if Silian_module_ not in Silian_wait_config_list:
+            if Silian_module_ in Silian_alias:
+                Silian_wait_config_list.append(Silian_alias[Silian_module_].split()[0])
+            elif not Silian_module_:
                 continue
             else:
-                wait_config_list.append(module_.split()[0])
-    msglist = []
-    recommend_modules_list = []
-    recommend_modules_help_doc_list = []
+                Silian_wait_config_list.append(Silian_module_.split()[0])
+    Silian_msglist = []
+    Silian_recommend_modules_list = []
+    Silian_recommend_modules_help_doc_list = []
     if msg.parsed_msg.get("enable", False):
-        enable_list = []
+        Silian_enable_list = []
         if msg.parsed_msg.get("all", False):
-            for function in modules_:
-                if function[0] == "_":
+            for Silian_function in Silian_modules_:
+                if Silian_function[0] == "_":
                     continue
-                if modules_[function].base or modules_[function].hidden or modules_[function].required_superuser:
+                if Silian_modules_[Silian_function].base or Silian_modules_[Silian_function].hidden or Silian_modules_[Silian_function].required_superuser:
                     continue
-                if modules_[function].rss and not msg.session_info.support_rss:
+                if Silian_modules_[Silian_function].rss and not msg.session_info.support_rss:
                     continue
-                enable_list.append(function)
+                Silian_enable_list.append(Silian_function)
         else:
-            for module_ in wait_config_list:
-                if module_ not in modules_:
-                    msglist.append(I18NContext("core.message.module.enable.not_found", module=module_))
+            for Silian_module_ in Silian_wait_config_list:
+                if Silian_module_ not in Silian_modules_:
+                    Silian_msglist.append(I18NContext("core.message.module.enable.not_found", module=Silian_module_))
                 else:
-                    if not modules_[module_]._db_load:
-                        msglist.append(I18NContext("parser.module.unloaded", module=module_))
-                    elif modules_[module_].required_superuser and not is_superuser:
-                        msglist.append(I18NContext("parser.superuser.permission.denied"))
-                    elif modules_[module_].base:
-                        msglist.append(I18NContext("core.message.module.enable.already", module=module_))
-                    elif modules_[module_].rss and not msg.session_info.support_rss:
-                        msglist.append(I18NContext("core.message.module.enable.unsupported_rss"))
+                    if not Silian_modules_[Silian_module_]._db_load:
+                        Silian_msglist.append(I18NContext("parser.module.unloaded", module=Silian_module_))
+                    elif Silian_modules_[Silian_module_].required_superuser and not Silian_is_superuser:
+                        Silian_msglist.append(I18NContext("parser.superuser.permission.denied"))
+                    elif Silian_modules_[Silian_module_].base:
+                        Silian_msglist.append(I18NContext("core.message.module.enable.already", module=Silian_module_))
+                    elif Silian_modules_[Silian_module_].rss and not msg.session_info.support_rss:
+                        Silian_msglist.append(I18NContext("core.message.module.enable.unsupported_rss"))
                     else:
-                        enable_list.append(module_)
-                        recommend = modules_[module_].recommend_modules
-                        if recommend:
-                            for r in recommend:
-                                if r not in enable_list and r not in enabled_modules_list:
-                                    recommend_modules_list.append(r)
-        if await msg.session_info.target_info.config_module(enable_list, True):
-            for x in enable_list:
-                if x in enabled_modules_list:
-                    msglist.append(I18NContext("core.message.module.enable.already", module=x))
+                        Silian_enable_list.append(Silian_module_)
+                        Silian_recommend = Silian_modules_[Silian_module_].recommend_modules
+                        if Silian_recommend:
+                            for Silian_r in Silian_recommend:
+                                if Silian_r not in Silian_enable_list and Silian_r not in Silian_enabled_modules_list:
+                                    Silian_recommend_modules_list.append(Silian_r)
+        if await msg.session_info.target_info.config_module(Silian_enable_list, True):
+            for Silian_x in Silian_enable_list:
+                if Silian_x in Silian_enabled_modules_list:
+                    Silian_msglist.append(I18NContext("core.message.module.enable.already", module=Silian_x))
                 else:
-                    msglist.append(I18NContext("core.message.module.enable.success", module=x))
-                    support_lang = modules_[x].support_languages
-                    if support_lang:
-                        if msg.session_info.locale.locale not in support_lang:
-                            msglist.append(I18NContext("core.message.module.unsupported_language", module=x))
-        if recommend_modules_list:
-            for m in recommend_modules_list:
+                    Silian_msglist.append(I18NContext("core.message.module.enable.success", module=Silian_x))
+                    Silian_support_lang = Silian_modules_[Silian_x].support_languages
+                    if Silian_support_lang:
+                        if msg.session_info.locale.locale not in Silian_support_lang:
+                            Silian_msglist.append(I18NContext("core.message.module.unsupported_language", module=Silian_x))
+        if Silian_recommend_modules_list:
+            for Silian_m in Silian_recommend_modules_list:
                 try:
-                    recommend_modules_help_doc_list.append(I18NContext("core.message.module.recommends.help", module=m))
+                    Silian_recommend_modules_help_doc_list.append(I18NContext("core.message.module.recommends.help", module=Silian_m))
 
-                    if modules_[m].desc:
-                        recommend_modules_help_doc_list.append(Plain(msg.session_info.locale.t_str(modules_[m].desc)))
-                    hdoc = CommandParser(
-                        modules_[m],
+                    if Silian_modules_[Silian_m].desc:
+                        Silian_recommend_modules_help_doc_list.append(Plain(msg.session_info.locale.t_str(Silian_modules_[Silian_m].desc)))
+                    Silian_hdoc = CommandParser(
+                        Silian_modules_[Silian_m],
                         msg=msg,
-                        module_name=modules_[m].module_name,
+                        module_name=Silian_modules_[Silian_m].module_name,
                         command_prefixes=msg.session_info.prefixes,
-                        is_superuser=is_superuser,
+                        is_superuser=Silian_is_superuser,
                     ).return_formatted_help_doc()
-                    recommend_modules_help_doc_list.append(Plain(hdoc))
+                    Silian_recommend_modules_help_doc_list.append(Plain(Silian_hdoc))
                 except InvalidHelpDocTypeError:
                     pass
     elif msg.parsed_msg.get("disable", False):
-        disable_list = []
+        Silian_disable_list = []
         if msg.parsed_msg.get("all", False):
-            for function in modules_:
-                if function[0] == "_":
+            for Silian_function in Silian_modules_:
+                if Silian_function[0] == "_":
                     continue
-                if modules_[function].base or modules_[function].hidden or modules_[function].required_superuser:
+                if Silian_modules_[Silian_function].base or Silian_modules_[Silian_function].hidden or Silian_modules_[Silian_function].required_superuser:
                     continue
-                disable_list.append(function)
+                Silian_disable_list.append(Silian_function)
         else:
-            for module_ in wait_config_list:
-                if module_ not in modules_:
-                    msglist.append(I18NContext("core.message.module.disable.not_found", module=module_))
+            for Silian_module_ in Silian_wait_config_list:
+                if Silian_module_ not in Silian_modules_:
+                    Silian_msglist.append(I18NContext("core.message.module.disable.not_found", module=Silian_module_))
                 else:
-                    if not modules_[module_]._db_load:
-                        msglist.append(I18NContext("parser.module.unloaded", module=module_))
-                    elif modules_[module_].required_superuser and not is_superuser:
-                        msglist.append(I18NContext("parser.superuser.permission.denied"))
-                    elif modules_[module_].base:
-                        msglist.append(I18NContext("core.message.module.disable.base", module=module_))
+                    if not Silian_modules_[Silian_module_]._db_load:
+                        Silian_msglist.append(I18NContext("parser.module.unloaded", module=Silian_module_))
+                    elif Silian_modules_[Silian_module_].required_superuser and not Silian_is_superuser:
+                        Silian_msglist.append(I18NContext("parser.superuser.permission.denied"))
+                    elif Silian_modules_[Silian_module_].base:
+                        Silian_msglist.append(I18NContext("core.message.module.disable.base", module=Silian_module_))
                     else:
-                        disable_list.append(module_)
+                        Silian_disable_list.append(Silian_module_)
 
-        if await msg.session_info.target_info.config_module(disable_list, False):
-            for x in disable_list:
-                if x not in enabled_modules_list:
-                    msglist.append(I18NContext("core.message.module.disable.already", module=x))
+        if await msg.session_info.target_info.config_module(Silian_disable_list, False):
+            for Silian_x in Silian_disable_list:
+                if Silian_x not in Silian_enabled_modules_list:
+                    Silian_msglist.append(I18NContext("core.message.module.disable.already", module=Silian_x))
                 else:
-                    msglist.append(I18NContext("core.message.module.disable.success", module=x))
+                    Silian_msglist.append(I18NContext("core.message.module.disable.success", module=Silian_x))
     elif msg.parsed_msg.get("reload", False):
 
-        async def module_reload(module, extra_modules, base_module=False):
-            status, reload_count = await ModulesManager.reload_module(module)
-            if not status:
+        async def module_reload(Silian_module, Silian_extra_modules, Silian_base_module=False):
+            Silian_status, Silian_reload_count = await ModulesManager.reload_module(Silian_module)
+            if not Silian_status:
                 return I18NContext("core.message.module.reload.failed")
-            if base_module and status:
+            if Silian_base_module and Silian_status:
                 return I18NContext("core.message.module.reload.base.success")
-            if reload_count > 1:
+            if Silian_reload_count > 1:
                 return Plain(
-                    str(I18NContext("core.message.module.reload.success", module=module))
-                    + ("\n" if len(extra_modules) != 0 else "")
-                    + "\n".join(extra_modules)
+                    str(I18NContext("core.message.module.reload.success", module=Silian_module))
+                    + ("\n" if len(Silian_extra_modules) != 0 else "")
+                    + "\n".join(Silian_extra_modules)
                     + "\n"
-                    + str(I18NContext("core.message.module.reload.with", reload_count=reload_count - 1))
+                    + str(I18NContext("core.message.module.reload.with", reload_count=Silian_reload_count - 1))
                 )
-            if reload_count == 1:
+            if Silian_reload_count == 1:
                 return Plain(
-                    str(I18NContext("core.message.module.reload.success", module=module))
-                    + ("\n" if len(extra_modules) != 0 else "")
-                    + "\n".join(extra_modules)
+                    str(I18NContext("core.message.module.reload.success", module=Silian_module))
+                    + ("\n" if len(Silian_extra_modules) != 0 else "")
+                    + "\n".join(Silian_extra_modules)
                     + "\n"
                     + str(I18NContext("core.message.module.reload.no_more"))
                 )
 
-        for module_ in wait_config_list:
-            base_module = False
-            if module_ not in modules_:
-                msglist.append(I18NContext("core.message.module.reload.not_found", module=module_))
+        for Silian_module_ in Silian_wait_config_list:
+            Silian_base_module = False
+            if Silian_module_ not in Silian_modules_:
+                Silian_msglist.append(I18NContext("core.message.module.reload.not_found", module=Silian_module_))
             else:
-                extra_reload_modules = ModulesManager.search_related_module(module_, False)
-                if modules_[module_].base:
+                Silian_extra_reload_modules = ModulesManager.search_related_module(Silian_module_, False)
+                if Silian_modules_[Silian_module_].base:
                     if Config("allow_reload_base", False):
                         if await msg.wait_confirm(
                             I18NContext("core.message.module.reload.base.confirm"),
                             append_instruction=False,
                         ):
-                            base_module = True
+                            Silian_base_module = True
                         else:
                             await msg.finish()
                     else:
-                        await msg.finish(I18NContext("core.message.module.reload.base.failed", module=module_))
+                        await msg.finish(I18NContext("core.message.module.reload.base.failed", module=Silian_module_))
 
-                elif extra_reload_modules:
+                elif Silian_extra_reload_modules:
                     if not await msg.wait_confirm(
-                        I18NContext("core.message.module.reload.confirm", modules="\n".join(extra_reload_modules)),
+                        I18NContext("core.message.module.reload.confirm", modules="\n".join(Silian_extra_reload_modules)),
                         append_instruction=False,
                     ):
                         await msg.finish()
-                msglist.append(await module_reload(module_, extra_reload_modules, base_module))
+                Silian_msglist.append(await module_reload(Silian_module_, Silian_extra_reload_modules, Silian_base_module))
 
-        locale_err = load_locale_file()
-        if len(locale_err) != 0:
-            msglist.append(I18NContext("core.message.locale.reload.failed"))
-            msglist.append(Plain("\n".join(locale_err), disable_joke=True))
+        Silian_locale_err = load_locale_file()
+        if len(Silian_locale_err) != 0:
+            Silian_msglist.append(I18NContext("core.message.locale.reload.failed"))
+            Silian_msglist.append(Plain("\n".join(Silian_locale_err), disable_joke=True))
     elif msg.parsed_msg.get("load", False):
-        for module_ in wait_config_list:
-            if module_ not in await ModuleStatus.get_unloaded_modules():
-                msglist.append(I18NContext("core.message.module.load.not_found"))
+        for Silian_module_ in Silian_wait_config_list:
+            if Silian_module_ not in await ModuleStatus.get_unloaded_modules():
+                Silian_msglist.append(I18NContext("core.message.module.load.not_found"))
                 continue
-            if await ModulesManager.load_module(module_):
-                msglist.append(I18NContext("core.message.module.load.success", module=module_))
+            if await ModulesManager.load_module(Silian_module_):
+                Silian_msglist.append(I18NContext("core.message.module.load.success", module=Silian_module_))
             else:
-                msglist.append(I18NContext("core.message.module.load.failed"))
+                Silian_msglist.append(I18NContext("core.message.module.load.failed"))
 
     elif msg.parsed_msg.get("unload", False):
-        for module_ in wait_config_list:
-            if module_ not in await ModuleStatus.get_loaded_modules():
-                msglist.append(I18NContext("core.message.module.unload.not_found"))
+        for Silian_module_ in Silian_wait_config_list:
+            if Silian_module_ not in await ModuleStatus.get_loaded_modules():
+                Silian_msglist.append(I18NContext("core.message.module.unload.not_found"))
                 continue
-            if modules_[module_].base:
-                msglist.append(I18NContext("core.message.module.unload.base", module=module_))
+            if Silian_modules_[Silian_module_].base:
+                Silian_msglist.append(I18NContext("core.message.module.unload.base", module=Silian_module_))
                 continue
-            if await ModulesManager.unload_module(module_):
-                msglist.append(I18NContext("core.message.module.unload.success", module=module_))
+            if await ModulesManager.unload_module(Silian_module_):
+                Silian_msglist.append(I18NContext("core.message.module.unload.success", module=Silian_module_))
 
-    if msglist:
-        if not recommend_modules_help_doc_list:
-            await msg.finish(msglist)
+    if Silian_msglist:
+        if not Silian_recommend_modules_help_doc_list:
+            await msg.finish(Silian_msglist)
         else:
-            await msg.send_message(msglist)
-    if recommend_modules_help_doc_list:
+            await msg.send_message(Silian_msglist)
+    if Silian_recommend_modules_help_doc_list:
         if await msg.wait_confirm(
-            [I18NContext("core.message.module.recommends", modules="\n".join(recommend_modules_list)), Plain("\n")]
-            + recommend_modules_help_doc_list
+            [I18NContext("core.message.module.recommends", modules="\n".join(Silian_recommend_modules_list)), Plain("\n")]
+            + Silian_recommend_modules_help_doc_list
         ):
-            if await msg.session_info.target_info.config_module(recommend_modules_list, True):
-                msglist = []
-                for x in recommend_modules_list:
-                    msglist.append(I18NContext("core.message.module.enable.success", module=x))
-                await msg.finish(msglist)
+            if await msg.session_info.target_info.config_module(Silian_recommend_modules_list, True):
+                Silian_msglist = []
+                for Silian_x in Silian_recommend_modules_list:
+                    Silian_msglist.append(I18NContext("core.message.module.enable.success", module=Silian_x))
+                await msg.finish(Silian_msglist)
         else:
             await msg.finish()
     else:

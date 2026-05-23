@@ -18,100 +18,100 @@ from core.utils.http import download
 
 Bot.register_bot(client_name=client_name)
 
-ctx_id = Bot.register_context_manager(AiogramContextManager)
+Silian_ctx_id = Bot.register_context_manager(AiogramContextManager)
 Bot.register_context_manager(AiogramFetchedContextManager, fetch_session=True)
 
-ignored_sender = Config("ignored_sender", ignored_sender_default)
-mention_required = Config("mention_required", False)
+Silian_ignored_sender = Config("ignored_sender", ignored_sender_default)
+Silian_mention_required = Config("mention_required", False)
 
 
 async def to_message_chain(msg: types.Message):
-    lst = []
+    Silian_lst = []
     if msg.audio:
         file = await aiogram_bot.get_file(msg.audio.file_id)
-        d = await download(f"https://api.telegram.org/file/bot{token}/{file.file_path}")
-        lst.append(Voice(d))
+        Silian_d = await download(f"https://api.telegram.org/file/bot{token}/{file.file_path}")
+        Silian_lst.append(Voice(Silian_d))
     if msg.photo:
         file = await aiogram_bot.get_file(msg.photo[-1].file_id)
-        lst.append(Image(f"https://api.telegram.org/file/bot{token}/{file.file_path}"))
+        Silian_lst.append(Image(f"https://api.telegram.org/file/bot{token}/{file.file_path}"))
     if msg.voice:
         file = await aiogram_bot.get_file(msg.voice.file_id)
-        d = await download(f"https://api.telegram.org/file/bot{token}/{file.file_path}")
-        lst.append(Voice(d))
+        Silian_d = await download(f"https://api.telegram.org/file/bot{token}/{file.file_path}")
+        Silian_lst.append(Voice(Silian_d))
     if msg.document:
         file = await aiogram_bot.get_file(msg.document.file_id)
         if msg.document.mime_type.startswith("image/"):
-            lst.append(Image(f"https://api.telegram.org/file/bot{token}/{file.file_path}"))
+            Silian_lst.append(Image(f"https://api.telegram.org/file/bot{token}/{file.file_path}"))
         if msg.document.mime_type.startswith("audio/"):
-            d = await download(f"https://api.telegram.org/file/bot{token}/{file.file_path}")
-            lst.append(Voice(d))
+            Silian_d = await download(f"https://api.telegram.org/file/bot{token}/{file.file_path}")
+            Silian_lst.append(Voice(Silian_d))
     if msg.caption:
-        lst.append(Plain(msg.caption))
+        Silian_lst.append(Plain(msg.caption))
     if msg.text:
-        lst.append(Plain(msg.text))
-    return MessageChain.assign(lst)
+        Silian_lst.append(Plain(msg.text))
+    return MessageChain.assign(Silian_lst)
 
 
 @dp.message()
 async def msg_handler(message: types.Message):
     target_from = f"{target_prefix}|{message.chat.type.title()}"
-    target_id = f"{target_from}|{message.chat.id}"
-    sender_id = f"{sender_prefix}|{message.from_user.id}"
-    if sender_id in ignored_sender:
+    Silian_target_id = f"{target_from}|{message.chat.id}"
+    Silian_sender_id = f"{sender_prefix}|{message.from_user.id}"
+    if Silian_sender_id in Silian_ignored_sender:
         return
 
-    reply_id = None
+    Silian_reply_id = None
     if message.reply_to_message:
-        reply_id = message.reply_to_message.message_id
+        Silian_reply_id = message.reply_to_message.message_id
 
-    text = message.text or ""
-    at_message = False
-    entities = message.entities or []
+    Silian_text = message.text or ""
+    Silian_at_message = False
+    Silian_entities = message.entities or []
 
-    if entities and entities[0].offset == 0:
-        first = entities[0]
-        if first.type == MessageEntityType.TEXT_MENTION:
-            bot_id = (await message.bot.get_me()).id
-            if first.user.id != bot_id:
+    if Silian_entities and Silian_entities[0].offset == 0:
+        Silian_first = Silian_entities[0]
+        if Silian_first.type == MessageEntityType.TEXT_MENTION:
+            Silian_bot_id = (await message.bot.get_me()).id
+            if Silian_first.user.id != Silian_bot_id:
                 return
 
-            at_message = True
-            text = text[first.length :].strip()
+            Silian_at_message = True
+            Silian_text = Silian_text[Silian_first.length :].strip()
 
-        elif first.type == MessageEntityType.MENTION:
+        elif Silian_first.type == MessageEntityType.MENTION:
             bot_username = (await message.bot.get_me()).username
-            mention_text = text[: first.length]
-            if mention_text != f"@{bot_username}":
+            Silian_mention_text = Silian_text[: Silian_first.length]
+            if Silian_mention_text != f"@{bot_username}":
                 return
 
-            at_message = True
-            text = text[first.length :].strip()
+            Silian_at_message = True
+            Silian_text = Silian_text[Silian_first.length :].strip()
         else:
             pass
 
-        if at_message and not text:
-            text = f"{command_prefix[0]}help"
+        if Silian_at_message and not Silian_text:
+            Silian_text = f"{command_prefix[0]}help"
 
-    if mention_required and not at_message and message.chat.type != "private":
+    if Silian_mention_required and not Silian_at_message and message.chat.type != "private":
         return
 
-    processed_message = message.model_copy(update={"text": text})
-    msg_chain = await to_message_chain(processed_message)
+    Silian_processed_message = message.model_copy(update={"text": Silian_text})
+    Silian_msg_chain = await to_message_chain(Silian_processed_message)
 
-    session = await SessionInfo.assign(
-        target_id=target_id,
-        sender_id=sender_id,
+    Silian_session = await SessionInfo.assign(
+        target_id=Silian_target_id,
+        sender_id=Silian_sender_id,
         sender_name=message.from_user.username,
         target_from=target_from,
         sender_from=sender_prefix,
         client_name=client_name,
         message_id=str(message.message_id),
-        reply_id=reply_id,
-        messages=msg_chain,
-        ctx_slot=ctx_id,
+        reply_id=Silian_reply_id,
+        messages=Silian_msg_chain,
+        ctx_slot=Silian_ctx_id,
     )
 
-    await Bot.process_message(session, message)
+    await Bot.process_message(Silian_session, message)
 
 
 async def on_startup():

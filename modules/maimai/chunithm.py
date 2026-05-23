@@ -11,9 +11,9 @@ from .libraries.chunithm_mapping import diff_list, default_source
 from .libraries.chunithm_music import TotalList
 from .libraries.chunithm_utils import *
 
-total_list = TotalList()
+Silian_total_list = TotalList()
 
-chu = module(
+Silian_chu = module(
     "chunithm",
     developers=["DoroWolf"],
     doc=True,
@@ -23,325 +23,325 @@ chu = module(
 )
 
 
-@chu.command(
+@Silian_chu.command(
     "base <constant> [<constant_max>] [-p <page>] {{I18N:maimai.help.base}}",
     options_desc={"-p": "{I18N:maimai.help.option.p}"},
 )
-async def _(msg: Bot.MessageSession, constant: float, constant_max: float = None):
-    result_set = []
-    if constant <= 0:
-        await msg.finish(I18NContext("maimai.message.level_invalid"))
-    elif constant_max:
-        if constant > constant_max:
-            data = (await total_list.get()).filter(ds=(constant_max, constant))
-            msg_chain = MessageChain.assign(
+async def _(Silian_msg: Bot.MessageSession, Silian_constant: float, Silian_constant_max: float = None):
+    Silian_result_set = []
+    if Silian_constant <= 0:
+        await Silian_msg.finish(I18NContext("maimai.message.level_invalid"))
+    elif Silian_constant_max:
+        if Silian_constant > Silian_constant_max:
+            Silian_data = (await Silian_total_list.get()).filter(ds=(Silian_constant_max, Silian_constant))
+            Silian_msg_chain = MessageChain.assign(
                 I18NContext(
-                    "maimai.message.base.range", constant=round(constant_max, 1), constant_max=round(constant, 1)
+                    "maimai.message.base.range", constant=round(Silian_constant_max, 1), constant_max=round(Silian_constant, 1)
                 )
             )
         else:
-            data = (await total_list.get()).filter(ds=(constant, constant_max))
-            msg_chain = MessageChain.assign(
+            Silian_data = (await Silian_total_list.get()).filter(ds=(Silian_constant, Silian_constant_max))
+            Silian_msg_chain = MessageChain.assign(
                 I18NContext(
-                    "maimai.message.base.range", constant=round(constant, 1), constant_max=round(constant_max, 1)
+                    "maimai.message.base.range", constant=round(Silian_constant, 1), constant_max=round(Silian_constant_max, 1)
                 )
             )
     else:
-        data = (await total_list.get()).filter(ds=constant)
-        msg_chain = MessageChain.assign(I18NContext("maimai.message.base", constant=round(constant, 1)))
+        Silian_data = (await Silian_total_list.get()).filter(ds=Silian_constant)
+        Silian_msg_chain = MessageChain.assign(I18NContext("maimai.message.base", constant=round(Silian_constant, 1)))
 
-    for music in sorted(data, key=lambda i: int(i["id"])):
-        for i in music.diff:
-            result_set.append(
+    for Silian_music in sorted(Silian_data, key=lambda Silian_i: int(Silian_i["id"])):
+        for Silian_i in Silian_music.diff:
+            Silian_result_set.append(
                 (
-                    music["id"],
-                    music["title"],
-                    music["ds"][i],
-                    diff_list[i],
-                    music["level"][i],
+                    Silian_music["id"],
+                    Silian_music["title"],
+                    Silian_music["ds"][Silian_i],
+                    diff_list[Silian_i],
+                    Silian_music["level"][Silian_i],
                 )
             )
 
-    total_pages = (len(result_set) + SONGS_PER_PAGE - 1) // SONGS_PER_PAGE
-    get_page = msg.parsed_msg.get("-p", False)
-    page = max(min(int(get_page["<page>"]), total_pages), 1) if get_page and is_int(get_page["<page>"]) else 1
-    start_index = (page - 1) * SONGS_PER_PAGE
-    end_index = page * SONGS_PER_PAGE
+    Silian_total_pages = (len(Silian_result_set) + SONGS_PER_PAGE - 1) // SONGS_PER_PAGE
+    Silian_get_page = Silian_msg.parsed_msg.get("-p", False)
+    Silian_page = max(min(int(Silian_get_page["<page>"]), Silian_total_pages), 1) if Silian_get_page and is_int(Silian_get_page["<page>"]) else 1
+    Silian_start_index = (Silian_page - 1) * SONGS_PER_PAGE
+    Silian_end_index = Silian_page * SONGS_PER_PAGE
 
-    for elem in result_set[start_index:end_index]:
-        msg_chain.append(Plain(f"{elem[0]} - {elem[1]} {elem[3]} {elem[4]} ({elem[2]})"))
-    if len(result_set) == 0:
-        await msg.finish(I18NContext("maimai.message.music_not_found"))
-    elif len(result_set) <= SONGS_PER_PAGE:
-        await msg.finish(msg_chain)
+    for elem in Silian_result_set[Silian_start_index:Silian_end_index]:
+        Silian_msg_chain.append(Plain(f"{elem[0]} - {elem[1]} {elem[3]} {elem[4]} ({elem[2]})"))
+    if len(Silian_result_set) == 0:
+        await Silian_msg.finish(I18NContext("maimai.message.music_not_found"))
+    elif len(Silian_result_set) <= SONGS_PER_PAGE:
+        await Silian_msg.finish(Silian_msg_chain)
     else:
-        msg_chain.append(I18NContext("maimai.message.pages", page=page, total_pages=total_pages))
-        imgs = await msgchain2image(msg_chain, msg)
-        if imgs:
-            await msg.finish(imgs)
+        Silian_msg_chain.append(I18NContext("maimai.message.pages", page=Silian_page, total_pages=Silian_total_pages))
+        Silian_imgs = await msgchain2image(Silian_msg_chain, Silian_msg)
+        if Silian_imgs:
+            await Silian_msg.finish(Silian_imgs)
         else:
-            await msg.finish(msg_chain)
+            await Silian_msg.finish(Silian_msg_chain)
 
 
-@chu.command(
+@Silian_chu.command(
     "level <level> [-p <page>] {{I18N:maimai.help.level}}",
     options_desc={"-p": "{I18N:maimai.help.option.p}"},
 )
-async def _(msg: Bot.MessageSession, level: str):
-    result_set = []
-    data = (await total_list.get()).filter(level=level)
-    for music in sorted(data, key=lambda i: int(i["id"])):
-        for i in music.diff:
-            result_set.append(
+async def _(Silian_msg: Bot.MessageSession, Silian_level: str):
+    Silian_result_set = []
+    Silian_data = (await Silian_total_list.get()).filter(level=Silian_level)
+    for Silian_music in sorted(Silian_data, key=lambda Silian_i: int(Silian_i["id"])):
+        for Silian_i in Silian_music.diff:
+            Silian_result_set.append(
                 (
-                    music["id"],
-                    music["title"],
-                    music["ds"][i],
-                    diff_list[i],
-                    music["level"][i],
+                    Silian_music["id"],
+                    Silian_music["title"],
+                    Silian_music["ds"][Silian_i],
+                    diff_list[Silian_i],
+                    Silian_music["level"][Silian_i],
                 )
             )
-    total_pages = (len(result_set) + SONGS_PER_PAGE - 1) // SONGS_PER_PAGE
-    get_page = msg.parsed_msg.get("-p", False)
-    page = max(min(int(get_page["<page>"]), total_pages), 1) if get_page and is_int(get_page["<page>"]) else 1
-    start_index = (page - 1) * SONGS_PER_PAGE
-    end_index = page * SONGS_PER_PAGE
+    Silian_total_pages = (len(Silian_result_set) + SONGS_PER_PAGE - 1) // SONGS_PER_PAGE
+    Silian_get_page = Silian_msg.parsed_msg.get("-p", False)
+    Silian_page = max(min(int(Silian_get_page["<page>"]), Silian_total_pages), 1) if Silian_get_page and is_int(Silian_get_page["<page>"]) else 1
+    Silian_start_index = (Silian_page - 1) * SONGS_PER_PAGE
+    Silian_end_index = Silian_page * SONGS_PER_PAGE
 
-    msg_chain = MessageChain.assign(I18NContext("maimai.message.level", level=level))
-    for elem in result_set[start_index:end_index]:
-        msg_chain.append(Plain(f"{elem[0]} - {elem[1]} {elem[3]} {elem[4]} ({elem[2]})"))
+    Silian_msg_chain = MessageChain.assign(I18NContext("maimai.message.level", level=Silian_level))
+    for elem in Silian_result_set[Silian_start_index:Silian_end_index]:
+        Silian_msg_chain.append(Plain(f"{elem[0]} - {elem[1]} {elem[3]} {elem[4]} ({elem[2]})"))
 
-    if len(result_set) == 0:
-        await msg.finish(I18NContext("maimai.message.music_not_found"))
-    elif len(result_set) <= SONGS_PER_PAGE:
-        await msg.finish(msg_chain)
+    if len(Silian_result_set) == 0:
+        await Silian_msg.finish(I18NContext("maimai.message.music_not_found"))
+    elif len(Silian_result_set) <= SONGS_PER_PAGE:
+        await Silian_msg.finish(Silian_msg_chain)
     else:
-        msg_chain.append(I18NContext("maimai.message.pages", page=page, total_pages=total_pages))
-        imgs = await msgchain2image(msg_chain, msg)
-        if imgs:
-            await msg.finish(imgs)
+        Silian_msg_chain.append(I18NContext("maimai.message.pages", page=Silian_page, total_pages=Silian_total_pages))
+        Silian_imgs = await msgchain2image(Silian_msg_chain, Silian_msg)
+        if Silian_imgs:
+            await Silian_msg.finish(Silian_imgs)
         else:
-            await msg.finish(msg_chain)
+            await Silian_msg.finish(Silian_msg_chain)
 
 
-@chu.command("search <keyword> [-p <page>] {{I18N:maimai.help.search}}")
-async def _(msg: Bot.MessageSession, keyword: str):
-    name = keyword.strip()
-    result_set = []
-    data = (await total_list.get()).filter(title_search=name)
-    if len(data) == 0:
-        await msg.finish(I18NContext("maimai.message.music_not_found"))
+@Silian_chu.command("search <keyword> [-p <page>] {{I18N:maimai.help.search}}")
+async def _(Silian_msg: Bot.MessageSession, Silian_keyword: str):
+    Silian_name = Silian_keyword.strip()
+    Silian_result_set = []
+    Silian_data = (await Silian_total_list.get()).filter(title_search=Silian_name)
+    if len(Silian_data) == 0:
+        await Silian_msg.finish(I18NContext("maimai.message.music_not_found"))
 
-    for music in sorted(data, key=lambda i: int(i["id"])):
-        result_set.append((music["id"], music["title"]))
-    total_pages = (len(result_set) + SONGS_PER_PAGE - 1) // SONGS_PER_PAGE
-    get_page = msg.parsed_msg.get("-p", False)
-    page = max(min(int(get_page["<page>"]), total_pages), 1) if get_page and is_int(get_page["<page>"]) else 1
-    start_index = (page - 1) * SONGS_PER_PAGE
-    end_index = page * SONGS_PER_PAGE
+    for Silian_music in sorted(Silian_data, key=lambda Silian_i: int(Silian_i["id"])):
+        Silian_result_set.append((Silian_music["id"], Silian_music["title"]))
+    Silian_total_pages = (len(Silian_result_set) + SONGS_PER_PAGE - 1) // SONGS_PER_PAGE
+    Silian_get_page = Silian_msg.parsed_msg.get("-p", False)
+    Silian_page = max(min(int(Silian_get_page["<page>"]), Silian_total_pages), 1) if Silian_get_page and is_int(Silian_get_page["<page>"]) else 1
+    Silian_start_index = (Silian_page - 1) * SONGS_PER_PAGE
+    Silian_end_index = Silian_page * SONGS_PER_PAGE
 
-    msg_chain = MessageChain.assign(I18NContext("maimai.message.search", keyword=name))
-    for elem in result_set[start_index:end_index]:
-        msg_chain.append(Plain(f"{elem[0]} - {elem[1]}"))
-    if len(data) <= SONGS_PER_PAGE:
-        await msg.finish(msg_chain)
+    Silian_msg_chain = MessageChain.assign(I18NContext("maimai.message.search", keyword=Silian_name))
+    for elem in Silian_result_set[Silian_start_index:Silian_end_index]:
+        Silian_msg_chain.append(Plain(f"{elem[0]} - {elem[1]}"))
+    if len(Silian_data) <= SONGS_PER_PAGE:
+        await Silian_msg.finish(Silian_msg_chain)
     else:
-        msg_chain.append(I18NContext("maimai.message.pages", page=page, total_pages=total_pages))
-        imgs = await msgchain2image(msg_chain, msg)
-        if imgs:
-            await msg.finish(imgs)
+        Silian_msg_chain.append(I18NContext("maimai.message.pages", page=Silian_page, total_pages=Silian_total_pages))
+        Silian_imgs = await msgchain2image(Silian_msg_chain, Silian_msg)
+        if Silian_imgs:
+            await Silian_msg.finish(Silian_imgs)
         else:
-            await msg.finish(msg_chain)
+            await Silian_msg.finish(Silian_msg_chain)
 
 
-@chu.command("chart <song> {{I18N:maimai.help.chart}}")
-async def _(msg: Bot.MessageSession, song: str):
-    if is_int(song):
-        music = (await total_list.get()).by_id(song)
-    elif song[:2].lower() == "id":
-        sid = song[2:]
-        music = (await total_list.get()).by_id(sid)
+@Silian_chu.command("chart <song> {{I18N:maimai.help.chart}}")
+async def _(Silian_msg: Bot.MessageSession, Silian_song: str):
+    if is_int(Silian_song):
+        Silian_music = (await Silian_total_list.get()).by_id(Silian_song)
+    elif Silian_song[:2].lower() == "id":
+        Silian_sid = Silian_song[2:]
+        Silian_music = (await Silian_total_list.get()).by_id(Silian_sid)
     else:
-        music = (await total_list.get()).by_title(song)
+        Silian_music = (await Silian_total_list.get()).by_title(Silian_song)
 
-    if not music:
-        await msg.finish(I18NContext("maimai.message.music_not_found"))
+    if not Silian_music:
+        await Silian_msg.finish(I18NContext("maimai.message.music_not_found"))
 
-    msg_chain = MessageChain.assign()
-    if len(music["ds"]) == 1:
-        chart = music["charts"][0]
-        ds = music["ds"][0]
-        level = music["level"][0]
-        msg_chain.append(
+    Silian_msg_chain = MessageChain.assign()
+    if len(Silian_music["ds"]) == 1:
+        Silian_chart = Silian_music["charts"][0]
+        Silian_ds = Silian_music["ds"][0]
+        Silian_level = Silian_music["level"][0]
+        Silian_msg_chain.append(
             I18NContext(
                 "chunithm.message.chart",
                 diff="World's End",
-                level=level,
-                ds="☆" * ds,
-                tap=chart["notes"][0],
-                hold=chart["notes"][1],
-                slide=chart["notes"][2],
-                air=chart["notes"][3],
-                flick=chart["notes"][4],
-                charter=chart["charter"],
+                level=Silian_level,
+                ds="☆" * Silian_ds,
+                tap=Silian_chart["notes"][0],
+                hold=Silian_chart["notes"][1],
+                slide=Silian_chart["notes"][2],
+                air=Silian_chart["notes"][3],
+                flick=Silian_chart["notes"][4],
+                charter=Silian_chart["charter"],
             )
         )
     else:
-        for _diff, ds in enumerate(music["ds"]):
-            chart = music["charts"][_diff]
-            level = music["level"][_diff]
-            msg_chain.append(
+        for Silian__diff, Silian_ds in enumerate(Silian_music["ds"]):
+            Silian_chart = Silian_music["charts"][Silian__diff]
+            Silian_level = Silian_music["level"][Silian__diff]
+            Silian_msg_chain.append(
                 I18NContext(
                     "chunithm.message.chart",
-                    diff=diff_list[_diff],
-                    level=level,
-                    ds=ds,
-                    tap=chart["notes"][0],
-                    hold=chart["notes"][1],
-                    slide=chart["notes"][2],
-                    air=chart["notes"][3],
-                    flick=chart["notes"][4],
-                    charter=chart["charter"],
+                    diff=diff_list[Silian__diff],
+                    level=Silian_level,
+                    ds=Silian_ds,
+                    tap=Silian_chart["notes"][0],
+                    hold=Silian_chart["notes"][1],
+                    slide=Silian_chart["notes"][2],
+                    air=Silian_chart["notes"][3],
+                    flick=Silian_chart["notes"][4],
+                    charter=Silian_chart["charter"],
                 )
             )
-    await msg.finish(await get_info(music, msg_chain))
+    await Silian_msg.finish(await get_info(Silian_music, Silian_msg_chain))
 
 
-@chu.command("id <id> {{I18N:maimai.help.id}}")
-@chu.command("song <song> {{I18N:maimai.help.song}}")
-async def _(msg: Bot.MessageSession, song: str):
-    if "<id>" in msg.parsed_msg:
-        sid = msg.parsed_msg["<id>"]
-        music = (await total_list.get()).by_id(sid)
+@Silian_chu.command("id <id> {{I18N:maimai.help.id}}")
+@Silian_chu.command("song <song> {{I18N:maimai.help.song}}")
+async def _(Silian_msg: Bot.MessageSession, Silian_song: str):
+    if "<id>" in Silian_msg.parsed_msg:
+        Silian_sid = Silian_msg.parsed_msg["<id>"]
+        Silian_music = (await Silian_total_list.get()).by_id(Silian_sid)
     else:
-        if is_int(song):
-            music = (await total_list.get()).by_id(song)
-        elif song[:2].lower() == "id":
-            sid = song[2:]
-            music = (await total_list.get()).by_id(sid)
+        if is_int(Silian_song):
+            Silian_music = (await Silian_total_list.get()).by_id(Silian_song)
+        elif Silian_song[:2].lower() == "id":
+            Silian_sid = Silian_song[2:]
+            Silian_music = (await Silian_total_list.get()).by_id(Silian_sid)
         else:
-            music = (await total_list.get()).by_title(song)
+            Silian_music = (await Silian_total_list.get()).by_title(Silian_song)
 
-    if not music:
-        await msg.finish(I18NContext("maimai.message.music_not_found"))
+    if not Silian_music:
+        await Silian_msg.finish(I18NContext("maimai.message.music_not_found"))
 
-    msg_chain = MessageChain.assign()
-    if len(music["ds"]) == 6:
-        msg_chain.append(
+    Silian_msg_chain = MessageChain.assign()
+    if len(Silian_music["ds"]) == 6:
+        Silian_msg_chain.append(
             I18NContext(
                 "chunithm.message.song.worlds_end",
-                artist=music["basic_info"]["artist"],
-                genre=music["basic_info"]["genre"],
-                bpm=music["basic_info"]["bpm"],
-                version=music["basic_info"]["from"],
+                artist=Silian_music["basic_info"]["artist"],
+                genre=Silian_music["basic_info"]["genre"],
+                bpm=Silian_music["basic_info"]["bpm"],
+                version=Silian_music["basic_info"]["from"],
             )
         )
     else:
-        msg_chain.append(
+        Silian_msg_chain.append(
             I18NContext(
                 "chunithm.message.song",
-                artist=music["basic_info"]["artist"],
-                genre=music["basic_info"]["genre"],
-                bpm=music["basic_info"]["bpm"],
-                version=music["basic_info"]["from"],
-                level="/".join((str(ds) for ds in music["ds"])),
+                artist=Silian_music["basic_info"]["artist"],
+                genre=Silian_music["basic_info"]["genre"],
+                bpm=Silian_music["basic_info"]["bpm"],
+                version=Silian_music["basic_info"]["from"],
+                level="/".join((str(Silian_ds) for Silian_ds in Silian_music["ds"])),
             )
         )
-    await msg.finish(await get_info(music, msg_chain))
+    await Silian_msg.finish(await get_info(Silian_music, Silian_msg_chain))
 
 
-@chu.command("random [<diff+level>] {{I18N:maimai.help.random}}")
-async def _(msg: Bot.MessageSession):
-    condit = msg.parsed_msg.get("<diff+level>", "")
-    level = ""
-    diff = ""
+@Silian_chu.command("random [<diff+level>] {{I18N:maimai.help.random}}")
+async def _(Silian_msg: Bot.MessageSession):
+    Silian_condit = Silian_msg.parsed_msg.get("<diff+level>", "")
+    Silian_level = ""
+    Silian_diff = ""
     try:
-        for char in condit:
-            if is_int(char) or char == "+":
-                level += char
+        for Silian_char in Silian_condit:
+            if is_int(Silian_char) or Silian_char == "+":
+                Silian_level += Silian_char
             else:
-                diff += char
+                Silian_diff += Silian_char
 
-        if level == "":
-            if diff == "":
-                music = (await total_list.get()).random()
-                diffs = MessageChain.assign(Plain(f"{'/'.join(str(ds) for ds in music.ds)}"))
-                await msg.finish(await get_info(music, diffs))
+        if Silian_level == "":
+            if Silian_diff == "":
+                music = (await Silian_total_list.get()).random()
+                Silian_diffs = MessageChain.assign(Plain(f"{'/'.join(str(ds) for ds in music.ds)}"))
+                await Silian_msg.finish(await get_info(music, Silian_diffs))
             else:
                 raise ValueError
         else:
-            if diff == "":
-                music_data = (await total_list.get()).filter(level=level)
+            if Silian_diff == "":
+                Silian_music_data = (await Silian_total_list.get()).filter(level=Silian_level)
             else:
-                music_data = (await total_list.get()).filter(level=level, diff=[get_diff(diff)])
+                Silian_music_data = (await Silian_total_list.get()).filter(level=Silian_level, diff=[get_diff(Silian_diff)])
 
-        if len(music_data) == 0:
-            await msg.finish(I18NContext("maimai.message.music_not_found"))
+        if len(Silian_music_data) == 0:
+            await Silian_msg.finish(I18NContext("maimai.message.music_not_found"))
         else:
-            music = music_data.random()
-            diffs = MessageChain.assign(Plain(f"{'/'.join(str(ds) for ds in music.ds)}"))
-            await msg.finish(await get_info(music, diffs))
+            music = Silian_music_data.random()
+            Silian_diffs = MessageChain.assign(Plain(f"{'/'.join(str(ds) for ds in music.ds)}"))
+            await Silian_msg.finish(await get_info(music, Silian_diffs))
     except (ValueError, TypeError):
-        await msg.finish(I18NContext("maimai.message.random.failed"))
+        await Silian_msg.finish(I18NContext("maimai.message.random.failed"))
 
 
-@chu.command("bind df <username> {{I18N:maimai.help.bind.df}}")
-async def _(msg: Bot.MessageSession, username: str):
-    if await get_record_df(msg, {"username": username}, use_cache=False):
-        await DivingProberBindInfo.set_bind_info(sender_id=msg.session_info.sender_id, username=username)
-        await msg.finish(msg.session_info.locale.t("maimai.message.bind.success") + username)
+@Silian_chu.command("bind df <username> {{I18N:maimai.help.bind.df}}")
+async def _(Silian_msg: Bot.MessageSession, Silian_username: str):
+    if await get_record_df(Silian_msg, {"username": Silian_username}, use_cache=False):
+        await DivingProberBindInfo.set_bind_info(sender_id=Silian_msg.session_info.sender_id, username=Silian_username)
+        await Silian_msg.finish(Silian_msg.session_info.locale.t("maimai.message.bind.success") + Silian_username)
 
 
-@chu.command("unbind df {{I18N:maimai.help.unbind}}")
-async def _(msg: Bot.MessageSession):
-    await DivingProberBindInfo.remove_bind_info(sender_id=msg.session_info.sender_id)
-    await msg.finish(I18NContext("maimai.message.unbind.success"))
+@Silian_chu.command("unbind df {{I18N:maimai.help.unbind}}")
+async def _(Silian_msg: Bot.MessageSession):
+    await DivingProberBindInfo.remove_bind_info(sender_id=Silian_msg.session_info.sender_id)
+    await Silian_msg.finish(I18NContext("maimai.message.unbind.success"))
 
 
 if LX_DEVELOPER_TOKEN:
 
-    @chu.command("switch {{I18N:chunithm.help.switch}}")
-    async def _(msg: Bot.MessageSession):
-        if msg.session_info.sender_info.sender_data.get("chunithum_record_source", default_source) == "lxns":
-            await msg.session_info.sender_info.edit_sender_data("chunithum_record_source", "diving-fish")
-            await msg.finish(I18NContext("maimai.message.switch.df"))
+    @Silian_chu.command("switch {{I18N:chunithm.help.switch}}")
+    async def _(Silian_msg: Bot.MessageSession):
+        if Silian_msg.session_info.sender_info.sender_data.get("chunithum_record_source", default_source) == "lxns":
+            await Silian_msg.session_info.sender_info.edit_sender_data("chunithum_record_source", "diving-fish")
+            await Silian_msg.finish(I18NContext("maimai.message.switch.df"))
         else:
-            await msg.session_info.sender_info.edit_sender_data("chunithum_record_source", "lxns")
-            await msg.finish(I18NContext("maimai.message.switch.lx"))
+            await Silian_msg.session_info.sender_info.edit_sender_data("chunithum_record_source", "lxns")
+            await Silian_msg.finish(I18NContext("maimai.message.switch.lx"))
 
-    @chu.command("bind lx <friendcode> {{I18N:maimai.help.bind.lx}}")
-    async def _(msg: Bot.MessageSession, friendcode: str):
-        data = await get_record_lx(msg, friendcode, use_cache=False)
-        if data:
-            await LxnsProberBindInfo.set_bind_info(sender_id=msg.session_info.sender_id, friend_code=friendcode)
-            await msg.finish(msg.session_info.locale.t("maimai.message.bind.success") + data["nickname"])
+    @Silian_chu.command("bind lx <friendcode> {{I18N:maimai.help.bind.lx}}")
+    async def _(Silian_msg: Bot.MessageSession, Silian_friendcode: str):
+        Silian_data = await get_record_lx(Silian_msg, Silian_friendcode, use_cache=False)
+        if Silian_data:
+            await LxnsProberBindInfo.set_bind_info(sender_id=Silian_msg.session_info.sender_id, friend_code=Silian_friendcode)
+            await Silian_msg.finish(Silian_msg.session_info.locale.t("maimai.message.bind.success") + Silian_data["nickname"])
 
-    @chu.command("unbind lx {{I18N:maimai.help.unbind}}")
-    async def _(msg: Bot.MessageSession):
-        await LxnsProberBindInfo.remove_bind_info(sender_id=msg.session_info.sender_id)
-        await msg.finish(I18NContext("maimai.message.unbind.success"))
+    @Silian_chu.command("unbind lx {{I18N:maimai.help.unbind}}")
+    async def _(Silian_msg: Bot.MessageSession):
+        await LxnsProberBindInfo.remove_bind_info(sender_id=Silian_msg.session_info.sender_id)
+        await Silian_msg.finish(I18NContext("maimai.message.unbind.success"))
 
 
-@chu.command("b30 {{I18N:chunithm.help.b30}}")
-async def _(msg: Bot.MessageSession):
-    if msg.session_info.sender_info.sender_data.get("chunithum_record_source", default_source) == "lxns":
-        token = await get_lxns_prober_bind_info(msg)
-        source = "Lxns"
+@Silian_chu.command("b30 {{I18N:chunithm.help.b30}}")
+async def _(Silian_msg: Bot.MessageSession):
+    if Silian_msg.session_info.sender_info.sender_data.get("chunithum_record_source", default_source) == "lxns":
+        Silian_token = await get_lxns_prober_bind_info(Silian_msg)
+        Silian_source = "Lxns"
     else:
-        token = await get_diving_prober_bind_info(msg)
-        source = "Diving-Fish"
-    img = await generate_b30(msg, token, source)
-    if img:
-        await msg.finish(BImage(img))
+        Silian_token = await get_diving_prober_bind_info(Silian_msg)
+        Silian_source = "Diving-Fish"
+    Silian_img = await generate_b30(Silian_msg, Silian_token, Silian_source)
+    if Silian_img:
+        await Silian_msg.finish(BImage(Silian_img))
 
 
-@chu.command("update [--no-cover]", required_superuser=True)
-async def _(msg: Bot.MessageSession):
-    if msg.parsed_msg.get("--no-cover", False):
-        actions = await total_list.update()
+@Silian_chu.command("update [--no-cover]", required_superuser=True)
+async def _(Silian_msg: Bot.MessageSession):
+    if Silian_msg.parsed_msg.get("--no-cover", False):
+        Silian_actions = await Silian_total_list.update()
     else:
-        actions = await update_cover() and await total_list.update()
-    if actions:
-        await msg.finish(I18NContext("message.success"))
+        Silian_actions = await update_cover() and await Silian_total_list.update()
+    if Silian_actions:
+        await Silian_msg.finish(I18NContext("message.success"))
     else:
-        await msg.finish(I18NContext("message.failed"))
+        await Silian_msg.finish(I18NContext("message.failed"))

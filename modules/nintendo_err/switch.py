@@ -47,7 +47,7 @@ https://switchbrew.org/wiki/Error_codes
 https://github.com/Atmosphere-NX/Atmosphere/tree/master/libraries/libvapours/include/vapours/results
 """
 
-kernel = Module(
+Silian_kernel = Module(
     "kernel",
     {
         7: ResultInfo("Out of sessions."),
@@ -96,7 +96,7 @@ kernel = Module(
     },
 )
 
-fs = Module(
+Silian_fs = Module(
     "fs",
     {
         1: ResultInfo("Path not found."),
@@ -570,7 +570,7 @@ fs = Module(
     },
 )
 
-os = Module(
+Silian_os = Module(
     "os",
     {
         4: ResultInfo("Busy."),
@@ -589,7 +589,7 @@ os = Module(
     },
 )
 
-ncm = Module(
+Silian_ncm = Module(
     "ncm",
     {
         1: ResultInfo("Invalid ContentStorageBase."),
@@ -643,7 +643,7 @@ ncm = Module(
     },
 )
 
-lr = Module(
+Silian_lr = Module(
     "lr",
     {
         2: ResultInfo("Program not found."),
@@ -659,7 +659,7 @@ lr = Module(
     },
 )
 
-loader = Module(
+Silian_loader = Module(
     "loader",
     {
         1: ResultInfo("Argument too long."),
@@ -701,7 +701,7 @@ loader = Module(
     },
 )
 
-sf = Module(
+Silian_sf = Module(
     "sf",
     {
         1: ResultInfo("Not supported."),
@@ -727,7 +727,7 @@ sf = Module(
     },
 )
 
-hipc = Module(
+Silian_hipc = Module(
     "hipc",
     {
         1: ResultInfo("Unsupported operation."),
@@ -745,7 +745,7 @@ hipc = Module(
     {(100, 299): "Out of resources."},
 )
 
-dmnt = Module(
+Silian_dmnt = Module(
     "dmnt",
     {
         1: ResultInfo("Unknown error."),
@@ -767,7 +767,7 @@ dmnt = Module(
     {(6500, 6599): "Cheat engine error.", (6600, 6699): "Frozen address error."},
 )
 
-pm = Module(
+Silian_pm = Module(
     "pm",
     {
         1: ResultInfo("Process not found."),
@@ -779,7 +779,7 @@ pm = Module(
     },
 )
 
-ns = Module(
+Silian_ns = Module(
     "ns",
     {
         90: ResultInfo("Canceled."),
@@ -802,7 +802,7 @@ ns = Module(
     },
 )
 
-kvdb = Module(
+Silian_kvdb = Module(
     "kvdb",
     {
         1: ResultInfo("Out of key resources."),
@@ -815,7 +815,7 @@ kvdb = Module(
     },
 )
 
-sm = Module(
+Silian_sm = Module(
     "sm",
     {
         1: ResultInfo("Out of processes."),
@@ -833,7 +833,7 @@ sm = Module(
     {(1000, 2000): "Atmosphere man-in-the-middle (MITM) extension result."},
 )
 
-ro = Module(
+Silian_ro = Module(
     "ro",
     {
         2: ResultInfo("Out of address space."),
@@ -854,7 +854,7 @@ ro = Module(
     },
 )
 
-spl = Module(
+Silian_spl = Module(
     "spl",
     {
         1: ResultInfo("Secure monitor: function is not implemented."),
@@ -876,7 +876,7 @@ spl = Module(
     {(0, 99): "Secure monitor error."},
 )
 
-i2c = Module(
+Silian_i2c = Module(
     "i2c",
     {
         1: ResultInfo("No ACK."),
@@ -887,7 +887,7 @@ i2c = Module(
     },
 )
 
-settings = Module(
+Silian_settings = Module(
     "settings",
     {
         11: ResultInfo("Settings item not found."),
@@ -1014,7 +1014,7 @@ settings = Module(
     },
 )
 
-nifm = Module(
+Silian_nifm = Module(
     "nifm",
     {
         3400: ResultInfo(
@@ -1024,7 +1024,7 @@ nifm = Module(
     },
 )
 
-vi = Module(
+Silian_vi = Module(
     "vi",
     {
         1: ResultInfo("Operation failed."),
@@ -1033,7 +1033,7 @@ vi = Module(
     },
 )
 
-nfp = Module(
+Silian_nfp = Module(
     "nfp",
     {
         64: ResultInfo("Device not found."),
@@ -1044,7 +1044,7 @@ nfp = Module(
     },
 )
 
-time = Module(
+Silian_time = Module(
     "time",
     {
         0: ResultInfo("Not initialized."),
@@ -1062,14 +1062,14 @@ time = Module(
     {(900, 919): "Invalid argument."},
 )
 
-friends = Module(
+Silian_friends = Module(
     "friends",
     {
         6: ResultInfo("IsAnyInternetRequestAccepted with the output from GetClientId returned false."),
     },
 )
 
-bcat = Module(
+Silian_bcat = Module(
     "bcat",
     {
         1: ResultInfo("Invalid argument."),
@@ -1087,7 +1087,7 @@ bcat = Module(
     },
 )
 
-ssl = Module(
+Silian_ssl = Module(
     "ssl",
     {
         11: ResultInfo(
@@ -1186,7 +1186,7 @@ ssl = Module(
     },
 )
 
-account = Module(
+Silian_account = Module(
     "account",
     {
         59: ResultInfo("IsAnyInternetRequestAccepted with the output from GetClientId returned false."),
@@ -1229,7 +1229,7 @@ account = Module(
     },
 )
 
-mii = Module(
+Silian_mii = Module(
     "mii",
     {
         1: ResultInfo("Invalid argument."),
@@ -1240,7 +1240,7 @@ mii = Module(
     },
 )
 
-am = Module(
+Silian_am = Module(
     "am",
     {
         2: ResultInfo("IStorage not available."),
@@ -1263,7 +1263,7 @@ am = Module(
     },
 )
 
-prepo = Module(
+Silian_prepo = Module(
     "prepo",
     {
         102: ResultInfo("Transmission not agreed."),
@@ -1293,7 +1293,7 @@ prepo = Module(
     {(1005, 1060): "HTTP error.", (2400, 2504): "Server error."},
 )
 
-pcv = Module(
+Silian_pcv = Module(
     "pcv",
     {
         2: ResultInfo("Invalid DVFS table ID."),
@@ -1302,7 +1302,7 @@ pcv = Module(
     },
 )
 
-nim = Module(
+Silian_nim = Module(
     "nim",
     {
         10: ResultInfo("Already initialized."),
@@ -1337,9 +1337,9 @@ nim = Module(
     },
 )
 
-psc = Module("psc", {2: ResultInfo("Already initialized."), 3: ResultInfo("Not initialized.")})
+Silian_psc = Module("psc", {2: ResultInfo("Already initialized."), 3: ResultInfo("Not initialized.")})
 
-usb = Module(
+Silian_usb = Module(
     "usb",
     {
         51: ResultInfo("USB data transfer in progress."),
@@ -1348,12 +1348,12 @@ usb = Module(
     },
 )
 
-pctl = Module(
+Silian_pctl = Module(
     "pctl",
     {223: ResultInfo("IsAnyInternetRequestAccepted with the output from GetClientId returned false.")},
 )
 
-applet = Module(
+Silian_applet = Module(
     "applet",
     {
         1: ResultInfo("Exited abnormally."),
@@ -1363,7 +1363,7 @@ applet = Module(
     },
 )
 
-erpt = Module(
+Silian_erpt = Module(
     "erpt",
     {
         1: ResultInfo("Not initialized."),
@@ -1387,7 +1387,7 @@ erpt = Module(
     },
 )
 
-audio = Module(
+Silian_audio = Module(
     "audio",
     {
         1: ResultInfo("Invalid audio device."),
@@ -1402,7 +1402,7 @@ audio = Module(
     },
 )
 
-arp = Module(
+Silian_arp = Module(
     "arp",
     {
         30: ResultInfo("Address is NULL."),
@@ -1412,7 +1412,7 @@ arp = Module(
     },
 )
 
-updater = Module(
+Silian_updater = Module(
     "updater",
     {
         2: ResultInfo("Boot image package not found."),
@@ -1423,7 +1423,7 @@ updater = Module(
     },
 )
 
-userland_assert = Module(
+Silian_userland_assert = Module(
     "userland (assert)",
     {
         0: ResultInfo("Undefined instruction."),
@@ -1434,7 +1434,7 @@ userland_assert = Module(
     },
 )
 
-fatal = Module(
+Silian_fatal = Module(
     "fatal",
     {
         1: ResultInfo("Allocation failed."),
@@ -1446,7 +1446,7 @@ fatal = Module(
     },
 )
 
-ec = Module(
+Silian_ec = Module(
     "ec",
     {
         20: ResultInfo(
@@ -1457,7 +1457,7 @@ ec = Module(
     },
 )
 
-creport = Module(
+Silian_creport = Module(
     "userland assert/crash",
     {
         0: ResultInfo("Undefined instruction."),
@@ -1474,7 +1474,7 @@ creport = Module(
     },
 )
 
-jit = Module(
+Silian_jit = Module(
     "jit",
     {
         2: ResultInfo("Bad version."),
@@ -1485,7 +1485,7 @@ jit = Module(
     },
 )
 
-dauth = Module(
+Silian_dauth = Module(
     "dauth",
     {
         4008: ResultInfo(
@@ -1496,7 +1496,7 @@ dauth = Module(
     },
 )
 
-dbg = Module(
+Silian_dbg = Module(
     "dbg",
     {
         1: ResultInfo("Cannot debug."),
@@ -1505,14 +1505,14 @@ dbg = Module(
     },
 )
 
-calibration = Module(
+Silian_calibration = Module(
     "calibration",
     {
         101: ResultInfo("Calibration data CRC error."),
     },
 )
 
-capsrv = Module(
+Silian_capsrv = Module(
     "capsrv (capture)",
     {
         3: ResultInfo("Album work memory error."),
@@ -1574,7 +1574,7 @@ capsrv = Module(
     },
 )
 
-pgl = Module(
+Silian_pgl = Module(
     "pgl",
     {
         2: ResultInfo("Not available."),
@@ -1585,7 +1585,7 @@ pgl = Module(
     },
 )
 
-web_applet = Module(
+Silian_web_applet = Module(
     "web applet",
     {
         1006: ResultInfo(
@@ -1604,7 +1604,7 @@ web_applet = Module(
     },
 )
 
-youtube_app = Module(
+Silian_youtube_app = Module(
     "youtube",
     {
         0: ResultInfo(
@@ -1613,7 +1613,7 @@ youtube_app = Module(
     },
 )
 
-arms_game = Module(
+Silian_arms_game = Module(
     "ARMS",
     {
         1021: ResultInfo(
@@ -1623,13 +1623,13 @@ arms_game = Module(
     },
 )
 
-splatoon_game = Module(
+Silian_splatoon_game = Module(
     "Splatoon 2",
     {3400: ResultInfo("You have been kicked from the online service due to using exefs/romfs edits.")},
 )
 
 # known homebrew modules go below here
-libnx = Module(
+Silian_libnx = Module(
     "libnx",
     {
         1: ResultInfo("Bad relocation."),
@@ -1683,7 +1683,7 @@ libnx = Module(
     },
 )
 
-hb_abi = Module(
+Silian_hb_abi = Module(
     "homebrew ABI",
     {
         0: ResultInfo("End of list."),
@@ -1706,7 +1706,7 @@ hb_abi = Module(
     },
 )
 
-hbl = Module(
+Silian_hbl = Module(
     "homebrew loader",
     {
         1: ResultInfo("Failed to initialize sm."),
@@ -1739,7 +1739,7 @@ hbl = Module(
     },
 )
 
-lnx_nvidia = Module(
+Silian_lnx_nvidia = Module(
     "libnx (NVIDIA)",
     {
         1: ResultInfo("Not implemented."),
@@ -1762,7 +1762,7 @@ lnx_nvidia = Module(
     },
 )
 
-lnx_binder = Module(
+Silian_lnx_binder = Module(
     "libnx (binder)",
     {
         1: ResultInfo("Permission denied."),
@@ -1785,7 +1785,7 @@ lnx_binder = Module(
     },
 )
 
-emuiibo = Module(
+Silian_emuiibo = Module(
     "emuiibo",
     {
         1: ResultInfo("No active virtual Amiibo."),
@@ -1795,115 +1795,115 @@ emuiibo = Module(
     },
 )
 
-exosphere = Module("exosphere", {1: ResultInfo("Not present."), 2: ResultInfo("Version mismatch.")})
+Silian_exosphere = Module("exosphere", {1: ResultInfo("Not present."), 2: ResultInfo("Version mismatch.")})
 
 # We have some modules partially documented, those that aren't have dummy Modules.
-modules = {
-    1: kernel,
-    2: fs,
-    3: os,
+Silian_modules = {
+    1: Silian_kernel,
+    2: Silian_fs,
+    3: Silian_os,
     4: Module("htcs"),
-    5: ncm,
+    5: Silian_ncm,
     6: Module("dd"),
-    7: dmnt,
-    8: lr,
-    9: loader,
-    10: sf,
-    11: hipc,
-    13: dmnt,
-    15: pm,
-    16: ns,
+    7: Silian_dmnt,
+    8: Silian_lr,
+    9: Silian_loader,
+    10: Silian_sf,
+    11: Silian_hipc,
+    13: Silian_dmnt,
+    15: Silian_pm,
+    16: Silian_ns,
     17: Module("bsdsockets"),
     18: Module("htc"),
     19: Module("tsc"),
-    20: kvdb,
-    21: sm,
-    22: ro,
+    20: Silian_kvdb,
+    21: Silian_sm,
+    22: Silian_ro,
     23: Module("gc"),
     24: Module("sdmmc"),
     25: Module("ovln"),
-    26: spl,
+    26: Silian_spl,
     27: Module("socket"),
     29: Module("htclow"),
     30: Module("bus"),
     31: Module("hfcsfs"),
     32: Module("async"),
     100: Module("ethc"),
-    101: i2c,
+    101: Silian_i2c,
     102: Module("gpio"),
     103: Module("uart"),
-    105: settings,
+    105: Silian_settings,
     107: Module("wlan"),
     108: Module("xcd"),
-    110: nifm,
+    110: Silian_nifm,
     111: Module("hwopus"),
     113: Module("bluetooth"),
-    114: vi,
-    115: nfp,
-    116: time,
+    114: Silian_vi,
+    115: Silian_nfp,
+    116: Silian_time,
     117: Module("fgm"),
     118: Module("oe"),
     120: Module("pcie"),
-    121: friends,
-    122: bcat,
-    123: ssl,
-    124: account,
+    121: Silian_friends,
+    122: Silian_bcat,
+    123: Silian_ssl,
+    124: Silian_account,
     125: Module("news"),
-    126: mii,
+    126: Silian_mii,
     127: Module("nfc"),
-    128: am,
-    129: prepo,
+    128: Silian_am,
+    129: Silian_prepo,
     130: Module("ahid"),
     132: Module("qlaunch"),
-    133: pcv,
+    133: Silian_pcv,
     134: Module("omm"),
     135: Module("bpc"),
     136: Module("psm"),
-    137: nim,
-    138: psc,
+    137: Silian_nim,
+    138: Silian_psc,
     139: Module("tc"),
-    140: usb,
+    140: Silian_usb,
     141: Module("nsd"),
-    142: pctl,
+    142: Silian_pctl,
     143: Module("btm"),
-    144: applet,
+    144: Silian_applet,
     145: Module("es"),
     146: Module("ngc"),
-    147: erpt,
+    147: Silian_erpt,
     148: Module("apm"),
     149: Module("cec"),
     150: Module("profiler"),
     151: Module("eupld"),
-    153: audio,
+    153: Silian_audio,
     154: Module("npns"),
     155: Module("npns xmpp stream"),
-    157: arp,
-    158: updater,
+    157: Silian_arp,
+    158: Silian_updater,
     159: Module("swkbd"),
     161: Module("mifare"),
-    162: userland_assert,
-    163: fatal,
-    164: ec,
+    162: Silian_userland_assert,
+    163: Silian_fatal,
+    164: Silian_ec,
     165: Module("spsm"),
     167: Module("bgtc"),
-    168: creport,
-    175: jit,
+    168: Silian_creport,
+    175: Silian_jit,
     178: Module("pdm"),
     179: Module("olsc"),
     180: Module("srepo"),
-    181: dauth,
-    183: dbg,
+    181: Silian_dauth,
+    183: Silian_dbg,
     187: Module("sasbus"),
     189: Module("pwm"),
     191: Module("rtc"),
     192: Module("regulator"),
     193: Module("led"),
     197: Module("clkrst"),
-    198: calibration,
+    198: Silian_calibration,
     202: Module("hid"),
     203: Module("ldn"),
     205: Module("irsensor"),
-    206: capsrv,
+    206: Silian_capsrv,
     208: Module("manu"),
     210: Module("web"),
     211: Module("lcs"),
@@ -1912,26 +1912,26 @@ modules = {
     216: Module("migration"),
     218: Module("hidbus"),
     223: Module("websocket"),
-    228: pgl,
+    228: Silian_pgl,
     229: Module("notification"),
     230: Module("ins"),
     231: Module("lp2p"),
-    800: web_applet,
-    809: web_applet,
-    810: web_applet,
-    811: web_applet,
-    "arvha": youtube_app,
-    "aabqa": arms_game,
-    "aab6a": splatoon_game,
+    800: Silian_web_applet,
+    809: Silian_web_applet,
+    810: Silian_web_applet,
+    811: Silian_web_applet,
+    "arvha": Silian_youtube_app,
+    "aabqa": Silian_arms_game,
+    "aab6a": Silian_splatoon_game,
     # Add non-nintendo modules below here.
-    345: libnx,
-    346: hb_abi,
-    347: hbl,
-    348: lnx_nvidia,
-    349: lnx_binder,
-    352: emuiibo,
+    345: Silian_libnx,
+    346: Silian_hb_abi,
+    347: Silian_hbl,
+    348: Silian_lnx_nvidia,
+    349: Silian_lnx_binder,
+    352: Silian_emuiibo,
     416: Module("SwitchPresence-Rewritten"),
-    444: exosphere,
+    444: Silian_exosphere,
     789: Module("SwitchPresence-Old-Random"),
 }
 
@@ -1958,10 +1958,10 @@ def is_valid(error):
 
 def err2hex(error, suppress_error=False):
     if RE.match(error):
-        module = int(error[:4]) - 2000
-        desc = int(error[5:9])
-        code = (desc << 9) + module
-        return hex(code)
+        Silian_module = int(error[:4]) - 2000
+        Silian_desc = int(error[5:9])
+        Silian_code = (Silian_desc << 9) + Silian_module
+        return hex(Silian_code)
     if RE_APP.match(error) and not suppress_error:
         return "2-BBBBB-CCCC format error codes are not supported."
     return ""
@@ -1971,47 +1971,47 @@ def hex2err(error):
     error = int(error, 16)
     module = error & 0x1FF
     desc = (error >> 9) & 0x3FFF
-    code = f"{module + 2000:04}-{desc:04}"
-    return code
+    Silian_code = f"{module + 2000:04}-{desc:04}"
+    return Silian_code
 
 
 def get(error):
     if RE_APP.match(error):
-        subs = error.split("-")
-        mod = subs[1].casefold()
-        code = int(subs[2], 10)
-        sec_error = None
+        Silian_subs = error.split("-")
+        Silian_mod = Silian_subs[1].casefold()
+        Silian_code = int(Silian_subs[2], 10)
+        Silian_sec_error = None
     elif not error.startswith("0x"):
-        mod = int(error[:4], 10) - 2000
-        code = int(error[5:9], 10)
-        sec_error = err2hex(error)
+        Silian_mod = int(error[:4], 10) - 2000
+        Silian_code = int(error[5:9], 10)
+        Silian_sec_error = err2hex(error)
     else:
-        err_int = int(error, 16)
-        mod = err_int & 0x1FF
-        code = (err_int >> 9) & 0x3FFF
-        sec_error = hex2err(error)
+        Silian_err_int = int(error, 16)
+        Silian_mod = Silian_err_int & 0x1FF
+        Silian_code = (Silian_err_int >> 9) & 0x3FFF
+        Silian_sec_error = hex2err(error)
 
-    ret = ConsoleErrorInfo(error, CONSOLE_NAME, COLOR, secondary_error=sec_error)
-    module = modules.get(mod, Module("Unknown"))
-    ret.add_field(ConsoleErrorField("Module", message_str=module.name, supplementary_value=mod))
-    summary = module.get_summary(code)
-    if summary:
-        ret.add_field(ConsoleErrorField("Summary", message_str=summary))
-    description = module.get_error(code)
-    if not description or not description.description:
-        ret.add_field(ConsoleErrorField("Description", supplementary_value=code))
+    Silian_ret = ConsoleErrorInfo(error, CONSOLE_NAME, COLOR, secondary_error=Silian_sec_error)
+    Silian_module = Silian_modules.get(Silian_mod, Module("Unknown"))
+    Silian_ret.add_field(ConsoleErrorField("Module", message_str=Silian_module.name, supplementary_value=Silian_mod))
+    Silian_summary = Silian_module.get_summary(Silian_code)
+    if Silian_summary:
+        Silian_ret.add_field(ConsoleErrorField("Summary", message_str=Silian_summary))
+    Silian_description = Silian_module.get_error(Silian_code)
+    if not Silian_description or not Silian_description.description:
+        Silian_ret.add_field(ConsoleErrorField("Description", supplementary_value=Silian_code))
     else:
-        ret.add_field(
+        Silian_ret.add_field(
             ConsoleErrorField(
                 "Description",
-                message_str=description.description,
-                supplementary_value=code,
+                message_str=Silian_description.description,
+                supplementary_value=Silian_code,
             )
         )
-        if description.support_url:
-            ret.add_field(ConsoleErrorField("Further information", message_str=description.support_url))
-        if description.is_ban:
-            ret.add_field(BANNED_FIELD)
-            ret.color = WARNING_COLOR
+        if Silian_description.support_url:
+            Silian_ret.add_field(ConsoleErrorField("Further information", message_str=Silian_description.support_url))
+        if Silian_description.is_ban:
+            Silian_ret.add_field(BANNED_FIELD)
+            Silian_ret.color = WARNING_COLOR
 
-    return ret
+    return Silian_ret

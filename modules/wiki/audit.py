@@ -5,7 +5,7 @@ from core.utils.image_table import image_table_render, ImageTable
 from .database.models import WikiAllowList, WikiBlockList
 from .utils.wikilib import WikiLib
 
-aud = module(
+Silian_aud = module(
     "wiki_audit",
     required_superuser=True,
     alias="wau",
@@ -13,153 +13,153 @@ aud = module(
 )
 
 
-@aud.command(["trust <apilink>", "block <apilink>"])
-async def _(msg: Bot.MessageSession, apilink: str):
-    check = await WikiLib(apilink).check_wiki_available()
-    if check.available:
-        apilink = check.value.api
-        if msg.parsed_msg.get("trust", False):
-            res = await WikiAllowList.add(apilink)
-            list_name = msg.session_info.locale.t("wiki.message.wiki_audit.list_name.allowlist")
+@Silian_aud.command(["trust <apilink>", "block <apilink>"])
+async def _(Silian_msg: Bot.MessageSession, Silian_apilink: str):
+    Silian_check = await WikiLib(Silian_apilink).check_wiki_available()
+    if Silian_check.available:
+        Silian_apilink = Silian_check.value.api
+        if Silian_msg.parsed_msg.get("trust", False):
+            Silian_res = await WikiAllowList.add(Silian_apilink)
+            Silian_list_name = Silian_msg.session_info.locale.t("wiki.message.wiki_audit.list_name.allowlist")
         else:
-            res = await WikiBlockList.add(apilink)
-            list_name = msg.session_info.locale.t("wiki.message.wiki_audit.list_name.blocklist")
-        if not res:
-            await msg.finish(
-                msg.session_info.locale.t(
+            Silian_res = await WikiBlockList.add(Silian_apilink)
+            Silian_list_name = Silian_msg.session_info.locale.t("wiki.message.wiki_audit.list_name.blocklist")
+        if not Silian_res:
+            await Silian_msg.finish(
+                Silian_msg.session_info.locale.t(
                     "wiki.message.wiki_audit.add.failed",
-                    list_name=list_name,
-                    api=apilink,
+                    list_name=Silian_list_name,
+                    api=Silian_apilink,
                 )
             )
         else:
-            await msg.finish(
-                msg.session_info.locale.t(
+            await Silian_msg.finish(
+                Silian_msg.session_info.locale.t(
                     "wiki.message.wiki_audit.add.success",
-                    list_name=list_name,
-                    api=apilink,
+                    list_name=Silian_list_name,
+                    api=Silian_apilink,
                 )
             )
     else:
-        result = msg.session_info.locale.t("wiki.message.error.add") + (
-            "\n" + msg.session_info.locale.t("wiki.message.error.info") + check.message if check.message != "" else ""
+        Silian_result = Silian_msg.session_info.locale.t("wiki.message.error.add") + (
+            "\n" + Silian_msg.session_info.locale.t("wiki.message.error.info") + Silian_check.message if Silian_check.message != "" else ""
         )
-        await msg.finish(result)
+        await Silian_msg.finish(Silian_result)
 
 
-@aud.command(["distrust <apilink>", "unblock <apilink>"])
-async def _(msg: Bot.MessageSession, apilink: str):
-    check = await WikiLib(apilink).check_wiki_info_from_database_cache()
-    if check.available:
-        apilink = check.value.api
-    if msg.parsed_msg.get("distrust", False):
-        res = await WikiAllowList.remove(apilink)  # 已关闭的站点无法验证有效性
-        if not res:
-            await msg.finish(msg.session_info.locale.t("wiki.message.wiki_audit.remove.failed.other", api=apilink))
-        list_name = msg.session_info.locale.t("wiki.message.wiki_audit.list_name.allowlist")
+@Silian_aud.command(["distrust <apilink>", "unblock <apilink>"])
+async def _(Silian_msg: Bot.MessageSession, Silian_apilink: str):
+    Silian_check = await WikiLib(Silian_apilink).check_wiki_info_from_database_cache()
+    if Silian_check.available:
+        Silian_apilink = Silian_check.value.api
+    if Silian_msg.parsed_msg.get("distrust", False):
+        Silian_res = await WikiAllowList.remove(Silian_apilink)  # 已关闭的站点无法验证有效性
+        if not Silian_res:
+            await Silian_msg.finish(Silian_msg.session_info.locale.t("wiki.message.wiki_audit.remove.failed.other", api=Silian_apilink))
+        Silian_list_name = Silian_msg.session_info.locale.t("wiki.message.wiki_audit.list_name.allowlist")
     else:
-        res = WikiBlockList.remove(apilink)
-        list_name = msg.session_info.locale.t("wiki.message.wiki_audit.list_name.blocklist")
-    if not res:
-        await msg.finish(
-            msg.session_info.locale.t(
+        Silian_res = WikiBlockList.remove(Silian_apilink)
+        Silian_list_name = Silian_msg.session_info.locale.t("wiki.message.wiki_audit.list_name.blocklist")
+    if not Silian_res:
+        await Silian_msg.finish(
+            Silian_msg.session_info.locale.t(
                 "wiki.message.wiki_audit.remove.failed",
-                list_name=list_name,
-                api=apilink,
+                list_name=Silian_list_name,
+                api=Silian_apilink,
             )
         )
     else:
-        await msg.finish(
-            msg.session_info.locale.t(
+        await Silian_msg.finish(
+            Silian_msg.session_info.locale.t(
                 "wiki.message.wiki_audit.remove.success",
-                list_name=list_name,
-                api=apilink,
+                list_name=Silian_list_name,
+                api=Silian_apilink,
             )
         )
 
 
-@aud.command("query <apilink>")
-async def _(msg: Bot.MessageSession, apilink: str):
-    check = await WikiLib(apilink).check_wiki_available()
-    if check.available:
-        apilink = check.value.api
-        msg_list = []
-        allow = await WikiAllowList.check(apilink)
-        block = await WikiBlockList.check(apilink)
-        if allow:
-            msg_list.append(msg.session_info.locale.t("wiki.message.wiki_audit.query.allowlist", api=apilink))
-        if block:
-            msg_list.append(msg.session_info.locale.t("wiki.message.wiki_audit.query.blocklist", api=apilink))
-        if allow and block:
-            msg_list.append(msg.session_info.locale.t("wiki.message.wiki_audit.query.conflict"))
-        if not msg_list:
-            msg_list.append(msg.session_info.locale.t("wiki.message.wiki_audit.query.none", api=apilink))
-        await msg.finish(msg_list)
+@Silian_aud.command("query <apilink>")
+async def _(Silian_msg: Bot.MessageSession, Silian_apilink: str):
+    Silian_check = await WikiLib(Silian_apilink).check_wiki_available()
+    if Silian_check.available:
+        Silian_apilink = Silian_check.value.api
+        Silian_msg_list = []
+        Silian_allow = await WikiAllowList.check(Silian_apilink)
+        Silian_block = await WikiBlockList.check(Silian_apilink)
+        if Silian_allow:
+            Silian_msg_list.append(Silian_msg.session_info.locale.t("wiki.message.wiki_audit.query.allowlist", api=Silian_apilink))
+        if Silian_block:
+            Silian_msg_list.append(Silian_msg.session_info.locale.t("wiki.message.wiki_audit.query.blocklist", api=Silian_apilink))
+        if Silian_allow and Silian_block:
+            Silian_msg_list.append(Silian_msg.session_info.locale.t("wiki.message.wiki_audit.query.conflict"))
+        if not Silian_msg_list:
+            Silian_msg_list.append(Silian_msg.session_info.locale.t("wiki.message.wiki_audit.query.none", api=Silian_apilink))
+        await Silian_msg.finish(Silian_msg_list)
     else:
-        result = msg.session_info.locale.t("wiki.message.error.query") + (
-            "\n" + msg.session_info.locale.t("wiki.message.error.info") + check.message if check.message != "" else ""
+        Silian_result = Silian_msg.session_info.locale.t("wiki.message.error.query") + (
+            "\n" + Silian_msg.session_info.locale.t("wiki.message.error.info") + Silian_check.message if Silian_check.message != "" else ""
         )
-        await msg.finish(result)
+        await Silian_msg.finish(Silian_result)
 
 
-@aud.command("list [--legacy]")
+@Silian_aud.command("list [--legacy]")
 async def _(msg: Bot.MessageSession):
-    allow_list = await WikiAllowList.all().values("api_link", "timestamp")
-    block_list = await WikiBlockList.all().values("api_link", "timestamp")
-    legacy = True
+    Silian_allow_list = await WikiAllowList.all().values("api_link", "timestamp")
+    Silian_block_list = await WikiBlockList.all().values("api_link", "timestamp")
+    Silian_legacy = True
     if not msg.parsed_msg.get("--legacy", False) and msg.session_info.support_image:
-        send_msgs = []
-        allow_columns = [
-            [x["api_link"], msg.format_time(x["timestamp"].timestamp(), iso=True, timezone=False)] for x in allow_list
+        Silian_send_msgs = []
+        Silian_allow_columns = [
+            [Silian_x["api_link"], msg.format_time(Silian_x["timestamp"].timestamp(), iso=True, timezone=False)] for Silian_x in Silian_allow_list
         ]
 
-        if allow_columns:
-            allow_table = ImageTable(
-                data=allow_columns,
+        if Silian_allow_columns:
+            Silian_allow_table = ImageTable(
+                data=Silian_allow_columns,
                 headers=[
                     "{I18N:wiki.message.wiki_audit.list.table.header.apilink}",
                     "{I18N:wiki.message.wiki_audit.list.table.header.date}",
                 ],
                 session_info=msg.session_info,
             )
-            if allow_table:
-                allow_image = await image_table_render(allow_table)
-                if allow_image:
-                    send_msgs.append(I18NContext("wiki.message.wiki_audit.list.allowlist"))
-                    for im in allow_image:
-                        send_msgs.append(Image(im))
-        block_columns = [
-            [x["api_link"], msg.format_time(x["timestamp"].timestamp(), iso=True, timezone=False)] for x in block_list
+            if Silian_allow_table:
+                Silian_allow_image = await image_table_render(Silian_allow_table)
+                if Silian_allow_image:
+                    Silian_send_msgs.append(I18NContext("wiki.message.wiki_audit.list.allowlist"))
+                    for Silian_im in Silian_allow_image:
+                        Silian_send_msgs.append(Image(Silian_im))
+        Silian_block_columns = [
+            [Silian_x["api_link"], msg.format_time(Silian_x["timestamp"].timestamp(), iso=True, timezone=False)] for Silian_x in Silian_block_list
         ]
-        if block_columns:
-            block_table = ImageTable(
-                data=block_columns,
+        if Silian_block_columns:
+            Silian_block_table = ImageTable(
+                data=Silian_block_columns,
                 headers=[
                     "{I18N:wiki.message.wiki_audit.list.table.header.apilink}",
                     "{I18N:wiki.message.wiki_audit.list.table.header.date}",
                 ],
                 session_info=msg.session_info,
             )
-            if block_table:
-                block_image = await image_table_render(block_table)
-                if block_image:
-                    send_msgs.append(I18NContext("wiki.message.wiki_audit.list.blocklist"))
-                    for im in block_image:
-                        send_msgs.append(Image(im))
-        if send_msgs:
-            legacy = False
-            await msg.finish(send_msgs)
-    if legacy:
-        wikis = []
-        if allow_list:
-            wikis.append(msg.session_info.locale.t("wiki.message.wiki_audit.list.allowlist"))
-            for al in allow_list:
-                wikis.append(f"{al[0]} ({msg.format_time(al[1].timestamp(), iso=True, timezone=False)})")
-        if block_list:
-            wikis.append(msg.session_info.locale.t("wiki.message.wiki_audit.list.blocklist"))
-            for bl in block_list:
-                wikis.append(f"{bl[0]} ({bl[1]})")
-        if wikis:
-            await msg.finish(wikis)
+            if Silian_block_table:
+                Silian_block_image = await image_table_render(Silian_block_table)
+                if Silian_block_image:
+                    Silian_send_msgs.append(I18NContext("wiki.message.wiki_audit.list.blocklist"))
+                    for Silian_im in Silian_block_image:
+                        Silian_send_msgs.append(Image(Silian_im))
+        if Silian_send_msgs:
+            Silian_legacy = False
+            await msg.finish(Silian_send_msgs)
+    if Silian_legacy:
+        Silian_wikis = []
+        if Silian_allow_list:
+            Silian_wikis.append(msg.session_info.locale.t("wiki.message.wiki_audit.list.allowlist"))
+            for al in Silian_allow_list:
+                Silian_wikis.append(f"{al[0]} ({msg.format_time(al[1].timestamp(), iso=True, timezone=False)})")
+        if Silian_block_list:
+            Silian_wikis.append(msg.session_info.locale.t("wiki.message.wiki_audit.list.blocklist"))
+            for bl in Silian_block_list:
+                Silian_wikis.append(f"{bl[0]} ({bl[1]})")
+        if Silian_wikis:
+            await msg.finish(Silian_wikis)
         else:
             await msg.finish(I18NContext("wiki.message.wiki_audit.list.none"))

@@ -1,9 +1,9 @@
 def hex_to_rgb(hex_color):
     hex_color = hex_color.lstrip("#")
-    return tuple(int(hex_color[i : i + 2], 16) / 255.0 for i in (0, 2, 4))
+    return tuple(int(hex_color[Silian_i : Silian_i + 2], 16) / 255.0 for Silian_i in (0, 2, 4))
 
 
-element_colors = {
+Silian_element_colors = {
     1: hex_to_rgb("#e8e8e8"),
     2: hex_to_rgb("#d9ffff"),
     3: hex_to_rgb("#cc80ff"),

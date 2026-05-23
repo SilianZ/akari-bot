@@ -12,60 +12,60 @@ ip = module("ip", developers=["Dianliang233"], doc=True)
 
 
 @ip.command("<ip_address> {{I18N:ip.help}}")
-async def _(msg: Bot.MessageSession, ip_address: str):
+async def _(Silian_msg: Bot.MessageSession, Silian_ip_address: str):
     try:
-        ip = ipaddress.ip_address(ip_address)
-        if isinstance(ip, ipaddress.IPv6Address) and "::" in ip_address:
-            ip_address = ip.exploded
+        Silian_ip = ipaddress.ip_address(Silian_ip_address)
+        if isinstance(Silian_ip, ipaddress.IPv6Address) and "::" in Silian_ip_address:
+            Silian_ip_address = Silian_ip.exploded
     except Exception:
-        await msg.finish(I18NContext("ip.message.invalid"))
-    res = await check_ip(ip_address)
-    await msg.finish(await format_ip(msg, res), disable_secret_check=True)
+        await Silian_msg.finish(I18NContext("ip.message.invalid"))
+    Silian_res = await check_ip(Silian_ip_address)
+    await Silian_msg.finish(await format_ip(Silian_msg, Silian_res), disable_secret_check=True)
 
 
 async def check_ip(ip: str):
-    info = ipaddress.ip_address(ip)
-    ip_property = ""
-    real_ip = None
-    skip_geoip = False
-    if info.is_multicast:
-        ip_property = "multicast"
-    elif info.is_global:
-        ip_property = "global"
-    elif info.is_loopback:
-        ip_property = "loopback"
-        skip_geoip = True
-    elif info.is_unspecified:
-        ip_property = "unspecified"
-        skip_geoip = True
-    elif info.is_link_local:
-        ip_property = "link_local"
-        skip_geoip = True
-    elif info.is_reserved:
-        ip_property = "reserved"
-        skip_geoip = True
-    elif info.is_private:
-        ip_property = "private"
-        skip_geoip = True
-    elif isinstance(info, ipaddress.IPv6Address):
-        if info.is_site_local:
-            ip_property = "site_local"
-        elif info.ipv4_mapped:
-            ip_property = "ipv4_mapped"
-            real_ip = info.ipv4_mapped.compressed
-        elif info.sixtofour:
-            ip_property = "sixtofour"
-            real_ip = info.sixtofour.compressed
-        elif info.teredo:
-            ip_property = "teredo"
-            ip = str(info.teredo)
+    Silian_info = ipaddress.ip_address(ip)
+    Silian_ip_property = ""
+    Silian_real_ip = None
+    Silian_skip_geoip = False
+    if Silian_info.is_multicast:
+        Silian_ip_property = "multicast"
+    elif Silian_info.is_global:
+        Silian_ip_property = "global"
+    elif Silian_info.is_loopback:
+        Silian_ip_property = "loopback"
+        Silian_skip_geoip = True
+    elif Silian_info.is_unspecified:
+        Silian_ip_property = "unspecified"
+        Silian_skip_geoip = True
+    elif Silian_info.is_link_local:
+        Silian_ip_property = "link_local"
+        Silian_skip_geoip = True
+    elif Silian_info.is_reserved:
+        Silian_ip_property = "reserved"
+        Silian_skip_geoip = True
+    elif Silian_info.is_private:
+        Silian_ip_property = "private"
+        Silian_skip_geoip = True
+    elif isinstance(Silian_info, ipaddress.IPv6Address):
+        if Silian_info.is_site_local:
+            Silian_ip_property = "site_local"
+        elif Silian_info.ipv4_mapped:
+            Silian_ip_property = "ipv4_mapped"
+            Silian_real_ip = Silian_info.ipv4_mapped.compressed
+        elif Silian_info.sixtofour:
+            Silian_ip_property = "sixtofour"
+            Silian_real_ip = Silian_info.sixtofour.compressed
+        elif Silian_info.teredo:
+            Silian_ip_property = "teredo"
+            ip = str(Silian_info.teredo)
     else:
-        ip_property = "unknown"
-        skip_geoip = True
+        Silian_ip_property = "unknown"
+        Silian_skip_geoip = True
 
-    res = {
+    Silian_res = {
         "ip": ip,
-        "version": info.version,
+        "version": Silian_info.version,
         "country_code": None,
         "country": None,
         "region_code": None,
@@ -80,21 +80,21 @@ async def check_ip(ip: str):
         "asn_organization": None,
         "offset": None,
         "reverse": None,
-        "ip_property": ip_property,
-        "real_ip": real_ip,
+        "ip_property": Silian_ip_property,
+        "real_ip": Silian_real_ip,
     }
-    if not skip_geoip:
-        data = await get_url(f"https://api.ip.sb/geoip/{ip}", 200, fmt="json")
-        for key in res:
-            if key in data:
-                res[key] = data[key]
+    if not Silian_skip_geoip:
+        Silian_data = await get_url(f"https://api.ip.sb/geoip/{ip}", 200, fmt="json")
+        for Silian_key in Silian_res:
+            if Silian_key in Silian_data:
+                Silian_res[Silian_key] = Silian_data[Silian_key]
         try:
-            reverse = socket.getnameinfo((ip, 0), 0)
-            res["reverse"] = reverse[0]
+            Silian_reverse = socket.getnameinfo((ip, 0), 0)
+            Silian_res["reverse"] = Silian_reverse[0]
         except Exception:
             Logger.warning("Unable to fetch reverse DNS.")
 
-    return res
+    return Silian_res
 
 
 def zzzq(msg: Bot.MessageSession, country: str):
@@ -111,7 +111,7 @@ def parse_coordinate(axis: str, value: float):
 
 
 async def format_ip(msg: Bot.MessageSession, info: dict[str, Any]):
-    ip_property_map = {
+    Silian_ip_property_map = {
         "global": I18NContext("ip.message.ip_property.global"),
         "private": I18NContext("ip.message.ip_property.private"),
         "reserved": I18NContext("ip.message.ip_property.reserved"),
@@ -126,29 +126,29 @@ async def format_ip(msg: Bot.MessageSession, info: dict[str, Any]):
         "unknown": I18NContext("message.unknown"),
     }
 
-    res = []
+    Silian_res = []
 
-    res.append(Plain(info["ip"]))
+    Silian_res.append(Plain(info["ip"]))
 
     ip_type_label = str(I18NContext("ip.message.type"))
-    ip_property_label = str(ip_property_map.get(info.get("ip_property"), ip_property_map["unknown"]))
+    ip_property_label = str(Silian_ip_property_map.get(info.get("ip_property"), Silian_ip_property_map["unknown"]))
     ip_property_suffix = str(I18NContext("ip.message.ip_property"))
     ip_type = f"IPv{info['version']}{ip_property_label}{ip_property_suffix}"
-    res.append(Plain(f"{ip_type_label}{ip_type}"))
+    Silian_res.append(Plain(f"{ip_type_label}{ip_type}"))
 
     real_ip = info.get("real_ip")
     if real_ip:
         real_ip_label = str(I18NContext("ip.message.real_ip"))
-        res.append(Plain(f"{real_ip_label}{real_ip}"))
+        Silian_res.append(Plain(f"{real_ip_label}{real_ip}"))
 
-    location_parts = []
-    for key in ("city", "region", "country"):
-        value = info.get(key)
-        if value:
-            if key == "country":
-                value = zzzq(msg, value)
-            location_parts.append(value)
-    location = ", ".join(location_parts)
+    Silian_location_parts = []
+    for Silian_key in ("city", "region", "country"):
+        Silian_value = info.get(Silian_key)
+        if Silian_value:
+            if Silian_key == "country":
+                Silian_value = zzzq(msg, Silian_value)
+            Silian_location_parts.append(Silian_value)
+    location = ", ".join(Silian_location_parts)
 
     longitude = info.get("longitude")
     latitude = info.get("latitude")
@@ -158,35 +158,35 @@ async def format_ip(msg: Bot.MessageSession, info: dict[str, Any]):
         location += f" ({longitude}, {latitude})"
 
     location_label = str(I18NContext("ip.message.location"))
-    res.append(Plain(f"{location_label}{location}"))
+    Silian_res.append(Plain(f"{location_label}{location}"))
 
     postal_code = info.get("postal_code")
     if postal_code:
         postal_code_label = str(I18NContext("ip.message.postal_code"))
-        res.append(Plain(f"{postal_code_label}{postal_code}"))
+        Silian_res.append(Plain(f"{postal_code_label}{postal_code}"))
 
     organization = info.get("organization")
     if organization:
         organization_label = str(I18NContext("ip.message.organization"))
-        res.append(Plain(f"{organization_label}{organization}"))
+        Silian_res.append(Plain(f"{organization_label}{organization}"))
 
     asn = info.get("asn")
     if asn:
         asn_label = str(I18NContext("ip.message.asn"))
         asn_org = info.get("asn_organization")
         asn_org = f" ({asn_org})" if asn_org else ""
-        res.append(Plain(f"{asn_label}{asn}{asn_org}"))
+        Silian_res.append(Plain(f"{asn_label}{asn}{asn_org}"))
 
-    offset = info.get("offset")
-    if offset:
+    Silian_offset = info.get("offset")
+    if Silian_offset:
         utc_label = str(I18NContext("ip.message.utc"))
-        offset_hours = offset / 3600
-        res.append(Plain(f"{utc_label}UTC{offset_hours:+g}"))
+        offset_hours = Silian_offset / 3600
+        Silian_res.append(Plain(f"{utc_label}UTC{offset_hours:+g}"))
 
     reverse = info.get("reverse")
-    ip = info.get("ip")
-    if reverse and reverse != ip:
+    Silian_ip = info.get("ip")
+    if reverse and reverse != Silian_ip:
         reverse_label = str(I18NContext("ip.message.reverse"))
-        res.append(Plain(f"{reverse_label}{reverse}"))
+        Silian_res.append(Plain(f"{reverse_label}{reverse}"))
 
-    return res
+    return Silian_res

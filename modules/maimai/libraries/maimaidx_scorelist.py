@@ -7,142 +7,142 @@ from .maimaidx_apidata import get_total_record
 from .maimaidx_mapping import *
 from .maimaidx_music import TotalList
 
-total_list = TotalList()
+Silian_total_list = TotalList()
 
 
 class DrawLevelList:
-    def __init__(self, level, goal, song_list, song_played):
-        self.level = level
-        self.goal = goal
-        self.song_list = song_list
-        self.song_played = song_played
-        self.image_size = 80
-        self.spacing = 10
-        self.margin = 20
-        self.diff_colors = [
+    def __init__(Silian_self, Silian_level, Silian_goal, Silian_song_list, Silian_song_played):
+        Silian_self.level = Silian_level
+        Silian_self.goal = Silian_goal
+        Silian_self.song_list = Silian_song_list
+        Silian_self.song_played = Silian_song_played
+        Silian_self.image_size = 80
+        Silian_self.spacing = 10
+        Silian_self.margin = 20
+        Silian_self.diff_colors = [
             (69, 193, 36),
             (255, 186, 1),
             (255, 90, 102),
             (134, 49, 200),
             (217, 197, 233),
         ]
-        self.img = None
-        self.create_ranked_image()
+        Silian_self.img = None
+        Silian_self.create_ranked_image()
 
-    def _get_goal_color(self):
-        match self.goal:
+    def _get_goal_color(Silian_self):
+        match Silian_self.goal:
             case "A" | "AA" | "AAA":
-                color = (255, 129, 141)
+                Silian_color = (255, 129, 141)
             case "S" | "S+" | "SS" | "SS+":
-                color = (239, 243, 13)
+                Silian_color = (239, 243, 13)
             case "SSS":
-                color = [(239, 243, 13), (69, 174, 255), (255, 129, 141)]
+                Silian_color = [(239, 243, 13), (69, 174, 255), (255, 129, 141)]
             case "SSS+":
-                color = [(239, 243, 13), (69, 174, 255), (255, 129, 141), (239, 243, 13)]
+                Silian_color = [(239, 243, 13), (69, 174, 255), (255, 129, 141), (239, 243, 13)]
             case "FC" | "FC+":
-                color = (129, 217, 85)
+                Silian_color = (129, 217, 85)
             case "AP" | "AP+":
-                color = (249, 128, 4)
+                Silian_color = (249, 128, 4)
             case "SYNC":
-                color = (49, 195, 246)
+                Silian_color = (49, 195, 246)
             case "FS" | "FS+":
-                color = (69, 174, 255)
+                Silian_color = (69, 174, 255)
             case "FDX" | "FDX+":
-                color = (249, 128, 4)
+                Silian_color = (249, 128, 4)
             case _:
-                color = (255, 255, 255)
-        return color
+                Silian_color = (255, 255, 255)
+        return Silian_color
 
     @staticmethod
-    def _get_luminance(r, g, b):
-        return 0.2126 * r + 0.7152 * g + 0.0722 * b
+    def _get_luminance(Silian_r, Silian_g, Silian_b):
+        return 0.2126 * Silian_r + 0.7152 * Silian_g + 0.0722 * Silian_b
 
-    def create_ranked_image(self):
-        total_width = 10 * (self.image_size + self.spacing) - self.spacing + 2 * self.margin
+    def create_ranked_image(Silian_self):
+        Silian_total_width = 10 * (Silian_self.image_size + Silian_self.spacing) - Silian_self.spacing + 2 * Silian_self.margin
 
-        total_height = self.margin
-        for level, elements in self.song_list.items():
-            if not elements:
+        Silian_total_height = Silian_self.margin
+        for Silian_level, Silian_elements in Silian_self.song_list.items():
+            if not Silian_elements:
                 continue
-            rows = (len(elements) + 9) // 10
-            total_height += rows * (self.image_size + self.spacing + 20) + 40
+            Silian_rows = (len(Silian_elements) + 9) // 10
+            Silian_total_height += Silian_rows * (Silian_self.image_size + Silian_self.spacing + 20) + 40
 
-        self.img = Image.new("RGB", (total_width, total_height), (211, 211, 211))
-        draw = ImageDraw.Draw(self.img)
+        Silian_self.img = Image.new("RGB", (Silian_total_width, Silian_total_height), (211, 211, 211))
+        Silian_draw = ImageDraw.Draw(Silian_self.img)
 
-        y_offset = self.margin
+        Silian_y_offset = Silian_self.margin
 
-        for level, elements in self.song_list.items():
-            if not elements:
+        for Silian_level, Silian_elements in Silian_self.song_list.items():
+            if not Silian_elements:
                 continue
 
-            font = ImageFont.truetype(noto_sans_demilight_path, 24, encoding="utf-8")
-            draw.text((self.margin, y_offset), level, fill=(0, 0, 0), font=font)
-            y_offset += 30
+            Silian_font = ImageFont.truetype(noto_sans_demilight_path, 24, encoding="utf-8")
+            Silian_draw.text((Silian_self.margin, Silian_y_offset), Silian_level, fill=(0, 0, 0), font=Silian_font)
+            Silian_y_offset += 30
 
-            x_offset = self.margin
-            for _, i in enumerate(elements):
-                sid = i[0]
-                df = i[1]
+            Silian_x_offset = Silian_self.margin
+            for _, Silian_i in enumerate(Silian_elements):
+                sid = Silian_i[0]
+                Silian_df = Silian_i[1]
 
-                if x_offset + self.image_size > total_width - self.margin:
-                    x_offset = self.margin
-                    y_offset += self.image_size + self.spacing + 20
+                if Silian_x_offset + Silian_self.image_size > Silian_total_width - Silian_self.margin:
+                    Silian_x_offset = Silian_self.margin
+                    Silian_y_offset += Silian_self.image_size + Silian_self.spacing + 20
 
-                cover_path = mai_cover_path / f"{sid}.png"
-                if cover_path.exists():
-                    cover = Image.open(cover_path)
-                    cover = cover.resize((self.image_size, self.image_size))
-                    self.img.paste(cover, (x_offset, y_offset))
+                Silian_cover_path = mai_cover_path / f"{sid}.png"
+                if Silian_cover_path.exists():
+                    Silian_cover = Image.open(Silian_cover_path)
+                    Silian_cover = Silian_cover.resize((Silian_self.image_size, Silian_self.image_size))
+                    Silian_self.img.paste(Silian_cover, (Silian_x_offset, Silian_y_offset))
                 elif (mai_cover_path / "0.png").exists():
-                    cover = Image.open(mai_cover_path / "0.png")
-                    cover = cover.resize((self.image_size, self.image_size))
-                    self.img.paste(cover, (x_offset, y_offset))
+                    Silian_cover = Image.open(mai_cover_path / "0.png")
+                    Silian_cover = Silian_cover.resize((Silian_self.image_size, Silian_self.image_size))
+                    Silian_self.img.paste(Silian_cover, (Silian_x_offset, Silian_y_offset))
                 else:
-                    draw.rectangle(
-                        [x_offset, y_offset, x_offset + self.image_size, y_offset + self.image_size],
+                    Silian_draw.rectangle(
+                        [Silian_x_offset, Silian_y_offset, Silian_x_offset + Silian_self.image_size, Silian_y_offset + Silian_self.image_size],
                         fill=(240, 240, 240),
                     )
-                    font = ImageFont.truetype(noto_sans_demilight_path, 20, encoding="utf-8")
-                    bbox = draw.textbbox((0, 0), str(sid), font=font)
-                    text_width, text_height = bbox[2] - bbox[0], bbox[3] - bbox[1]
-                    text_x = x_offset + (self.image_size - text_width) // 2
-                    text_y = y_offset + (self.image_size - text_height) // 2
-                    draw.text((text_x, text_y), str(sid), fill=(100, 100, 100), font=font)
+                    Silian_font = ImageFont.truetype(noto_sans_demilight_path, 20, encoding="utf-8")
+                    Silian_bbox = Silian_draw.textbbox((0, 0), str(sid), font=Silian_font)
+                    Silian_text_width, Silian_text_height = Silian_bbox[2] - Silian_bbox[0], Silian_bbox[3] - Silian_bbox[1]
+                    Silian_text_x = Silian_x_offset + (Silian_self.image_size - Silian_text_width) // 2
+                    Silian_text_y = Silian_y_offset + (Silian_self.image_size - Silian_text_height) // 2
+                    Silian_draw.text((Silian_text_x, Silian_text_y), str(sid), fill=(100, 100, 100), font=Silian_font)
 
                 # 绘制灰色长方形
-                bar_top = y_offset + self.image_size
-                bar_height = 15
-                large_bar_width = self.image_size * 0.6  # 左边部分的宽度，占比大
-                small_bar_width = self.image_size * 0.4  # 右边部分的宽度，占比小
-                dcolor = self.diff_colors[df]
-                luminance = self._get_luminance(*dcolor)
-                text_color = (0, 0, 0) if luminance > 140 else (255, 255, 255)
+                Silian_bar_top = Silian_y_offset + Silian_self.image_size
+                Silian_bar_height = 15
+                Silian_large_bar_width = Silian_self.image_size * 0.6  # 左边部分的宽度，占比大
+                Silian_small_bar_width = Silian_self.image_size * 0.4  # 右边部分的宽度，占比小
+                Silian_dcolor = Silian_self.diff_colors[Silian_df]
+                Silian_luminance = Silian_self._get_luminance(*Silian_dcolor)
+                Silian_text_color = (0, 0, 0) if Silian_luminance > 140 else (255, 255, 255)
 
                 # 左侧用于放置标记
-                draw.rectangle(
-                    [x_offset, bar_top, x_offset + large_bar_width, bar_top + bar_height],
+                Silian_draw.rectangle(
+                    [Silian_x_offset, Silian_bar_top, Silian_x_offset + Silian_large_bar_width, Silian_bar_top + Silian_bar_height],
                     fill=(0, 0, 0),
                 )
 
                 # 右侧用于放置封面ID
-                draw.rectangle(
-                    [x_offset + large_bar_width, bar_top, x_offset + self.image_size, bar_top + bar_height],
-                    fill=dcolor,
+                Silian_draw.rectangle(
+                    [Silian_x_offset + Silian_large_bar_width, Silian_bar_top, Silian_x_offset + Silian_self.image_size, Silian_bar_top + Silian_bar_height],
+                    fill=Silian_dcolor,
                 )
 
                 # 绘制封面ID
-                font = ImageFont.truetype(noto_sans_demilight_path, 10, encoding="utf-8")
-                bbox = draw.textbbox((0, 0), str(sid), font=font)
-                text_width, text_height = bbox[2] - bbox[0], bbox[3] - bbox[1]
-                text_x = x_offset + large_bar_width + (small_bar_width - text_width) // 2
-                text_y = bar_top + (bar_height - text_height) // 2
-                draw.text((text_x, text_y), str(sid), fill=text_color, font=font)
+                Silian_font = ImageFont.truetype(noto_sans_demilight_path, 10, encoding="utf-8")
+                Silian_bbox = Silian_draw.textbbox((0, 0), str(sid), font=Silian_font)
+                Silian_text_width, Silian_text_height = Silian_bbox[2] - Silian_bbox[0], Silian_bbox[3] - Silian_bbox[1]
+                Silian_text_x = Silian_x_offset + Silian_large_bar_width + (Silian_small_bar_width - Silian_text_width) // 2
+                Silian_text_y = Silian_bar_top + (Silian_bar_height - Silian_text_height) // 2
+                Silian_draw.text((Silian_text_x, Silian_text_y), str(sid), fill=Silian_text_color, font=Silian_font)
 
-                if self.goal:
-                    if self.goal in rate_list:
-                        rank_list = rate_list
-                        mark_fill = [
+                if Silian_self.goal:
+                    if Silian_self.goal in rate_list:
+                        Silian_rank_list = rate_list
+                        Silian_mark_fill = [
                             (69, 174, 255),
                             (69, 174, 255),
                             (69, 174, 255),
@@ -158,117 +158,117 @@ class DrawLevelList:
                             (239, 243, 13),
                             (239, 243, 13),
                         ]
-                    elif self.goal in combo_list:
-                        rank_list = combo_list
-                        mark_fill = [(129, 217, 85), (129, 217, 85), (249, 128, 4), (249, 128, 4)]
-                    elif self.goal in sync_list:
-                        rank_list = sync_list
-                        mark_fill = [(49, 195, 246), (69, 174, 255), (69, 174, 255), (249, 128, 4), (249, 128, 4)]
+                    elif Silian_self.goal in combo_list:
+                        Silian_rank_list = combo_list
+                        Silian_mark_fill = [(129, 217, 85), (129, 217, 85), (249, 128, 4), (249, 128, 4)]
+                    elif Silian_self.goal in sync_list:
+                        Silian_rank_list = sync_list
+                        Silian_mark_fill = [(49, 195, 246), (69, 174, 255), (69, 174, 255), (249, 128, 4), (249, 128, 4)]
                     else:
-                        rank_list = []
-                        mark_fill = []
+                        Silian_rank_list = []
+                        Silian_mark_fill = []
 
-                    rank = next((c for a, b, c in self.song_played if a == sid and b == df), None)
-                    rank_index = rank_list.index(rank) + 1 if rank else 0
+                    Silian_rank = next((Silian_c for Silian_a, Silian_b, Silian_c in Silian_self.song_played if Silian_a == sid and Silian_b == Silian_df), None)
+                    Silian_rank_index = Silian_rank_list.index(Silian_rank) + 1 if Silian_rank else 0
 
                     # 分段填充颜色
-                    mark_width = large_bar_width / len(mark_fill)  # 使用浮点数计算
-                    for i in range(rank_index):
-                        draw.rectangle(
+                    Silian_mark_width = Silian_large_bar_width / len(Silian_mark_fill)  # 使用浮点数计算
+                    for Silian_i in range(Silian_rank_index):
+                        Silian_draw.rectangle(
                             [
-                                x_offset + i * mark_width,
-                                bar_top,
-                                x_offset + (i + 1) * mark_width if i < rank_index else x_offset + large_bar_width,
-                                bar_top + bar_height,
+                                Silian_x_offset + Silian_i * Silian_mark_width,
+                                Silian_bar_top,
+                                Silian_x_offset + (Silian_i + 1) * Silian_mark_width if Silian_i < Silian_rank_index else Silian_x_offset + Silian_large_bar_width,
+                                Silian_bar_top + Silian_bar_height,
                             ],
-                            fill=mark_fill[i],
+                            fill=Silian_mark_fill[Silian_i],
                         )
 
-                    if rank_index >= rank_list.index(self.goal) + 1:
-                        overlay = Image.new("RGBA", (self.image_size, self.image_size), (0, 0, 0, 180))
-                        self.img.paste(overlay, (x_offset, y_offset), overlay)
+                    if Silian_rank_index >= Silian_rank_list.index(Silian_self.goal) + 1:
+                        Silian_overlay = Image.new("RGBA", (Silian_self.image_size, Silian_self.image_size), (0, 0, 0, 180))
+                        Silian_self.img.paste(Silian_overlay, (Silian_x_offset, Silian_y_offset), Silian_overlay)
 
-                        text_color = self._get_goal_color()
-                        font = ImageFont.truetype(noto_sans_demilight_path, 24, encoding="utf-8")
+                        Silian_text_color = Silian_self._get_goal_color()
+                        Silian_font = ImageFont.truetype(noto_sans_demilight_path, 24, encoding="utf-8")
 
-                        def get_text_size(text, font):
-                            bbox = font.getbbox(text)
-                            width = bbox[2] - bbox[0]
-                            height = bbox[3] - bbox[1]
-                            return width, height
+                        def get_text_size(Silian_text, Silian_font):
+                            Silian_bbox = Silian_font.getbbox(Silian_text)
+                            Silian_width = Silian_bbox[2] - Silian_bbox[0]
+                            Silian_height = Silian_bbox[3] - Silian_bbox[1]
+                            return Silian_width, Silian_height
 
-                        text_width, text_height = get_text_size(self.goal, font)
+                        Silian_text_width, Silian_text_height = get_text_size(Silian_self.goal, Silian_font)
 
-                        if self.goal in ["SSS", "SSS+"]:
-                            char_sizes = [font.getbbox(c)[2] - font.getbbox(c)[0] for c in self.goal]
-                            total_text_width = sum(char_sizes)
-                            text_x = x_offset + (self.image_size - total_text_width) // 2
-                            text_y = y_offset + (self.image_size - font.getbbox("A")[3]) // 2  # 大致高度居中
+                        if Silian_self.goal in ["SSS", "SSS+"]:
+                            Silian_char_sizes = [Silian_font.getbbox(Silian_c)[2] - Silian_font.getbbox(Silian_c)[0] for Silian_c in Silian_self.goal]
+                            Silian_total_text_width = sum(Silian_char_sizes)
+                            Silian_text_x = Silian_x_offset + (Silian_self.image_size - Silian_total_text_width) // 2
+                            Silian_text_y = Silian_y_offset + (Silian_self.image_size - Silian_font.getbbox("A")[3]) // 2  # 大致高度居中
 
-                            for i, char in enumerate(self.goal):
-                                char_width, _ = get_text_size(char, font)
-                                draw.text((text_x, text_y), char, fill=text_color[i], font=font)
-                                text_x += char_width  # 更新x坐标，绘制下一个字母
+                            for Silian_i, Silian_char in enumerate(Silian_self.goal):
+                                Silian_char_width, _ = get_text_size(Silian_char, Silian_font)
+                                Silian_draw.text((Silian_text_x, Silian_text_y), Silian_char, fill=Silian_text_color[Silian_i], font=Silian_font)
+                                Silian_text_x += Silian_char_width  # 更新x坐标，绘制下一个字母
                         else:
-                            text_x = x_offset + (self.image_size - text_width) // 2
-                            text_y = y_offset + (self.image_size - text_height) // 2
-                            draw.text((text_x, text_y), self.goal, fill=text_color, font=font)
+                            Silian_text_x = Silian_x_offset + (Silian_self.image_size - Silian_text_width) // 2
+                            Silian_text_y = Silian_y_offset + (Silian_self.image_size - Silian_text_height) // 2
+                            Silian_draw.text((Silian_text_x, Silian_text_y), Silian_self.goal, fill=Silian_text_color, font=Silian_font)
 
-                x_offset += self.image_size + self.spacing
+                Silian_x_offset += Silian_self.image_size + Silian_self.spacing
 
-            y_offset += self.image_size + self.spacing + 20
+            Silian_y_offset += Silian_self.image_size + Silian_self.spacing + 20
 
-        font = ImageFont.truetype(noto_sans_demilight_path, 10, encoding="utf-8")
-        draw.text((5, total_height - 15), 'Generated by Teahouse Studios "AkariBot"', (0, 0, 0), font=font)
+        Silian_font = ImageFont.truetype(noto_sans_demilight_path, 10, encoding="utf-8")
+        Silian_draw.text((5, Silian_total_height - 15), 'Generated by Teahouse Studios "AkariBot"', (0, 0, 0), font=Silian_font)
 
-    def get_dir(self):
-        return self.img
+    def get_dir(Silian_self):
+        return Silian_self.img
 
 
 async def _get_level_process(
-    msg: Bot.MessageSession, payload: dict, level: str, goal: str | None = None, use_cache: bool = True
+    Silian_msg: Bot.MessageSession, Silian_payload: dict, Silian_level: str, Silian_goal: str | None = None, Silian_use_cache: bool = True
 ) -> tuple[dict[str, list[str]], list[tuple[str, int]]]:
-    res = await get_total_record(msg, payload, use_cache)
-    records: list = res["records"]
+    Silian_res = await get_total_record(Silian_msg, Silian_payload, Silian_use_cache)
+    Silian_records: list = Silian_res["records"]
 
-    song_played = []
-    if goal:
-        if goal in rate_list:
-            for song in records:
+    Silian_song_played = []
+    if Silian_goal:
+        if Silian_goal in rate_list:
+            for Silian_song in Silian_records:
                 try:
-                    rank = next(
-                        rank
-                        for interval, rank in score_to_rate.items()
-                        if interval[0] <= song["achievements"] < interval[1]
+                    Silian_rank = next(
+                        Silian_rank
+                        for Silian_interval, Silian_rank in score_to_rate.items()
+                        if Silian_interval[0] <= Silian_song["achievements"] < Silian_interval[1]
                     )
                 except StopIteration:
                     continue
-                song_played.append((str(song["song_id"]), song["level_index"], rank))
-        elif goal in combo_list:
-            for song in records:
-                rank = combo_mapping[song["fc"]] if song["fc"] else None
-                song_played.append((str(song["song_id"]), song["level_index"], rank))
-        elif goal in sync_list:
-            for song in records:
-                rank = sync_mapping[song["fs"]] if song["fs"] else None
-                song_played.append((str(song["song_id"]), song["level_index"], rank))
+                Silian_song_played.append((str(Silian_song["song_id"]), Silian_song["level_index"], Silian_rank))
+        elif Silian_goal in combo_list:
+            for Silian_song in Silian_records:
+                Silian_rank = combo_mapping[Silian_song["fc"]] if Silian_song["fc"] else None
+                Silian_song_played.append((str(Silian_song["song_id"]), Silian_song["level_index"], Silian_rank))
+        elif Silian_goal in sync_list:
+            for Silian_song in Silian_records:
+                Silian_rank = sync_mapping[Silian_song["fs"]] if Silian_song["fs"] else None
+                Silian_song_played.append((str(Silian_song["song_id"]), Silian_song["level_index"], Silian_rank))
         else:
-            await msg.finish(I18NContext("maimai.message.goal_invalid"))
+            await Silian_msg.finish(I18NContext("maimai.message.goal_invalid"))
 
-    song_list = {}
+    Silian_song_list = {}
 
-    for music in (await total_list.get()).filter(level=level):
-        if int(music.id) < 100000:  # 过滤宴谱
-            indices = [i for i, lv in enumerate(music.level) if lv == level]
-            for idx in indices:
-                const = str(music.ds[idx])
-                if const not in song_list:
-                    song_list[const] = []
-                song_list[const].append((music.id, idx))
+    for Silian_music in (await Silian_total_list.get()).filter(level=Silian_level):
+        if int(Silian_music.id) < 100000:  # 过滤宴谱
+            Silian_indices = [Silian_i for Silian_i, Silian_lv in enumerate(Silian_music.level) if Silian_lv == Silian_level]
+            for Silian_idx in Silian_indices:
+                Silian_const = str(Silian_music.ds[Silian_idx])
+                if Silian_const not in Silian_song_list:
+                    Silian_song_list[Silian_const] = []
+                Silian_song_list[Silian_const].append((Silian_music.id, Silian_idx))
 
-    song_list = {k: song_list[k] for k in sorted(song_list, reverse=True)}
+    Silian_song_list = {Silian_k: Silian_song_list[Silian_k] for Silian_k in sorted(Silian_song_list, reverse=True)}
 
-    return song_list, song_played
+    return Silian_song_list, Silian_song_played
 
 
 async def generate(
@@ -276,7 +276,7 @@ async def generate(
 ) -> Image.Image | None:
     if goal:
         goal = goal.upper()
-    song_list, song_played = await _get_level_process(msg, payload, level, goal, use_cache)
+    Silian_song_list, Silian_song_played = await _get_level_process(msg, payload, level, goal, use_cache)
 
-    pic = DrawLevelList(level, goal, song_list, song_played).get_dir()
-    return pic
+    Silian_pic = DrawLevelList(level, goal, Silian_song_list, Silian_song_played).get_dir()
+    return Silian_pic

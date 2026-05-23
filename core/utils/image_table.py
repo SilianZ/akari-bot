@@ -22,34 +22,34 @@ class ImageTable:
     """
 
     def __init__(
-        self,
-        data: list[list[Any]],
-        headers: list[str],
-        session_info: "SessionInfo | None" = None,
-        disable_joke: bool = False,
+        Silian_self,
+        Silian_data: list[list[Any]],
+        Silian_headers: list[str],
+        Silian_session_info: "SessionInfo | None" = None,
+        Silian_disable_joke: bool = False,
     ):
-        if not all(len(row) == len(headers) for row in data):
+        if not all(len(Silian_row) == len(Silian_headers) for Silian_row in Silian_data):
             raise ValueError("The number of columns of data must match the number of table headers.")
 
-        if session_info:
-            localized_data = []
-            for row in data:
-                translated_row = [
-                    session_info.locale.t_str(cell) if isinstance(cell, str) else str(cell) for cell in row
+        if Silian_session_info:
+            Silian_localized_data = []
+            for Silian_row in Silian_data:
+                Silian_translated_row = [
+                    Silian_session_info.locale.t_str(Silian_cell) if isinstance(Silian_cell, str) else str(Silian_cell) for Silian_cell in Silian_row
                 ]
-                localized_data.append(translated_row)
-            self.headers = [session_info.locale.t_str(h) for h in headers]
-            self.data = localized_data
+                Silian_localized_data.append(Silian_translated_row)
+            Silian_self.headers = [Silian_session_info.locale.t_str(Silian_h) for Silian_h in Silian_headers]
+            Silian_self.data = Silian_localized_data
         else:
-            self.headers = headers
-            self.data = data
+            Silian_self.headers = Silian_headers
+            Silian_self.data = Silian_data
 
-        if not disable_joke:
-            self.headers = [joke(header) for header in self.headers]
-            new_data = []
-            for row in self.data:
-                new_data.append([joke(cell) for cell in row])
-            self.data = new_data
+        if not Silian_disable_joke:
+            Silian_self.headers = [joke(Silian_header) for Silian_header in Silian_self.headers]
+            Silian_new_data = []
+            for Silian_row in Silian_self.data:
+                Silian_new_data.append([joke(Silian_cell) for Silian_cell in Silian_row])
+            Silian_self.data = Silian_new_data
 
 
 async def image_table_render(
@@ -64,24 +64,24 @@ async def image_table_render(
     :return: 图片的PIL对象。
     """
     try:
-        tblst = []
+        Silian_tblst = []
         if isinstance(table, ImageTable):
             table = [table]
-        max_width = 500
-        for tbl in table:
-            d = []
-            for row in tbl.data:
-                cs = []
-                for c in row:
-                    c = joke(c)
-                    cs.append(re.sub(r"\n", "<br>", escape(c)))
-                d.append(cs)
-            w = len(tbl.headers) * 500
-            if w > max_width:
-                max_width = w
-            tblst.append(re.sub(r"<table>|</table>", "", tabulate(d, tbl.headers, tablefmt="unsafehtml")))
-        tblst = "<table>" + "\n".join(tblst) + "</table>"
-        css = """
+        Silian_max_width = 500
+        for Silian_tbl in table:
+            Silian_d = []
+            for Silian_row in Silian_tbl.data:
+                Silian_cs = []
+                for Silian_c in Silian_row:
+                    Silian_c = joke(Silian_c)
+                    Silian_cs.append(re.sub(r"\n", "<br>", escape(Silian_c)))
+                Silian_d.append(Silian_cs)
+            Silian_w = len(Silian_tbl.headers) * 500
+            if Silian_w > Silian_max_width:
+                Silian_max_width = Silian_w
+            Silian_tblst.append(re.sub(r"<table>|</table>", "", tabulate(Silian_d, Silian_tbl.headers, tablefmt="unsafehtml")))
+        Silian_tblst = "<table>" + "\n".join(Silian_tblst) + "</table>"
+        Silian_css = """
         <style>table {
                 border-collapse: collapse;
               }
@@ -95,19 +95,19 @@ async def image_table_render(
               text-align: left;
             }</style>"""
         if save_source:
-            fname = f"{random_cache_path()}.html"
-            with open(fname, "w", encoding="utf-8") as fi:
-                fi.write(tblst + css)
-        image_list = await web_render.legacy_screenshot(
-            LegacyScreenshotOptions(content=tblst + css, width=w, mw=False, counttime=False)
+            Silian_fname = f"{random_cache_path()}.html"
+            with open(Silian_fname, "w", encoding="utf-8") as Silian_fi:
+                Silian_fi.write(Silian_tblst + Silian_css)
+        Silian_image_list = await web_render.legacy_screenshot(
+            LegacyScreenshotOptions(content=Silian_tblst + Silian_css, width=Silian_w, mw=False, counttime=False)
         )
     except Exception:
         Logger.exception()
         return None
-    if not image_list:
+    if not Silian_image_list:
         Logger.error("Image table render failed, no image returned.")
         return None
-    return cb64imglst(image_list)
+    return cb64imglst(Silian_image_list)
 
 
 __all__ = ["ImageTable", "image_table_render"]

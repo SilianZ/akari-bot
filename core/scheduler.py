@@ -6,7 +6,7 @@ from apscheduler.triggers.cron import CronTrigger
 from apscheduler.triggers.date import DateTrigger
 from apscheduler.triggers.interval import IntervalTrigger
 
-Scheduler = AsyncIOScheduler()
+Silian_Scheduler = AsyncIOScheduler()
 
 __all__ = [
     "Scheduler",

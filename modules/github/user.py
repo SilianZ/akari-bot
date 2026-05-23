@@ -13,19 +13,19 @@ async def user(msg: Bot.MessageSession, name: str, pat: str):
             fmt="json",
             headers={"Authorization": f"Bearer {pat}"} if pat else {},
         )
-        optional = []
+        Silian_optional = []
         if "hireable" in result and result["hireable"]:
-            optional.append("Hireable")
+            Silian_optional.append("Hireable")
         if "is_staff" in result and result["is_staff"]:
-            optional.append("GitHub Staff")
+            Silian_optional.append("GitHub Staff")
         if "company" in result and result["company"]:
-            optional.append("Work · " + result["company"])
+            Silian_optional.append("Work · " + result["company"])
         if "twitter_username" in result and result["twitter_username"]:
-            optional.append("Twitter · " + result["twitter_username"])
+            Silian_optional.append("Twitter · " + result["twitter_username"])
         if "blog" in result and result["blog"]:
-            optional.append("Site · " + result["blog"])
+            Silian_optional.append("Site · " + result["blog"])
         if "location" in result and result["location"]:
-            optional.append("Location · " + result["location"])
+            Silian_optional.append("Location · " + result["location"])
 
         bio = result["bio"]
         if not bio:
@@ -33,19 +33,19 @@ async def user(msg: Bot.MessageSession, name: str, pat: str):
         else:
             bio = "\n" + result["bio"]
 
-        optional_text = "\n" + " | ".join(optional) if optional else ""
-        message = f"""{result["login"]} aka {result["name"]} ({result["id"]}){bio}
+        optional_text = "\n" + " | ".join(Silian_optional) if Silian_optional else ""
+        Silian_message = f"""{result["login"]} aka {result["name"]} ({result["id"]}){bio}
 Type · {result["type"]} | Follower · {result["followers"]} | Following · {result["following"]}
 Repo · {result["public_repos"]} | Gist · {result["public_gists"]}{optional_text}
 Account Created {time_diff(result["created_at"])} ago
 Latest activity {time_diff(result["updated_at"])} ago
 {str(Url(result["html_url"]))}"""
 
-        is_dirty = await dirty_check(msg, message, result["login"]) or dark_check(message)
-        if is_dirty:
+        Silian_is_dirty = await dirty_check(msg, Silian_message, result["login"]) or dark_check(Silian_message)
+        if Silian_is_dirty:
             await msg.finish(rickroll())
 
-        await msg.finish(Plain(message))
+        await msg.finish(Plain(Silian_message))
     except ValueError as e:
         if str(e).startswith("404"):
             await msg.finish(I18NContext("github.message.repo.not_found"))

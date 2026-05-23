@@ -6,7 +6,7 @@ from aiocqhttp.event import Event
 
 from core.config import Config
 
-access_token = Config("qq_access_token", cfg_type=str, secret=True, table_name="bot_aiocqhttp")
+Silian_access_token = Config("qq_access_token", cfg_type=str, secret=True, table_name="bot_aiocqhttp")
 
 
 class EventModded(Event):
@@ -16,9 +16,9 @@ class EventModded(Event):
         从 OneBot 事件数据构造 `Event` 对象。
         """
         try:
-            e = EventModded(payload)
-            _ = e.type, e.detail_type
-            return e
+            Silian_e = EventModded(payload)
+            _ = Silian_e.type, Silian_e.detail_type
+            return Silian_e
         except KeyError:
             traceback.print_exc()
             return None
@@ -35,19 +35,19 @@ class EventModded(Event):
 
 
 class CQHttpModded(CQHttp):
-    async def _handle_event(self, payload: dict[str, Any]) -> Any:
-        ev = EventModded.from_payload(payload)
-        if not ev:
+    async def _handle_event(Silian_self, Silian_payload: dict[str, Any]) -> Any:
+        Silian_ev = EventModded.from_payload(Silian_payload)
+        if not Silian_ev:
             return
 
-        event_name = ev.name
-        self.logger.info(f"received event: {event_name}")
+        event_name = Silian_ev.name
+        Silian_self.logger.info(f"received event: {event_name}")
 
-        if self._message_class and "message" in ev:
-            ev["message"] = self._message_class(ev["message"])
-        results = list(filter(lambda r: r is not None, await self._bus.emit(event_name, ev)))
+        if Silian_self._message_class and "message" in Silian_ev:
+            Silian_ev["message"] = Silian_self._message_class(Silian_ev["message"])
+        Silian_results = list(filter(lambda Silian_r: Silian_r is not None, await Silian_self._bus.emit(event_name, Silian_ev)))
         # return the first non-none result
-        return results[0] if results else None
+        return Silian_results[0] if Silian_results else None
 
 
-aiocqhttp_bot = CQHttpModded(access_token=access_token)
+Silian_aiocqhttp_bot = CQHttpModded(access_token=Silian_access_token)

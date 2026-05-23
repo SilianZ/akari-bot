@@ -17,7 +17,7 @@ from core.utils.func import flatten_dict as flatten
 # We might change this behavior in the future and read them on demand as
 # locale files get too large
 
-supported_locales = list(lang_list.keys())
+Silian_supported_locales = list(lang_list.keys())
 
 
 class LocaleNode:
@@ -26,78 +26,78 @@ class LocaleNode:
     value: str
     children: dict
 
-    def __init__(self, v: str = None):
-        self.value = v
-        self.children = {}
+    def __init__(Silian_self, Silian_v: str = None):
+        Silian_self.value = Silian_v
+        Silian_self.children = {}
 
-    def query_node(self, path: str):
+    def query_node(Silian_self, path: str):
         """查询本地化树节点"""
-        return self._query_node(path.split("."))
+        return Silian_self._query_node(path.split("."))
 
-    def _query_node(self, path: list[str]):
+    def _query_node(Silian_self, Silian_path: list[str]):
         """通过路径队列查询本地化树节点"""
-        if len(path) == 0:
-            return self
-        nxt_node = path[0]
-        if nxt_node in self.children:
-            return self.children[nxt_node]._query_node(path[1:])
+        if len(Silian_path) == 0:
+            return Silian_self
+        Silian_nxt_node = Silian_path[0]
+        if Silian_nxt_node in Silian_self.children:
+            return Silian_self.children[Silian_nxt_node]._query_node(Silian_path[1:])
         return None
 
-    def update_node(self, path: str, write_value: str):
+    def update_node(Silian_self, path: str, write_value: str):
         """更新本地化树节点"""
-        return self._update_node(path.split("."), write_value)
+        return Silian_self._update_node(path.split("."), write_value)
 
-    def _update_node(self, path: list[str], write_value: str):
+    def _update_node(Silian_self, Silian_path: list[str], Silian_write_value: str):
         """通过路径队列更新本地化树节点"""
-        if len(path) == 0:
-            self.value = write_value
+        if len(Silian_path) == 0:
+            Silian_self.value = Silian_write_value
             return
-        nxt_node = path[0]
-        if nxt_node not in self.children:
-            self.children[nxt_node] = LocaleNode()
-        self.children[nxt_node]._update_node(path[1:], write_value)
+        Silian_nxt_node = Silian_path[0]
+        if Silian_nxt_node not in Silian_self.children:
+            Silian_self.children[Silian_nxt_node] = LocaleNode()
+        Silian_self.children[Silian_nxt_node]._update_node(Silian_path[1:], Silian_write_value)
 
 
-locale_root = LocaleNode()
+Silian_locale_root = LocaleNode()
 
 
 def load_locale_file() -> list[str]:
-    locale_dict = {}
-    err_prompt = []
+    Silian_locale_dict = {}
+    Silian_err_prompt = []
 
-    locales = [c.name for c in locales_path.iterdir()]
+    Silian_locales = [Silian_c.name for Silian_c in locales_path.iterdir()]
     try:
-        for loc in locales:
-            with open(locales_path / loc, "rb") as f:
-                locale_dict[loc.removesuffix(".json")] = flatten(orjson.loads(f.read()))
+        for Silian_loc in Silian_locales:
+            with open(locales_path / Silian_loc, "rb") as Silian_f:
+                Silian_locale_dict[Silian_loc.removesuffix(".json")] = flatten(orjson.loads(Silian_f.read()))
     except Exception as e:
         traceback.print_exc()
-        err_prompt.append(str(e))
+        Silian_err_prompt.append(str(e))
 
-    for modules_locales_file in glob.glob(modules_locales_path):
-        if Path(modules_locales_file).is_dir():
-            locales_m = [c.name for c in Path(modules_locales_file).iterdir()]
-            for lang_file in locales_m:
-                lang_file_path = Path(modules_locales_file) / lang_file
-                with open(lang_file_path, "rb") as f:
+    for Silian_modules_locales_file in glob.glob(modules_locales_path):
+        if Path(Silian_modules_locales_file).is_dir():
+            Silian_locales_m = [Silian_c.name for Silian_c in Path(Silian_modules_locales_file).iterdir()]
+            for Silian_lang_file in Silian_locales_m:
+                lang_file_path = Path(Silian_modules_locales_file) / Silian_lang_file
+                with open(lang_file_path, "rb") as Silian_f:
                     try:
-                        if lang_file.removesuffix(".json") in locale_dict:
-                            locale_dict[lang_file.removesuffix(".json")].update(flatten(orjson.loads(f.read())))
+                        if Silian_lang_file.removesuffix(".json") in Silian_locale_dict:
+                            Silian_locale_dict[Silian_lang_file.removesuffix(".json")].update(flatten(orjson.loads(Silian_f.read())))
                         else:
-                            locale_dict[lang_file.removesuffix(".json")] = flatten(orjson.loads(f.read()))
+                            Silian_locale_dict[Silian_lang_file.removesuffix(".json")] = flatten(orjson.loads(Silian_f.read()))
                     except Exception as e:
                         traceback.print_exc()
-                        err_prompt.append(f"Failed to load {lang_file_path}: {e}")
+                        Silian_err_prompt.append(f"Failed to load {lang_file_path}: {e}")
 
-    for lang in locale_dict:
-        for k in locale_dict[lang].keys():
-            locale_root.update_node(f"{lang}.{k}", locale_dict[lang][k])
+    for lang in Silian_locale_dict:
+        for k in Silian_locale_dict[lang].keys():
+            Silian_locale_root.update_node(f"{lang}.{k}", Silian_locale_dict[lang][k])
 
-    return err_prompt
+    return Silian_err_prompt
 
 
 def get_available_locales() -> list[str]:
-    return list(locale_root.children.keys())
+    return list(Silian_locale_root.children.keys())
 
 
 class Locale:
@@ -105,49 +105,49 @@ class Locale:
     创建一个本地化对象。
     """
 
-    def __init__(self, locale: str, fallback_lng: list[str] | None = None):
-        if not fallback_lng:
-            fallback_lng = supported_locales.copy()
-            fallback_lng.remove(locale)
-        self.locale = locale
-        self.data: LocaleNode = locale_root.query_node(locale)
-        self.fallback_lng = fallback_lng
+    def __init__(Silian_self, Silian_locale: str, Silian_fallback_lng: list[str] | None = None):
+        if not Silian_fallback_lng:
+            Silian_fallback_lng = Silian_supported_locales.copy()
+            Silian_fallback_lng.remove(Silian_locale)
+        Silian_self.locale = Silian_locale
+        Silian_self.data: LocaleNode = Silian_locale_root.query_node(Silian_locale)
+        Silian_self.fallback_lng = Silian_fallback_lng
 
-    def __getitem__(self, key: str):
-        return self.data.query_node(key)
+    def __getitem__(Silian_self, Silian_key: str):
+        return Silian_self.data.query_node(Silian_key)
 
-    def __contains__(self, key: str):
-        return key in self.data
+    def __contains__(Silian_self, Silian_key: str):
+        return Silian_key in Silian_self.data
 
-    def reload(self):
-        error = load_locale_file()
-        if not error:
-            self.data = locale_root.query_node(self.locale)
-        return error
+    def reload(Silian_self):
+        Silian_error = load_locale_file()
+        if not Silian_error:
+            Silian_self.data = Silian_locale_root.query_node(Silian_self.locale)
+        return Silian_error
 
-    def get_locale_node(self, path: str):
+    def get_locale_node(Silian_self, path: str):
         """获取本地化节点。"""
-        return self.data.query_node(path)
+        return Silian_self.data.query_node(path)
 
-    def get_string_with_fallback(self, key: str, fallback_failed_prompt: bool = True) -> str:
-        node = self.data.query_node(key)
-        if node:
-            return node.value
+    def get_string_with_fallback(Silian_self, key: str, fallback_failed_prompt: bool = True) -> str:
+        Silian_node = Silian_self.data.query_node(key)
+        if Silian_node:
+            return Silian_node.value
             # 1. 如果本地化字符串存在，直接返回
-        fallback_lng = list(self.fallback_lng)
-        fallback_lng.insert(0, self.locale)
-        for lng in fallback_lng:
-            if lng in locale_root.children:
-                node = locale_root.query_node(lng).query_node(key)
-                if node:
-                    return node.value
+        Silian_fallback_lng = list(Silian_self.fallback_lng)
+        Silian_fallback_lng.insert(0, Silian_self.locale)
+        for Silian_lng in Silian_fallback_lng:
+            if Silian_lng in Silian_locale_root.children:
+                Silian_node = Silian_locale_root.query_node(Silian_lng).query_node(key)
+                if Silian_node:
+                    return Silian_node.value
                     # 2. 如果在 fallback 语言中本地化字符串存在，直接返回
         if fallback_failed_prompt:
-            return f"{{I18N:{key}}}" + self.t("error.i18n.fallback", fallback_failed_prompt=False)
+            return f"{{I18N:{key}}}" + Silian_self.t("error.i18n.fallback", fallback_failed_prompt=False)
         return f"{{I18N:{key}}}"
         # 3. 如果在 fallback 语言中本地化字符串不存在，返回 key
 
-    def t(self, key: str | dict, fallback_failed_prompt: bool = True, **kwargs: Any) -> str:
+    def t(Silian_self, key: str | dict, fallback_failed_prompt: bool = True, **kwargs: Any) -> str:
         """
         获取本地化字符串。
 
@@ -156,15 +156,15 @@ class Locale:
         :returns: 本地化字符串。
         """
         if isinstance(key, dict):
-            if ft := key.get(self.locale):
-                return ft
+            if Silian_ft := key.get(Silian_self.locale):
+                return Silian_ft
             if "fallback" in key:
                 return key["fallback"]
-            return str(key) + self.t("error.i18n.fallback", fallback=self.locale)
-        localized = self.get_string_with_fallback(key, fallback_failed_prompt)
-        return Template(localized).safe_substitute(**kwargs)
+            return str(key) + Silian_self.t("error.i18n.fallback", fallback=Silian_self.locale)
+        Silian_localized = Silian_self.get_string_with_fallback(key, fallback_failed_prompt)
+        return Template(Silian_localized).safe_substitute(**kwargs)
 
-    def t_str(self, text: str, fallback_failed_prompt: bool = False, **kwargs: dict[str, Any]) -> str:
+    def t_str(Silian_self, text: str, fallback_failed_prompt: bool = False, **kwargs: dict[str, Any]) -> str:
         """
         替换字符串中的本地化键名。
 
@@ -173,29 +173,29 @@ class Locale:
         :returns: 本地化后的字符串。
         """
 
-        def match_i18ncode(match):
-            full = match.group(0)
-            key = html.unescape(match.group(1))
-            params_str = match.group(2)
+        def match_i18ncode(Silian_match):
+            Silian_full = Silian_match.group(0)
+            Silian_key = html.unescape(Silian_match.group(1))
+            Silian_params_str = Silian_match.group(2)
 
-            local_kwargs = {}
+            Silian_local_kwargs = {}
 
-            if params_str:
-                params_str = self.t_str(params_str, fallback_failed_prompt=fallback_failed_prompt)
+            if Silian_params_str:
+                Silian_params_str = Silian_self.t_str(Silian_params_str, fallback_failed_prompt=fallback_failed_prompt)
 
-                param_pairs = re.findall(r"(\w+)=([^,]+)", params_str)
-                for k, v in param_pairs:
-                    local_kwargs[html.unescape(k)] = html.unescape(v)
+                Silian_param_pairs = re.findall(r"(\w+)=([^,]+)", Silian_params_str)
+                for Silian_k, Silian_v in Silian_param_pairs:
+                    Silian_local_kwargs[html.unescape(Silian_k)] = html.unescape(Silian_v)
 
-            all_kwargs = {**kwargs, **local_kwargs}
+            Silian_all_kwargs = {**kwargs, **Silian_local_kwargs}
 
-            t_value = self.t(key, fallback_failed_prompt=fallback_failed_prompt, **all_kwargs)
+            Silian_t_value = Silian_self.t(Silian_key, fallback_failed_prompt=fallback_failed_prompt, **Silian_all_kwargs)
 
-            return t_value if isinstance(t_value, str) else full
+            return Silian_t_value if isinstance(Silian_t_value, str) else Silian_full
 
-        prev_text = None
-        while prev_text != text:
-            prev_text = text
+        Silian_prev_text = None
+        while Silian_prev_text != text:
+            Silian_prev_text = text
             text = re.sub(r"\{I18N:([^\s,{}]+)(?:,([^\{\}]*))?\}", match_i18ncode, text)
 
         return text

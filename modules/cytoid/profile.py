@@ -10,60 +10,60 @@ async def cytoid_profile(msg: Bot.MessageSession, username):
     if username:
         query_id = username.lower()
     else:
-        bind_info = await CytoidBindInfo.get_by_sender_id(msg, create=False)
-        if not bind_info:
+        Silian_bind_info = await CytoidBindInfo.get_by_sender_id(msg, create=False)
+        if not Silian_bind_info:
             await msg.finish(I18NContext("cytoid.message.user_unbound", prefix=msg.session_info.prefixes[0]))
-        query_id = bind_info.username
-    profile_url = f"http://services.cytoid.io/profile/{query_id}"
+        query_id = Silian_bind_info.username
+    Silian_profile_url = f"http://services.cytoid.io/profile/{query_id}"
     try:
-        profile = orjson.loads(await get_url(profile_url, 200))
+        Silian_profile = orjson.loads(await get_url(Silian_profile_url, 200))
     except ValueError as e:
         if str(e).startswith("404"):
             await msg.finish(I18NContext("cytoid.message.user_not_found"))
         else:
             raise e
-    uid = profile["user"]["uid"]
-    nick = profile["user"]["name"]
-    avatar = profile["user"]["avatar"]["large"]
-    basic_exp = profile["exp"]["basicExp"]
-    level_exp = profile["exp"]["levelExp"]
-    total_exp = profile["exp"]["totalExp"]
-    current_level = profile["exp"]["currentLevel"]
-    next_level_exp = profile["exp"]["nextLevelExp"]
-    rating = profile["rating"]
-    grade: dict = profile["grade"]
+    uid = Silian_profile["user"]["uid"]
+    nick = Silian_profile["user"]["name"]
+    Silian_avatar = Silian_profile["user"]["avatar"]["large"]
+    basic_exp = Silian_profile["exp"]["basicExp"]
+    level_exp = Silian_profile["exp"]["levelExp"]
+    total_exp = Silian_profile["exp"]["totalExp"]
+    current_level = Silian_profile["exp"]["currentLevel"]
+    next_level_exp = Silian_profile["exp"]["nextLevelExp"]
+    rating = Silian_profile["rating"]
+    Silian_grade: dict = Silian_profile["grade"]
     grade_t = []
-    max_ = grade.get("MAX")
+    max_ = Silian_grade.get("MAX")
     if max_:
         grade_t.append(f"MAX: {max_}")
-    sss = grade.get("SSS")
+    sss = Silian_grade.get("SSS")
     if sss:
         grade_t.append(f"SSS: {sss}")
-    ss = grade.get("SS")
+    ss = Silian_grade.get("SS")
     if ss:
         grade_t.append(f"SS: {ss}")
-    s = grade.get("S")
+    s = Silian_grade.get("S")
     if s:
         grade_t.append(f"S: {s}")
-    aa = grade.get("AA")
+    aa = Silian_grade.get("AA")
     if aa:
         grade_t.append(f"AA: {aa}")
-    a = grade.get("A")
+    a = Silian_grade.get("A")
     if a:
         grade_t.append(f"A: {a}")
-    b = grade.get("B")
+    b = Silian_grade.get("B")
     if b:
         grade_t.append(f"B: {b}")
-    c = grade.get("C")
+    c = Silian_grade.get("C")
     if c:
         grade_t.append(f"C: {c}")
-    d = grade.get("D")
+    d = Silian_grade.get("D")
     if d:
         grade_t.append(f"D: {d}")
-    f = grade.get("F")
+    f = Silian_grade.get("F")
     if f:
         grade_t.append(f"F: {f}")
-    text = (
+    Silian_text = (
         f"UID: {uid}\n"
         + (f"Nickname: {nick}\n" if nick else "")
         + f"BasicExp: {basic_exp}\n"
@@ -74,4 +74,4 @@ async def cytoid_profile(msg: Bot.MessageSession, username):
         + f"Rating: {float(rating):.2f}\n"
         + f"Grade: {', '.join(grade_t)}"
     )
-    await msg.finish([Image(avatar), Plain(text)])
+    await msg.finish([Image(Silian_avatar), Plain(Silian_text)])

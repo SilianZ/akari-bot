@@ -10,7 +10,7 @@ from core.utils.http import get_url
 from core.utils.storedata import get_stored_list, update_stored_list
 from core.web_render import web_render, SourceOptions
 
-minecraft_news = module(
+Silian_minecraft_news = module(
     "minecraft_news",
     developers=["_LittleC_", "OasisAkari", "Dianliang233"],
     recommend_modules=["feedback_news"],
@@ -20,7 +20,7 @@ minecraft_news = module(
     rss=True,
 )
 
-feedback_news = module(
+Silian_feedback_news = module(
     "feedback_news",
     developers=["Dianliang233"],
     recommend_modules=["minecraft_news"],
@@ -61,25 +61,25 @@ startup_mute = (
 )
 
 
-@minecraft_news.schedule(IntervalTrigger(seconds=600))
+@Silian_minecraft_news.schedule(IntervalTrigger(seconds=600))
 async def _():
     # baseurl = "https://www.minecraft.net"
     global startup_mute
-    url = "https://net-secondary.web.minecraft-services.net/api/v1.0/en-us/search?pageSize=24&sortType=Recent&category=News&newsOnly=true&geography=SG"
+    Silian_url = "https://net-secondary.web.minecraft-services.net/api/v1.0/en-us/search?pageSize=24&sortType=Recent&category=News&newsOnly=true&geography=SG"
     try:
-        getpage = await web_render.source(SourceOptions(url=url, raw_text=True))
-        if not getpage:
+        Silian_getpage = await web_render.source(SourceOptions(url=Silian_url, raw_text=True))
+        if not Silian_getpage:
             Logger.error("Failed to fetch Minecraft news page.")
             return
-        if getpage:
-            alist = await get_stored_list(Bot.Info.client_name, "mcnews")
-            o_json = orjson.loads(getpage)
-            o_nws = o_json["result"]["results"]
-            for o_article in o_nws:
-                title = o_article["title"]
-                desc = o_article["description"]
-                link = o_article["url"]
-                if title not in alist:
+        if Silian_getpage:
+            Silian_alist = await get_stored_list(Bot.Info.client_name, "mcnews")
+            Silian_o_json = orjson.loads(Silian_getpage)
+            Silian_o_nws = Silian_o_json["result"]["results"]
+            for Silian_o_article in Silian_o_nws:
+                title = Silian_o_article["title"]
+                desc = Silian_o_article["description"]
+                link = Silian_o_article["url"]
+                if title not in Silian_alist:
                     Logger.info(f"New Minecraft news found: {title} - {desc} - {link}")
                     if not startup_mute:
                         await Bot.post_message(
@@ -95,16 +95,16 @@ async def _():
                                 ]
                             ),
                         )
-                    alist.append(title)
-                    await update_stored_list(Bot.Info.client_name, "mcnews", alist)
+                    Silian_alist.append(title)
+                    await update_stored_list(Bot.Info.client_name, "mcnews", Silian_alist)
         startup_mute = False
     except Exception:
         Logger.exception()
 
 
-@feedback_news.schedule(IntervalTrigger(seconds=600))
+@Silian_feedback_news.schedule(IntervalTrigger(seconds=600))
 async def _():
-    sections = [
+    Silian_sections = [
         {
             "name": "beta",
             "url": "https://minecraftfeedback.zendesk.com/api/v2/help_center/en-us/sections/360001185332/articles?per_page=5",
@@ -114,24 +114,24 @@ async def _():
             "url": "https://minecraftfeedback.zendesk.com/api/v2/help_center/en-us/sections/360001186971/articles?per_page=5",
         },
     ]
-    for section in sections:
+    for Silian_section in Silian_sections:
         try:
-            alist = await get_stored_list(Bot.Info.client_name, "mcfeedbacknews")
-            get = await get_url(
-                section["url"],
+            Silian_alist = await get_stored_list(Bot.Info.client_name, "mcfeedbacknews")
+            Silian_get = await get_url(
+                Silian_section["url"],
                 200,
                 attempt=1,
                 request_private_ip=True,
                 logging_err_resp=False,
             )
-            res = orjson.loads(get)
-            articles = []
-            for i in res["articles"]:
-                articles.append(i)
-            for article in articles:
-                if article["name"] not in alist:
-                    name = article["name"]
-                    link = article["html_url"]
+            Silian_res = orjson.loads(Silian_get)
+            Silian_articles = []
+            for Silian_i in Silian_res["articles"]:
+                Silian_articles.append(Silian_i)
+            for Silian_article in Silian_articles:
+                if Silian_article["name"] not in Silian_alist:
+                    name = Silian_article["name"]
+                    Silian_link = Silian_article["html_url"]
                     Logger.info(f"Huh, we find {name}.")
                     await Bot.post_message(
                         "feedback_news",
@@ -141,11 +141,11 @@ async def _():
                                     "minecraft_news.message.feedback_news",
                                     name=name,
                                 ),
-                                Url(link, use_mm=False),
+                                Url(Silian_link, use_mm=False),
                             ]
                         ),
                     )
-                    alist.append(name)
-                    await update_stored_list(Bot.Info.client_name, "mcfeedbacknews", alist)
+                    Silian_alist.append(name)
+                    await update_stored_list(Bot.Info.client_name, "mcfeedbacknews", Silian_alist)
         except Exception:
             Logger.exception()

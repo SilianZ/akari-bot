@@ -14,32 +14,32 @@ from .features import Features
 from .info import client_name, target_group_prefix, target_person_prefix
 
 kook_base = "https://www.kookapp.cn"
-kook_headers = {"Authorization": f"Bot {kook_token}"}
+Silian_kook_headers = {"Authorization": f"Bot {kook_token}"}
 
 
 async def call_api(endpoint: str, **params):
-    url = f"{kook_base}/api/v3/{endpoint}"
-    async with httpx.AsyncClient() as client:
-        resp = await client.post(url, data=params, headers=kook_headers)
-    data = orjson.loads(resp.text)
-    if not str(resp.status_code).startswith("2"):
-        raise ValueError(data)
-    return data
+    Silian_url = f"{kook_base}/api/v3/{endpoint}"
+    async with httpx.AsyncClient() as Silian_client:
+        Silian_resp = await Silian_client.post(Silian_url, data=params, headers=Silian_kook_headers)
+    Silian_data = orjson.loads(Silian_resp.text)
+    if not str(Silian_resp.status_code).startswith("2"):
+        raise ValueError(Silian_data)
+    return Silian_data
 
 
 async def get_channel(session_info: SessionInfo) -> PublicChannel | User | None:
     if session_info.target_from == target_group_prefix:
-        _channel = await bot.client.fetch_public_channel(session_info.get_common_target_id())
-        if not _channel:
+        Silian__channel = await bot.client.fetch_public_channel(session_info.get_common_target_id())
+        if not Silian__channel:
             return None
     elif session_info.target_from == target_person_prefix:
-        _channel = await bot.client.fetch_user(session_info.get_common_target_id())
-        if not _channel:
+        Silian__channel = await bot.client.fetch_user(session_info.get_common_target_id())
+        if not Silian__channel:
             return None
     else:
         Logger.warning(f"Unknown target_from: {session_info.target_from}")
         return None
-    return _channel
+    return Silian__channel
 
 
 class KOOKContextManager(ContextManager):
@@ -47,30 +47,30 @@ class KOOKContextManager(ContextManager):
     features: type[Features] | None = Features
 
     @classmethod
-    async def check_native_permission(cls, session_info: SessionInfo) -> bool:
+    async def check_native_permission(Silian_cls, session_info: SessionInfo) -> bool:
         if session_info.target_from == target_person_prefix:
             return True
-        if session_info.session_id not in cls.context:
-            channel = await bot.client.fetch_public_channel(session_info.get_common_target_id())
-            author = session_info.get_common_sender_id()
+        if session_info.session_id not in Silian_cls.context:
+            Silian_channel = await bot.client.fetch_public_channel(session_info.get_common_target_id())
+            Silian_author = session_info.get_common_sender_id()
         else:
-            ctx: Message = cls.context.get(session_info.session_id)
-            Logger.warning(str(ctx.ctx.channel.id))
-            channel = await bot.client.fetch_public_channel(ctx.ctx.channel.id)
-            author = ctx.author.id
-        guild = await bot.client.fetch_guild(channel.guild_id)
-        user_roles = (await guild.fetch_user(author)).roles
-        guild_roles = await guild.fetch_roles()
-        for i in guild_roles:  # 遍历服务器身分组
-            if i.id in user_roles and i.has_permission(0):
+            Silian_ctx: Message = Silian_cls.context.get(session_info.session_id)
+            Logger.warning(str(Silian_ctx.ctx.channel.id))
+            Silian_channel = await bot.client.fetch_public_channel(Silian_ctx.ctx.channel.id)
+            Silian_author = Silian_ctx.author.id
+        Silian_guild = await bot.client.fetch_guild(Silian_channel.guild_id)
+        Silian_user_roles = (await Silian_guild.fetch_user(Silian_author)).roles
+        Silian_guild_roles = await Silian_guild.fetch_roles()
+        for Silian_i in Silian_guild_roles:  # 遍历服务器身分组
+            if Silian_i.id in Silian_user_roles and Silian_i.has_permission(0):
                 return True
-        if author == guild.master_id:
+        if Silian_author == Silian_guild.master_id:
             return True
         return False
 
     @classmethod
     async def send_message(
-        cls,
+        Silian_cls,
         session_info: SessionInfo,
         message: MessageChain | MessageNodes,
         quote: bool = True,
@@ -79,14 +79,14 @@ class KOOKContextManager(ContextManager):
     ) -> list[str]:
         # if session_info.session_id not in cls.context:
         #     raise ValueError("Session not found in context")
-        ctx: Message = cls.context.get(session_info.session_id)
-        _channel = None
-        if not ctx:
-            _channel = await get_channel(session_info)
-            if not _channel:
+        Silian_ctx: Message = Silian_cls.context.get(session_info.session_id)
+        Silian__channel = None
+        if not Silian_ctx:
+            Silian__channel = await get_channel(session_info)
+            if not Silian__channel:
                 Logger.warning(f"Channel {session_info.target_id} not found, cannot send message.")
 
-        msg_ids = []
+        Silian_msg_ids = []
         if isinstance(message, MessageNodes):
             message = MessageChain.assign(await msgnode2image(message))
 
@@ -94,73 +94,73 @@ class KOOKContextManager(ContextManager):
             if isinstance(x, PlainElement):
                 if enable_parse_message:
                     x.text = match_atcode(x.text, client_name, "(met){uid}(met)")
-                if ctx:
-                    send_ = await ctx.reply(
+                if Silian_ctx:
+                    Silian_send_ = await Silian_ctx.reply(
                         x.text,
-                        use_quote=quote and not msg_ids and ctx,
+                        use_quote=quote and not Silian_msg_ids and Silian_ctx,
                     )
 
                 else:
-                    send_ = await _channel.send(x.text)
+                    Silian_send_ = await Silian__channel.send(x.text)
                 Logger.info(f"[Bot] -> [{session_info.target_id}]: {x.text}")
-                msg_ids.append(str(send_["msg_id"]))
+                Silian_msg_ids.append(str(Silian_send_["msg_id"]))
             if isinstance(x, ImageElement):
-                url = await bot.create_asset(open(await x.get(), "rb"))  # skipcq
-                if ctx:
-                    send_ = await ctx.reply(
-                        url,
-                        use_quote=quote and not msg_ids and ctx,
+                Silian_url = await bot.create_asset(open(await x.get(), "rb"))  # skipcq
+                if Silian_ctx:
+                    Silian_send_ = await Silian_ctx.reply(
+                        Silian_url,
+                        use_quote=quote and not Silian_msg_ids and Silian_ctx,
                         type=MessageTypes.IMG,
                     )
                 else:
-                    send_ = await _channel.send(
-                        url,
+                    Silian_send_ = await Silian__channel.send(
+                        Silian_url,
                         type=MessageTypes.IMG,
                     )
                 Logger.info(f"[Bot] -> [{session_info.target_id}]: Image: {str(x.path)}")
-                msg_ids.append(str(send_["msg_id"]))
+                Silian_msg_ids.append(str(Silian_send_["msg_id"]))
             if isinstance(x, VoiceElement):
-                url = await bot.create_asset(open(x.path, "rb"))  # skipcq
-                if ctx:
-                    send_ = await ctx.reply(
-                        url,
-                        use_quote=quote and not msg_ids and ctx,
+                Silian_url = await bot.create_asset(open(x.path, "rb"))  # skipcq
+                if Silian_ctx:
+                    Silian_send_ = await Silian_ctx.reply(
+                        Silian_url,
+                        use_quote=quote and not Silian_msg_ids and Silian_ctx,
                         type=MessageTypes.AUDIO,
                     )
                 else:
-                    send_ = await _channel.send(
-                        url,
+                    Silian_send_ = await Silian__channel.send(
+                        Silian_url,
                         type=MessageTypes.AUDIO,
                     )
                 Logger.info(f"[Bot] -> [{session_info.target_id}]: Voice: {str(x.__dict__)}")
-                msg_ids.append(str(send_["msg_id"]))
+                Silian_msg_ids.append(str(Silian_send_["msg_id"]))
             if isinstance(x, MentionElement):
                 if x.client == client_name and session_info.target_from == target_group_prefix:
-                    if ctx:
-                        send_ = await ctx.reply(
+                    if Silian_ctx:
+                        Silian_send_ = await Silian_ctx.reply(
                             f"(met){x.id}(met)",
-                            use_quote=quote and not msg_ids and ctx,
+                            use_quote=quote and not Silian_msg_ids and Silian_ctx,
                         )
                     else:
-                        send_ = await _channel.send(
+                        Silian_send_ = await Silian__channel.send(
                             f"(met){x.id}(met)",
                         )
                     Logger.info(f"[Bot] -> [{session_info.target_id}]: Mention: {x.client}|{str(x.id)}")
-                    msg_ids.append(str(send_["msg_id"]))
+                    Silian_msg_ids.append(str(Silian_send_["msg_id"]))
 
-        return msg_ids
+        return Silian_msg_ids
 
     @classmethod
     async def delete_message(
-        cls, session_info: SessionInfo, message_id: str | list[str], reason: str | None = None
+        Silian_cls, session_info: SessionInfo, message_id: str | list[str], reason: str | None = None
     ) -> None:
         if isinstance(message_id, str):
             message_id = [message_id]
         if not isinstance(message_id, list):
             raise TypeError("Message ID must be a list or str")
 
-        _channel = await get_channel(session_info)
-        if not _channel:
+        Silian__channel = await get_channel(session_info)
+        if not Silian__channel:
             Logger.warning(f"Channel {session_info.target_id} not found, cannot delete message.")
             return
         for id_ in message_id:
@@ -174,17 +174,17 @@ class KOOKContextManager(ContextManager):
                 Logger.exception(f"Failed to delete message {id_} in session {session_info.session_id}: ")
 
     @classmethod
-    async def add_reaction(cls, session_info: SessionInfo, message_id: str | list[str], emoji: str) -> None:
+    async def add_reaction(Silian_cls, session_info: SessionInfo, message_id: str | list[str], emoji: str) -> None:
         if isinstance(message_id, str):
             message_id = [message_id]
         if not isinstance(message_id, list):
             raise TypeError("Message ID must be a list or str")
 
-        if session_info.session_id not in cls.context:
+        if session_info.session_id not in Silian_cls.context:
             raise ValueError("Session not found in context")
 
-        _channel = await get_channel(session_info)
-        if not _channel:
+        Silian__channel = await get_channel(session_info)
+        if not Silian__channel:
             Logger.warning(f"Channel {session_info.target_id} not found, cannot add reaction.")
             return
 
@@ -200,17 +200,17 @@ class KOOKContextManager(ContextManager):
             )
 
     @classmethod
-    async def remove_reaction(cls, session_info: SessionInfo, message_id: str | list[str], emoji: str) -> None:
+    async def remove_reaction(Silian_cls, session_info: SessionInfo, message_id: str | list[str], emoji: str) -> None:
         if isinstance(message_id, str):
             message_id = [message_id]
         if not isinstance(message_id, list):
             raise TypeError("Message ID must be a list or str")
 
-        if session_info.session_id not in cls.context:
+        if session_info.session_id not in Silian_cls.context:
             raise ValueError("Session not found in context")
 
-        _channel = await get_channel(session_info)
-        if not _channel:
+        Silian__channel = await get_channel(session_info)
+        if not Silian__channel:
             Logger.warning(f"Channel {session_info.target_id} not found, cannot add reaction.")
             return
 
@@ -226,15 +226,15 @@ class KOOKContextManager(ContextManager):
             )
 
     @classmethod
-    async def start_typing(cls, session_info: SessionInfo) -> None:
+    async def start_typing(Silian_cls, session_info: SessionInfo) -> None:
         pass
 
     @classmethod
-    async def end_typing(cls, session_info: SessionInfo) -> None:
+    async def end_typing(Silian_cls, session_info: SessionInfo) -> None:
         pass
 
     @classmethod
-    async def error_signal(cls, session_info: SessionInfo) -> None:
+    async def error_signal(Silian_cls, session_info: SessionInfo) -> None:
         pass
 
 

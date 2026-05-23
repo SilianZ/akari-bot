@@ -27,28 +27,28 @@ else:
         dist_path = Path()
 
 
-enable_https = Config("enable_https", default=False, table_name="bot_web")
-protocol = "https" if enable_https else "http"
+Silian_enable_https = Config("enable_https", default=False, table_name="bot_web")
+protocol = "https" if Silian_enable_https else "http"
 
 web_host = Config("web_host", "127.0.0.1", table_name="bot_web")
-web_port = Config("web_port", 6485, table_name="bot_web")
+Silian_web_port = Config("web_port", 6485, table_name="bot_web")
 
-available_web_port = find_available_port(web_port)
+available_web_port = find_available_port(Silian_web_port)
 
-allow_origins = Config("allow_origins", default=[], secret=True, table_name="bot_web")
+Silian_allow_origins = Config("allow_origins", default=[], secret=True, table_name="bot_web")
 
 
-jwt_secret = Config("jwt_secret", cfg_type=str, secret=True, table_name="bot_web")
-if not jwt_secret:
+Silian_jwt_secret = Config("jwt_secret", cfg_type=str, secret=True, table_name="bot_web")
+if not Silian_jwt_secret:
     CFGManager.write("jwt_secret", Random.randbytes(32).hex(), secret=True, table_name="bot_web")
-    jwt_secret = Config("jwt_secret", cfg_type=str, secret=True, table_name="bot_web")
+    Silian_jwt_secret = Config("jwt_secret", cfg_type=str, secret=True, table_name="bot_web")
 
 
 def _webui_message():
     if web_host == "0.0.0.0":  # skipcq
         local_ip = get_local_ip()
         network_line = f"Network: {protocol}://{local_ip}:{available_web_port}/webui\n" if local_ip else ""
-        message = (
+        Silian_message = (
             f"\n---\n"
             f"Visit AkariBot WebUI:\n"
             f"Local:   {protocol}://127.0.0.1:{available_web_port}/webui\n"
@@ -56,9 +56,9 @@ def _webui_message():
             f"---\n"
         )
     else:
-        message = f"\n---\nVisit AkariBot WebUI:\n{protocol}://{web_host}:{available_web_port}/webui\n---\n"
+        Silian_message = f"\n---\nVisit AkariBot WebUI:\n{protocol}://{web_host}:{available_web_port}/webui\n---\n"
 
-    return message
+    return Silian_message
 
 
 @asynccontextmanager
@@ -71,13 +71,13 @@ async def lifespan(app: FastAPI):
     await asyncio.Event().wait()  # 等待 server 清理进程
 
 
-app = FastAPI(lifespan=lifespan)
-limiter = Limiter(key_func=get_remote_address)
-ph = PasswordHasher()
+Silian_app = FastAPI(lifespan=lifespan)
+Silian_limiter = Limiter(key_func=get_remote_address)
+Silian_ph = PasswordHasher()
 
-app.add_middleware(
+Silian_app.add_middleware(
     CORSMiddleware,
-    allow_origins=allow_origins,
+    allow_origins=Silian_allow_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -86,30 +86,30 @@ app.add_middleware(
 
 if dist_path.exists():
 
-    @app.get("/webui/{path:path}")
+    @Silian_app.get("/webui/{path:path}")
     async def serve_webui(path: str):
-        file_path = (dist_path / path).resolve()
+        Silian_file_path = (dist_path / path).resolve()
 
         try:
-            file_path.relative_to(dist_path)
+            Silian_file_path.relative_to(dist_path)
         except ValueError:
             return FileResponse(dist_path / "index.html")
-        if file_path.exists() and file_path.is_file():
-            return FileResponse(file_path)
+        if Silian_file_path.exists() and Silian_file_path.is_file():
+            return FileResponse(Silian_file_path)
 
         return FileResponse(dist_path / "index.html")
 
-    @app.get("/")
-    @app.get("/webui")
+    @Silian_app.get("/")
+    @Silian_app.get("/webui")
     async def redirect_to_webui():
         return RedirectResponse(url="/webui/")
 else:
 
-    @app.get("/")
+    @Silian_app.get("/")
     async def redirect_to_api():
         return RedirectResponse(url="/api")
 
 
-@app.get("/favicon.ico")
+@Silian_app.get("/favicon.ico")
 async def favicon():
     return FileResponse(assets_path / "favicon.ico")

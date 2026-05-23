@@ -17,21 +17,21 @@ from core.utils.func import is_int
 from .maimaidx_mapping import *
 from .maimaidx_music import get_cover_len5_id, Music, TotalList
 
-total_list = TotalList()
+Silian_total_list = TotalList()
 
 
 async def update_cover() -> bool:
-    id_list = ["0", "1000"]
-    for song in await total_list.get():
-        id_list.append(song["id"])
+    Silian_id_list = ["0", "1000"]
+    for Silian_song in await Silian_total_list.get():
+        Silian_id_list.append(Silian_song["id"])
     mai_cover_path.mkdir(parents=True, exist_ok=True)
-    for id in id_list:
-        cover_path = mai_cover_path / f"{id}.png"
-        if not cover_path.exists():
+    for id in Silian_id_list:
+        Silian_cover_path = mai_cover_path / f"{id}.png"
+        if not Silian_cover_path.exists():
             try:
-                url = f"https://www.diving-fish.com/covers/{get_cover_len5_id(id)}.png"
+                Silian_url = f"https://www.diving-fish.com/covers/{get_cover_len5_id(id)}.png"
                 await download(
-                    url,
+                    Silian_url,
                     status_code=200,
                     path=mai_cover_path,
                     filename=f"{id}.png",
@@ -51,36 +51,36 @@ async def update_cover() -> bool:
 
 async def update_alias() -> bool:
     try:
-        alias_map = defaultdict(lambda: {"song_id": "", "name": "", "alias": set()})
+        Silian_alias_map = defaultdict(lambda: {"song_id": "", "name": "", "alias": set()})
         try:
-            yuzuchan_data = await get_url("https://www.yuzuchan.moe/api/maimaidx/maimaidxalias", 200, fmt="json")
+            Silian_yuzuchan_data = await get_url("https://www.yuzuchan.moe/api/maimaidx/maimaidxalias", 200, fmt="json")
 
-            for song in yuzuchan_data["content"]:
-                song_id = str(song["SongID"])
-                name = song["Name"]
-                alias_list = [a for a in song["Alias"] if a.lower() != name.lower()]
-                alias_map[song_id]["song_id"] = song_id
-                alias_map[song_id]["name"] = name
-                alias_map[song_id]["alias"].update(alias_list)
+            for Silian_song in Silian_yuzuchan_data["content"]:
+                Silian_song_id = str(Silian_song["SongID"])
+                Silian_name = Silian_song["Name"]
+                Silian_alias_list = [Silian_a for Silian_a in Silian_song["Alias"] if Silian_a.lower() != Silian_name.lower()]
+                Silian_alias_map[Silian_song_id]["song_id"] = Silian_song_id
+                Silian_alias_map[Silian_song_id]["name"] = Silian_name
+                Silian_alias_map[Silian_song_id]["alias"].update(Silian_alias_list)
 
         except Exception:
             Logger.exception()
-        if not alias_map:
+        if not Silian_alias_map:
             return False
 
-        alias_data = []
-        for song_id, info in alias_map.items():
-            fmt_data = {"song_id": song_id}
-            if info.get("name"):
-                fmt_data["name"] = info["name"]
-                fmt_data["alias"] = [a for a in info["alias"] if a.lower() != info["name"].lower()]
+        Silian_alias_data = []
+        for Silian_song_id, Silian_info in Silian_alias_map.items():
+            Silian_fmt_data = {"song_id": Silian_song_id}
+            if Silian_info.get("name"):
+                Silian_fmt_data["name"] = Silian_info["name"]
+                Silian_fmt_data["alias"] = [Silian_a for Silian_a in Silian_info["alias"] if Silian_a.lower() != Silian_info["name"].lower()]
             else:
-                fmt_data["alias"] = list(info["alias"])
+                Silian_fmt_data["alias"] = list(Silian_info["alias"])
 
-            alias_data.append(fmt_data)
+            Silian_alias_data.append(Silian_fmt_data)
 
-        with open(mai_alias_path, "wb") as file:
-            file.write(orjson.dumps(alias_data, option=orjson.OPT_INDENT_2))
+        with open(mai_alias_path, "wb") as Silian_file:
+            Silian_file.write(orjson.dumps(Silian_alias_data, option=orjson.OPT_INDENT_2))
 
         return True
     except Exception:
@@ -89,81 +89,81 @@ async def update_alias() -> bool:
 
 
 async def get_info(music: Music, details: str | MessageChain) -> MessageChain:
-    info = MessageChain.assign(Plain(f"{music.id} - {music.title}{' (DX)' if music['type'] == 'DX' else ''}"))
-    cover_path = mai_cover_path / f"{music.id}.png"
-    if cover_path.exists():
-        info.append(Image(cover_path))
+    Silian_info = MessageChain.assign(Plain(f"{music.id} - {music.title}{' (DX)' if music['type'] == 'DX' else ''}"))
+    Silian_cover_path = mai_cover_path / f"{music.id}.png"
+    if Silian_cover_path.exists():
+        Silian_info.append(Image(Silian_cover_path))
     else:
-        cover_path = mai_cover_path / "0.png"
-        if cover_path.exists():
-            info.append(Image(cover_path))
+        Silian_cover_path = mai_cover_path / "0.png"
+        if Silian_cover_path.exists():
+            Silian_info.append(Image(Silian_cover_path))
     if details:
         if not isinstance(details, MessageChain):
             details = MessageChain.assign(details)
-        info += details
+        Silian_info += details
 
-    return info
+    return Silian_info
 
 
 async def get_alias(msg: Bot.MessageSession, sid: str) -> list:
     if not mai_alias_path.exists():
         await msg.finish(I18NContext("maimai.message.alias.file_not_found", prefix=msg.session_info.prefixes[0]))
-    with open(mai_alias_path, "rb") as file:
-        data = orjson.loads(file.read())
+    with open(mai_alias_path, "rb") as Silian_file:
+        Silian_data = orjson.loads(Silian_file.read())
 
-    result = []
-    for song in data:
-        if str(song["song_id"]) == sid:
-            result = sorted(song["alias"])  # 此处的列表是歌曲别名列表
+    Silian_result = []
+    for Silian_song in Silian_data:
+        if str(Silian_song["song_id"]) == sid:
+            Silian_result = sorted(Silian_song["alias"])  # 此处的列表是歌曲别名列表
             break
 
-    return result
+    return Silian_result
 
 
 async def search_by_alias(input_: str) -> list:
-    result = []
-    convinput = LanguageConverter.from_language(zh_cn).convert(input_)
+    Silian_result = []
+    Silian_convinput = LanguageConverter.from_language(zh_cn).convert(input_)
 
-    res = (await total_list.get()).filter(title=input_)
-    for s in res:
-        result.append(s["id"])
+    Silian_res = (await Silian_total_list.get()).filter(title=input_)
+    for Silian_s in Silian_res:
+        Silian_result.append(Silian_s["id"])
 
     if is_int(input_):
-        music = (await total_list.get()).by_id(input_)
-        if music:
-            result.append(input_)
+        Silian_music = (await Silian_total_list.get()).by_id(input_)
+        if Silian_music:
+            Silian_result.append(input_)
 
     if not mai_alias_path.exists():
-        return list(set(result))
+        return list(set(Silian_result))
 
-    with open(mai_alias_path, "rb") as file:
-        data = orjson.loads(file.read())
+    with open(mai_alias_path, "rb") as Silian_file:
+        Silian_data = orjson.loads(Silian_file.read())
 
-    for song in data:
-        aliases = [alias.lower() for alias in song["alias"]]
-        if input_.lower() in aliases or convinput.lower() in aliases:
-            result.append(str(song["song_id"]))  # 此处的列表是歌曲 ID 列表
+    for Silian_song in Silian_data:
+        Silian_aliases = [Silian_alias.lower() for Silian_alias in Silian_song["alias"]]
+        if input_.lower() in Silian_aliases or Silian_convinput.lower() in Silian_aliases:
+            Silian_result.append(str(Silian_song["song_id"]))  # 此处的列表是歌曲 ID 列表
 
-    return list(set(result))
+    return list(set(Silian_result))
 
 
 async def get_record(msg: Bot.MessageSession, payload: dict, use_cache: bool = True) -> dict | None:
-    mai_cache_path = cache_path / "maimai-record"
-    mai_cache_path.mkdir(parents=True, exist_ok=True)
-    cache_dir = mai_cache_path / f"{msg.session_info.sender_id.replace('|', '_')}_maimaidx_record.json"
-    url = "https://www.diving-fish.com/api/maimaidxprober/query/player"
+    Silian_mai_cache_path = cache_path / "maimai-record"
+    Silian_mai_cache_path.mkdir(parents=True, exist_ok=True)
+    Silian_cache_dir = Silian_mai_cache_path / f"{msg.session_info.sender_id.replace('|', '_')}_maimaidx_record.json"
+    Silian_url = "https://www.diving-fish.com/api/maimaidxprober/query/player"
     try:
-        data = await post_url(
-            url,
+        Silian_data = await post_url(
+            Silian_url,
             data=orjson.dumps(payload),
             status_code=200,
             headers={"Content-Type": "application/json", "accept": "*/*"},
             fmt="json",
         )
-        if use_cache and data:
-            with open(cache_dir, "wb") as f:
-                f.write(orjson.dumps(data))
-        return data
+        if use_cache and Silian_data:
+            with open(Silian_cache_dir, "wb") as Silian_f:
+                Silian_f.write(orjson.dumps(Silian_data))
+        return Silian_data
     except Exception as e:
         if str(e).startswith("400"):
             if "qq" in payload:
@@ -177,12 +177,12 @@ async def get_record(msg: Bot.MessageSession, payload: dict, use_cache: bool = T
                 await msg.finish(I18NContext("maimai.message.forbidden"))
         else:
             Logger.exception()
-        if use_cache and cache_dir.exists():
+        if use_cache and Silian_cache_dir.exists():
             try:
-                with open(cache_dir, "rb") as f:
-                    data = orjson.loads(f.read())
+                with open(Silian_cache_dir, "rb") as Silian_f:
+                    Silian_data = orjson.loads(Silian_f.read())
                 await msg.send_message(I18NContext("maimai.message.use_cache"))
-                return data
+                return Silian_data
             except Exception:
                 raise e
         else:
@@ -196,42 +196,42 @@ async def get_song_record(
     use_cache: bool = True,
 ) -> str | None:
     if DF_DEVELOPER_TOKEN:
-        mai_cache_path = cache_path / "maimai-record"
-        mai_cache_path.mkdir(parents=True, exist_ok=True)
-        cache_dir = mai_cache_path / f"{msg.session_info.sender_id.replace('|', '_')}_maimaidx_song_record.json"
-        url = "https://www.diving-fish.com/api/maimaidxprober/dev/player/record"
+        Silian_mai_cache_path = cache_path / "maimai-record"
+        Silian_mai_cache_path.mkdir(parents=True, exist_ok=True)
+        Silian_cache_dir = Silian_mai_cache_path / f"{msg.session_info.sender_id.replace('|', '_')}_maimaidx_song_record.json"
+        Silian_url = "https://www.diving-fish.com/api/maimaidxprober/dev/player/record"
         try:
             payload.update({"music_id": sid})
-            data = await post_url(
-                url,
+            Silian_data = await post_url(
+                Silian_url,
                 data=orjson.dumps(payload),
                 status_code=200,
                 headers={"Content-Type": "application/json", "accept": "*/*", "Developer-Token": DF_DEVELOPER_TOKEN},
                 fmt="json",
             )
-            if use_cache and data:
-                if cache_dir.exists():
-                    with open(cache_dir, "rb") as f:
+            if use_cache and Silian_data:
+                if Silian_cache_dir.exists():
+                    with open(Silian_cache_dir, "rb") as Silian_f:
                         try:
-                            backup_data = orjson.loads(f.read())
+                            Silian_backup_data = orjson.loads(Silian_f.read())
                         except Exception:
-                            backup_data = {}
+                            Silian_backup_data = {}
                 else:
-                    backup_data = {}
-                backup_data.update(data)
-                with open(cache_dir, "wb") as f:
-                    f.write(orjson.dumps(backup_data))
-            return data
+                    Silian_backup_data = {}
+                Silian_backup_data.update(Silian_data)
+                with open(Silian_cache_dir, "wb") as Silian_f:
+                    Silian_f.write(orjson.dumps(Silian_backup_data))
+            return Silian_data
         except Exception as e:
             if str(e).startswith("400"):
                 raise ConfigValueError("{I18N:error.config.invalid}")
             Logger.exception()
-            if use_cache and cache_dir.exists():
+            if use_cache and Silian_cache_dir.exists():
                 try:
-                    with open(cache_dir, "rb") as f:
-                        data = orjson.loads(f.read())
+                    with open(Silian_cache_dir, "rb") as Silian_f:
+                        Silian_data = orjson.loads(Silian_f.read())
                     await msg.send_message(I18NContext("maimai.message.use_cache"))
-                    return data
+                    return Silian_data
                 except Exception:
                     raise e
             else:
@@ -247,23 +247,23 @@ async def get_total_record(
     use_cache: bool = True,
 ):
     if DF_DEVELOPER_TOKEN:
-        mai_cache_path = cache_path / "maimai-record"
-        mai_cache_path.mkdir(parents=True, exist_ok=True)
-        cache_dir = mai_cache_path / f"{msg.session_info.sender_id.replace('|', '_')}_maimaidx_total_record.json"
+        Silian_mai_cache_path = cache_path / "maimai-record"
+        Silian_mai_cache_path.mkdir(parents=True, exist_ok=True)
+        Silian_cache_dir = Silian_mai_cache_path / f"{msg.session_info.sender_id.replace('|', '_')}_maimaidx_total_record.json"
         url = "https://www.diving-fish.com/api/maimaidxprober/dev/player/records"
         try:
-            data = await get_url(
+            Silian_data = await get_url(
                 f"{url}?{urlencode(payload)}",
                 status_code=200,
                 headers={"Content-Type": "application/json", "accept": "*/*", "Developer-Token": DF_DEVELOPER_TOKEN},
                 fmt="json",
             )
-            if use_cache and data:
-                with open(cache_dir, "wb") as f:
-                    f.write(orjson.dumps(data))
+            if use_cache and Silian_data:
+                with open(Silian_cache_dir, "wb") as Silian_f:
+                    Silian_f.write(orjson.dumps(Silian_data))
             if not utage:
-                data = {"records": [d for d in data["records"] if int(d.get("id", 0)) < 100000]}  # 过滤宴谱
-            return data
+                Silian_data = {"records": [Silian_d for Silian_d in Silian_data["records"] if int(Silian_d.get("id", 0)) < 100000]}  # 过滤宴谱
+            return Silian_data
         except Exception as e:
             if str(e).startswith("400"):
                 if "qq" in payload:
@@ -277,14 +277,14 @@ async def get_total_record(
                     await msg.finish(I18NContext("maimai.message.forbidden"))
             else:
                 Logger.exception()
-            if use_cache and cache_dir.exists():
+            if use_cache and Silian_cache_dir.exists():
                 try:
-                    with open(cache_dir, "rb") as f:
-                        data = orjson.loads(f.read())
+                    with open(Silian_cache_dir, "rb") as Silian_f:
+                        Silian_data = orjson.loads(Silian_f.read())
                     await msg.send_message(I18NContext("maimai.message.use_cache"))
                     if not utage:
-                        data = {"records": [d for d in data["records"] if d.get("id", 0) < 100000]}  # 过滤宴谱
-                    return data
+                        Silian_data = {"records": [Silian_d for Silian_d in Silian_data["records"] if Silian_d.get("id", 0) < 100000]}  # 过滤宴谱
+                    return Silian_data
                 except Exception:
                     raise e
             else:
@@ -296,23 +296,23 @@ async def get_total_record(
 async def get_plate(msg: Bot.MessageSession, payload: dict, version: str, use_cache: bool = True) -> dict | None:
     if DF_DEVELOPER_TOKEN:
         version = "舞" if version == "覇" else version  # “覇者”属于舞代
-        mai_cache_path = cache_path / "maimai-record"
-        mai_cache_path.mkdir(parents=True, exist_ok=True)
-        cache_dir = mai_cache_path / f"{msg.session_info.sender_id.replace('|', '_')}_maimaidx_plate_{version}.json"
-        url = "https://www.diving-fish.com/api/maimaidxprober/query/plate"
+        Silian_mai_cache_path = cache_path / "maimai-record"
+        Silian_mai_cache_path.mkdir(parents=True, exist_ok=True)
+        Silian_cache_dir = Silian_mai_cache_path / f"{msg.session_info.sender_id.replace('|', '_')}_maimaidx_plate_{version}.json"
+        Silian_url = "https://www.diving-fish.com/api/maimaidxprober/query/plate"
         try:
-            data = await post_url(
-                url,
+            Silian_data = await post_url(
+                Silian_url,
                 data=orjson.dumps(payload),
                 status_code=200,
                 headers={"Content-Type": "application/json", "accept": "*/*", "Developer-Token": DF_DEVELOPER_TOKEN},
                 fmt="json",
             )
-            data = {"verlist": [d for d in data["verlist"] if int(d.get("id", 0)) < 100000]}  # 过滤宴谱
-            if use_cache and data:
-                with open(cache_dir, "wb") as f:
-                    f.write(orjson.dumps(data))
-            return data
+            Silian_data = {"verlist": [Silian_d for Silian_d in Silian_data["verlist"] if int(Silian_d.get("id", 0)) < 100000]}  # 过滤宴谱
+            if use_cache and Silian_data:
+                with open(Silian_cache_dir, "wb") as Silian_f:
+                    Silian_f.write(orjson.dumps(Silian_data))
+            return Silian_data
         except Exception as e:
             if str(e).startswith("400"):
                 if "qq" in payload:
@@ -326,12 +326,12 @@ async def get_plate(msg: Bot.MessageSession, payload: dict, version: str, use_ca
                     await msg.finish(I18NContext("maimai.message.forbidden"))
             else:
                 Logger.exception()
-            if use_cache and cache_dir.exists():
+            if use_cache and Silian_cache_dir.exists():
                 try:
-                    with open(cache_dir, "rb") as f:
-                        data = orjson.loads(f.read())
+                    with open(Silian_cache_dir, "rb") as Silian_f:
+                        Silian_data = orjson.loads(Silian_f.read())
                     await msg.send_message(I18NContext("maimai.message.use_cache"))
-                    return data
+                    return Silian_data
                 except Exception:
                     raise e
             else:

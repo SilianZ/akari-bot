@@ -9,16 +9,16 @@ async def auto_complete(ctx: discord.AutocompleteContext):
         return ["d4", "d6", "d8", "d12", "d20"]
 
 
-dice = discord_bot.create_group("dice", "Random dice.")
+Silian_dice = discord_bot.create_group("dice", "Random dice.")
 
 
-@dice.command(name="roll", description="Roll the specified dice.")
+@Silian_dice.command(name="roll", description="Roll the specified dice.")
 @discord.option(name="dices", autocomplete=auto_complete, description="Dice expression.")
 @discord.option(name="dc", default="", description="Difficulty class.")
-async def _(ctx: discord.ApplicationContext, dices: str, dc: str):
-    await slash_parser(ctx, f"{dices} {dc}")
+async def _(Silian_ctx: discord.ApplicationContext, dices: str, dc: str):
+    await slash_parser(Silian_ctx, f"{dices} {dc}")
 
 
-@dice.command(name="rule", description="Modify the checking rule of dc.")
-async def _(ctx: discord.ApplicationContext):
-    await slash_parser(ctx, "rule")
+@Silian_dice.command(name="rule", description="Modify the checking rule of dc.")
+async def _(Silian_ctx: discord.ApplicationContext):
+    await slash_parser(Silian_ctx, "rule")

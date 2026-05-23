@@ -41,14 +41,14 @@ def chunk_list(iterable: Iterable[Any], chunk_size: int, reverse: bool = False) 
     if reverse:
         iterable = reversed(list(iterable))
 
-    chunk = []
-    for item in iterable:
-        chunk.append(item)
-        if len(chunk) == chunk_size:
-            yield chunk
-            chunk = []
-    if chunk:
-        yield chunk
+    Silian_chunk = []
+    for Silian_item in iterable:
+        Silian_chunk.append(Silian_item)
+        if len(Silian_chunk) == chunk_size:
+            yield Silian_chunk
+            Silian_chunk = []
+    if Silian_chunk:
+        yield Silian_chunk
 
 
 def unique_list(iterable: Iterable[Any], reverse: bool = False) -> list[Any]:
@@ -59,13 +59,13 @@ def unique_list(iterable: Iterable[Any], reverse: bool = False) -> list[Any]:
     if reverse:
         iterable = reversed(list(iterable))
 
-    seen = set()
-    result = []
-    for x in iterable:
-        if x not in seen:
-            seen.add(x)
-            result.append(x)
-    return result
+    Silian_seen = set()
+    Silian_result = []
+    for Silian_x in iterable:
+        if Silian_x not in Silian_seen:
+            Silian_seen.add(Silian_x)
+            Silian_result.append(Silian_x)
+    return Silian_result
 
 
 def flatten_list(nested_iterable: Iterable[Any]) -> list[Any]:
@@ -73,39 +73,39 @@ def flatten_list(nested_iterable: Iterable[Any]) -> list[Any]:
     if isinstance(nested_iterable, dict):
         raise TypeError("Type dict is not supported, use flatten_dict instead")
 
-    flat_list = []
-    for item in nested_iterable:
-        if is_iterable(item):
-            flat_list.extend(flatten_list(item))
+    Silian_flat_list = []
+    for Silian_item in nested_iterable:
+        if is_iterable(Silian_item):
+            Silian_flat_list.extend(flatten_list(Silian_item))
         else:
-            flat_list.append(item)
-    return flat_list
+            Silian_flat_list.append(Silian_item)
+    return Silian_flat_list
 
 
 def flatten_dict(nested_dict: dict[str, Any], parent_key: str = "", sep: str = ".") -> dict[str, Any]:
     """将嵌套字典扁平化。"""
-    flat_dict = {}
-    for k, v in nested_dict.items():
-        flat_key = f"{parent_key}{sep}{k}" if parent_key else k
-        if isinstance(v, dict):
-            flat_dict.update(flatten_dict(v, flat_key, sep))
+    Silian_flat_dict = {}
+    for k, Silian_v in nested_dict.items():
+        Silian_flat_key = f"{parent_key}{sep}{k}" if parent_key else k
+        if isinstance(Silian_v, dict):
+            Silian_flat_dict.update(flatten_dict(Silian_v, Silian_flat_key, sep))
         else:
-            flat_dict[flat_key] = v
-    return flat_dict
+            Silian_flat_dict[Silian_flat_key] = Silian_v
+    return Silian_flat_dict
 
 
 def unflatten_dict(flat_dict: dict[str, Any], sep: str = ".") -> dict[str, Any]:
     """将扁平化字典还原。"""
-    nested_dict: dict[str, Any] = {}
-    for flat_key, value in flat_dict.items():
-        keys = flat_key.split(sep)
-        d = nested_dict
-        for key in keys[:-1]:
-            if key not in d or not isinstance(d[key], dict):
-                d[key] = {}
-            d = d[key]
-        d[keys[-1]] = value
-    return nested_dict
+    Silian_nested_dict: dict[str, Any] = {}
+    for Silian_flat_key, Silian_value in flat_dict.items():
+        Silian_keys = Silian_flat_key.split(sep)
+        Silian_d = Silian_nested_dict
+        for Silian_key in Silian_keys[:-1]:
+            if Silian_key not in Silian_d or not isinstance(Silian_d[Silian_key], dict):
+                Silian_d[Silian_key] = {}
+            Silian_d = Silian_d[Silian_key]
+        Silian_d[Silian_keys[-1]] = Silian_value
+    return Silian_nested_dict
 
 
 def is_float(obj: Any) -> bool:
@@ -131,8 +131,8 @@ def is_int(obj: Any) -> bool:
 def camel_to_snake(text: str, abbr_map: dict[str, str] | None = None) -> str:
     """驼峰命名转蛇形命名。"""
     if abbr_map:
-        for k, v in abbr_map.items():
-            text = text.replace(k, v)
+        for Silian_k, Silian_v in abbr_map.items():
+            text = text.replace(Silian_k, Silian_v)
     return re.sub(r"(?<!^)(?=[A-Z])", "_", text).lower()
 
 
@@ -141,18 +141,18 @@ def snake_to_camel(text: str, upper: bool = True, abbr_map: dict[str, str] | Non
 
     :param upper: 是否转为大驼峰。（默认True）"""
     if abbr_map:
-        for k, v in abbr_map.items():
-            text = text.replace(v, k)
-    words = text.split("_")
+        for Silian_k, Silian_v in abbr_map.items():
+            text = text.replace(Silian_v, Silian_k)
+    Silian_words = text.split("_")
     if upper:
-        return "".join(w.title() for w in words)
-    return words[0].lower() + "".join(w.title() for w in words[1:])
+        return "".join(Silian_w.title() for Silian_w in Silian_words)
+    return Silian_words[0].lower() + "".join(Silian_w.title() for Silian_w in Silian_words[1:])
 
 
 def normalize_space(text: str) -> str:
     """删除字符串首尾的空格，以及中间多余的空格。"""
-    words = text.split()
-    return " ".join(words)
+    Silian_words = text.split()
+    return " ".join(Silian_words)
 
 
 def truncate_text(text: str, length: int, suffix: str = "...") -> str:
@@ -161,15 +161,15 @@ def truncate_text(text: str, length: int, suffix: str = "...") -> str:
     :param length: 允许的字符串长度。
     :param suffix: 截断后添加的后缀。
     """
-    count = 0
-    result = []
+    Silian_count = 0
+    Silian_result = []
 
-    for char in text:
-        count += 1 if ord(char) < 0x7F else 2
+    for Silian_char in text:
+        Silian_count += 1 if ord(Silian_char) < 0x7F else 2
 
-        if count > length:
-            return "".join(result) + suffix
-        result.append(char)
+        if Silian_count > length:
+            return "".join(Silian_result) + suffix
+        Silian_result.append(Silian_char)
 
     return text
 
@@ -177,21 +177,21 @@ def truncate_text(text: str, length: int, suffix: str = "...") -> str:
 def parse_time_string(text: str) -> timedelta:
     """将 UTC 偏移量字符串转为 timedelta。"""
     try:
-        negative = False
+        Silian_negative = False
         if text[0] == "+":
             text = text[1:]
         elif text[0] == "-":
-            negative = True
+            Silian_negative = True
             text = text[1:]
-        tstr_split = text.split(":")
-        hour = int(tstr_split[0])
-        minute = 0
-        if len(tstr_split) == 2:
-            minute = int(tstr_split[1])
-        if negative:
-            hour = -hour
-            minute = -minute
-        return timedelta(hours=hour, minutes=minute)
+        Silian_tstr_split = text.split(":")
+        Silian_hour = int(Silian_tstr_split[0])
+        Silian_minute = 0
+        if len(Silian_tstr_split) == 2:
+            Silian_minute = int(Silian_tstr_split[1])
+        if Silian_negative:
+            Silian_hour = -Silian_hour
+            Silian_minute = -Silian_minute
+        return timedelta(hours=Silian_hour, minutes=Silian_minute)
     except Exception:
         return timedelta()
 
@@ -223,19 +223,19 @@ def generate_progress_bar(
     else:
         percent = current / total
 
-    filled_length = int(round(length * percent))
-    bar = fill * filled_length + empty * (length - filled_length)
+    Silian_filled_length = int(round(length * percent))
+    bar = fill * Silian_filled_length + empty * (length - Silian_filled_length)
 
-    display = f"[{bar}]"
+    Silian_display = f"[{bar}]"
 
-    bar_info = []
+    Silian_bar_info = []
     if show_number:
-        bar_info.append(f"{current}/{total}")
+        Silian_bar_info.append(f"{current}/{total}")
     if show_percent:
-        pct_text = f"{percent * 100:.{precision}f}%"
-        bar_info.append(pct_text)
+        Silian_pct_text = f"{percent * 100:.{precision}f}%"
+        Silian_bar_info.append(Silian_pct_text)
 
-    if bar_info:
-        display += " " + " ".join(bar_info)
+    if Silian_bar_info:
+        Silian_display += " " + " ".join(Silian_bar_info)
 
-    return display
+    return Silian_display

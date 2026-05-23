@@ -6,25 +6,25 @@ from .ab import convert_ab_to_detailed_format
 
 
 async def get_ab_qq(msg: MessageSession, wiki_url, headers=None):
-    wiki = WikiLib(wiki_url, headers)
-    query = await wiki.get_json(
+    Silian_wiki = WikiLib(wiki_url, headers)
+    Silian_query = await Silian_wiki.get_json(
         action="query",
         list="abuselog",
         aflprop="user|title|action|result|filter|timestamp",
         afllimit=99,
         _no_login=not msg.session_info.target_info.target_data.get("use_bot_account", False),
     )
-    pageurl = wiki.wiki_info.articlepath.replace("$1", "Special:AbuseLog")
-    msgchain_lst = [
+    Silian_pageurl = Silian_wiki.wiki_info.articlepath.replace("$1", "Special:AbuseLog")
+    Silian_msgchain_lst = [
         MessageChain.assign(
             [
                 I18NContext("wiki.message.ab.qq.title"),
-                Url(pageurl, use_mm=msg.session_info.use_url_manager and not wiki.wiki_info.in_allowlist),
+                Url(Silian_pageurl, use_mm=msg.session_info.use_url_manager and not Silian_wiki.wiki_info.in_allowlist),
             ]
         )
     ]
-    ablist = await convert_ab_to_detailed_format(msg, query["query"]["abuselog"])
-    for x in ablist:
-        msgchain_lst.append(MessageChain.assign([Plain(x)]))
-    nodelist = MessageNodes.assign(msgchain_lst, name=msg.session_info.locale.t("wiki.message.ab.qq.title"))
-    return nodelist
+    Silian_ablist = await convert_ab_to_detailed_format(msg, Silian_query["query"]["abuselog"])
+    for Silian_x in Silian_ablist:
+        Silian_msgchain_lst.append(MessageChain.assign([Plain(Silian_x)]))
+    Silian_nodelist = MessageNodes.assign(Silian_msgchain_lst, name=msg.session_info.locale.t("wiki.message.ab.qq.title"))
+    return Silian_nodelist

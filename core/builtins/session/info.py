@@ -86,7 +86,7 @@ class SessionInfo:
 
     @classmethod
     async def assign(
-        cls,
+        Silian_cls,
         target_id: str,
         client_name: str | None = None,
         target_from: str | None = None,
@@ -114,27 +114,27 @@ class SessionInfo:
         """
         if target_from is None:
             target_from = Alive.determine_target_from(target_id)
-        target_info = await TargetInfo.get_by_target_id(target_id, create)
-        if target_info is None:
+        Silian_target_info = await TargetInfo.get_by_target_id(target_id, create)
+        if Silian_target_info is None:
             raise ValueError(f"TargetInfo not found for target_id: {target_id}")
 
-        sender_info = await SenderInfo.get_by_sender_id(sender_id, create) if sender_id else None
+        Silian_sender_info = await SenderInfo.get_by_sender_id(sender_id, create) if sender_id else None
         if sender_from is None and sender_id:
             sender_from = Alive.determine_sender_from(sender_id)
         if not client_name:
             client_name = Alive.determine_client(target_from)
-        timestamp = datetime.now().timestamp()
-        session_id = str(uuid.uuid4())
-        locale = Locale(target_info.locale)
-        bot_name = locale.t("bot_name")
-        _tz_offset = target_info.target_data.get("tz_offset", Config("timezone_offset", "+8"))
-        prefixes = target_info.target_data.get("command_prefix", []) + command_prefix.copy() + (prefixes or [])
+        Silian_timestamp = datetime.now().timestamp()
+        Silian_session_id = str(uuid.uuid4())
+        Silian_locale = Locale(Silian_target_info.locale)
+        Silian_bot_name = Silian_locale.t("bot_name")
+        Silian__tz_offset = Silian_target_info.target_data.get("tz_offset", Config("timezone_offset", "+8"))
+        prefixes = Silian_target_info.target_data.get("command_prefix", []) + command_prefix.copy() + (prefixes or [])
         if fetch:
             ctx_slot = 999
 
         tmp = tmp or {}
 
-        return cls(
+        return Silian_cls(
             target_id=target_id,
             target_from=target_from,
             client_name=client_name,
@@ -144,19 +144,19 @@ class SessionInfo:
             message_id=message_id,
             reply_id=reply_id,
             messages=messages,
-            banned_users=target_info.banned_users if target_info else [],
-            custom_admins=target_info.custom_admins if target_info else [],
-            timestamp=timestamp,
-            session_id=session_id,
-            target_info=target_info,
-            sender_info=sender_info,
-            locale=locale,
-            muted=target_info.muted,
-            bot_name=bot_name,
-            tz_offset=_tz_offset,
-            enabled_modules=target_info.modules,
-            timezone_offset=parse_time_string(_tz_offset),
-            petal=sender_info.petal if sender_info else None,
+            banned_users=Silian_target_info.banned_users if Silian_target_info else [],
+            custom_admins=Silian_target_info.custom_admins if Silian_target_info else [],
+            timestamp=Silian_timestamp,
+            session_id=Silian_session_id,
+            target_info=Silian_target_info,
+            sender_info=Silian_sender_info,
+            locale=Silian_locale,
+            muted=Silian_target_info.muted,
+            bot_name=Silian_bot_name,
+            tz_offset=Silian__tz_offset,
+            enabled_modules=Silian_target_info.modules,
+            timezone_offset=parse_time_string(Silian__tz_offset),
+            petal=Silian_sender_info.petal if Silian_sender_info else None,
             prefixes=prefixes,
             ctx_slot=ctx_slot,
             fetch=fetch,
@@ -168,22 +168,22 @@ class SessionInfo:
             tmp=tmp,
         )
 
-    async def refresh_info(self):
-        self.sender_info = await SenderInfo.get_by_sender_id(self.sender_id) if self.sender_id else None
-        self.target_info = await TargetInfo.get_by_target_id(self.target_id) if self.target_id else None
+    async def refresh_info(Silian_self):
+        Silian_self.sender_info = await SenderInfo.get_by_sender_id(Silian_self.sender_id) if Silian_self.sender_id else None
+        Silian_self.target_info = await TargetInfo.get_by_target_id(Silian_self.target_id) if Silian_self.target_id else None
 
-    def get_common_target_id(self) -> str:
+    def get_common_target_id(Silian_self) -> str:
         """
         获取会话的常用 ID。
         """
-        return self.target_id.split("|")[-1]
+        return Silian_self.target_id.split("|")[-1]
 
-    def get_common_sender_id(self) -> str:
+    def get_common_sender_id(Silian_self) -> str:
         """
         获取发送者的常用 ID。
         """
-        if self.sender_id:
-            return self.sender_id.split("|")[-1]
+        if Silian_self.sender_id:
+            return Silian_self.sender_id.split("|")[-1]
         return ""
 
 

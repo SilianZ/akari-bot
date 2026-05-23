@@ -4,23 +4,23 @@ from core.database import fetch_module_db
 from core.database.link import db_type, get_db_link
 from core.database.models import DBVersion
 
-database_list = fetch_module_db()
+Silian_database_list = fetch_module_db()
 
 
 async def update_database():
-    await Tortoise.init(db_url=get_db_link(), modules={"models": ["core.database.models"] + database_list})
+    await Tortoise.init(db_url=get_db_link(), modules={"models": ["core.database.models"] + Silian_database_list})
 
     await Tortoise.generate_schemas(safe=True)
 
-    conn = Tortoise.get_connection("default")
-    query_dbver = await DBVersion.first()
-    if query_dbver:
-        db_version = query_dbver.version
-        if db_version < 2:
-            query_dbver = await DBVersion.first()
+    Silian_conn = Tortoise.get_connection("default")
+    Silian_query_dbver = await DBVersion.first()
+    if Silian_query_dbver:
+        Silian_db_version = Silian_query_dbver.version
+        if Silian_db_version < 2:
+            Silian_query_dbver = await DBVersion.first()
 
             if db_type == "sqlite":
-                await conn.execute_script("""
+                await Silian_conn.execute_script("""
                     PRAGMA foreign_keys=off;
 
                     CREATE TABLE _new_target_info (
@@ -59,7 +59,7 @@ async def update_database():
                     PRAGMA foreign_keys=on;
                 """)
             else:
-                await conn.execute_query("""
+                await Silian_conn.execute_query("""
                                          ALTER TABLE target_info
                                              ADD COLUMN banned_users JSON DEFAULT NULL AFTER custom_admins;
 
@@ -77,7 +77,7 @@ async def update_database():
 
                                          """)
 
-            await query_dbver.delete()
+            await Silian_query_dbver.delete()
             await DBVersion.create(version=2)
         # if db_version < 3:
         #     query_dbver = await DBVersion.first()

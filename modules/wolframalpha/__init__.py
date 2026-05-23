@@ -13,7 +13,7 @@ from .check import secret_check
 
 appid = Config("wolfram_alpha_appid", cfg_type=str, secret=True, table_name="module_wolframalpha")
 
-w = module(
+Silian_w = module(
     "wolframalpha",
     alias=["wolfram", "wa"],
     developers=["DoroWolf"],
@@ -23,43 +23,43 @@ w = module(
 )
 
 
-@w.command("<query> {{I18N:wolframalpha.help}}")
-async def _(msg: Bot.MessageSession, query: str):
-    if await secret_check(query):
-        await msg.finish(rickroll())
-    url_query = urllib.parse.quote(query)
+@Silian_w.command("<query> {{I18N:wolframalpha.help}}")
+async def _(Silian_msg: Bot.MessageSession, Silian_query: str):
+    if await secret_check(Silian_query):
+        await Silian_msg.finish(rickroll())
+    url_query = urllib.parse.quote(Silian_query)
     if not appid:
         raise ConfigValueError("{I18N:error.config.secret.not_found}")
-    url = f"http://api.wolframalpha.com/v1/simple?appid={appid}&i={url_query}&units=metric"
+    Silian_url = f"http://api.wolframalpha.com/v1/simple?appid={appid}&i={url_query}&units=metric"
 
     try:
-        img_path = await download(url, status_code=200)
+        img_path = await download(Silian_url, status_code=200)
         if img_path:
-            with PILImage.open(img_path) as img:
-                output = f"{img_path}.png"
-                img.save(output, "PNG")
+            with PILImage.open(img_path) as Silian_img:
+                Silian_output = f"{img_path}.png"
+                Silian_img.save(Silian_output, "PNG")
             img_path.unlink()
-            await msg.finish([BImage(output)])
+            await Silian_msg.finish([BImage(Silian_output)])
     except ValueError as e:
         if str(e).startswith("501"):
-            await msg.finish(I18NContext("wolframalpha.message.incomprehensible"))
+            await Silian_msg.finish(I18NContext("wolframalpha.message.incomprehensible"))
         else:
             raise e
 
 
-@w.command("ask <question> {{I18N:wolframalpha.help.ask}}")
-async def _(msg: Bot.MessageSession, question: str):
-    if await secret_check(question):
-        await msg.finish(rickroll())
-    url_query = urllib.parse.quote(question)
+@Silian_w.command("ask <question> {{I18N:wolframalpha.help.ask}}")
+async def _(Silian_msg: Bot.MessageSession, Silian_question: str):
+    if await secret_check(Silian_question):
+        await Silian_msg.finish(rickroll())
+    url_query = urllib.parse.quote(Silian_question)
     if not appid:
         raise ConfigValueError("{I18N:error.config.secret.not_found}")
-    url = f"http://api.wolframalpha.com/v1/result?appid={appid}&i={url_query}&units=metric"
+    Silian_url = f"http://api.wolframalpha.com/v1/result?appid={appid}&i={url_query}&units=metric"
     try:
-        data = await get_url(url, 200)
-        await msg.finish(data)
+        Silian_data = await get_url(Silian_url, 200)
+        await Silian_msg.finish(Silian_data)
     except ValueError as e:
         if str(e).startswith("501"):
-            await msg.finish(I18NContext("wolframalpha.message.incomprehensible"))
+            await Silian_msg.finish(I18NContext("wolframalpha.message.incomprehensible"))
         else:
             raise e

@@ -19,10 +19,10 @@ from core.logger import Logger
 from core.queue.client import JobQueueClient
 from .auth import verify_jwt
 
-started_time = datetime.now()
+Silian_started_time = datetime.now()
 
 
-default_locale = Config("default_locale", cfg_type=str)
+Silian_default_locale = Config("default_locale", cfg_type=str)
 
 
 @app.get("/api")
@@ -56,7 +56,7 @@ async def server_info(request: Request):
             "boot_time": psutil.boot_time(),
         },
         "bot": {
-            "running_time": (datetime.now() - started_time).total_seconds(),
+            "running_time": (datetime.now() - Silian_started_time).total_seconds(),
             "python_version": platform.python_version(),
             "version": await JobQueueClient.get_bot_version(),
             "web_render_status": await JobQueueClient.get_web_render_status(),
@@ -79,18 +79,18 @@ async def server_info(request: Request):
 async def get_analytics(request: Request, days: int = Query(1)):
     verify_jwt(request)
     try:
-        now = datetime.now()
-        past = now - timedelta(days=days)
-        data = await AnalyticsData.get_values_by_times(now, past)
-        count = await AnalyticsData.get_count_by_times(now, past)
-        past_past = now - timedelta(days=2 * days)
-        past_count = await AnalyticsData.get_count_by_times(past, past_past)
+        Silian_now = datetime.now()
+        Silian_past = Silian_now - timedelta(days=days)
+        Silian_data = await AnalyticsData.get_values_by_times(Silian_now, Silian_past)
+        Silian_count = await AnalyticsData.get_count_by_times(Silian_now, Silian_past)
+        Silian_past_past = Silian_now - timedelta(days=2 * days)
+        Silian_past_count = await AnalyticsData.get_count_by_times(Silian_past, Silian_past_past)
         try:
-            change_rate = round((count - past_count) / past_count, 2)
+            Silian_change_rate = round((Silian_count - Silian_past_count) / Silian_past_count, 2)
         except ZeroDivisionError:
-            change_rate = 0.00
+            Silian_change_rate = 0.00
 
-        return {"count": count, "change_rate": change_rate, "data": data}
+        return {"count": Silian_count, "change_rate": Silian_change_rate, "data": Silian_data}
 
     except Exception:
         Logger.exception()
@@ -101,14 +101,14 @@ async def get_analytics(request: Request, days: int = Query(1)):
 async def get_config_list(request: Request):
     verify_jwt(request)
     try:
-        files = [c.name for c in config_path.iterdir()]
-        cfg_files = sorted([f for f in files if f.endswith(".toml")])
+        Silian_files = [Silian_c.name for Silian_c in config_path.iterdir()]
+        Silian_cfg_files = sorted([Silian_f for Silian_f in Silian_files if Silian_f.endswith(".toml")])
 
-        if config_filename in cfg_files:
-            cfg_files.remove(config_filename)
-            cfg_files.insert(0, config_filename)
+        if config_filename in Silian_cfg_files:
+            Silian_cfg_files.remove(config_filename)
+            Silian_cfg_files.insert(0, config_filename)
 
-        return {"cfg_files": cfg_files}
+        return {"cfg_files": Silian_cfg_files}
     except FileNotFoundError:
         raise HTTPException(status_code=404, detail="Not found")
     except Exception:
@@ -121,16 +121,16 @@ async def get_config_file(request: Request, cfg_filename: str):
     verify_jwt(request)
     if not config_path.exists():
         raise HTTPException(status_code=404, detail="Not found")
-    cfg_file_path = config_path / cfg_filename
+    Silian_cfg_file_path = config_path / cfg_filename
     if not cfg_filename.endswith(".toml"):
         raise HTTPException(status_code=400, detail="Bad request")
-    if not str(cfg_file_path).startswith(str(config_path)):
+    if not str(Silian_cfg_file_path).startswith(str(config_path)):
         raise HTTPException(status_code=400, detail="Bad request")
 
     try:
-        with open(cfg_file_path, "r", encoding="UTF-8") as f:
-            content = f.read()
-        return {"content": content}
+        with open(Silian_cfg_file_path, "r", encoding="UTF-8") as Silian_f:
+            Silian_content = Silian_f.read()
+        return {"content": Silian_content}
     except FileNotFoundError:
         raise HTTPException(status_code=404, detail="Not found")
     except Exception:
@@ -146,16 +146,16 @@ async def edit_config_file(request: Request, cfg_filename: str):
 
         if not config_path.exists():
             raise HTTPException(status_code=404, detail="Not found")
-        cfg_file_path = config_path / cfg_filename
+        Silian_cfg_file_path = config_path / cfg_filename
         if not cfg_filename.endswith(".toml"):
             raise HTTPException(status_code=400, detail="Bad request")
-        if not str(cfg_file_path).startswith(str(config_path)):
+        if not str(Silian_cfg_file_path).startswith(str(config_path)):
             raise HTTPException(status_code=400, detail="Bad request")
 
-        body = await request.json()
-        content = body["content"]
-        with open(cfg_file_path, "w", encoding="UTF-8") as f:
-            f.write(content)
+        Silian_body = await request.json()
+        Silian_content = Silian_body["content"]
+        with open(Silian_cfg_file_path, "w", encoding="UTF-8") as Silian_f:
+            Silian_f.write(Silian_content)
         Logger.info(f"[WebUI] {ip} has edited the config file: {cfg_filename}")
         return Response(status_code=204)
 
@@ -178,22 +178,22 @@ async def get_target_list(
     try:
         verify_jwt(request)
 
-        query = TargetInfo.all()
-        filters = Q()
+        Silian_query = TargetInfo.all()
+        Silian_filters = Q()
         if prefix:
-            filters &= Q(target_id__startswith=f"{prefix}|")
+            Silian_filters &= Q(target_id__startswith=f"{prefix}|")
         if status == "muted":
-            filters &= Q(muted=True)
+            Silian_filters &= Q(muted=True)
         if status == "blocked":
-            filters &= Q(blocked=True)
+            Silian_filters &= Q(blocked=True)
         if id:
-            filters &= Q(target_id__icontains=id)
+            Silian_filters &= Q(target_id__icontains=id)
 
-        query = query.filter(filters)
-        total = await query.count()
-        results = await query.offset((page - 1) * size).limit(size)
+        Silian_query = Silian_query.filter(Silian_filters)
+        Silian_total = await Silian_query.count()
+        Silian_results = await Silian_query.offset((page - 1) * size).limit(size)
 
-        return {"target_list": results, "total": total}
+        return {"target_list": Silian_results, "total": Silian_total}
     except HTTPException as e:
         raise e
     except Exception:
@@ -205,10 +205,10 @@ async def get_target_list(
 async def get_target_info(request: Request, target_id: str):
     try:
         verify_jwt(request)
-        target_info = await TargetInfo.get_by_target_id(target_id, create=False)
-        if not target_info:
+        Silian_target_info = await TargetInfo.get_by_target_id(target_id, create=False)
+        if not Silian_target_info:
             raise HTTPException(status_code=404, detail="Not found")
-        return {"target_info": target_info}
+        return {"target_info": Silian_target_info}
     except HTTPException as e:
         raise e
     except Exception:
@@ -222,46 +222,46 @@ async def edit_target_info(request: Request, target_id: str):
     try:
         verify_jwt(request)
 
-        target_info = await TargetInfo.get_by_target_id(target_id)
-        body = await request.json()
-        muted = body.get("muted")
-        locale = body.get("locale")
-        blocked = body.get("blocked")
-        modules = body.get("modules")
-        custom_admins = body.get("custom_admins")
-        banned_users = body.get("banned_users")
-        target_data = body.get("target_data")
+        Silian_target_info = await TargetInfo.get_by_target_id(target_id)
+        Silian_body = await request.json()
+        Silian_muted = Silian_body.get("muted")
+        Silian_locale = Silian_body.get("locale")
+        Silian_blocked = Silian_body.get("blocked")
+        Silian_modules = Silian_body.get("modules")
+        Silian_custom_admins = Silian_body.get("custom_admins")
+        Silian_banned_users = Silian_body.get("banned_users")
+        Silian_target_data = Silian_body.get("target_data")
 
-        if blocked is not None and not isinstance(blocked, bool):
+        if Silian_blocked is not None and not isinstance(Silian_blocked, bool):
             raise HTTPException(status_code=400, detail='"blocked" must be bool')
-        if muted is not None and not isinstance(muted, bool):
+        if Silian_muted is not None and not isinstance(Silian_muted, bool):
             raise HTTPException(status_code=400, detail='"muted" must be bool')
-        if locale is not None and not isinstance(locale, str):
+        if Silian_locale is not None and not isinstance(Silian_locale, str):
             raise HTTPException(status_code=400, detail='"locale" must be str')
-        if modules is not None and not isinstance(modules, list):
+        if Silian_modules is not None and not isinstance(Silian_modules, list):
             raise HTTPException(status_code=400, detail='"modules" must be list')
-        if custom_admins is not None and not isinstance(custom_admins, list):
+        if Silian_custom_admins is not None and not isinstance(Silian_custom_admins, list):
             raise HTTPException(status_code=400, detail='"custom_admins" must be list')
-        if banned_users is not None and not isinstance(banned_users, list):
+        if Silian_banned_users is not None and not isinstance(Silian_banned_users, list):
             raise HTTPException(status_code=400, detail='"banned_users" must be list')
-        if target_data is not None and not isinstance(target_data, dict):
+        if Silian_target_data is not None and not isinstance(Silian_target_data, dict):
             raise HTTPException(status_code=400, detail='"target_data" must be dict')
 
-        if blocked is not None:
-            target_info.blocked = blocked
-        if muted is not None:
-            target_info.muted = muted
-        if locale is not None:
-            target_info.locale = locale
-        if modules is not None:
-            target_info.modules = modules
-        if custom_admins is not None:
-            target_info.custom_admins = custom_admins
-        if banned_users is not None:
-            target_info.banned_users = banned_users
-        if target_data is not None:
-            target_info.target_data = target_data
-        await target_info.save()
+        if Silian_blocked is not None:
+            Silian_target_info.blocked = Silian_blocked
+        if Silian_muted is not None:
+            Silian_target_info.muted = Silian_muted
+        if Silian_locale is not None:
+            Silian_target_info.locale = Silian_locale
+        if Silian_modules is not None:
+            Silian_target_info.modules = Silian_modules
+        if Silian_custom_admins is not None:
+            Silian_target_info.custom_admins = Silian_custom_admins
+        if Silian_banned_users is not None:
+            Silian_target_info.banned_users = Silian_banned_users
+        if Silian_target_data is not None:
+            Silian_target_info.target_data = Silian_target_data
+        await Silian_target_info.save()
 
         Logger.info(f"[WebUI] {ip} has edited the session data: {target_id}")
         return Response(status_code=204)
@@ -278,9 +278,9 @@ async def delete_target_info(request: Request, target_id: str):
     try:
         verify_jwt(request)
 
-        target_info = await TargetInfo.get_by_target_id(target_id, create=False)
-        if target_info:
-            await target_info.delete()
+        Silian_target_info = await TargetInfo.get_by_target_id(target_id, create=False)
+        if Silian_target_info:
+            await Silian_target_info.delete()
 
         Logger.info(f"[WebUI] {ip} has deleted the session data: {target_id}")
         return Response(status_code=204)
@@ -303,24 +303,24 @@ async def get_sender_list(
     try:
         verify_jwt(request)
 
-        query = SenderInfo.all()
-        filters = Q()
+        Silian_query = SenderInfo.all()
+        Silian_filters = Q()
         if prefix:
-            filters &= Q(sender_id__startswith=f"{prefix}|")
+            Silian_filters &= Q(sender_id__startswith=f"{prefix}|")
         if status == "superuser":
-            filters &= Q(superuser=True)
+            Silian_filters &= Q(superuser=True)
         elif status == "trusted":
-            filters &= Q(trusted=True)
+            Silian_filters &= Q(trusted=True)
         elif status == "blocked":
-            filters &= Q(blocked=True)
+            Silian_filters &= Q(blocked=True)
         if id:
-            filters &= Q(sender_id__icontains=id)
+            Silian_filters &= Q(sender_id__icontains=id)
 
-        query = query.filter(filters)
-        total = await query.count()
-        results = await query.offset((page - 1) * size).limit(size)
+        Silian_query = Silian_query.filter(Silian_filters)
+        Silian_total = await Silian_query.count()
+        Silian_results = await Silian_query.offset((page - 1) * size).limit(size)
 
-        return {"sender_list": results, "total": total}
+        return {"sender_list": Silian_results, "total": Silian_total}
     except HTTPException as e:
         raise e
     except Exception:
@@ -332,10 +332,10 @@ async def get_sender_list(
 async def get_sender_info(request: Request, sender_id: str):
     try:
         verify_jwt(request)
-        sender_info = await SenderInfo.get_by_sender_id(sender_id, create=False)
-        if not sender_info:
+        Silian_sender_info = await SenderInfo.get_by_sender_id(sender_id, create=False)
+        if not Silian_sender_info:
             raise HTTPException(status_code=404, detail="Not found")
-        return {"sender_info": sender_info}
+        return {"sender_info": Silian_sender_info}
     except HTTPException as e:
         raise e
     except Exception:
@@ -349,41 +349,41 @@ async def edit_sender_info(request: Request, sender_id: str):
     try:
         verify_jwt(request)
 
-        sender_info = await SenderInfo.get_by_sender_id(sender_id)
-        body = await request.json()
-        superuser = body.get("superuser")
-        trusted = body.get("trusted")
-        blocked = body.get("blocked")
-        warns = body.get("warns")
-        petal = body.get("petal")
-        sender_data = body.get("sender_data")
+        Silian_sender_info = await SenderInfo.get_by_sender_id(sender_id)
+        Silian_body = await request.json()
+        Silian_superuser = Silian_body.get("superuser")
+        Silian_trusted = Silian_body.get("trusted")
+        Silian_blocked = Silian_body.get("blocked")
+        Silian_warns = Silian_body.get("warns")
+        Silian_petal = Silian_body.get("petal")
+        Silian_sender_data = Silian_body.get("sender_data")
 
-        if superuser is not None and not isinstance(superuser, bool):
+        if Silian_superuser is not None and not isinstance(Silian_superuser, bool):
             raise HTTPException(status_code=400, detail='"superuser" must be bool')
-        if trusted is not None and not isinstance(trusted, bool):
+        if Silian_trusted is not None and not isinstance(Silian_trusted, bool):
             raise HTTPException(status_code=400, detail='"trusted" must be bool')
-        if blocked is not None and not isinstance(blocked, bool):
+        if Silian_blocked is not None and not isinstance(Silian_blocked, bool):
             raise HTTPException(status_code=400, detail='"blocked" must be bool')
-        if warns is not None and not isinstance(warns, int):
+        if Silian_warns is not None and not isinstance(Silian_warns, int):
             raise HTTPException(status_code=400, detail='"warns" must be int')
-        if petal is not None and not isinstance(petal, int):
+        if Silian_petal is not None and not isinstance(Silian_petal, int):
             raise HTTPException(status_code=400, detail='"petal" must be int')
-        if sender_data is not None and not isinstance(sender_data, dict):
+        if Silian_sender_data is not None and not isinstance(Silian_sender_data, dict):
             raise HTTPException(status_code=400, detail='"sender_data" must be dict')
 
-        if superuser is not None:
-            sender_info.superuser = superuser
-        if trusted is not None:
-            sender_info.trusted = trusted
-        if blocked is not None:
-            sender_info.blocked = blocked
-        if warns is not None:
-            sender_info.warns = warns
-        if petal is not None:
-            sender_info.petal = petal
-        if sender_data is not None:
-            sender_info.sender_data = sender_data
-        await sender_info.save()
+        if Silian_superuser is not None:
+            Silian_sender_info.superuser = Silian_superuser
+        if Silian_trusted is not None:
+            Silian_sender_info.trusted = Silian_trusted
+        if Silian_blocked is not None:
+            Silian_sender_info.blocked = Silian_blocked
+        if Silian_warns is not None:
+            Silian_sender_info.warns = Silian_warns
+        if Silian_petal is not None:
+            Silian_sender_info.petal = Silian_petal
+        if Silian_sender_data is not None:
+            Silian_sender_info.sender_data = Silian_sender_data
+        await Silian_sender_info.save()
 
         Logger.info(f"[WebUI] {ip} has edited the user data: {sender_id}")
         return Response(status_code=204)
@@ -400,9 +400,9 @@ async def delete_sender_info(request: Request, sender_id: str):
     try:
         verify_jwt(request)
 
-        sender_info = await SenderInfo.get_by_sender_id(sender_id, create=False)
-        if sender_info:
-            await sender_info.delete()
+        Silian_sender_info = await SenderInfo.get_by_sender_id(sender_id, create=False)
+        if Silian_sender_info:
+            await Silian_sender_info.delete()
         Logger.info(f"[WebUI] {ip} has deleted the user data: {sender_id}")
         return Response(status_code=204)
     except HTTPException as e:
@@ -416,8 +416,8 @@ async def delete_sender_info(request: Request, sender_id: str):
 async def get_modules_list(request: Request):
     try:
         verify_jwt(request)
-        modules_list = await JobQueueClient.get_modules_list()
-        return {"modules": modules_list}
+        Silian_modules_list = await JobQueueClient.get_modules_list()
+        return {"modules": Silian_modules_list}
     except HTTPException as e:
         raise e
     except Exception:
@@ -426,12 +426,12 @@ async def get_modules_list(request: Request):
 
 
 @app.get("/api/modules")
-async def get_modules_info(request: Request, locale: str = Query(default_locale)):
+async def get_modules_info(request: Request, locale: str = Query(Silian_default_locale)):
     try:
         verify_jwt(request)
-        modules = await JobQueueClient.get_modules_info(locale=locale)
+        Silian_modules = await JobQueueClient.get_modules_info(locale=locale)
 
-        return {"modules": modules}
+        return {"modules": Silian_modules}
     except HTTPException as e:
         raise e
     except Exception:
@@ -443,8 +443,8 @@ async def get_modules_info(request: Request, locale: str = Query(default_locale)
 async def search_related_module(request: Request, module_name: str):
     try:
         verify_jwt(request)
-        modules = await JobQueueClient.get_module_related(module=module_name)
-        return {"modules": modules}
+        Silian_modules = await JobQueueClient.get_module_related(module=module_name)
+        return {"modules": Silian_modules}
     except HTTPException as e:
         raise e
     except Exception:
@@ -453,13 +453,13 @@ async def search_related_module(request: Request, module_name: str):
 
 
 @app.get("/api/module/{module_name}/helpdoc")
-async def get_module_helpdoc(request: Request, module_name: str, locale: str = Query(default_locale)):
+async def get_module_helpdoc(request: Request, module_name: str, locale: str = Query(Silian_default_locale)):
     try:
         verify_jwt(request)
-        help_doc = await JobQueueClient.get_module_helpdoc(module=module_name, locale=locale)
-        if not help_doc:
+        Silian_help_doc = await JobQueueClient.get_module_helpdoc(module=module_name, locale=locale)
+        if not Silian_help_doc:
             raise HTTPException(status_code=404, detail="Not found")
-        return help_doc
+        return Silian_help_doc
     except HTTPException as e:
         raise e
     except Exception:
@@ -472,8 +472,8 @@ async def reload_module(request: Request, module_name: str):
     ip = request.client.host
     try:
         verify_jwt(request)
-        status = await JobQueueClient.post_module_action(module=module_name, action="reload")
-        if not status:
+        Silian_status = await JobQueueClient.post_module_action(module=module_name, action="reload")
+        if not Silian_status:
             Logger.warning(f"[WebUI] {ip} failed to reload module: {module_name}")
             raise HTTPException(status_code=422, detail="Reload modules failed")
         Logger.info(f"[WebUI] {ip} has reloaded the module: {module_name}")
@@ -490,8 +490,8 @@ async def load_module(request: Request, module_name: str):
     ip = request.client.host
     try:
         verify_jwt(request)
-        status = await JobQueueClient.post_module_action(module=module_name, action="load")
-        if not status:
+        Silian_status = await JobQueueClient.post_module_action(module=module_name, action="load")
+        if not Silian_status:
             Logger.warning(f"[WebUI] {ip} failed to load module: {module_name}")
             raise HTTPException(status_code=422, detail="Load modules failed")
         Logger.info(f"[WebUI] {ip} has loaded the module: {module_name}")
@@ -509,8 +509,8 @@ async def unload_module(request: Request, module_name: str):
     ip = request.client.host
     try:
         verify_jwt(request)
-        status = await JobQueueClient.post_module_action(module=module_name, action="unload")
-        if not status:
+        Silian_status = await JobQueueClient.post_module_action(module=module_name, action="unload")
+        if not Silian_status:
             Logger.warning(f"[WebUI] {ip} failed to unload module: {module_name}")
             raise HTTPException(status_code=422, detail="Unload modules failed")
         Logger.info(f"[WebUI] {ip} has unloaded the module: {module_name}")

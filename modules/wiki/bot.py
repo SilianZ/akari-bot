@@ -10,59 +10,59 @@ from .database.models import WikiBotAccountList
 from .utils.bot import BotAccount, LoginFailed
 from .utils.wikilib import WikiLib
 
-wb = module("wiki_bot", required_superuser=True, doc=True, alias="wbot")
+Silian_wb = module("wiki_bot", required_superuser=True, doc=True, alias="wbot")
 
 
-@wb.command("login <apilink> <account> <password>")
-async def _(msg: Bot.MessageSession, apilink: str, account: str, password: str):
-    check = await WikiLib(apilink).check_wiki_available()
-    if check.available:
+@Silian_wb.command("login <apilink> <account> <password>")
+async def _(Silian_msg: Bot.MessageSession, Silian_apilink: str, Silian_account: str, Silian_password: str):
+    Silian_check = await WikiLib(Silian_apilink).check_wiki_available()
+    if Silian_check.available:
         try:
-            login = await BotAccount._login(check.value.api, account, password)
-            if await WikiBotAccountList.add(check.value.api, account, password):
-                BotAccount.cookies[check.value.api] = login
-                await msg.finish(I18NContext("wiki.message.wiki_bot.login.success"))
+            Silian_login = await BotAccount._login(Silian_check.value.api, Silian_account, Silian_password)
+            if await WikiBotAccountList.add(Silian_check.value.api, Silian_account, Silian_password):
+                BotAccount.cookies[Silian_check.value.api] = Silian_login
+                await Silian_msg.finish(I18NContext("wiki.message.wiki_bot.login.success"))
             else:
-                await msg.finish(I18NContext("wiki.message.wiki_bot.login.already"))
+                await Silian_msg.finish(I18NContext("wiki.message.wiki_bot.login.already"))
         except LoginFailed as e:
             Logger.error(f"Login failed: {e}")
-            await msg.finish(I18NContext("wiki.message.wiki_bot.login.failed", detail=e))
+            await Silian_msg.finish(I18NContext("wiki.message.wiki_bot.login.failed", detail=e))
     else:
-        result = [I18NContext("wiki.message.error.query")]
-        if check.message:
-            result.append(Plain(str(I18NContext("wiki.message.error.info")) + check.message))
-        await msg.finish(result)
+        Silian_result = [I18NContext("wiki.message.error.query")]
+        if Silian_check.message:
+            Silian_result.append(Plain(str(I18NContext("wiki.message.error.info")) + Silian_check.message))
+        await Silian_msg.finish(Silian_result)
 
 
-@wb.command("logout <apilink>")
-async def _(msg: Bot.MessageSession, apilink: str):
-    check = await WikiLib(apilink).check_wiki_info_from_database_cache()
-    if check.available:
-        apilink = check.value.api
-    if await WikiBotAccountList.remove(apilink):
-        await msg.finish(I18NContext("message.success"))
+@Silian_wb.command("logout <apilink>")
+async def _(Silian_msg: Bot.MessageSession, Silian_apilink: str):
+    Silian_check = await WikiLib(Silian_apilink).check_wiki_info_from_database_cache()
+    if Silian_check.available:
+        Silian_apilink = Silian_check.value.api
+    if await WikiBotAccountList.remove(Silian_apilink):
+        await Silian_msg.finish(I18NContext("message.success"))
     else:
-        await msg.finish(I18NContext("message.failed"))
+        await Silian_msg.finish(I18NContext("message.failed"))
 
 
-@wb.command("toggle")
-async def _(msg: Bot.MessageSession):
-    use_bot_account = msg.session_info.target_info.target_data.get("use_bot_account")
-    if use_bot_account:
-        await msg.session_info.target_info.edit_target_data("use_bot_account", False)
-        await msg.finish(I18NContext("wiki.message.wiki_bot.toggle.disable"))
+@Silian_wb.command("toggle")
+async def _(Silian_msg: Bot.MessageSession):
+    Silian_use_bot_account = Silian_msg.session_info.target_info.target_data.get("use_bot_account")
+    if Silian_use_bot_account:
+        await Silian_msg.session_info.target_info.edit_target_data("use_bot_account", False)
+        await Silian_msg.finish(I18NContext("wiki.message.wiki_bot.toggle.disable"))
     else:
-        await msg.session_info.target_info.edit_target_data("use_bot_account", True)
-        await msg.finish(I18NContext("wiki.message.wiki_bot.toggle.enable"))
+        await Silian_msg.session_info.target_info.edit_target_data("use_bot_account", True)
+        await Silian_msg.finish(I18NContext("wiki.message.wiki_bot.toggle.enable"))
 
 
-@wb.hook("login_wiki_bots")
-async def _(ctx: Bot.ModuleHookContext):
-    Logger.debug("Received login_wiki_bots hook: " + str(ctx.args["cookies"]))
+@Silian_wb.hook("login_wiki_bots")
+async def _(Silian_ctx: Bot.ModuleHookContext):
+    Logger.debug("Received login_wiki_bots hook: " + str(Silian_ctx.args["cookies"]))
 
 
-@wb.schedule(DateTrigger(datetime.now() + timedelta(seconds=30)))
-@wb.schedule(IntervalTrigger(minutes=30))
+@Silian_wb.schedule(DateTrigger(datetime.now() + timedelta(seconds=30)))
+@Silian_wb.schedule(IntervalTrigger(minutes=30))
 async def _():
     Logger.info("Start login wiki bot account...")
     await BotAccount.login()

@@ -23,14 +23,14 @@ class ArgumentPattern:
     :param name: 参数的名称，用于标识和匹配结果中引用
     """
 
-    def __init__(self, name):
-        self.name = name
+    def __init__(Silian_self, Silian_name):
+        Silian_self.name = Silian_name
 
     def __str__(self):
         return f'ArgumentPattern("{self.name}")'
 
-    def __repr__(self):
-        return self.__str__()
+    def __repr__(Silian_self):
+        return Silian_self.__str__()
 
 
 class DescPattern:
@@ -42,14 +42,14 @@ class DescPattern:
     :param text: 描述文本
     """
 
-    def __init__(self, text: str):
-        self.text = text
+    def __init__(Silian_self, Silian_text: str):
+        Silian_self.text = Silian_text
 
     def __str__(self):
         return f'DescPattern("{self.text}")'
 
-    def __repr__(self):
-        return self.__str__()
+    def __repr__(Silian_self):
+        return Silian_self.__str__()
 
 
 class Template:
@@ -63,25 +63,25 @@ class Template:
     """
 
     def __init__(
-        self,
-        args: "list[ArgumentPattern | OptionalPattern | DescPattern]",
-        priority: int = 1,
+        Silian_self,
+        Silian_args: "list[ArgumentPattern | OptionalPattern | DescPattern]",
+        Silian_priority: int = 1,
     ):
         # 参数列表
-        self.args_ = args
+        Silian_self.args_ = Silian_args
         # 模板优先级
-        self.priority = priority
+        Silian_self.priority = Silian_priority
 
     @property
-    def args(self):
+    def args(Silian_self):
         """获取参数列表"""
-        return self.args_
+        return Silian_self.args_
 
     def __str__(self):
         return f"Template({self.args})"
 
-    def __repr__(self):
-        return self.__str__()
+    def __repr__(Silian_self):
+        return Silian_self.__str__()
 
 
 class OptionalPattern:
@@ -92,17 +92,17 @@ class OptionalPattern:
     :param args: 该选项下的模板列表（支持多个可选变体）
     """
 
-    def __init__(self, flag: str, args: list[Template]):
+    def __init__(Silian_self, Silian_flag: str, Silian_args: list[Template]):
         # 选项标志
-        self.flag = flag
+        Silian_self.flag = Silian_flag
         # 该选项的模板列表
-        self.args = args
+        Silian_self.args = Silian_args
 
     def __str__(self):
         return f'OptionalPattern("{self.flag}", {self.args})'
 
-    def __repr__(self):
-        return self.__str__()
+    def __repr__(Silian_self):
+        return Silian_self.__str__()
 
 
 class Argument:
@@ -112,8 +112,8 @@ class Argument:
     :param value: 参数值
     """
 
-    def __init__(self, value: str):
-        self.value = value
+    def __init__(Silian_self, Silian_value: str):
+        Silian_self.value = Silian_value
 
 
 class Optional:
@@ -124,11 +124,11 @@ class Optional:
     :param flagged: 是否已被设置（有值）
     """
 
-    def __init__(self, args: dict[str, dict], flagged=False):
+    def __init__(Silian_self, Silian_args: dict[str, dict], Silian_flagged=False):
         # 标志此选项是否被使用
-        self.flagged = flagged
+        Silian_self.flagged = Silian_flagged
         # 选项的参数
-        self.args = args
+        Silian_self.args = Silian_args
 
 
 class MatchedResult:
@@ -142,19 +142,19 @@ class MatchedResult:
     :param priority: 匹配的优先级
     """
 
-    def __init__(self, args: dict, original_template, priority: int = 1):
+    def __init__(Silian_self, Silian_args: dict, Silian_original_template, Silian_priority: int = 1):
         # 解析出的参数字典
-        self.args = args
+        Silian_self.args = Silian_args
         # 原始模板引用
-        self.original_template = original_template
+        Silian_self.original_template = Silian_original_template
         # 优先级（用于多模板匹配时排序）
-        self.priority = priority
+        Silian_self.priority = Silian_priority
 
     def __str__(self):
         return f"MatchedResult({self.args}, {self.priority})"
 
-    def __repr__(self):
-        return self.__str__()
+    def __repr__(Silian_self):
+        return Silian_self.__str__()
 
 
 def split_multi_arguments(lst: list):
@@ -177,54 +177,54 @@ def split_multi_arguments(lst: list):
     :param lst: 包含参数字符串的列表，字符串中可能包含 (option1|option2) 形式的选择组
     :return: 展开后的参数列表，每个变体为一个独立的字符串
     """
-    new_lst = []
+    Silian_new_lst = []
 
     # 处理列表中的每一个字符串
-    for x in lst:
+    for Silian_x in lst:
         # 使用正则表达式分割括号部分
         # (\(.*?\)) 用于匹配最短的括号内容（非贪婪匹配）
-        spl = list(filter(None, re.split(r"(\(.*?\))", x)))
+        Silian_spl = list(filter(None, re.split(r"(\(.*?\))", Silian_x)))
 
         # 如果分割后有多个部分（包含括号）
-        if len(spl) > 1:
+        if len(Silian_spl) > 1:
             # 遍历每个部分
-            for y in spl:
-                index_y = spl.index(y)
+            for Silian_y in Silian_spl:
+                Silian_index_y = Silian_spl.index(Silian_y)
                 # 检查该部分是否是括号内的选择
-                mat = re.match(r"\((.*?)\)", y)
-                if mat:
+                Silian_mat = re.match(r"\((.*?)\)", Silian_y)
+                if Silian_mat:
                     # 提取括号内的内容并按 | 分割
-                    spl1 = mat.group(1).split("|")
+                    Silian_spl1 = Silian_mat.group(1).split("|")
                     # 为每个选项创建一个完整的变体
-                    for s in spl1:
-                        cspl = spl.copy()
-                        cspl.insert(index_y, s)
-                        del cspl[index_y + 1]
-                        new_lst.append("".join(cspl))
+                    for Silian_s in Silian_spl1:
+                        Silian_cspl = Silian_spl.copy()
+                        Silian_cspl.insert(Silian_index_y, Silian_s)
+                        del Silian_cspl[Silian_index_y + 1]
+                        Silian_new_lst.append("".join(Silian_cspl))
         else:
             # 只有一个部分的情况
-            mat = re.match(r"\((.*?)\)", spl[0])
-            if mat:
+            Silian_mat = re.match(r"\((.*?)\)", Silian_spl[0])
+            if Silian_mat:
                 # 括号内的选择
-                spl1 = mat.group(1).split("|")
-                for s in spl1:
-                    new_lst.append(s)
+                Silian_spl1 = Silian_mat.group(1).split("|")
+                for Silian_s in Silian_spl1:
+                    Silian_new_lst.append(Silian_s)
             else:
                 # 没有括号，直接添加
-                new_lst.append(spl[0])
+                Silian_new_lst.append(Silian_spl[0])
 
     # 检查是否还有未处理的括号（嵌套情况）
-    split_more = False
-    for n in new_lst:
-        if re.match(r"\((.*?)\)", n):
-            split_more = True
+    Silian_split_more = False
+    for Silian_n in Silian_new_lst:
+        if re.match(r"\((.*?)\)", Silian_n):
+            Silian_split_more = True
 
     # 如果还有括号，递归处理
-    if split_more:
-        return split_multi_arguments(new_lst)
+    if Silian_split_more:
+        return split_multi_arguments(Silian_new_lst)
 
     # 返回去重后的列表
-    return list(set(new_lst))
+    return list(set(Silian_new_lst))
 
 
 def parse_template(argv: list[str], depth: int = 0) -> list[Template]:
@@ -257,8 +257,8 @@ def parse_template(argv: list[str], depth: int = 0) -> list[Template]:
     if depth > MAX_NEST_DEPTH:
         raise InvalidTemplatePattern("Template nesting too deep")
 
-    templates = []
-    argv_ = []
+    Silian_templates = []
+    Silian_argv_ = []
 
     # 预处理输入参数
     for a in argv:
@@ -268,42 +268,42 @@ def parse_template(argv: list[str], depth: int = 0) -> list[Template]:
             if not a:
                 continue
             # 分割包含多个选项的参数（如 "a(b|c)" -> ["ab", "ac"]）
-            spl = split_multi_arguments([a])
-            for split in spl:
-                argv_.append(split)
+            Silian_spl = split_multi_arguments([a])
+            for Silian_split in Silian_spl:
+                Silian_argv_.append(Silian_split)
 
     try:
         # 主处理循环：处理每一个模板字符串
-        for a in argv_:
+        for a in Silian_argv_:
             # 检查非法的括号嵌套（如 <[ >{  等）
-            if any(x in a for x in ["<[", ">{", "{<", "[{", "{["]):
+            if any(Silian_x in a for Silian_x in ["<[", ">{", "{<", "[{", "{["]):
                 raise InvalidTemplatePattern(f"Illegal mixed bracket nesting: {a}")
 
             # 创建新的模板对象
-            template = Template([])
+            Silian_template = Template([])
 
             # 使用正则表达式分割模板字符串，分离出各种模式：
             # (\[.*?]) - 可选参数块 [...]
             # (<.*?>) - 参数块 <...>
             # (\{.*}) - 描述块 {...}
             # 空格作为分隔符
-            patterns = list(filter(None, re.split(r"(\[.*?])|(<.*?>)|(\{.*})| ", a)))
+            Silian_patterns = list(filter(None, re.split(r"(\[.*?])|(<.*?>)|(\{.*})| ", a)))
 
             # 跟踪已使用的参数名称（用于检查重复）
-            arg_names: set[str] = set()
+            Silian_arg_names: set[str] = set()
 
             # 跟踪最后一个处理的模式类型（用于检查顺序合法性）
             # 可能的值: "argument", "optional", "optional_no_flag", "desc", "variadic"
-            last_type = None
+            Silian_last_type = None
 
             # 标志是否已经出现过描述块
-            seen_desc = False
+            Silian_seen_desc = False
 
             # 标志是否已经出现过可变长参数 (...)
-            seen_variadic = False
+            Silian_seen_variadic = False
 
             # 逐个处理每个分割出的模式
-            for p in patterns:
+            for p in Silian_patterns:
                 strip_pattern = p.strip()
                 if not strip_pattern:
                     continue
@@ -315,61 +315,61 @@ def parse_template(argv: list[str], depth: int = 0) -> list[Template]:
                         raise InvalidTemplatePattern(f"Broken optional block: {p}")
 
                     # 提取括号内的内容
-                    inner = strip_pattern[1:-1].strip()
-                    if not inner:
+                    Silian_inner = strip_pattern[1:-1].strip()
+                    if not Silian_inner:
                         raise InvalidTemplatePattern("Empty optional block [] not allowed")
 
                     # 分割可选参数内容（空格分隔）
-                    optional_patterns = inner.split(" ")
+                    Silian_optional_patterns = Silian_inner.split(" ")
                     flag = None  # 可选参数的标志（如 "-o"）
-                    args = []  # 可选参数包含的参数列表
+                    Silian_args = []  # 可选参数包含的参数列表
 
                     # 判断第一个元素是参数还是标志
                     # 如果以 < 开头，说明是参数；否则是标志名称
-                    if optional_patterns[0].startswith("<"):
+                    if Silian_optional_patterns[0].startswith("<"):
                         # 第一个是参数：如 [<file>] 或 [<file> <mode>]
-                        if not optional_patterns[0].endswith(">"):
+                        if not Silian_optional_patterns[0].endswith(">"):
                             raise InvalidTemplatePattern(f"Broken argument block: {p}")
-                        if not optional_patterns[0][1:-1].strip():
+                        if not Silian_optional_patterns[0][1:-1].strip():
                             raise InvalidTemplatePattern("Empty argument block <> not allowed")
-                        args += optional_patterns  # 所有元素都是参数
+                        Silian_args += Silian_optional_patterns  # 所有元素都是参数
                     else:
                         # 第一个是标志：如 [-o <output>]
-                        flag = optional_patterns[0]  # 标志名称
-                        args += optional_patterns[1:]  # 后续元素是该标志的参数
+                        flag = Silian_optional_patterns[0]  # 标志名称
+                        Silian_args += Silian_optional_patterns[1:]  # 后续元素是该标志的参数
 
                     # 标志不能是描述（描述应该单独使用）
                     if flag and flag.startswith("{"):
                         raise InvalidTemplatePattern(f"Optional flag cannot be description: {flag}")
 
                     # 检查该可选参数内是否有重复的参数名
-                    arg_names_ = set()
-                    for arg in args:
-                        if arg in arg_names_:
+                    Silian_arg_names_ = set()
+                    for arg in Silian_args:
+                        if arg in Silian_arg_names_:
                             raise InvalidTemplatePattern(f'Duplicate argument in optional flag "{flag}": {arg}')
-                        arg_names_.add(arg)
+                        Silian_arg_names_.add(arg)
 
                     # 如果没有标志（无标志可选参数），检查是否与已有参数重复
                     if not flag:
-                        for arg in args:
-                            if arg in arg_names:
+                        for arg in Silian_args:
+                            if arg in Silian_arg_names:
                                 raise InvalidTemplatePattern(f"Duplicate required argument: {arg}")
-                            arg_names.add(arg)
+                            Silian_arg_names.add(arg)
 
                     # ========== 顺序验证 ==========
                     # 描述块必须在最后
-                    if last_type == "desc":
+                    if Silian_last_type == "desc":
                         raise InvalidTemplatePattern(f"Optional argument cannot follow description: {p}")
                     # 不能有两个无标志的可选参数
-                    if last_type == "optional_no_flag" and not flag:
+                    if Silian_last_type == "optional_no_flag" and not flag:
                         raise InvalidTemplatePattern(f"Two no-flag optional arguments not allowed: {p}")
 
                     # 创建 OptionalPattern 对象
                     # 如果有参数，递归解析参数的模板；否则为空
-                    template.args.append(
-                        OptionalPattern(flag=flag, args=parse_template([" ".join(args)], depth + 1) if args else [])
+                    Silian_template.args.append(
+                        OptionalPattern(flag=flag, args=parse_template([" ".join(Silian_args)], depth + 1) if Silian_args else [])
                     )
-                    last_type = "optional" if flag else "optional_no_flag"
+                    Silian_last_type = "optional" if flag else "optional_no_flag"
 
                 # ========== 处理描述块 {...} ==========
                 elif strip_pattern.startswith("{"):
@@ -378,18 +378,18 @@ def parse_template(argv: list[str], depth: int = 0) -> list[Template]:
                         raise InvalidTemplatePattern(f"Broken description block: {p}")
 
                     # 只允许一个描述块
-                    if seen_desc:
+                    if Silian_seen_desc:
                         raise InvalidTemplatePattern(f"Multiple descriptions not allowed: {p}")
-                    seen_desc = True
+                    Silian_seen_desc = True
 
                     # 提取描述文本
-                    desc = strip_pattern[1:-1].strip()
-                    if not desc:
+                    Silian_desc = strip_pattern[1:-1].strip()
+                    if not Silian_desc:
                         raise InvalidTemplatePattern("Empty description block {} not allowed")
 
                     # 添加描述模式（用于生成帮助信息）
-                    template.args.append(DescPattern(desc))
-                    last_type = "desc"
+                    Silian_template.args.append(DescPattern(Silian_desc))
+                    Silian_last_type = "desc"
 
                 # ========== 处理必需参数或特殊符号 ==========
                 else:
@@ -402,35 +402,35 @@ def parse_template(argv: list[str], depth: int = 0) -> list[Template]:
 
                     # ========== 顺序验证 ==========
                     # 参数不能在可选参数之后
-                    if last_type in ("optional", "optional_no_flag"):
+                    if Silian_last_type in ("optional", "optional_no_flag"):
                         raise InvalidTemplatePattern(f"Argument cannot follow optional block: {p}")
                     # 参数不能在描述之后
-                    if last_type == "desc":
+                    if Silian_last_type == "desc":
                         raise InvalidTemplatePattern(f"Argument cannot follow description: {p}")
 
                     # 检查参数名称的重复
-                    if strip_pattern in arg_names:
+                    if strip_pattern in Silian_arg_names:
                         raise InvalidTemplatePattern(f'Duplicate argument: "{strip_pattern}"')
 
                     # ========== 处理可变长参数 ... ==========
                     # ... 表示可以接收任意多个参数
                     if strip_pattern == "...":
-                        if seen_variadic:
+                        if Silian_seen_variadic:
                             raise InvalidTemplatePattern('Duplicate "..." not allowed')
-                        seen_variadic = True
-                        last_type = "variadic"
-                        template.args.append(ArgumentPattern("..."))
+                        Silian_seen_variadic = True
+                        Silian_last_type = "variadic"
+                        Silian_template.args.append(ArgumentPattern("..."))
                         continue
 
                     # 添加普通参数
-                    arg_names.add(strip_pattern)
-                    template.args.append(ArgumentPattern(strip_pattern))
-                    last_type = "argument"
+                    Silian_arg_names.add(strip_pattern)
+                    Silian_template.args.append(ArgumentPattern(strip_pattern))
+                    Silian_last_type = "argument"
 
             # 完成一个模板的解析，添加到结果列表
-            templates.append(template)
+            Silian_templates.append(Silian_template)
 
-        return templates
+        return Silian_templates
 
     except InvalidTemplatePattern as e:
         # 打印异常堆栈用于调试
@@ -456,58 +456,58 @@ def templates_to_str(templates: list[Template], with_desc=False, simplify=True) 
     :param simplify: 是否简化输出（去除重复的描述）
     :return: 字符串列表，每个字符串代表一个模板的可读形式
     """
-    text = []
-    last_desc = None  # 用于记录最后的描述，用于简化重复内容
+    Silian_text = []
+    Silian_last_desc = None  # 用于记录最后的描述，用于简化重复内容
 
-    for template in templates:
-        arg_text = []  # 该模板对应的所有参数文本
-        sub_arg_text = []  # 当前子模板的参数文本
-        has_desc = False  # 标记是否包含描述
+    for Silian_template in templates:
+        Silian_arg_text = []  # 该模板对应的所有参数文本
+        Silian_sub_arg_text = []  # 当前子模板的参数文本
+        Silian_has_desc = False  # 标记是否包含描述
 
-        for arg in template.args:
-            if isinstance(arg, ArgumentPattern):
+        for Silian_arg in Silian_template.args:
+            if isinstance(Silian_arg, ArgumentPattern):
                 # 参数：直接添加名称
-                sub_arg_text.append(arg.name)
-            elif isinstance(arg, OptionalPattern):
+                Silian_sub_arg_text.append(Silian_arg.name)
+            elif isinstance(Silian_arg, OptionalPattern):
                 # 可选参数：用 [ ] 包括
-                t = "["
-                if arg.flag:
-                    t += arg.flag
-                if arg.args:
-                    if arg.flag:
-                        t += " "
+                Silian_t = "["
+                if Silian_arg.flag:
+                    Silian_t += Silian_arg.flag
+                if Silian_arg.args:
+                    if Silian_arg.flag:
+                        Silian_t += " "
                     # 递归处理嵌套模板
-                    t += " ".join(templates_to_str(arg.args, simplify=False))
-                t += "]"
-                sub_arg_text.append(t)
-            elif isinstance(arg, DescPattern):
+                    Silian_t += " ".join(templates_to_str(Silian_arg.args, simplify=False))
+                Silian_t += "]"
+                Silian_sub_arg_text.append(Silian_t)
+            elif isinstance(Silian_arg, DescPattern):
                 # 描述：用于生成帮助文本
-                has_desc = True
-                sub_arg_text_ = " ".join(sub_arg_text)
-                sub_arg_text.clear()
+                Silian_has_desc = True
+                Silian_sub_arg_text_ = " ".join(Silian_sub_arg_text)
+                Silian_sub_arg_text.clear()
 
                 # 简化模式下，重复的描述只显示一次
-                if simplify and last_desc == arg.text:
+                if simplify and Silian_last_desc == Silian_arg.text:
                     continue
 
                 # 将参数和描述组合
                 if with_desc:
-                    if sub_arg_text_:
-                        arg_text.append(sub_arg_text_ + " - " + arg.text)
+                    if Silian_sub_arg_text_:
+                        Silian_arg_text.append(Silian_sub_arg_text_ + " - " + Silian_arg.text)
                     else:
-                        arg_text.append("- " + arg.text)
+                        Silian_arg_text.append("- " + Silian_arg.text)
 
-                last_desc = arg.text
+                Silian_last_desc = Silian_arg.text
 
         # 如果没有描述，直接添加参数文本
-        if not has_desc:
-            arg_text.append(" ".join(sub_arg_text))
-            sub_arg_text.clear()
+        if not Silian_has_desc:
+            Silian_arg_text.append(" ".join(Silian_sub_arg_text))
+            Silian_sub_arg_text.clear()
 
-        if arg_text:
-            text.append(" ".join(arg_text))
+        if Silian_arg_text:
+            Silian_text.append(" ".join(Silian_arg_text))
 
-    return text
+    return Silian_text
 
 
 def parse_argv(argv: list[str], templates: list["Template"]) -> MatchedResult:
@@ -549,242 +549,242 @@ def parse_argv(argv: list[str], templates: list["Template"]) -> MatchedResult:
              - priority: 最终优先级分数
     :raises InvalidCommandFormatError: 如果无法用任何模板匹配参数
     """
-    matched_result = []
+    Silian_matched_result = []
 
     # ========== 步骤 1: 尝试用每个模板进行匹配 ==========
-    for template in templates:
+    for Silian_template in templates:
         try:
             # 复制 argv 以避免修改原始列表（保护输入数据）
-            argv_copy = argv.copy()
-            parsed_argv = {}  # 存储解析结果的字典
-            original_template = template
-            afters = []  # 用于存储可变长参数的处理列表
+            Silian_argv_copy = argv.copy()
+            Silian_parsed_argv = {}  # 存储解析结果的字典
+            Silian_original_template = Silian_template
+            Silian_afters = []  # 用于存储可变长参数的处理列表
 
             # 提取非描述的参数（DescPattern 仅用于文档，不参与解析）
-            args = [x for x in template.args if not isinstance(x, DescPattern)]
-            if not args:
+            Silian_args = [Silian_x for Silian_x in Silian_template.args if not isinstance(Silian_x, DescPattern)]
+            if not Silian_args:
                 # 该模板没有可解析的参数，跳过
                 continue
 
             # ========== 步骤 2: 处理可选参数 ==========
             # 可选参数由 OptionalPattern 表示，可能带有标志（如 --output、-v 等）
-            for a in args:  # optional first
-                if isinstance(a, OptionalPattern):
+            for Silian_a in Silian_args:  # optional first
+                if isinstance(Silian_a, OptionalPattern):
                     # 检查是否是无标志的可选参数（如 [<file>] 形式）
-                    if not a.flag:
+                    if not Silian_a.flag:
                         # 无标志的可选参数暂时存储到 afters，后续处理
-                        afters.append(a.args[0])
+                        Silian_afters.append(Silian_a.args[0])
                         continue
 
                     # 初始化该可选参数为未被设置状态
-                    parsed_argv[a.flag] = Optional({}, flagged=False)
+                    Silian_parsed_argv[Silian_a.flag] = Optional({}, flagged=False)
 
                     # 检查该标志是否在参数列表中
-                    if a.flag in argv_copy:  # if flag is in argv
+                    if Silian_a.flag in Silian_argv_copy:  # if flag is in argv
                         # 标志存在，需要处理其关联的参数
-                        if not a.args:
+                        if not Silian_a.args:
                             # 该可选参数没有子参数，直接标记为已设置并移除标志
-                            parsed_argv[a.flag] = Optional({}, flagged=True)
-                            argv_copy.remove(a.flag)
+                            Silian_parsed_argv[Silian_a.flag] = Optional({}, flagged=True)
+                            Silian_argv_copy.remove(Silian_a.flag)
                         else:
                             # 该可选参数有子参数，需要递归解析
-                            index_flag = argv_copy.index(a.flag)
+                            Silian_index_flag = Silian_argv_copy.index(Silian_a.flag)
                             # 计算该可选参数需要的子参数个数
-                            len_t_args = len(a.args[0].args)
+                            Silian_len_t_args = len(Silian_a.args[0].args)
 
                             # 检查是否有足够的参数来满足这个可选参数的需求
-                            if len(argv_copy[index_flag:]) >= len_t_args:
+                            if len(Silian_argv_copy[Silian_index_flag:]) >= Silian_len_t_args:
                                 # 提取该可选参数的所有子参数
-                                sub_argv = argv_copy[index_flag + 1 : index_flag + len_t_args + 1]
+                                Silian_sub_argv = Silian_argv_copy[Silian_index_flag + 1 : Silian_index_flag + Silian_len_t_args + 1]
 
                                 # 递归调用 parse_argv 解析可选参数的子参数
-                                parsed_argv[a.flag] = Optional(parse_argv(sub_argv, a.args).args, flagged=True)
+                                Silian_parsed_argv[Silian_a.flag] = Optional(parse_argv(Silian_sub_argv, Silian_a.args).args, flagged=True)
                                 # 从参数列表中删除已处理的部分（标志 + 子参数）
-                                del argv_copy[index_flag : index_flag + len_t_args + 1]
+                                del Silian_argv_copy[Silian_index_flag : Silian_index_flag + Silian_len_t_args + 1]
 
             # ========== 步骤 3: 处理必需参数 ==========
             # 必需参数由 ArgumentPattern 表示（不在可选参数中的参数）
-            for a in args:
-                if isinstance(a, ArgumentPattern):
+            for Silian_a in Silian_args:
+                if isinstance(Silian_a, ArgumentPattern):
                     # ========== 处理 <param> 格式（值参数）==========
-                    if a.name.startswith("<"):
+                    if Silian_a.name.startswith("<"):
                         # 值参数：必须消耗一个参数值
-                        if len(argv_copy) > 0:
+                        if len(Silian_argv_copy) > 0:
                             # 有可用参数，创建 Argument 对象并消耗该参数
-                            parsed_argv[a.name] = Argument(argv_copy[0])
-                            del argv_copy[0]
+                            Silian_parsed_argv[Silian_a.name] = Argument(Silian_argv_copy[0])
+                            del Silian_argv_copy[0]
                         else:
                             # 没有可用参数，标记为 False（未满足）
-                            parsed_argv[a.name] = False
+                            Silian_parsed_argv[Silian_a.name] = False
 
                     # ========== 处理 ... （可变长参数）==========
-                    elif a.name == "...":
+                    elif Silian_a.name == "...":
                         # 可变长参数：可以消耗 0 个或多个参数
                         # 暂时将其添加到 afters 列表，在剩余参数处理时再处理
-                        afters.append(Template([a]))
+                        Silian_afters.append(Template([Silian_a]))
 
                     # ========== 处理布尔参数（标志）==========
                     else:
                         # 标志参数：检查是否存在于参数列表中
-                        parsed_argv[a.name] = a.name in argv_copy
-                        if parsed_argv[a.name]:
+                        Silian_parsed_argv[Silian_a.name] = Silian_a.name in Silian_argv_copy
+                        if Silian_parsed_argv[Silian_a.name]:
                             # 如果标志存在，从参数列表中移除它
-                            argv_copy.remove(a.name)
+                            Silian_argv_copy.remove(Silian_a.name)
 
             # ========== 步骤 4: 处理剩余参数（可变长参数和无标志可选参数）==========
-            if argv_copy:
-                if afters:
+            if Silian_argv_copy:
+                if Silian_afters:
                     # 有可变长参数或无标志可选参数需要处理
-                    ai = 1
-                    for arg in afters:
-                        subi = 1
-                        for sub_args in arg.args:
-                            if isinstance(sub_args, ArgumentPattern):
+                    Silian_ai = 1
+                    for Silian_arg in Silian_afters:
+                        Silian_subi = 1
+                        for Silian_sub_args in Silian_arg.args:
+                            if isinstance(Silian_sub_args, ArgumentPattern):
                                 # ========== 处理 <param> 参数 ==========
-                                if sub_args.name.startswith("<"):
-                                    if len(argv_copy) > 0:
+                                if Silian_sub_args.name.startswith("<"):
+                                    if len(Silian_argv_copy) > 0:
                                         # 检查是否是最后一个参数
-                                        if len(afters) == ai and len(arg.args) == subi:
+                                        if len(Silian_afters) == Silian_ai and len(Silian_arg.args) == Silian_subi:
                                             # 最后的参数，消耗所有剩余的参数（用空格连接）
-                                            parsed_argv[sub_args.name] = Argument(" ".join(argv_copy))
-                                            argv_copy.clear()
+                                            Silian_parsed_argv[Silian_sub_args.name] = Argument(" ".join(Silian_argv_copy))
+                                            Silian_argv_copy.clear()
                                         else:
                                             # 非最后参数，只消耗一个参数
-                                            parsed_argv[sub_args.name] = Argument(argv_copy[0])
-                                            del argv_copy[0]
+                                            Silian_parsed_argv[Silian_sub_args.name] = Argument(Silian_argv_copy[0])
+                                            del Silian_argv_copy[0]
                                     else:
                                         # 没有可用参数，标记为 False
-                                        parsed_argv[sub_args.name] = False
+                                        Silian_parsed_argv[Silian_sub_args.name] = False
 
                                 # ========== 处理 ... 可变长参数 ==========
-                                elif sub_args.name == "...":
+                                elif Silian_sub_args.name == "...":
                                     # 消耗所有剩余参数，每个参数包装为 Argument 对象
-                                    parsed_argv[sub_args.name] = [Argument(x) for x in argv_copy]
-                                    del argv_copy[:]
+                                    Silian_parsed_argv[Silian_sub_args.name] = [Argument(Silian_x) for Silian_x in Silian_argv_copy]
+                                    del Silian_argv_copy[:]
 
                                 # ========== 处理布尔标志参数 ==========
                                 else:
-                                    parsed_argv[sub_args.name] = sub_args.name in argv_copy
-                                    if parsed_argv[sub_args.name]:
-                                        argv_copy.remove(sub_args.name)
-                            subi += 1
-                        ai += 1
+                                    Silian_parsed_argv[Silian_sub_args.name] = Silian_sub_args.name in Silian_argv_copy
+                                    if Silian_parsed_argv[Silian_sub_args.name]:
+                                        Silian_argv_copy.remove(Silian_sub_args.name)
+                            Silian_subi += 1
+                        Silian_ai += 1
 
                 # ========== 步骤 5: 处理最后的剩余参数 ==========
                 # 如果仍有参数未处理，尝试添加到最后一个值参数
-                if argv_copy:
-                    template_arguments = [arg for arg in args if isinstance(arg, ArgumentPattern)]
-                    if template_arguments:
+                if Silian_argv_copy:
+                    Silian_template_arguments = [Silian_arg for Silian_arg in Silian_args if isinstance(Silian_arg, ArgumentPattern)]
+                    if Silian_template_arguments:
                         # 检查最后一个参数是否是值参数（< > 格式）
-                        if isinstance(template_arguments[-1], ArgumentPattern):
-                            if template_arguments[-1].name.startswith("<"):
+                        if isinstance(Silian_template_arguments[-1], ArgumentPattern):
+                            if Silian_template_arguments[-1].name.startswith("<"):
                                 # 最后一个参数是值参数，将剩余参数追加到它（用空格连接）
-                                argv_keys = list(parsed_argv.keys())
-                                parsed_argv[argv_keys[argv_keys.index(template_arguments[-1].name)]].value += (
-                                    " " + " ".join(argv_copy)
+                                Silian_argv_keys = list(Silian_parsed_argv.keys())
+                                Silian_parsed_argv[Silian_argv_keys[Silian_argv_keys.index(Silian_template_arguments[-1].name)]].value += (
+                                    " " + " ".join(Silian_argv_copy)
                                 )
-                                del argv_copy[0]
+                                del Silian_argv_copy[0]
 
             # 将成功构建的匹配添加到结果列表
-            matched_result.append(MatchedResult(parsed_argv, original_template, template.priority))
+            Silian_matched_result.append(MatchedResult(Silian_parsed_argv, Silian_original_template, Silian_template.priority))
         except TypeError:
             # 类型错误，说明该模板不适用，跳过继续尝试下一个模板
             traceback.print_exc()
             continue
 
     # ========== 步骤 6: 转换解析结果，将对象转换为实际值 ==========
-    filtered_result = []
-    for m in matched_result:  # convert to result dict
+    Silian_filtered_result = []
+    for Silian_m in Silian_matched_result:  # convert to result dict
         # 标记该匹配是否被过滤（由于缺少必需参数）
-        filtered = False
-        args_ = m.args
-        for keys in args_:
+        Silian_filtered = False
+        Silian_args_ = Silian_m.args
+        for Silian_keys in Silian_args_:
             # ========== 转换 Optional 对象 ==========
-            if isinstance(args_[keys], Optional):
+            if isinstance(Silian_args_[Silian_keys], Optional):
                 # 如果可选参数未被设置（flagged=False），则值为 False
-                if not args_[keys].flagged:
-                    args_[keys] = False
+                if not Silian_args_[Silian_keys].flagged:
+                    Silian_args_[Silian_keys] = False
                 else:
                     # 已设置的可选参数
-                    if not args_[keys].args:
+                    if not Silian_args_[Silian_keys].args:
                         # 没有子参数，标记为 True
-                        args_[keys] = True
+                        Silian_args_[Silian_keys] = True
                     else:
                         # 有子参数，使用解析后的参数字典
-                        args_[keys] = args_[keys].args
+                        Silian_args_[Silian_keys] = Silian_args_[Silian_keys].args
 
             # ========== 转换 Argument 对象 ==========
-            elif isinstance(args_[keys], Argument):
+            elif isinstance(Silian_args_[Silian_keys], Argument):
                 # 提取 Argument 对象中的字符串值
-                args_[keys] = args_[keys].value
+                Silian_args_[Silian_keys] = Silian_args_[Silian_keys].value
 
             # ========== 转换列表参数 ==========
-            elif isinstance(args_[keys], list):
+            elif isinstance(Silian_args_[Silian_keys], list):
                 # 处理 [...] 参数列表，提取每个 Argument 的值
-                args_[keys] = [v.value for v in args_[keys] if isinstance(v, Argument)]
+                Silian_args_[Silian_keys] = [Silian_v.value for Silian_v in Silian_args_[Silian_keys] if isinstance(Silian_v, Argument)]
 
             # ========== 处理布尔参数 ==========
-            elif isinstance(args_[keys], bool):
+            elif isinstance(Silian_args_[Silian_keys], bool):
                 # 如果是必需的参数但未被找到（值为 False），标记此匹配为无效
-                if not args_[keys]:
-                    filtered = True
+                if not Silian_args_[Silian_keys]:
+                    Silian_filtered = True
                     break
 
         # 只保留有效的匹配结果（所有必需参数都被成功匹配）
-        if not filtered:
-            filtered_result.append(m)
+        if not Silian_filtered:
+            Silian_filtered_result.append(Silian_m)
 
     # ========== 步骤 7: 优先级选择和排序 ==========
-    len_filtered_result = len(filtered_result)
+    Silian_len_filtered_result = len(Silian_filtered_result)
 
-    if len_filtered_result > 1:
+    if Silian_len_filtered_result > 1:
         # 多个匹配存在，需要按优先级选择最佳的
-        priority_result = {}
+        Silian_priority_result = {}
 
         # 第一轮优先级计算：基础优先级 + 参数匹配度
-        for f in filtered_result:
+        for Silian_f in Silian_filtered_result:
             # 基础优先级来自模板的 priority 值
-            priority = f.priority  # base priority
-            for keys in f.args:
+            Silian_priority = Silian_f.priority  # base priority
+            for Silian_keys in Silian_f.args:
                 # 为每个被成功匹配的参数增加优先级分数
-                if f.args[keys] is True:  # if argument is not any else
-                    priority += 1
+                if Silian_f.args[Silian_keys] is True:  # if argument is not any else
+                    Silian_priority += 1
 
             # 按优先级分组
-            if priority not in priority_result:
-                priority_result[priority] = [f]
+            if Silian_priority not in Silian_priority_result:
+                Silian_priority_result[Silian_priority] = [Silian_f]
             else:
-                priority_result[priority].append(f)
+                Silian_priority_result[Silian_priority].append(Silian_f)
 
         # 选择最高优先级的匹配
-        max_ = max(priority_result.keys())
+        Silian_max_ = max(Silian_priority_result.keys())
 
-        if len(priority_result[max_]) > 1:
+        if len(Silian_priority_result[Silian_max_]) > 1:
             # 仍有多个相同优先级的匹配，进行二次优先级计算
-            new_priority_result = {}
-            for p in priority_result[max_]:
-                new_priority = p.priority
-                for keys in p.args:
+            Silian_new_priority_result = {}
+            for Silian_p in Silian_priority_result[Silian_max_]:
+                Silian_new_priority = Silian_p.priority
+                for Silian_keys in Silian_p.args:
                     # 统计有值的参数（非 False、非空的参数）
-                    if p.args[keys]:
-                        new_priority += 1
+                    if Silian_p.args[Silian_keys]:
+                        Silian_new_priority += 1
 
                 # 按新的优先级分组
-                if new_priority not in new_priority_result:
-                    new_priority_result[new_priority] = [p]
+                if Silian_new_priority not in Silian_new_priority_result:
+                    Silian_new_priority_result[Silian_new_priority] = [Silian_p]
                 else:
-                    new_priority_result[new_priority].append(p)
+                    Silian_new_priority_result[Silian_new_priority].append(Silian_p)
 
             # 取最高优先级的第一个匹配
-            max_ = max(new_priority_result.keys())
-            return new_priority_result[max_][0]
+            Silian_max_ = max(Silian_new_priority_result.keys())
+            return Silian_new_priority_result[Silian_max_][0]
 
-        return priority_result[max_][0]
+        return Silian_priority_result[Silian_max_][0]
 
     # ========== 步骤 8: 返回结果或异常 ==========
-    if len_filtered_result == 0:
+    if Silian_len_filtered_result == 0:
         # 没有任何模板能匹配给定的参数
         raise InvalidCommandFormatError
 
     # 返回唯一的有效匹配
-    return filtered_result[0]
+    return Silian_filtered_result[0]
