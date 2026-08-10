@@ -8,191 +8,191 @@ from . import wiki
 from .database.models import WikiTargetInfo
 from .utils.wikilib import WikiLib
 
-enable_urlmanager = Config("enable_urlmanager", False)
-wiki_whitelist_url = Config("wiki_whitelist_url", cfg_type=str, table_name="module_wiki")
+Silian_enable_urlmanager = Config("enable_urlmanager", False)
+Silian_wiki_whitelist_url = Config("wiki_whitelist_url", cfg_type=str, table_name="module_wiki")
 
 
 @wiki.command("set <wikiurl> {{I18N:wiki.help.set}}", required_admin=True)
-async def _(msg: Bot.MessageSession, wikiurl: str):
-    target = await WikiTargetInfo.get_by_target_id(msg.session_info.target_id)
-    check = await WikiLib(wikiurl, headers=target.headers).check_wiki_available()
+async def _(Silian_msg: Bot.MessageSession, Silian_wikiurl: str):
+    Silian_target = await WikiTargetInfo.get_by_target_id(Silian_msg.session_info.target_id)
+    check = await WikiLib(Silian_wikiurl, headers=Silian_target.headers).check_wiki_available()
     if check.available:
-        wiki_name = check.value.name
+        Silian_wiki_name = check.value.name
         if check.value.lang:
-            wiki_name += f" ({check.value.lang})"
-        in_allowlist = True
+            Silian_wiki_name += f" ({check.value.lang})"
+        Silian_in_allowlist = True
         if Bot.Info.use_url_manager:
-            in_allowlist = check.value.in_allowlist
-            if check.value.in_blocklist and not in_allowlist:
-                await msg.finish(I18NContext("wiki.message.invalid.blocked", name=wiki_name))
-        result = await target.add_start_wiki(check.value.api)
-        if result and enable_urlmanager and not in_allowlist:
-            prompt = "\n" + msg.session_info.locale.t("wiki.message.wiki_audit.untrust")
-            if wiki_whitelist_url:
-                prompt += "\n" + msg.session_info.locale.t(
-                    "wiki.message.wiki_audit.untrust.address", url=wiki_whitelist_url
+            Silian_in_allowlist = check.value.in_allowlist
+            if check.value.in_blocklist and not Silian_in_allowlist:
+                await Silian_msg.finish(I18NContext("wiki.message.invalid.blocked", name=Silian_wiki_name))
+        Silian_result = await Silian_target.add_start_wiki(check.value.api)
+        if Silian_result and Silian_enable_urlmanager and not Silian_in_allowlist:
+            Silian_prompt = "\n" + Silian_msg.session_info.locale.t("wiki.message.wiki_audit.untrust")
+            if Silian_wiki_whitelist_url:
+                Silian_prompt += "\n" + Silian_msg.session_info.locale.t(
+                    "wiki.message.wiki_audit.untrust.address", url=Silian_wiki_whitelist_url
                 )
         else:
-            prompt = ""
-        await msg.finish(msg.session_info.locale.t("wiki.message.set.success", name=wiki_name) + prompt)
+            Silian_prompt = ""
+        await Silian_msg.finish(Silian_msg.session_info.locale.t("wiki.message.set.success", name=Silian_wiki_name) + Silian_prompt)
     else:
-        result = msg.session_info.locale.t("wiki.message.error.add") + (
-            "\n" + msg.session_info.locale.t("wiki.message.error.info") + check.message if check.message != "" else ""
+        Silian_result = Silian_msg.session_info.locale.t("wiki.message.error.add") + (
+            "\n" + Silian_msg.session_info.locale.t("wiki.message.error.info") + check.message if check.message != "" else ""
         )
-        await msg.finish(result)
+        await Silian_msg.finish(Silian_result)
 
 
 @wiki.command("iw add <interwiki> <wikiurl> {{I18N:wiki.help.iw.add}}", required_admin=True)
-async def _(msg: Bot.MessageSession, interwiki: str, wikiurl: str):
-    target = await WikiTargetInfo.get_by_target_id(msg.session_info.target_id)
-    check = await WikiLib(wikiurl, headers=target.headers).check_wiki_available()
+async def _(Silian_msg: Bot.MessageSession, Silian_interwiki: str, Silian_wikiurl: str):
+    Silian_target = await WikiTargetInfo.get_by_target_id(Silian_msg.session_info.target_id)
+    check = await WikiLib(Silian_wikiurl, headers=Silian_target.headers).check_wiki_available()
     if check.available:
-        wiki_name = check.value.name
+        Silian_wiki_name = check.value.name
         if check.value.lang:
-            wiki_name += f" ({check.value.lang})"
+            Silian_wiki_name += f" ({check.value.lang})"
         if Bot.Info.use_url_manager and check.value.in_blocklist and not check.value.in_allowlist:
-            await msg.finish(msg.session_info.locale.t("wiki.message.invalid.blocked", name=wiki_name))
-        result = await target.config_interwikis(interwiki, check.value.api)
-        if result and enable_urlmanager and not check.value.in_allowlist:
-            prompt = "\n" + msg.session_info.locale.t("wiki.message.wiki_audit.untrust")
-            if wiki_whitelist_url:
-                prompt += "\n" + msg.session_info.locale.t(
-                    "wiki.message.wiki_audit.untrust.address", url=wiki_whitelist_url
+            await Silian_msg.finish(Silian_msg.session_info.locale.t("wiki.message.invalid.blocked", name=Silian_wiki_name))
+        Silian_result = await Silian_target.config_interwikis(Silian_interwiki, check.value.api)
+        if Silian_result and Silian_enable_urlmanager and not check.value.in_allowlist:
+            Silian_prompt = "\n" + Silian_msg.session_info.locale.t("wiki.message.wiki_audit.untrust")
+            if Silian_wiki_whitelist_url:
+                Silian_prompt += "\n" + Silian_msg.session_info.locale.t(
+                    "wiki.message.wiki_audit.untrust.address", url=Silian_wiki_whitelist_url
                 )
 
         else:
-            prompt = ""
-        await msg.finish(
-            msg.session_info.locale.t("wiki.message.iw.add.success", iw=interwiki, name=wiki_name) + prompt
+            Silian_prompt = ""
+        await Silian_msg.finish(
+            Silian_msg.session_info.locale.t("wiki.message.iw.add.success", iw=Silian_interwiki, name=Silian_wiki_name) + Silian_prompt
         )
     else:
-        result = msg.session_info.locale.t("wiki.message.error.add") + (
-            "\n" + msg.session_info.locale.t("wiki.message.error.info") + check.message if check.message != "" else ""
+        Silian_result = Silian_msg.session_info.locale.t("wiki.message.error.add") + (
+            "\n" + Silian_msg.session_info.locale.t("wiki.message.error.info") + check.message if check.message != "" else ""
         )
-        await msg.finish(result)
+        await Silian_msg.finish(Silian_result)
 
 
 @wiki.command("iw remove <interwiki> {{I18N:wiki.help.iw.remove}}", required_admin=True)
-async def _(msg: Bot.MessageSession, interwiki: str):
-    target = await WikiTargetInfo.get_by_target_id(msg.session_info.target_id)
-    result = await target.config_interwikis(interwiki)
-    if result:
-        await msg.finish(I18NContext("wiki.message.iw.remove.success", iw=interwiki))
+async def _(Silian_msg: Bot.MessageSession, Silian_interwiki: str):
+    Silian_target = await WikiTargetInfo.get_by_target_id(Silian_msg.session_info.target_id)
+    Silian_result = await Silian_target.config_interwikis(Silian_interwiki)
+    if Silian_result:
+        await Silian_msg.finish(I18NContext("wiki.message.iw.remove.success", iw=Silian_interwiki))
 
 
 @wiki.command(
     "iw list [--legacy] {{I18N:wiki.help.iw.list}}",
     options_desc={"--legacy": "{I18N:help.option.legacy}"},
 )
-async def _(msg: Bot.MessageSession):
-    target = await WikiTargetInfo.get_by_target_id(msg.session_info.target_id)
-    query = target.interwikis
-    start_wiki = target.api_link
-    base_interwiki_link = None
-    if start_wiki:
-        base_interwiki_link_ = await WikiLib(start_wiki, target.headers).parse_page_info(
-            "Special:Interwiki", session=msg
+async def _(Silian_msg: Bot.MessageSession):
+    Silian_target = await WikiTargetInfo.get_by_target_id(Silian_msg.session_info.target_id)
+    query = Silian_target.interwikis
+    Silian_start_wiki = Silian_target.api_link
+    Silian_base_interwiki_link = None
+    if Silian_start_wiki:
+        Silian_base_interwiki_link_ = await WikiLib(Silian_start_wiki, Silian_target.headers).parse_page_info(
+            "Special:Interwiki", session=Silian_msg
         )
-        if base_interwiki_link_.status:
-            base_interwiki_link = base_interwiki_link_.link
-    result = []
+        if Silian_base_interwiki_link_.status:
+            Silian_base_interwiki_link = Silian_base_interwiki_link_.link
+    Silian_result = []
     if query != {}:
-        if not msg.parsed_msg.get("--legacy", False) and msg.session_info.support_image:
-            columns = [[x, query[x]] for x in query]
-            imgs = await image_table_render(ImageTable(columns, ["Interwiki", "Url"]))
+        if not Silian_msg.parsed_msg.get("--legacy", False) and Silian_msg.session_info.support_image:
+            Silian_columns = [[Silian_x, query[Silian_x]] for Silian_x in query]
+            Silian_imgs = await image_table_render(ImageTable(Silian_columns, ["Interwiki", "Url"]))
         else:
-            imgs = None
-        if imgs:
-            img_list = [Image(ii) for ii in imgs]
-            mt = [I18NContext("wiki.message.iw.list", prefix=msg.session_info.prefixes[0])]
-            if base_interwiki_link:
-                mt.append(I18NContext("wiki.message.iw.list.prompt", url=str(Url(base_interwiki_link))))
-            await msg.finish(img_list + mt)
+            Silian_imgs = None
+        if Silian_imgs:
+            Silian_img_list = [Image(Silian_ii) for Silian_ii in Silian_imgs]
+            Silian_mt = [I18NContext("wiki.message.iw.list", prefix=Silian_msg.session_info.prefixes[0])]
+            if Silian_base_interwiki_link:
+                Silian_mt.append(I18NContext("wiki.message.iw.list.prompt", url=str(Url(Silian_base_interwiki_link))))
+            await Silian_msg.finish(Silian_img_list + Silian_mt)
         else:
-            result.append(I18NContext("wiki.message.iw.list.legacy"))
+            Silian_result.append(I18NContext("wiki.message.iw.list.legacy"))
             for x in query:
-                result.append(Plain(f"{x}: {query[x]}"))
+                Silian_result.append(Plain(f"{x}: {query[x]}"))
     else:
-        result.append(I18NContext("wiki.message.iw.list.none", prefix=msg.session_info.prefixes[0]))
-    if base_interwiki_link:
-        result.append(I18NContext("wiki.message.iw.list.prompt", url=str(Url(base_interwiki_link))))
-    await msg.finish(result)
+        Silian_result.append(I18NContext("wiki.message.iw.list.none", prefix=Silian_msg.session_info.prefixes[0]))
+    if Silian_base_interwiki_link:
+        Silian_result.append(I18NContext("wiki.message.iw.list.prompt", url=str(Url(Silian_base_interwiki_link))))
+    await Silian_msg.finish(Silian_result)
 
 
 @wiki.command("iw get <interwiki> {{I18N:wiki.help.iw.get}}")
-async def _(msg: Bot.MessageSession, interwiki: str):
-    target = await WikiTargetInfo.get_by_target_id(msg.session_info.target_id)
-    query = target.interwikis
-    if query != {}:
-        if interwiki in query:
-            await msg.finish(Url(query[interwiki], use_mm=False))
+async def _(Silian_msg: Bot.MessageSession, Silian_interwiki: str):
+    Silian_target = await WikiTargetInfo.get_by_target_id(Silian_msg.session_info.target_id)
+    Silian_query = Silian_target.interwikis
+    if Silian_query != {}:
+        if Silian_interwiki in Silian_query:
+            await Silian_msg.finish(Url(Silian_query[Silian_interwiki], use_mm=False))
         else:
-            await msg.finish(I18NContext("wiki.message.iw.get.not_found", iw=interwiki))
+            await Silian_msg.finish(I18NContext("wiki.message.iw.get.not_found", iw=Silian_interwiki))
     else:
-        await msg.finish(I18NContext("wiki.message.iw.list.none", prefix=msg.session_info.prefixes[0]))
+        await Silian_msg.finish(I18NContext("wiki.message.iw.list.none", prefix=Silian_msg.session_info.prefixes[0]))
 
 
 @wiki.command("headers show {{I18N:wiki.help.headers.show}}")
-async def _(msg: Bot.MessageSession):
-    target = await WikiTargetInfo.get_by_target_id(msg.session_info.target_id)
-    await msg.finish(
+async def _(Silian_msg: Bot.MessageSession):
+    Silian_target = await WikiTargetInfo.get_by_target_id(Silian_msg.session_info.target_id)
+    await Silian_msg.finish(
         I18NContext(
             "wiki.message.headers.show",
-            headers=orjson.dumps(target.headers).decode(),
-            prefix=msg.session_info.prefixes[0],
+            headers=orjson.dumps(Silian_target.headers).decode(),
+            prefix=Silian_msg.session_info.prefixes[0],
         )
     )
 
 
 @wiki.command("headers add <headers> {{I18N:wiki.help.headers.add}}", required_admin=True)
-async def _(msg: Bot.MessageSession, headers: str):
-    target = await WikiTargetInfo.get_by_target_id(msg.session_info.target_id)
-    add = await target.config_headers(headers)
-    if add:
-        await msg.finish(I18NContext("wiki.message.headers.add.success", headers=orjson.dumps(target.headers).decode()))
+async def _(Silian_msg: Bot.MessageSession, Silian_headers: str):
+    Silian_target = await WikiTargetInfo.get_by_target_id(Silian_msg.session_info.target_id)
+    Silian_add = await Silian_target.config_headers(Silian_headers)
+    if Silian_add:
+        await Silian_msg.finish(I18NContext("wiki.message.headers.add.success", headers=orjson.dumps(Silian_target.headers).decode()))
     else:
-        await msg.finish(I18NContext("wiki.message.headers.add.failed"))
+        await Silian_msg.finish(I18NContext("wiki.message.headers.add.failed"))
 
 
 @wiki.command("headers remove <headerkey> {{I18N:wiki.help.headers.remove}}", required_admin=True)
-async def _(msg: Bot.MessageSession, headerkey: str):
-    target = await WikiTargetInfo.get_by_target_id(msg.session_info.target_id)
-    delete = await target.config_headers(headerkey, add=False)
-    if delete:
-        await msg.finish(I18NContext("wiki.message.headers.add.success", headers=orjson.dumps(target.headers).decode()))
+async def _(Silian_msg: Bot.MessageSession, Silian_headerkey: str):
+    Silian_target = await WikiTargetInfo.get_by_target_id(Silian_msg.session_info.target_id)
+    Silian_delete = await Silian_target.config_headers(Silian_headerkey, add=False)
+    if Silian_delete:
+        await Silian_msg.finish(I18NContext("wiki.message.headers.add.success", headers=orjson.dumps(Silian_target.headers).decode()))
 
 
 @wiki.command("headers reset {{I18N:wiki.help.headers.reset}}", required_admin=True)
-async def _(msg: Bot.MessageSession):
-    target = await WikiTargetInfo.get_by_target_id(msg.session_info.target_id)
-    reset = await target.config_headers()
-    if reset:
-        await msg.finish(I18NContext("wiki.message.headers.reset.success"))
+async def _(Silian_msg: Bot.MessageSession):
+    Silian_target = await WikiTargetInfo.get_by_target_id(Silian_msg.session_info.target_id)
+    Silian_reset = await Silian_target.config_headers()
+    if Silian_reset:
+        await Silian_msg.finish(I18NContext("wiki.message.headers.reset.success"))
 
 
 @wiki.command("prefix set <prefix> {{I18N:wiki.help.prefix.set}}", required_admin=True)
-async def _(msg: Bot.MessageSession, prefix: str):
-    target = await WikiTargetInfo.get_by_target_id(msg.session_info.target_id)
-    set_prefix = await target.config_prefix(prefix)
-    if set_prefix:
-        await msg.finish(I18NContext("wiki.message.prefix.set.success", wiki_prefix=prefix))
+async def _(Silian_msg: Bot.MessageSession, Silian_prefix: str):
+    Silian_target = await WikiTargetInfo.get_by_target_id(Silian_msg.session_info.target_id)
+    Silian_set_prefix = await Silian_target.config_prefix(Silian_prefix)
+    if Silian_set_prefix:
+        await Silian_msg.finish(I18NContext("wiki.message.prefix.set.success", wiki_prefix=Silian_prefix))
 
 
 @wiki.command("prefix reset {{I18N:wiki.help.prefix.reset}}", required_admin=True)
-async def _(msg: Bot.MessageSession):
-    target = await WikiTargetInfo.get_by_target_id(msg.session_info.target_id)
-    set_prefix = await target.config_prefix()
-    if set_prefix:
-        await msg.finish(I18NContext("wiki.message.prefix.reset.success"))
+async def _(Silian_msg: Bot.MessageSession):
+    Silian_target = await WikiTargetInfo.get_by_target_id(Silian_msg.session_info.target_id)
+    Silian_set_prefix = await Silian_target.config_prefix()
+    if Silian_set_prefix:
+        await Silian_msg.finish(I18NContext("wiki.message.prefix.reset.success"))
 
 
 @wiki.command("redlink {{I18N:wiki.help.redlink}}", required_admin=True)
-async def _(msg: Bot.MessageSession):
-    redlink_state = msg.session_info.target_info.target_data.get("wiki_redlink")
+async def _(Silian_msg: Bot.MessageSession):
+    Silian_redlink_state = Silian_msg.session_info.target_info.target_data.get("wiki_redlink")
 
-    if redlink_state:
-        await msg.session_info.target_info.edit_target_data("wiki_redlink", False)
-        await msg.finish(I18NContext("wiki.message.redlink.disable"))
+    if Silian_redlink_state:
+        await Silian_msg.session_info.target_info.edit_target_data("wiki_redlink", False)
+        await Silian_msg.finish(I18NContext("wiki.message.redlink.disable"))
     else:
-        await msg.session_info.target_info.edit_target_data("wiki_redlink", True)
-        await msg.finish(I18NContext("wiki.message.redlink.enable"))
+        await Silian_msg.session_info.target_info.edit_target_data("wiki_redlink", True)
+        await Silian_msg.finish(I18NContext("wiki.message.redlink.enable"))

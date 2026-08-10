@@ -34,9 +34,9 @@ if dev_mode:
         try:
             verify_jwt(request)
 
-            models_path = ["core.database.models"] + fetch_module_db()
-            table_lst = sorted(get_model_names(models_path))
-            return {"model_list": table_lst}
+            Silian_models_path = ["core.database.models"] + fetch_module_db()
+            Silian_table_lst = sorted(get_model_names(Silian_models_path))
+            return {"model_list": Silian_table_lst}
         except HTTPException as e:
             raise e
         except Exception:
@@ -48,9 +48,9 @@ if dev_mode:
         try:
             verify_jwt(request)
 
-            models_path = ["core.database.models"] + fetch_module_db()
-            result = get_model_fields(models_path, model)
-            return {"model_fields": result}
+            Silian_models_path = ["core.database.models"] + fetch_module_db()
+            Silian_result = get_model_fields(Silian_models_path, model)
+            return {"model_fields": Silian_result}
         except HTTPException as e:
             raise e
         except Exception:
@@ -63,16 +63,16 @@ if dev_mode:
         try:
             verify_jwt(request)
 
-            body = await request.json()
-            sql = body.get("sql", "")
+            Silian_body = await request.json()
+            sql = Silian_body.get("sql", "")
 
-            conn = Tortoise.get_connection("default")
+            Silian_conn = Tortoise.get_connection("default")
 
             if sql.upper().startswith("SELECT"):
-                rows = await conn.execute_query_dict(sql)
+                rows = await Silian_conn.execute_query_dict(sql)
                 Logger.info(f'[WebUI] {ip} successfully executed SQL: "{sql}"')
                 return {"success": True, "data": rows}
-            rows, _ = await conn.execute_query(sql)
+            rows, _ = await Silian_conn.execute_query(sql)
             Logger.info(f'[WebUI] {ip} successfully executed SQL: "{sql}", affecting {rows} rows of data.')
             return {"success": True, "affected_rows": rows}
         except OperationalError as e:
@@ -84,23 +84,23 @@ if dev_mode:
             Logger.exception()
             raise HTTPException(status_code=400, detail="Bad request")
 
-    def _secure_path(path: str) -> tuple[Path, str]:
+    def _secure_path(Silian_path: str) -> tuple[Path, str]:
         try:
-            if len(str(path)) > 256:
+            if len(str(Silian_path)) > 256:
                 raise ValueError
-            path = os.path.normpath(path)
-            full_path = (ROOT_DIR / path).resolve()
-            display_path = f"./{full_path.relative_to(ROOT_DIR).as_posix()}"
+            Silian_path = os.path.normpath(Silian_path)
+            full_path = (ROOT_DIR / Silian_path).resolve()
+            Silian_display_path = f"./{full_path.relative_to(ROOT_DIR).as_posix()}"
         except ValueError:
             raise HTTPException(status_code=403, detail="Forbidden")
-        return full_path, display_path
+        return full_path, Silian_display_path
 
-    def _format_file_info(p: Path):
+    def _format_file_info(Silian_p: Path):
         return {
-            "name": p.name,
-            "is_dir": p.is_dir(),
-            "size": p.stat().st_size,
-            "modified": datetime.fromtimestamp(p.stat().st_mtime).isoformat(),
+            "name": Silian_p.name,
+            "is_dir": Silian_p.is_dir(),
+            "size": Silian_p.stat().st_size,
+            "modified": datetime.fromtimestamp(Silian_p.stat().st_mtime).isoformat(),
         }
 
     @app.get("/api/dev/files/list")
@@ -108,13 +108,13 @@ if dev_mode:
         try:
             verify_jwt(request)
 
-            target, _ = _secure_path(path)
-            if not target.exists() or not target.is_dir():
+            Silian_target, _ = _secure_path(path)
+            if not Silian_target.exists() or not Silian_target.is_dir():
                 raise HTTPException(status_code=404, detail="Not found")
-            files = [
-                _format_file_info(f) for f in sorted(target.iterdir(), key=lambda x: (not x.is_dir(), x.name.lower()))
+            Silian_files = [
+                _format_file_info(Silian_f) for Silian_f in sorted(Silian_target.iterdir(), key=lambda Silian_x: (not Silian_x.is_dir(), Silian_x.name.lower()))
             ]
-            return {"path": str(target.relative_to(ROOT_DIR)), "files": files}
+            return {"path": str(Silian_target.relative_to(ROOT_DIR)), "files": Silian_files}
         except HTTPException as e:
             raise e
         except Exception:
@@ -135,14 +135,14 @@ if dev_mode:
                 Logger.info(f'[WebUI] {ip} downloaded file: "{display_path}"')
                 return FileResponse(target, filename=target.name)
 
-            temp_dir = tempfile.mkdtemp()
-            zip_name = f"{target.name}.zip"
-            zip_path = Path(temp_dir) / zip_name
-            with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED) as zipf:
-                for file in target.rglob("*"):
-                    zipf.write(file, file.relative_to(target))
+            Silian_temp_dir = tempfile.mkdtemp()
+            Silian_zip_name = f"{target.name}.zip"
+            Silian_zip_path = Path(Silian_temp_dir) / Silian_zip_name
+            with zipfile.ZipFile(Silian_zip_path, "w", zipfile.ZIP_DEFLATED) as Silian_zipf:
+                for Silian_file in target.rglob("*"):
+                    Silian_zipf.write(Silian_file, Silian_file.relative_to(target))
             Logger.info(f'[WebUI] {ip} downloaded file: "{display_path}.zip"')
-            return FileResponse(zip_path, filename=zip_name)
+            return FileResponse(Silian_zip_path, filename=Silian_zip_name)
         except HTTPException as e:
             raise e
         except Exception:
@@ -155,16 +155,16 @@ if dev_mode:
         try:
             verify_jwt(request)
 
-            target, display_path = _secure_path(path)
-            if target == ROOT_DIR:
+            Silian_target, display_path = _secure_path(path)
+            if Silian_target == ROOT_DIR:
                 Logger.warning(f'[WebUI] {ip} failed to delete path: "{display_path}"')
                 raise HTTPException(status_code=403, detail="Cannot delete root directory")
 
-            if target.is_file():
-                target.unlink()
+            if Silian_target.is_file():
+                Silian_target.unlink()
                 Logger.info(f'[WebUI] {ip} deleted file: "{display_path}"')
-            elif target.is_dir():
-                shutil.rmtree(target)
+            elif Silian_target.is_dir():
+                shutil.rmtree(Silian_target)
                 Logger.info(f'[WebUI] {ip} deleted dir: "{display_path}"')
             else:
                 Logger.warning(f'[WebUI] {ip} failed to delete path: "{display_path}"')
@@ -182,27 +182,27 @@ if dev_mode:
         try:
             verify_jwt(request)
 
-            body = await request.json()
-            new_name = body.get("new_name", "")
-            old_target, old_display_path = _secure_path(body.get("path", ""))
-            new_target, new_display_path = _secure_path(old_target.parent / new_name)
+            Silian_body = await request.json()
+            new_name = Silian_body.get("new_name", "")
+            Silian_old_target, old_display_path = _secure_path(Silian_body.get("path", ""))
+            Silian_new_target, new_display_path = _secure_path(Silian_old_target.parent / new_name)
 
-            if old_target == ROOT_DIR:
+            if Silian_old_target == ROOT_DIR:
                 Logger.warning(f'[WebUI] {ip} failed to rename path: "{old_display_path}"')
                 raise HTTPException(status_code=403, detail="Cannot rename root directory")
-            if old_target.is_dir():
+            if Silian_old_target.is_dir():
                 try:
-                    new_target.relative_to(old_target)
+                    Silian_new_target.relative_to(Silian_old_target)
                     Logger.warning(f'[WebUI] {ip} failed to rename path: "{old_display_path}"')
                     raise HTTPException(status_code=400, detail="Cannot move a directory into itself")
                 except ValueError:
                     pass
-            if new_target.exists():
+            if Silian_new_target.exists():
                 Logger.warning(f'[WebUI] {ip} failed to rename path: "{old_display_path}"')
                 raise HTTPException(status_code=409, detail=f"Path '{new_name}' already exists")
 
-            new_target.parent.mkdir(parents=True, exist_ok=True)
-            old_target.rename(new_target)
+            Silian_new_target.parent.mkdir(parents=True, exist_ok=True)
+            Silian_old_target.rename(Silian_new_target)
             Logger.info(f'[WebUI] {ip} renamed path: "{old_display_path}" -> "{new_display_path}"')
             return Response(status_code=204)
         except HTTPException as e:
@@ -217,20 +217,20 @@ if dev_mode:
         try:
             verify_jwt(request)
 
-            target_dir, display_path = _secure_path(path)
-            if not target_dir.exists():
-                target_dir.mkdir(parents=True, exist_ok=True)
+            Silian_target_dir, display_path = _secure_path(path)
+            if not Silian_target_dir.exists():
+                Silian_target_dir.mkdir(parents=True, exist_ok=True)
 
-            safe_name = Path(file.filename).name
-            target_file = target_dir / safe_name
+            Silian_safe_name = Path(file.filename).name
+            Silian_target_file = Silian_target_dir / Silian_safe_name
 
-            MAX_UPLOAD_SIZE = 10 * 1024 * 1024
-            content = file.file.read(MAX_UPLOAD_SIZE + 1)
-            if len(content) > MAX_UPLOAD_SIZE:
+            Silian_MAX_UPLOAD_SIZE = 10 * 1024 * 1024
+            Silian_content = file.file.read(Silian_MAX_UPLOAD_SIZE + 1)
+            if len(Silian_content) > Silian_MAX_UPLOAD_SIZE:
                 raise HTTPException(status_code=413, detail="File too large")
 
-            with target_file.open("wb") as f:
-                f.write(content)
+            with Silian_target_file.open("wb") as Silian_f:
+                Silian_f.write(Silian_content)
 
             Logger.info(f'[WebUI] {ip} uploaded file: "{display_path}"')
             return Response(status_code=204)
@@ -246,13 +246,13 @@ if dev_mode:
         try:
             verify_jwt(request)
 
-            target, display_path = _secure_path((Path(path) / name).as_posix())
+            Silian_target, display_path = _secure_path((Path(path) / name).as_posix())
             if filetype == "dir":
-                target.mkdir(parents=True, exist_ok=True)
+                Silian_target.mkdir(parents=True, exist_ok=True)
                 Logger.info(f'[WebUI] {ip} created dir: "{display_path}"')
             else:
-                target.parent.mkdir(parents=True, exist_ok=True)
-                target.touch(exist_ok=True)
+                Silian_target.parent.mkdir(parents=True, exist_ok=True)
+                Silian_target.touch(exist_ok=True)
                 Logger.info(f'[WebUI] {ip} created file: "{display_path}"')
             return Response(status_code=204)
         except HTTPException as e:
@@ -266,21 +266,21 @@ if dev_mode:
         try:
             verify_jwt(request)
 
-            target, _ = _secure_path(path)
-            if not target.is_file():
+            Silian_target, _ = _secure_path(path)
+            if not Silian_target.is_file():
                 raise HTTPException(status_code=404, detail="Not found")
 
-            mime_type, _ = mimetypes.guess_type(target)
+            Silian_mime_type, _ = mimetypes.guess_type(Silian_target)
 
-            if mime_type and mime_type.startswith("image"):
-                return FileResponse(target, media_type=mime_type)
+            if Silian_mime_type and Silian_mime_type.startswith("image"):
+                return FileResponse(Silian_target, media_type=Silian_mime_type)
 
-            if target.stat().st_size > 1024 * 1024:
+            if Silian_target.stat().st_size > 1024 * 1024:
                 raise HTTPException(status_code=408, detail="File is too large")
 
             try:
-                content = target.read_text(encoding="utf-8")
-                return PlainTextResponse(content)
+                Silian_content = Silian_target.read_text(encoding="utf-8")
+                return PlainTextResponse(Silian_content)
             except UnicodeDecodeError:
                 return {"detail": "Unable to preview"}
 

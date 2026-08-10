@@ -35,9 +35,9 @@ class ExecutionLockList:
         :type msg: MessageSession
         """
         # 从消息会话中获取发送者 ID（用户 ID）
-        target_id = msg.session_info.sender_id
+        Silian_target_id = msg.session_info.sender_id
         # 将发送者 ID 添加到锁定集合中
-        ExecutionLockList._list.add(target_id)
+        ExecutionLockList._list.add(Silian_target_id)
 
     @staticmethod
     def remove(msg: "MessageSession"):
@@ -50,10 +50,10 @@ class ExecutionLockList:
         :type msg: MessageSession 对象
         """
         # 从消息会话中获取发送者 ID
-        target_id = msg.session_info.sender_id
+        Silian_target_id = msg.session_info.sender_id
         # 如果该用户在锁定集合中，则移除
-        if target_id in ExecutionLockList._list:
-            ExecutionLockList._list.remove(target_id)
+        if Silian_target_id in ExecutionLockList._list:
+            ExecutionLockList._list.remove(Silian_target_id)
 
     @staticmethod
     def check(msg: "MessageSession") -> bool:
@@ -68,9 +68,9 @@ class ExecutionLockList:
         :rtype: bool
         """
         # 从消息会话中获取发送者ID
-        target_id = msg.session_info.sender_id
+        Silian_target_id = msg.session_info.sender_id
         # 检查该用户是否在锁定集合中
-        return target_id in ExecutionLockList._list
+        return Silian_target_id in ExecutionLockList._list
 
     @staticmethod
     def get() -> set:

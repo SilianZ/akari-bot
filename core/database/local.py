@@ -20,13 +20,13 @@ class DirtyWordCache(DBModel):
         table = "dirty_word_cache"
 
     @classmethod
-    async def check(cls, query_word):
-        query = await cls.filter(desc=query_word).first()
+    async def check(Silian_cls, query_word):
+        Silian_query = await Silian_cls.filter(desc=query_word).first()
 
-        if query and time.time() - query.timestamp.timestamp() > 86400:
-            await query.delete()
+        if Silian_query and time.time() - Silian_query.timestamp.timestamp() > 86400:
+            await Silian_query.delete()
 
-        return query
+        return Silian_query
 
 
 class CrowdinActivityRecords(DBModel):
@@ -36,12 +36,12 @@ class CrowdinActivityRecords(DBModel):
         table = "crowdin_activity_records"
 
     @classmethod
-    async def check(cls, txt: str):
-        query_hash = hashlib.sha256(txt.encode(encoding="UTF-8")).hexdigest()
+    async def check(Silian_cls, txt: str):
+        Silian_query_hash = hashlib.sha256(txt.encode(encoding="UTF-8")).hexdigest()
 
-        query = await cls.filter(hash_id=query_hash).first()
-        if not query:
-            query = await cls.create(hash_id=query_hash)
-            await query.save()
+        Silian_query = await Silian_cls.filter(hash_id=Silian_query_hash).first()
+        if not Silian_query:
+            Silian_query = await Silian_cls.create(hash_id=Silian_query_hash)
+            await Silian_query.save()
             return False
         return True

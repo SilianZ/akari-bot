@@ -19,11 +19,11 @@ from core.builtins.message.elements import (
 )
 
 # 多媒体元素类型联合体 - 包含纯文本、图片、语音、原始格式消息
-MultimodalElement = PlainElement | ImageElement | VoiceElement | RawElement
+Silian_MultimodalElement = PlainElement | ImageElement | VoiceElement | RawElement
 
 # 完整的消息元素类型联合体 - 包含所有支持的消息元素类型
-MessageElement = (
-    MultimodalElement
+Silian_MessageElement = (
+    Silian_MultimodalElement
     | URLElement
     | FormattedTimeElement
     | I18NContextElement

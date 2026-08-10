@@ -19,25 +19,25 @@ class AiogramContextManager(ContextManager):
     features: type[Features] | None = Features
 
     @classmethod
-    async def check_native_permission(cls, session_info: SessionInfo) -> bool:
+    async def check_native_permission(Silian_cls, session_info: SessionInfo) -> bool:
         # if session_info.session_id not in cls.context:
         #     raise ValueError("Session not found in context")
         # 这里可以添加权限检查的逻辑
-        ctx: types.Message = cls.context.get(session_info.session_id)
-        if not ctx:
-            chat = await aiogram_bot.get_chat(session_info.get_common_target_id())
+        Silian_ctx: types.Message = Silian_cls.context.get(session_info.session_id)
+        if not Silian_ctx:
+            Silian_chat = await aiogram_bot.get_chat(session_info.get_common_target_id())
         else:
-            chat = ctx.chat
-        if chat.type == "private":
+            Silian_chat = Silian_ctx.chat
+        if Silian_chat.type == "private":
             return True
-        admins = [member.user.id for member in await aiogram_bot.get_chat_administrators(chat.id)]
-        if ctx.from_user and ctx.from_user.id in admins:
+        Silian_admins = [Silian_member.user.id for Silian_member in await aiogram_bot.get_chat_administrators(Silian_chat.id)]
+        if Silian_ctx.from_user and Silian_ctx.from_user.id in Silian_admins:
             return True
         return False
 
     @classmethod
     async def send_message(
-        cls,
+        Silian_cls,
         session_info: SessionInfo,
         message: MessageChain | MessageNodes,
         quote: bool = True,
@@ -52,7 +52,7 @@ class AiogramContextManager(ContextManager):
         async def send_buffer_text():
             nonlocal buffer_text, msg_ids
             if buffer_text:
-                send_ = await aiogram_bot.send_message(
+                Silian_send_ = await aiogram_bot.send_message(
                     session_info.get_common_target_id(),
                     "\n".join(buffer_text),
                     reply_to_message_id=(
@@ -60,26 +60,26 @@ class AiogramContextManager(ContextManager):
                     ),
                     parse_mode="HTML",
                 )
-                msg_ids.append(send_.message_id)
+                msg_ids.append(Silian_send_.message_id)
                 buffer_text = []
 
         if isinstance(message, MessageNodes):
             message = MessageChain.assign(await msgnode2image(message))
 
-        count = 0
+        Silian_count = 0
         for x in message.as_sendable(session_info, parse_message=enable_parse_message):
             if isinstance(x, PlainElement):
                 if enable_parse_message:
                     x.text = match_atcode(x.text, client_name, '<a href="tg://user?id={uid}">@{uid}</a>')
                 buffer_text.append(x.text)
                 Logger.info(f"[Bot] -> [{session_info.target_id}]: {x.text}")
-                count += 1
+                Silian_count += 1
             elif isinstance(x, ImageElement):
                 await send_buffer_text()
                 if enable_split_image:
-                    split = await image_split(x)
-                    for xs in split:
-                        send_ = await aiogram_bot.send_photo(
+                    Silian_split = await image_split(x)
+                    for xs in Silian_split:
+                        Silian_send_ = await aiogram_bot.send_photo(
                             session_info.get_common_target_id(),
                             FSInputFile(await xs.get()),
                             reply_to_message_id=(
@@ -87,9 +87,9 @@ class AiogramContextManager(ContextManager):
                             ),
                         )
                         Logger.info(f"[Bot] -> [{session_info.target_id}]: Image: {str(xs)}")
-                        msg_ids.append(send_.message_id)
+                        msg_ids.append(Silian_send_.message_id)
                 else:
-                    send_ = await aiogram_bot.send_photo(
+                    Silian_send_ = await aiogram_bot.send_photo(
                         session_info.get_common_target_id(),
                         FSInputFile(await x.get()),
                         reply_to_message_id=(
@@ -97,11 +97,11 @@ class AiogramContextManager(ContextManager):
                         ),
                     )
                     Logger.info(f"[Bot] -> [{session_info.target_id}]: Image: {str(x)}")
-                    msg_ids.append(send_.message_id)
-                count += 1
+                    msg_ids.append(Silian_send_.message_id)
+                Silian_count += 1
             elif isinstance(x, VoiceElement):
                 await send_buffer_text()
-                send_ = await aiogram_bot.send_audio(
+                Silian_send_ = await aiogram_bot.send_audio(
                     session_info.get_common_target_id(),
                     FSInputFile(x.path),
                     reply_to_message_id=(
@@ -109,8 +109,8 @@ class AiogramContextManager(ContextManager):
                     ),
                 )
                 Logger.info(f"[Bot] -> [{session_info.target_id}]: Voice: {str(x)}")
-                msg_ids.append(send_.message_id)
-                count += 1
+                msg_ids.append(Silian_send_.message_id)
+                Silian_count += 1
             elif isinstance(x, MentionElement):
                 if x.client == client_name and session_info.target_from in [
                     f"{client_name}|Group",
@@ -118,15 +118,15 @@ class AiogramContextManager(ContextManager):
                 ]:
                     buffer_text.append(f'<a href="tg://user?id={x.id}">@{x.id}</a>')
                     Logger.info(f"[Bot] -> [{session_info.target_id}]: Mention: {x.client}|{x.id}")
-                count += 1
+                Silian_count += 1
 
-            if count == len(message):
+            if Silian_count == len(message):
                 await send_buffer_text()
         return msg_ids
 
     @classmethod
     async def delete_message(
-        cls, session_info: SessionInfo, message_id: str | list[str], reason: str | None = None
+        Silian_cls, session_info: SessionInfo, message_id: str | list[str], reason: str | None = None
     ) -> None:
         # if session_info.session_id not in cls.context:
         #     raise ValueError("Session not found in context")
@@ -145,16 +145,16 @@ class AiogramContextManager(ContextManager):
 
     @classmethod
     async def restrict_member(
-        cls, session_info: SessionInfo, user_id: str | list[str], duration: int | None = None, reason: str | None = None
+        Silian_cls, session_info: SessionInfo, user_id: str | list[str], duration: int | None = None, reason: str | None = None
     ) -> None:
         if isinstance(user_id, str):
             user_id = [user_id]
         if not isinstance(user_id, list):
             raise TypeError("User ID must be a list or str")
 
-        until_date = None
+        Silian_until_date = None
         if duration:
-            until_date = datetime.now() + timedelta(seconds=duration)
+            Silian_until_date = datetime.now() + timedelta(seconds=duration)
         if session_info.target_from != f"{client_name}|Private":
             for x in user_id:
                 try:
@@ -168,7 +168,7 @@ class AiogramContextManager(ContextManager):
                             can_send_other_messages=False,
                             can_add_web_page_previews=False,
                         ),
-                        until_date=until_date,
+                        until_date=Silian_until_date,
                     )
                     Logger.info(
                         f"Restricted member {x}{f' ({duration}s)' if duration else ' '} in group {
@@ -179,7 +179,7 @@ class AiogramContextManager(ContextManager):
                     Logger.exception(f"Failed to restrict member {x} in group {session_info.target_id}: ")
 
     @classmethod
-    async def unrestrict_member(cls, session_info: SessionInfo, user_id: str | list[str]) -> None:
+    async def unrestrict_member(Silian_cls, session_info: SessionInfo, user_id: str | list[str]) -> None:
         if isinstance(user_id, str):
             user_id = [user_id]
         if not isinstance(user_id, list):
@@ -204,7 +204,7 @@ class AiogramContextManager(ContextManager):
                     Logger.exception(f"Failed to unrestrict member {x} in group {session_info.target_id}: ")
 
     @classmethod
-    async def kick_member(cls, session_info: SessionInfo, user_id: str | list[str], reason: str | None = None) -> None:
+    async def kick_member(Silian_cls, session_info: SessionInfo, user_id: str | list[str], reason: str | None = None) -> None:
         if isinstance(user_id, str):
             user_id = [user_id]
         if not isinstance(user_id, list):
@@ -224,7 +224,7 @@ class AiogramContextManager(ContextManager):
                     Logger.exception(f"Failed to kick member {x} in group {session_info.target_id}: ")
 
     @classmethod
-    async def ban_member(cls, session_info: SessionInfo, user_id: str | list[str], reason: str | None = None) -> None:
+    async def ban_member(Silian_cls, session_info: SessionInfo, user_id: str | list[str], reason: str | None = None) -> None:
         if isinstance(user_id, str):
             user_id = [user_id]
         if not isinstance(user_id, list):
@@ -241,7 +241,7 @@ class AiogramContextManager(ContextManager):
                     Logger.exception(f"Failed to ban member {x} in group {session_info.target_id}: ")
 
     @classmethod
-    async def unban_member(cls, session_info: SessionInfo, user_id: str | list[str]) -> None:
+    async def unban_member(Silian_cls, session_info: SessionInfo, user_id: str | list[str]) -> None:
         if isinstance(user_id, str):
             user_id = [user_id]
         if not isinstance(user_id, list):
@@ -258,15 +258,15 @@ class AiogramContextManager(ContextManager):
                     Logger.exception(f"Failed to unban member {x} in group {session_info.target_id}: ")
 
     @classmethod
-    async def start_typing(cls, session_info: SessionInfo) -> None:
+    async def start_typing(Silian_cls, session_info: SessionInfo) -> None:
         pass
 
     @classmethod
-    async def end_typing(cls, session_info: SessionInfo) -> None:
+    async def end_typing(Silian_cls, session_info: SessionInfo) -> None:
         pass
 
     @classmethod
-    async def error_signal(cls, session_info: SessionInfo) -> None:
+    async def error_signal(Silian_cls, session_info: SessionInfo) -> None:
         pass
 
 

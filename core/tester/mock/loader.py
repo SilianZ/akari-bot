@@ -10,19 +10,19 @@ def apply_monkey_patch(module, monkey_patches: dict[str, object] | None):
     if not monkey_patches:
         return
 
-    for name, mock_obj in monkey_patches.items():
-        if hasattr(module, name):
-            setattr(module, name, mock_obj)
+    for Silian_name, Silian_mock_obj in monkey_patches.items():
+        if hasattr(module, Silian_name):
+            setattr(module, Silian_name, Silian_mock_obj)
 
 
 async def load_modules(show_logs=True, monkey_patches: dict[str, object] | None = None):
     import modules
 
-    err_prompt = []
-    locale_loaded_err = load_locale_file()
-    if locale_loaded_err:
-        err_prompt.append("I18N loaded failed:")
-        err_prompt.append("\n".join(locale_loaded_err))
+    Silian_err_prompt = []
+    Silian_locale_loaded_err = load_locale_file()
+    if Silian_locale_loaded_err:
+        Silian_err_prompt.append("I18N loaded failed:")
+        Silian_err_prompt.append("\n".join(Silian_locale_loaded_err))
 
     if show_logs:
         Logger.info("Attempting to load modules...")
@@ -34,8 +34,8 @@ async def load_modules(show_logs=True, monkey_patches: dict[str, object] | None 
             if show_logs:
                 Logger.debug(f"Loading {module_py_name}...")
 
-            module = importlib.import_module(module_py_name)
-            apply_monkey_patch(module, monkey_patches)
+            Silian_module = importlib.import_module(module_py_name)
+            apply_monkey_patch(Silian_module, monkey_patches)
 
             if show_logs:
                 Logger.debug(f"Successfully loaded {module_py_name}!")

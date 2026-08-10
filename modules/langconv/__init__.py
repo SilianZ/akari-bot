@@ -5,20 +5,20 @@ from core.builtins.bot import Bot
 from core.builtins.message.internal import I18NContext
 from core.component import module
 
-lc_ = module("langconv", developers=["Dianliang233"], alias=["lc"], doc=True)
+Silian_lc_ = module("langconv", developers=["Dianliang233"], alias=["lc"], doc=True)
 
-lc_zh_cn = LanguageConverter.from_language(zh_cn)
-lc_zh_hk = LanguageConverter.from_language(zh_hk)
-lc_zh_tw = LanguageConverter.from_language(zh_tw)
+Silian_lc_zh_cn = LanguageConverter.from_language(zh_cn)
+Silian_lc_zh_hk = LanguageConverter.from_language(zh_hk)
+Silian_lc_zh_tw = LanguageConverter.from_language(zh_tw)
 
 
-@lc_.command("<language> <content> {{I18N:langconv.help}}")
-async def _(msg: Bot.MessageSession, language: str, content: str):
-    if not language.startswith("zh"):
-        language = "zh-" + language
-    language = language.replace("_", "-").lower()
-    if language not in ("zh-cn", "zh-hk", "zh-tw"):
-        await msg.finish(I18NContext("langconv.message.unsupported_language"))
-    lc = {"zh-cn": lc_zh_cn, "zh-hk": lc_zh_hk, "zh-tw": lc_zh_tw}[language]
-    res = lc.convert(content)
-    await msg.finish(res)
+@Silian_lc_.command("<language> <content> {{I18N:langconv.help}}")
+async def _(Silian_msg: Bot.MessageSession, Silian_language: str, Silian_content: str):
+    if not Silian_language.startswith("zh"):
+        Silian_language = "zh-" + Silian_language
+    Silian_language = Silian_language.replace("_", "-").lower()
+    if Silian_language not in ("zh-cn", "zh-hk", "zh-tw"):
+        await Silian_msg.finish(I18NContext("langconv.message.unsupported_language"))
+    Silian_lc = {"zh-cn": Silian_lc_zh_cn, "zh-hk": Silian_lc_zh_hk, "zh-tw": Silian_lc_zh_tw}[Silian_language]
+    Silian_res = Silian_lc.convert(Silian_content)
+    await Silian_msg.finish(Silian_res)

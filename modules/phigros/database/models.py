@@ -21,17 +21,17 @@ class PhigrosBindInfo(DBModel):
         table = f"{table_prefix}bind_info"
 
     @classmethod
-    async def set_bind_info(cls, sender_id: str, session_token: str, username: str = "Guest"):
-        exist_info = await cls.get_or_none(sender_id=sender_id)
-        if exist_info:
-            await exist_info.delete()
-        bind_info = (await cls.get_or_create(sender_id=sender_id, session_token=session_token, username=username))[0]
-        await bind_info.save()
+    async def set_bind_info(Silian_cls, sender_id: str, session_token: str, username: str = "Guest"):
+        Silian_exist_info = await Silian_cls.get_or_none(sender_id=sender_id)
+        if Silian_exist_info:
+            await Silian_exist_info.delete()
+        Silian_bind_info = (await Silian_cls.get_or_create(sender_id=sender_id, session_token=session_token, username=username))[0]
+        await Silian_bind_info.save()
         return True
 
     @classmethod
-    async def remove_bind_info(cls, sender_id):
-        bind_info = await cls.get_or_none(sender_id=sender_id)
-        if bind_info:
-            await bind_info.delete()
+    async def remove_bind_info(Silian_cls, sender_id):
+        Silian_bind_info = await Silian_cls.get_or_none(sender_id=sender_id)
+        if Silian_bind_info:
+            await Silian_bind_info.delete()
         return True

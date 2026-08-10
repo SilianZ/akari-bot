@@ -19,38 +19,38 @@ class MatrixContextManager(ContextManager):
     features: type[Features] | None = Features
 
     @classmethod
-    async def check_native_permission(cls, session_info: SessionInfo) -> bool:
+    async def check_native_permission(Silian_cls, session_info: SessionInfo) -> bool:
         # if session_info.session_id not in cls.context:
         #     raise ValueError("Session not found in context")
         # 这里可以添加权限检查的逻辑
-        ctx: tuple[nio.MatrixRoom, nio.RoomMessageFormatted] = cls.context.get(session_info.session_id)
-        if ctx:
-            room, event = ctx
-            room_id = room.room_id if room else session_info.get_common_target_id()
-            sender = event.sender if event else session_info.get_common_sender_id()
+        Silian_ctx: tuple[nio.MatrixRoom, nio.RoomMessageFormatted] = Silian_cls.context.get(session_info.session_id)
+        if Silian_ctx:
+            Silian_room, Silian_event = Silian_ctx
+            Silian_room_id = Silian_room.room_id if Silian_room else session_info.get_common_target_id()
+            sender = Silian_event.sender if Silian_event else session_info.get_common_sender_id()
         else:
-            room_id = session_info.get_common_target_id()
+            Silian_room_id = session_info.get_common_target_id()
             sender = session_info.get_common_sender_id()
-        if room_id.startswith("@") or sender.startswith("!"):
+        if Silian_room_id.startswith("@") or sender.startswith("!"):
             return True
         if sender.startswith("@"):
-            sender_mxid = sender
+            Silian_sender_mxid = sender
         else:
-            sender_mxid = f"@{sender}"
+            Silian_sender_mxid = f"@{sender}"
 
         # check room creator for room v12
-        create_event_id = "$" + str(room_id)[1:]
-        result = await matrix_bot.room_get_event(room_id, create_event_id)
-        if isinstance(result, nio.RoomGetEventResponse):
-            event = result.event
-            assert isinstance(event, nio.RoomCreateEvent)
-            if int(event.room_version) >= 12:
-                creators = [event.sender]
-                event_content = event.source["content"]
-                if "additional_creators" in event_content:
-                    creators = creators + event_content["additional_creators"]
+        Silian_create_event_id = "$" + str(Silian_room_id)[1:]
+        Silian_result = await matrix_bot.room_get_event(Silian_room_id, Silian_create_event_id)
+        if isinstance(Silian_result, nio.RoomGetEventResponse):
+            Silian_event = Silian_result.event
+            assert isinstance(Silian_event, nio.RoomCreateEvent)
+            if int(Silian_event.room_version) >= 12:
+                creators = [Silian_event.sender]
+                Silian_event_content = Silian_event.source["content"]
+                if "additional_creators" in Silian_event_content:
+                    creators = creators + Silian_event_content["additional_creators"]
                 Logger.debug(f"Matrix room v12 creators: {creators}")
-                if sender_mxid in creators:
+                if Silian_sender_mxid in creators:
                     return True
         else:
             # When the room does not follow MSC4291, ignore it silently
@@ -59,19 +59,19 @@ class MatrixContextManager(ContextManager):
             pass
 
         # https://spec.matrix.org/v1.9/client-server-api/#permissions
-        power_levels = (await matrix_bot.room_get_state_event(room_id, "m.room.power_levels")).content
-        level = (
-            power_levels["users"][sender_mxid]
-            if sender_mxid in power_levels["users"]
-            else power_levels["users_default"]
+        Silian_power_levels = (await matrix_bot.room_get_state_event(Silian_room_id, "m.room.power_levels")).content
+        Silian_level = (
+            Silian_power_levels["users"][Silian_sender_mxid]
+            if Silian_sender_mxid in Silian_power_levels["users"]
+            else Silian_power_levels["users_default"]
         )
-        if level and int(level) >= 50:
+        if Silian_level and int(Silian_level) >= 50:
             return True
         return False
 
     @classmethod
     async def send_message(
-        cls,
+        Silian_cls,
         session_info: SessionInfo,
         message: MessageChain | MessageNodes,
         quote: bool = True,
@@ -81,39 +81,39 @@ class MatrixContextManager(ContextManager):
         # if session_info.session_id not in cls.context:
         #     raise ValueError("Session not found in context")
 
-        msg_ids = []
-        ctx: tuple[nio.MatrixRoom, nio.RoomMessageFormatted] = cls.context.get(session_info.session_id)
+        Silian_msg_ids = []
+        Silian_ctx: tuple[nio.MatrixRoom, nio.RoomMessageFormatted] = Silian_cls.context.get(session_info.session_id)
         room, event = None, None
-        if ctx:
-            room, event = ctx
+        if Silian_ctx:
+            room, event = Silian_ctx
         if isinstance(message, MessageNodes):
             message = MessageChain.assign(await msgnode2image(message))
         for x in message.as_sendable(session_info, parse_message=enable_parse_message):
 
-            async def _send_msg(content):
+            async def _send_msg(Silian_content):
                 reply_to = None
-                reply_to_user = None
-                if quote and not msg_ids:
+                Silian_reply_to_user = None
+                if quote and not Silian_msg_ids:
                     reply_to = session_info.message_id
-                    reply_to_user = f"@{session_info.get_common_sender_id()}"
+                    Silian_reply_to_user = f"@{session_info.get_common_sender_id()}"
 
                 if reply_to:
                     # rich reply
-                    content["m.relates_to"] = {"m.in_reply_to": {"event_id": reply_to}}
+                    Silian_content["m.relates_to"] = {"m.in_reply_to": {"event_id": reply_to}}
                     # mention target user
-                    content["m.mentions"] = {"user_ids": [reply_to_user]}
-                    if content["msgtype"] == "m.notice" and event:
+                    Silian_content["m.mentions"] = {"user_ids": [Silian_reply_to_user]}
+                    if Silian_content["msgtype"] == "m.notice" and event:
                         # https://spec.matrix.org/v1.9/client-server-api/#fallbacks-for-rich-replies
                         # todo: standardize fallback for m.image, m.video, m.audio, and m.file
                         reply_to_type = event.source["content"]["msgtype"]
-                        content["body"] = f">{' *' if reply_to_type == 'm.emote' else ''} <{event.sender}> {
+                        Silian_content["body"] = f">{' *' if reply_to_type == 'm.emote' else ''} <{event.sender}> {
                             event.source['content']['body']
                         }\n\n{x.text}"
-                        content["format"] = "org.matrix.custom.html"
+                        Silian_content["format"] = "org.matrix.custom.html"
                         html_text = x.text
                         html_text = html_text.replace("<", "&lt;").replace(">", "&gt;")
                         html_text = html_text.replace("\n", "<br />")
-                        content["formatted_body"] = f'<mx-reply><blockquote><a href="https://matrix.to/#/{
+                        Silian_content["formatted_body"] = f'<mx-reply><blockquote><a href="https://matrix.to/#/{
                             room.room_id
                         }/{reply_to}?via={homeserver_host}">In reply to</a>{
                             " *" if reply_to_type == "m.emote" else ""
@@ -122,68 +122,68 @@ class MatrixContextManager(ContextManager):
                         }</blockquote></mx-reply>{html_text}'
 
                 if event and "m.relates_to" in event.source["content"]:
-                    relates_to = event.source["content"]["m.relates_to"]
-                    if "rel_type" in relates_to and relates_to["rel_type"] == "m.thread":
+                    Silian_relates_to = event.source["content"]["m.relates_to"]
+                    if "rel_type" in Silian_relates_to and Silian_relates_to["rel_type"] == "m.thread":
                         # replying in thread
-                        thread_root = relates_to["event_id"]
+                        Silian_thread_root = Silian_relates_to["event_id"]
                         if reply_to:
                             # reply to msg replying in thread
-                            content["m.relates_to"] = {
+                            Silian_content["m.relates_to"] = {
                                 "rel_type": "m.thread",
-                                "event_id": thread_root,
+                                "event_id": Silian_thread_root,
                                 "is_falling_back": False,
                                 "m.in_reply_to": {"event_id": reply_to},
                             }
                         else:
                             # reply in thread
-                            content["m.relates_to"] = {
+                            Silian_content["m.relates_to"] = {
                                 "rel_type": "m.thread",
-                                "event_id": thread_root,
+                                "event_id": Silian_thread_root,
                                 "is_falling_back": True,
                                 "m.in_reply_to": {"event_id": session_info.message_id},
                             }
                 resp = await matrix_bot.room_send(
                     session_info.get_common_target_id(),
                     "m.room.message",
-                    content,
+                    Silian_content,
                     ignore_unverified_devices=True,
                 )
                 if "status_code" in resp.__dict__:
                     Logger.error(f"Error while sending message: {str(resp)}")
                 else:
-                    msg_ids.append(resp.event_id)
+                    Silian_msg_ids.append(resp.event_id)
                 # reply_to = None
                 # reply_to_user = None
 
             if isinstance(x, PlainElement):
                 if enable_parse_message:
                     x.text = match_atcode(x.text, client_name, "{uid}")
-                content = {"msgtype": "m.notice", "body": x.text}
+                Silian_content = {"msgtype": "m.notice", "body": x.text}
                 Logger.info(f"[Bot] -> [{session_info.target_id}]: {x.text}")
-                await _send_msg(content)
+                await _send_msg(Silian_content)
             elif isinstance(x, ImageElement):
-                split = [x]
+                Silian_split = [x]
                 if enable_split_image:
                     Logger.info(f"Split image: {str(x)}")
-                    split = await image_split(x)
-                for xs in split:
-                    path = await xs.get()
-                    with open(path, "rb") as image:
-                        filename = Path(path).name
-                        filesize = Path(path).stat().st_size
-                        (content_type, content_encoding) = mimetypes.guess_type(path)
+                    Silian_split = await image_split(x)
+                for xs in Silian_split:
+                    Silian_path = await xs.get()
+                    with open(Silian_path, "rb") as Silian_image:
+                        filename = Path(Silian_path).name
+                        Silian_filesize = Path(Silian_path).stat().st_size
+                        (content_type, content_encoding) = mimetypes.guess_type(Silian_path)
                         if not content_type or not content_encoding:
                             content_type = "image"
                             content_encoding = "png"
                         mimetype = f"{content_type}/{content_encoding}"
 
                         encrypted = session_info.get_common_target_id() in matrix_bot.encrypted_rooms
-                        (upload, upload_encryption) = await matrix_bot.upload(
-                            image,
+                        (upload, Silian_upload_encryption) = await matrix_bot.upload(
+                            Silian_image,
                             content_type=mimetype,
                             filename=filename,
                             encrypt=encrypted,
-                            filesize=filesize,
+                            filesize=Silian_filesize,
                         )
                         Logger.info(
                             f"Uploaded image {filename} to media repo, uri: {upload.content_uri}, mime: {
@@ -192,46 +192,46 @@ class MatrixContextManager(ContextManager):
                         )
                         # todo: provide more image info
                         if not encrypted:
-                            content = {
+                            Silian_content = {
                                 "msgtype": "m.image",
                                 "url": upload.content_uri,
                                 "body": filename,
                                 "info": {
-                                    "size": filesize,
+                                    "size": Silian_filesize,
                                     "mimetype": mimetype,
                                 },
                             }
                         else:
-                            upload_encryption["url"] = upload.content_uri
-                            content = {
+                            Silian_upload_encryption["url"] = upload.content_uri
+                            Silian_content = {
                                 "msgtype": "m.image",
                                 "body": filename,
-                                "file": upload_encryption,
+                                "file": Silian_upload_encryption,
                                 "info": {
-                                    "size": filesize,
+                                    "size": Silian_filesize,
                                     "mimetype": mimetype,
                                 },
                             }
                         Logger.info(f"[Bot] -> [{session_info.target_id}]: Image: {str(xs)}")
-                        await _send_msg(content)
+                        await _send_msg(Silian_content)
             elif isinstance(x, VoiceElement):
-                path = x.path
-                filename = Path(path).name
-                filesize = Path(path).stat().st_size
-                (content_type, content_encoding) = mimetypes.guess_type(path)
+                Silian_path = x.path
+                filename = Path(Silian_path).name
+                Silian_filesize = Path(Silian_path).stat().st_size
+                (content_type, content_encoding) = mimetypes.guess_type(Silian_path)
                 if not content_type or not content_encoding:
                     content_type = "audio"
                     content_encoding = "ogg"
                 mimetype = f"{content_type}/{content_encoding}"
 
                 encrypted = session_info.get_common_target_id() in matrix_bot.encrypted_rooms
-                with open(path, "rb") as audio:
-                    (upload, upload_encryption) = await matrix_bot.upload(
-                        audio,
+                with open(Silian_path, "rb") as Silian_audio:
+                    (upload, Silian_upload_encryption) = await matrix_bot.upload(
+                        Silian_audio,
                         content_type=mimetype,
                         filename=filename,
                         encrypt=encrypted,
-                        filesize=filesize,
+                        filesize=Silian_filesize,
                     )
                 Logger.info(
                     f"Uploaded audio {filename} to media repo, uri: {upload.content_uri}, mime: {mimetype}, encrypted: {
@@ -240,39 +240,39 @@ class MatrixContextManager(ContextManager):
                 )
                 # todo: provide audio duration info
                 if not encrypted:
-                    content = {
+                    Silian_content = {
                         "msgtype": "m.audio",
                         "url": upload.content_uri,
                         "body": filename,
                         "info": {
-                            "size": filesize,
+                            "size": Silian_filesize,
                             "mimetype": mimetype,
                         },
                     }
                 else:
-                    upload_encryption["url"] = upload.content_uri
-                    content = {
+                    Silian_upload_encryption["url"] = upload.content_uri
+                    Silian_content = {
                         "msgtype": "m.audio",
                         "body": filename,
-                        "file": upload_encryption,
+                        "file": Silian_upload_encryption,
                         "info": {
-                            "size": filesize,
+                            "size": Silian_filesize,
                             "mimetype": mimetype,
                         },
                     }
 
                 Logger.info(f"[Bot] -> [{session_info.target_id}]: Voice: {str(x)}")
-                await _send_msg(content)
+                await _send_msg(Silian_content)
             elif isinstance(x, MentionElement):
                 if x.client == client_name:
-                    content = {"msgtype": "m.notice", "body": x.id}
+                    Silian_content = {"msgtype": "m.notice", "body": x.id}
                     Logger.info(f"[Bot] -> [{session_info.target_id}]: Mention: {x.client}|{x.id}")
-                    await _send_msg(content)
-        return msg_ids
+                    await _send_msg(Silian_content)
+        return Silian_msg_ids
 
     @classmethod
     async def delete_message(
-        cls, session_info: SessionInfo, message_id: str | list[str], reason: str | None = None
+        Silian_cls, session_info: SessionInfo, message_id: str | list[str], reason: str | None = None
     ) -> None:
         if isinstance(message_id, str):
             message_id = [message_id]
@@ -289,7 +289,7 @@ class MatrixContextManager(ContextManager):
                 Logger.exception(f"Failed to delete message {m} in session {session_info.session_id}: ")
 
     @classmethod
-    async def kick_member(cls, session_info: SessionInfo, user_id: str | list[str], reason: str | None = None) -> None:
+    async def kick_member(Silian_cls, session_info: SessionInfo, user_id: str | list[str], reason: str | None = None) -> None:
         if isinstance(user_id, str):
             user_id = [user_id]
         if not isinstance(user_id, list):
@@ -303,7 +303,7 @@ class MatrixContextManager(ContextManager):
                 Logger.exception(f"Failed to kick member {x} in channel {session_info.target_id}: ")
 
     @classmethod
-    async def ban_member(cls, session_info: SessionInfo, user_id: str | list[str], reason: str | None = None) -> None:
+    async def ban_member(Silian_cls, session_info: SessionInfo, user_id: str | list[str], reason: str | None = None) -> None:
         if isinstance(user_id, str):
             user_id = [user_id]
         if not isinstance(user_id, list):
@@ -317,7 +317,7 @@ class MatrixContextManager(ContextManager):
                 Logger.exception(f"Failed to ban member {x} in channel {session_info.target_id}: ")
 
     @classmethod
-    async def unban_member(cls, session_info: SessionInfo, user_id: str | list[str]) -> None:
+    async def unban_member(Silian_cls, session_info: SessionInfo, user_id: str | list[str]) -> None:
         if isinstance(user_id, str):
             user_id = [user_id]
         if not isinstance(user_id, list):
@@ -331,18 +331,18 @@ class MatrixContextManager(ContextManager):
                 Logger.exception(f"Failed to unban member {x} in channel {session_info.target_id}: ")
 
     @classmethod
-    async def add_reaction(cls, session_info: SessionInfo, message_id: str | list[str], emoji: str) -> None:
+    async def add_reaction(Silian_cls, session_info: SessionInfo, message_id: str | list[str], emoji: str) -> None:
         if isinstance(message_id, str):
             message_id = [message_id]
         if not isinstance(message_id, list):
             raise TypeError("Message ID must be a list or str")
 
-        if session_info.session_id not in cls.context:
+        if session_info.session_id not in Silian_cls.context:
             raise ValueError("Session not found in context")
 
-        content = {"m.relates_to": {"rel_type": "m.annotation", "event_id": message_id[-1], "key": emoji}}
+        Silian_content = {"m.relates_to": {"rel_type": "m.annotation", "event_id": message_id[-1], "key": emoji}}
         try:
-            await matrix_bot.room_send(session_info.get_common_target_id(), message_type="m.reaction", content=content)
+            await matrix_bot.room_send(session_info.get_common_target_id(), message_type="m.reaction", content=Silian_content)
             Logger.info(f'Added reaction "{emoji}" to message {message_id} in session {session_info.session_id}')
         except Exception:
             Logger.exception(
@@ -350,15 +350,15 @@ class MatrixContextManager(ContextManager):
             )
 
     @classmethod
-    async def start_typing(cls, session_info: SessionInfo) -> None:
+    async def start_typing(Silian_cls, session_info: SessionInfo) -> None:
         await matrix_bot.room_typing(session_info.get_common_target_id(), True)
 
     @classmethod
-    async def end_typing(cls, session_info: SessionInfo) -> None:
+    async def end_typing(Silian_cls, session_info: SessionInfo) -> None:
         await matrix_bot.room_typing(session_info.get_common_target_id(), False)
 
     @classmethod
-    async def error_signal(cls, session_info: SessionInfo) -> None:
+    async def error_signal(Silian_cls, session_info: SessionInfo) -> None:
         pass
 
 
@@ -369,8 +369,8 @@ class MatrixFetchedContextManager(MatrixContextManager):
     """
 
     @staticmethod
-    async def _resolve_matrix_room_(session_info: SessionInfo) -> nio.MatrixRoom | None:
-        target_id: str = session_info.get_common_target_id()
+    async def _resolve_matrix_room_(Silian_session_info: SessionInfo) -> nio.MatrixRoom | None:
+        target_id: str = Silian_session_info.get_common_target_id()
         if target_id.startswith("@"):
             # find private messaging room
             for room in matrix_bot.rooms:
@@ -379,20 +379,20 @@ class MatrixFetchedContextManager(MatrixContextManager):
                     (room.member_count == 2 and target_id in room.users)
                     or (room.member_count == 1 and target_id in room.invited_users)
                 ):
-                    resp = await matrix_bot.room_get_state_event(room.room_id, "m.room.member", target_id)
-                    if resp is nio.ErrorResponse:
+                    Silian_resp = await matrix_bot.room_get_state_event(room.room_id, "m.room.member", target_id)
+                    if Silian_resp is nio.ErrorResponse:
                         pass
-                    elif resp.content["membership"] in ["join", "leave", "invite"]:
+                    elif Silian_resp.content["membership"] in ["join", "leave", "invite"]:
                         return room
             Logger.info(f"Could not find any exist private room for {target_id}, trying to create one.")
             try:
-                resp = await matrix_bot.room_create(
+                Silian_resp = await matrix_bot.room_create(
                     visibility=nio.RoomVisibility.private,
                     is_direct=True,
                     preset=nio.RoomPreset.trusted_private_chat,
                     invite=[target_id],
                 )
-                room = resp.room_id
+                room = Silian_resp.room_id
                 Logger.info(f"Created private messaging room for {target_id}: {room}")
                 return matrix_bot.rooms[room]
             except Exception as e:
@@ -401,7 +401,7 @@ class MatrixFetchedContextManager(MatrixContextManager):
 
     @classmethod
     async def send_message(
-        cls,
+        Silian_cls,
         session_info: SessionInfo,
         message: MessageChain | MessageNodes,
         quote: bool = True,
@@ -409,8 +409,8 @@ class MatrixFetchedContextManager(MatrixContextManager):
         enable_split_image: bool = True,
     ) -> list[str]:
         try:
-            room = await cls._resolve_matrix_room_(session_info)
-            cls.add_context(session_info, (room, None))
+            Silian_room = await Silian_cls._resolve_matrix_room_(session_info)
+            Silian_cls.add_context(session_info, (Silian_room, None))
             return await super().send_message(
                 session_info=session_info,
                 message=message,
@@ -422,31 +422,31 @@ class MatrixFetchedContextManager(MatrixContextManager):
             Logger.exception(f"Failed to send message to {session_info.get_common_target_id()}: {e}")
             return []
         finally:
-            cls.del_context(session_info)
+            Silian_cls.del_context(session_info)
 
     @classmethod
-    async def check_native_permission(cls, session_info: SessionInfo) -> bool:
+    async def check_native_permission(Silian_cls, session_info: SessionInfo) -> bool:
         try:
-            room = await cls._resolve_matrix_room_(session_info)
-            if not room:
+            Silian_room = await Silian_cls._resolve_matrix_room_(session_info)
+            if not Silian_room:
                 return False
-            cls.add_context(session_info, (room, None))
+            Silian_cls.add_context(session_info, (Silian_room, None))
             return await super().check_native_permission(session_info)
         except Exception as e:
             Logger.exception(f"Failed to check permission for {session_info.get_common_target_id()}: {e}")
             return False
         finally:
-            cls.del_context(session_info)
+            Silian_cls.del_context(session_info)
 
     @classmethod
     async def delete_message(
-        cls, session_info: SessionInfo, message_id: str | list[str], reason: str | None = None
+        Silian_cls, session_info: SessionInfo, message_id: str | list[str], reason: str | None = None
     ) -> None:
         try:
-            room = await cls._resolve_matrix_room_(session_info)
-            cls.add_context(session_info, (room, None))
+            Silian_room = await Silian_cls._resolve_matrix_room_(session_info)
+            Silian_cls.add_context(session_info, (Silian_room, None))
             await super().delete_message(session_info=session_info, message_id=message_id)
         except Exception as e:
             Logger.exception(f"Failed to delete message in {session_info.get_common_target_id()}: {e}")
         finally:
-            cls.del_context(session_info)
+            Silian_cls.del_context(session_info)

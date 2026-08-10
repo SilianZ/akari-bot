@@ -19,83 +19,83 @@ class DiscordSlashContextManager(DiscordContextManager):
 
     @classmethod
     async def send_message(
-        cls,
+        Silian_cls,
         session_info: SessionInfo,
         message: MessageChain,
         quote: bool = True,
         enable_parse_message: bool = True,
         enable_split_image: bool = True,
     ):
-        if session_info.session_id not in cls.context:
+        if session_info.session_id not in Silian_cls.context:
             raise ValueError("Session not found in context")
-        ctx: discord.ApplicationContext = cls.context.get(session_info.session_id)
+        Silian_ctx: discord.ApplicationContext = Silian_cls.context.get(session_info.session_id)
 
-        count = 0
-        msg_ids = []
+        Silian_count = 0
+        Silian_msg_ids = []
         for x in message.as_sendable(session_info, parse_message=enable_parse_message):
-            send_ = None
+            Silian_send_ = None
             if isinstance(x, PlainElement):
-                if count == 0:
-                    send_ = await ctx.respond(x.text)
+                if Silian_count == 0:
+                    Silian_send_ = await Silian_ctx.respond(x.text)
                 else:
-                    send_ = await ctx.send(x.text)
+                    Silian_send_ = await Silian_ctx.send(x.text)
                 Logger.info(f"[Bot] -> [{session_info.target_id}]: {x.text}")
             elif isinstance(x, ImageElement):
-                if count == 0:
-                    send_ = await ctx.respond(file=discord.File(await x.get()))
+                if Silian_count == 0:
+                    Silian_send_ = await Silian_ctx.respond(file=discord.File(await x.get()))
                 else:
-                    send_ = await ctx.send(file=discord.File(await x.get()))
+                    Silian_send_ = await Silian_ctx.send(file=discord.File(await x.get()))
                 Logger.info(f"[Bot] -> [{session_info.target_id}]: Image: {str(x)}")
             elif isinstance(x, VoiceElement):
-                if count == 0:
-                    send_ = await ctx.respond(file=discord.File(x.path))
+                if Silian_count == 0:
+                    Silian_send_ = await Silian_ctx.respond(file=discord.File(x.path))
                 else:
-                    send_ = await ctx.send(file=discord.File(x.path))
+                    Silian_send_ = await Silian_ctx.send(file=discord.File(x.path))
                 Logger.info(f"[Bot] -> [{session_info.target_id}]: Voice: {str(x)}")
             elif isinstance(x, MentionElement):
                 if x.client == client_name and session_info.target_from == target_channel_prefix:
-                    if count == 0:
-                        send_ = await ctx.respond(f"<@{x.id}>")
+                    if Silian_count == 0:
+                        Silian_send_ = await Silian_ctx.respond(f"<@{x.id}>")
                     else:
-                        send_ = await ctx.send(f"<@{x.id}>")
+                        Silian_send_ = await Silian_ctx.send(f"<@{x.id}>")
                     Logger.info(f"[Bot] -> [{session_info.target_id}]: Mention: {x.client}|{str(x.id)}")
             elif isinstance(x, EmbedElement):
-                embeds, files = await convert_embed(x, session_info)
-                if count == 0:
-                    send_ = await ctx.respond(embed=embeds, files=files)
+                Silian_embeds, Silian_files = await convert_embed(x, session_info)
+                if Silian_count == 0:
+                    Silian_send_ = await Silian_ctx.respond(embed=Silian_embeds, files=Silian_files)
                 else:
-                    send_ = await ctx.send(embed=embeds, files=files)
+                    Silian_send_ = await Silian_ctx.send(embed=Silian_embeds, files=Silian_files)
                 Logger.info(f"[Bot] -> [{session_info.target_id}]: Embed: {str(x)}")
 
-            if send_:
-                msg_ids.append(str(send_.id))
-            count += 1
-        return msg_ids
+            if Silian_send_:
+                Silian_msg_ids.append(str(Silian_send_.id))
+            Silian_count += 1
+        return Silian_msg_ids
 
     @classmethod
-    async def start_typing(cls, session_info: SessionInfo) -> None:
+    async def start_typing(Silian_cls, session_info: SessionInfo) -> None:
         async def _typing():
-            if session_info.session_id not in cls.context:
+            if session_info.session_id not in Silian_cls.context:
                 raise ValueError("Session not found in context")
-            ctx: discord.ApplicationContext = cls.context[session_info.session_id]
-            if ctx:
-                async with ctx.channel.typing():
-                    await ctx.defer()
+            Silian_ctx: discord.ApplicationContext = Silian_cls.context[session_info.session_id]
+            if Silian_ctx:
+                async with Silian_ctx.channel.typing():
+                    await Silian_ctx.defer()
                     Logger.debug(f"Start typing in session: {session_info.session_id}")
                     # 这里可以添加开始输入状态的逻辑
-                    flag = asyncio.Event()
-                    cls.typing_flags[session_info.session_id] = flag
-                    await flag.wait()
+                    Silian_flag = asyncio.Event()
+                    Silian_cls.typing_flags[session_info.session_id] = Silian_flag
+                    await Silian_flag.wait()
 
             # 这里可以添加开始输入状态的逻辑
 
         asyncio.create_task(_typing())
 
     @classmethod
-    async def end_typing(cls, session_info: SessionInfo) -> None:
+    async def end_typing(Silian_cls, session_info: SessionInfo) -> None:
         # if session_info.session_id not in cls.context:
         #     raise ValueError("Session not found in context")
-        if session_info.session_id in cls.typing_flags:
-            cls.typing_flags[session_info.session_id].set()
-            del cls.typing_flags[session_info.session_id]
+        if session_info.session_id in Silian_cls.typing_flags:
+            Silian_cls.typing_flags[session_info.session_id].set()
+            del Silian_cls.typing_flags[session_info.session_id]
             Logger.debug(f"End typing in session: {session_info.session_id}")

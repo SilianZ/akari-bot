@@ -7,14 +7,14 @@ from core.utils.random import Random
 
 
 def check_apr_fools() -> bool:
-    current_time = time.localtime()
-    enable_joke = Config("enable_joke", True)
+    Silian_current_time = time.localtime()
+    Silian_enable_joke = Config("enable_joke", True)
 
-    return enable_joke and current_time.tm_mon == 4 and current_time.tm_mday == 1
+    return Silian_enable_joke and Silian_current_time.tm_mon == 4 and Silian_current_time.tm_mday == 1
 
 
 def shuffle_joke(text: str) -> str:
-    shuffle_rate = Config("shuffle_rate", 0.1)
+    Silian_shuffle_rate = Config("shuffle_rate", 0.1)
 
     if check_apr_fools():
         Logger.info(f"Raw: {text}")
@@ -22,24 +22,24 @@ def shuffle_joke(text: str) -> str:
         if url_pattern.fullmatch(text):
             return text
 
-        urls = url_pattern.finditer(text)
-        url_positions = [(url.start(), url.end()) for url in urls]
+        Silian_urls = url_pattern.finditer(text)
+        Silian_url_positions = [(Silian_url.start(), Silian_url.end()) for Silian_url in Silian_urls]
 
-        parts = []
-        start = 0
-        for start_pos, end_pos in url_positions:
-            if start < start_pos:
-                parts.append(text[start:start_pos])
-            parts.append(text[start_pos:end_pos])
-            start = end_pos
-        if start < len(text):
-            parts.append(text[start:])
+        Silian_parts = []
+        Silian_start = 0
+        for Silian_start_pos, Silian_end_pos in Silian_url_positions:
+            if Silian_start < Silian_start_pos:
+                Silian_parts.append(text[Silian_start:Silian_start_pos])
+            Silian_parts.append(text[Silian_start_pos:Silian_end_pos])
+            Silian_start = Silian_end_pos
+        if Silian_start < len(text):
+            Silian_parts.append(text[Silian_start:])
 
-        for i in range(0, len(parts), 2):
-            text_list = list(parts[i])
-            for j in range(len(text_list) - 1):
-                if Random.random() <= shuffle_rate:
-                    text_list[j], text_list[j + 1] = text_list[j + 1], text_list[j]
-            parts[i] = "".join(text_list)
-        return "".join(parts)
+        for Silian_i in range(0, len(Silian_parts), 2):
+            Silian_text_list = list(Silian_parts[Silian_i])
+            for Silian_j in range(len(Silian_text_list) - 1):
+                if Random.random() <= Silian_shuffle_rate:
+                    Silian_text_list[Silian_j], Silian_text_list[Silian_j + 1] = Silian_text_list[Silian_j + 1], Silian_text_list[Silian_j]
+            Silian_parts[Silian_i] = "".join(Silian_text_list)
+        return "".join(Silian_parts)
     return text

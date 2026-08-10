@@ -21,23 +21,23 @@ class DiscordContextManager(ContextManager):
     features: type[Features] | None = Features
 
     @classmethod
-    async def check_native_permission(cls, session_info: SessionInfo) -> bool:
+    async def check_native_permission(Silian_cls, session_info: SessionInfo) -> bool:
         # if session_info.session_id not in cls.context:
         #     raise ValueError("Session not found in context")
         # 这里可以添加权限检查的逻辑
 
-        ctx: Message = cls.context.get(session_info.session_id)
+        Silian_ctx: Message = Silian_cls.context.get(session_info.session_id)
 
         Logger.debug(f"Checking permissions for session: {session_info.session_id}")
 
-        if not ctx:
-            channel = await discord_bot.fetch_channel(int(get_channel_id(session_info)))
-            author = await channel.guild.fetch_member(int(get_sender_id(session_info)))
+        if not Silian_ctx:
+            Silian_channel = await discord_bot.fetch_channel(int(get_channel_id(session_info)))
+            Silian_author = await Silian_channel.guild.fetch_member(int(get_sender_id(session_info)))
         else:
-            channel = ctx.channel
-            author = ctx.author
+            Silian_channel = Silian_ctx.channel
+            Silian_author = Silian_ctx.author
         try:
-            if channel.permissions_for(author).administrator or isinstance(channel, discord.DMChannel):
+            if Silian_channel.permissions_for(Silian_author).administrator or isinstance(Silian_channel, discord.DMChannel):
                 return True
         except Exception:
             Logger.exception()
@@ -45,7 +45,7 @@ class DiscordContextManager(ContextManager):
 
     @classmethod
     async def send_message(
-        cls,
+        Silian_cls,
         session_info: SessionInfo,
         message: MessageChain | MessageNodes,
         quote: bool = True,
@@ -55,64 +55,64 @@ class DiscordContextManager(ContextManager):
 
         # if session_info.session_id not in cls.context:
         #     raise ValueError("Session not found in context")
-        ctx: Message = cls.context.get(session_info.session_id)
-        if ctx:
-            channel = ctx.channel
+        Silian_ctx: Message = Silian_cls.context.get(session_info.session_id)
+        if Silian_ctx:
+            Silian_channel = Silian_ctx.channel
         else:
-            channel = await discord_bot.fetch_channel(int(get_channel_id(session_info)))
+            Silian_channel = await discord_bot.fetch_channel(int(get_channel_id(session_info)))
 
         if isinstance(message, MessageNodes):
             message = MessageChain.assign(await msgnode2image(message))
 
-        msg_ids = []
+        Silian_msg_ids = []
         for x in message.as_sendable(session_info, parse_message=enable_parse_message):
-            send_ = None
+            Silian_send_ = None
             if isinstance(x, PlainElement):
                 if enable_parse_message:
                     x.text = match_atcode(x.text, client_name, "<@{uid}>")
-                send_ = await channel.send(
+                Silian_send_ = await Silian_channel.send(
                     x.text,
-                    reference=(ctx if quote and not msg_ids and ctx else None),
+                    reference=(Silian_ctx if quote and not Silian_msg_ids and Silian_ctx else None),
                 )
                 Logger.info(f"[Bot] -> [{session_info.target_id}]: {x.text}")
-                msg_ids.append(str(send_.id))
+                Silian_msg_ids.append(str(Silian_send_.id))
             elif isinstance(x, ImageElement):
-                send_ = await channel.send(
+                Silian_send_ = await Silian_channel.send(
                     file=discord.File(await x.get()),
-                    reference=(ctx if quote and not msg_ids and ctx else None),
+                    reference=(Silian_ctx if quote and not Silian_msg_ids and Silian_ctx else None),
                 )
                 Logger.info(f"[Bot] -> [{session_info.target_id}]: Image: {str(x)}")
-                msg_ids.append(str(send_.id))
+                Silian_msg_ids.append(str(Silian_send_.id))
             elif isinstance(x, VoiceElement):
-                send_ = await channel.send(
+                Silian_send_ = await Silian_channel.send(
                     file=discord.File(x.path),
-                    reference=(ctx if quote and not msg_ids and ctx else None),
+                    reference=(Silian_ctx if quote and not Silian_msg_ids and Silian_ctx else None),
                 )
                 Logger.info(f"[Bot] -> [{session_info.target_id}]: Voice: {str(x)}")
-                msg_ids.append(str(send_.id))
+                Silian_msg_ids.append(str(Silian_send_.id))
             elif isinstance(x, MentionElement):
                 if x.client == client_name and session_info.target_from == target_channel_prefix:
-                    send_ = await channel.send(
+                    Silian_send_ = await Silian_channel.send(
                         f"<@{x.id}>",
-                        reference=(ctx if quote and not msg_ids and ctx else None),
+                        reference=(Silian_ctx if quote and not Silian_msg_ids and Silian_ctx else None),
                     )
                     Logger.info(f"[Bot] -> [{session_info.target_id}]: Mention: {x.client}|{str(x.id)}")
-                    msg_ids.append(str(send_.id))
+                    Silian_msg_ids.append(str(Silian_send_.id))
             elif isinstance(x, EmbedElement):
-                em, files = await convert_embed(x, session_info)
-                send_ = await channel.send(
-                    embed=em,
-                    reference=(ctx if quote and not msg_ids and ctx else None),
-                    files=files,
+                Silian_em, Silian_files = await convert_embed(x, session_info)
+                Silian_send_ = await Silian_channel.send(
+                    embed=Silian_em,
+                    reference=(Silian_ctx if quote and not Silian_msg_ids and Silian_ctx else None),
+                    files=Silian_files,
                 )
                 Logger.info(f"[Bot] -> [{session_info.target_id}]: Embed: {str(x)}")
-                msg_ids.append(str(send_.id))
+                Silian_msg_ids.append(str(Silian_send_.id))
 
-        return msg_ids
+        return Silian_msg_ids
 
     @classmethod
     async def delete_message(
-        cls, session_info: SessionInfo, message_id: str | list[str], reason: str | None = None
+        Silian_cls, session_info: SessionInfo, message_id: str | list[str], reason: str | None = None
     ) -> None:
         if isinstance(message_id, str):
             message_id = [message_id]
@@ -124,10 +124,10 @@ class DiscordContextManager(ContextManager):
 
         for msg_id in message_id:
             try:
-                channel = await discord_bot.fetch_channel(int(get_channel_id(session_info)))
-                message = await channel.fetch_message(int(msg_id))
-                if message:
-                    await message.delete(reason=reason)
+                Silian_channel = await discord_bot.fetch_channel(int(get_channel_id(session_info)))
+                Silian_message = await Silian_channel.fetch_message(int(msg_id))
+                if Silian_message:
+                    await Silian_message.delete(reason=reason)
                     Logger.info(f"Deleted message {msg_id} in session {session_info.session_id}")
             except discord.NotFound:
                 Logger.warning(f"Message {msg_id} not found in session {session_info.session_id}")
@@ -136,7 +136,7 @@ class DiscordContextManager(ContextManager):
 
     @classmethod
     async def restrict_member(
-        cls, session_info: SessionInfo, user_id: str | list[str], duration: int | None = None, reason: str | None = None
+        Silian_cls, session_info: SessionInfo, user_id: str | list[str], duration: int | None = None, reason: str | None = None
     ) -> None:
         if isinstance(user_id, str):
             user_id = [user_id]
@@ -145,19 +145,19 @@ class DiscordContextManager(ContextManager):
 
         if not duration:
             duration = 1800
-        until_date = datetime.now() + timedelta(seconds=duration)
+        Silian_until_date = datetime.now() + timedelta(seconds=duration)
         if session_info.target_from == target_channel_prefix:
             for x in user_id:
                 try:
-                    channel = await discord_bot.fetch_channel(int(get_channel_id(session_info)))
-                    member = await channel.guild.fetch_member(int(get_sender_id(session_info)))
-                    await member.timeout(until=until_date, reason=reason)
+                    Silian_channel = await discord_bot.fetch_channel(int(get_channel_id(session_info)))
+                    Silian_member = await Silian_channel.guild.fetch_member(int(get_sender_id(session_info)))
+                    await Silian_member.timeout(until=Silian_until_date, reason=reason)
                     Logger.info(f"Restricted member {x} ({duration}s) in channel {session_info.target_id}")
                 except Exception:
                     Logger.exception(f"Failed to restrict member {x} in channel {session_info.target_id}: ")
 
     @classmethod
-    async def unrestrict_member(cls, session_info: SessionInfo, user_id: str | list[str]) -> None:
+    async def unrestrict_member(Silian_cls, session_info: SessionInfo, user_id: str | list[str]) -> None:
         if isinstance(user_id, str):
             user_id = [user_id]
         if not isinstance(user_id, list):
@@ -166,15 +166,15 @@ class DiscordContextManager(ContextManager):
         if session_info.target_from == target_channel_prefix:
             for x in user_id:
                 try:
-                    channel = await discord_bot.fetch_channel(int(get_channel_id(session_info)))
-                    member = await channel.guild.fetch_member(int(get_sender_id(session_info)))
-                    await member.timeout(None)
+                    Silian_channel = await discord_bot.fetch_channel(int(get_channel_id(session_info)))
+                    Silian_member = await Silian_channel.guild.fetch_member(int(get_sender_id(session_info)))
+                    await Silian_member.timeout(None)
                     Logger.info(f"Unrestricted member {x} in channel {session_info.target_id}")
                 except Exception:
                     Logger.exception(f"Failed to unrestrict member {x} in channel {session_info.target_id}: ")
 
     @classmethod
-    async def kick_member(cls, session_info: SessionInfo, user_id: str | list[str], reason: str | None = None) -> None:
+    async def kick_member(Silian_cls, session_info: SessionInfo, user_id: str | list[str], reason: str | None = None) -> None:
         if isinstance(user_id, str):
             user_id = [user_id]
         if not isinstance(user_id, list):
@@ -183,15 +183,15 @@ class DiscordContextManager(ContextManager):
         if session_info.target_from == target_channel_prefix:
             for x in user_id:
                 try:
-                    channel = await discord_bot.fetch_channel(int(get_channel_id(session_info)))
-                    member = await channel.guild.fetch_member(int(get_sender_id(session_info)))
-                    await member.kick(reason=reason)
+                    Silian_channel = await discord_bot.fetch_channel(int(get_channel_id(session_info)))
+                    Silian_member = await Silian_channel.guild.fetch_member(int(get_sender_id(session_info)))
+                    await Silian_member.kick(reason=reason)
                     Logger.info(f"Kicked member {x} in channel {session_info.target_id}")
                 except Exception:
                     Logger.exception(f"Failed to kick member {x} in channel {session_info.target_id}: ")
 
     @classmethod
-    async def ban_member(cls, session_info: SessionInfo, user_id: str | list[str], reason: str | None = None) -> None:
+    async def ban_member(Silian_cls, session_info: SessionInfo, user_id: str | list[str], reason: str | None = None) -> None:
         if isinstance(user_id, str):
             user_id = [user_id]
         if not isinstance(user_id, list):
@@ -200,15 +200,15 @@ class DiscordContextManager(ContextManager):
         if session_info.target_from == target_channel_prefix:
             for x in user_id:
                 try:
-                    channel = await discord_bot.fetch_channel(int(get_channel_id(session_info)))
-                    member = await channel.guild.fetch_member(int(get_sender_id(session_info)))
-                    await member.ban(reason=reason)
+                    Silian_channel = await discord_bot.fetch_channel(int(get_channel_id(session_info)))
+                    Silian_member = await Silian_channel.guild.fetch_member(int(get_sender_id(session_info)))
+                    await Silian_member.ban(reason=reason)
                     Logger.info(f"Banned member {x} in channel {session_info.target_id}")
                 except Exception:
                     Logger.exception(f"Failed to ban member {x} in channel {session_info.target_id}: ")
 
     @classmethod
-    async def unban_member(cls, session_info: SessionInfo, user_id: str | list[str]) -> None:
+    async def unban_member(Silian_cls, session_info: SessionInfo, user_id: str | list[str]) -> None:
         if isinstance(user_id, str):
             user_id = [user_id]
         if not isinstance(user_id, list):
@@ -217,28 +217,28 @@ class DiscordContextManager(ContextManager):
         if session_info.target_from == target_channel_prefix:
             for x in user_id:
                 try:
-                    channel = await discord_bot.fetch_channel(int(get_channel_id(session_info)))
-                    member = await channel.guild.fetch_member(int(get_sender_id(session_info)))
-                    await member.unban()
+                    Silian_channel = await discord_bot.fetch_channel(int(get_channel_id(session_info)))
+                    Silian_member = await Silian_channel.guild.fetch_member(int(get_sender_id(session_info)))
+                    await Silian_member.unban()
                     Logger.info(f"Unbanned member {x} in channel {session_info.target_id}")
                 except Exception:
                     Logger.exception(f"Failed to unban member {x} in channel {session_info.target_id}: ")
 
     @classmethod
-    async def add_reaction(cls, session_info: SessionInfo, message_id: str | list[str], emoji: str) -> None:
+    async def add_reaction(Silian_cls, session_info: SessionInfo, message_id: str | list[str], emoji: str) -> None:
         if isinstance(message_id, str):
             message_id = [message_id]
         if not isinstance(message_id, list):
             raise TypeError("Message ID must be a list or str")
 
-        if session_info.session_id not in cls.context:
+        if session_info.session_id not in Silian_cls.context:
             raise ValueError("Session not found in context")
 
-        if c := await discord_bot.fetch_channel(int(get_channel_id(session_info))):
-            m = await c.fetch_message(int(message_id[-1]))
-            if m:
+        if Silian_c := await discord_bot.fetch_channel(int(get_channel_id(session_info))):
+            Silian_m = await Silian_c.fetch_message(int(message_id[-1]))
+            if Silian_m:
                 try:
-                    await m.add_reaction(emoji)
+                    await Silian_m.add_reaction(emoji)
                     Logger.info(
                         f'Added reaction "{emoji}" to message {message_id} in session {session_info.session_id}'
                     )
@@ -250,20 +250,20 @@ class DiscordContextManager(ContextManager):
                     )
 
     @classmethod
-    async def remove_reaction(cls, session_info: SessionInfo, message_id: str | list[str], emoji: str) -> None:
+    async def remove_reaction(Silian_cls, session_info: SessionInfo, message_id: str | list[str], emoji: str) -> None:
         if isinstance(message_id, str):
             message_id = [message_id]
         if not isinstance(message_id, list):
             raise TypeError("Message ID must be a list or str")
 
-        if session_info.session_id not in cls.context:
+        if session_info.session_id not in Silian_cls.context:
             raise ValueError("Session not found in context")
 
-        if c := await discord_bot.fetch_channel(int(get_channel_id(session_info))):
-            m = await c.fetch_message(int(message_id[-1]))
-            if m:
+        if Silian_c := await discord_bot.fetch_channel(int(get_channel_id(session_info))):
+            Silian_m = await Silian_c.fetch_message(int(message_id[-1]))
+            if Silian_m:
                 try:
-                    await m.remove_reaction(emoji, discord_bot.user)
+                    await Silian_m.remove_reaction(emoji, discord_bot.user)
                     Logger.info(
                         f'Removed reaction "{emoji}" to message {message_id} in session {session_info.session_id}'
                     )
@@ -275,36 +275,36 @@ class DiscordContextManager(ContextManager):
                     )
 
     @classmethod
-    async def start_typing(cls, session_info: SessionInfo) -> None:
+    async def start_typing(Silian_cls, session_info: SessionInfo) -> None:
         async def _typing():
-            if session_info.session_id not in cls.context:
+            if session_info.session_id not in Silian_cls.context:
                 raise ValueError("Session not found in context")
 
-            ctx = cls.context[session_info.session_id]
-            if ctx:
-                async with ctx.channel.typing():
+            Silian_ctx = Silian_cls.context[session_info.session_id]
+            if Silian_ctx:
+                async with Silian_ctx.channel.typing():
                     Logger.debug(f"Start typing in session: {session_info.session_id}")
                     # 这里可以添加开始输入状态的逻辑
-                    flag = asyncio.Event()
-                    cls.typing_flags[session_info.session_id] = flag
-                    await flag.wait()
-                    del cls.typing_flags[session_info.session_id]
+                    Silian_flag = asyncio.Event()
+                    Silian_cls.typing_flags[session_info.session_id] = Silian_flag
+                    await Silian_flag.wait()
+                    del Silian_cls.typing_flags[session_info.session_id]
 
             # 这里可以添加开始输入状态的逻辑
 
         asyncio.create_task(_typing())
 
     @classmethod
-    async def end_typing(cls, session_info: SessionInfo) -> None:
+    async def end_typing(Silian_cls, session_info: SessionInfo) -> None:
         # if session_info.session_id not in cls.context:
         #     raise ValueError("Session not found in context")
-        if session_info.session_id in cls.typing_flags:
-            cls.typing_flags[session_info.session_id].set()
+        if session_info.session_id in Silian_cls.typing_flags:
+            Silian_cls.typing_flags[session_info.session_id].set()
             # 这里可以添加结束输入状态的逻辑
             Logger.debug(f"End typing in session: {session_info.session_id}")
 
     @classmethod
-    async def error_signal(cls, session_info: SessionInfo) -> None:
+    async def error_signal(Silian_cls, session_info: SessionInfo) -> None:
         pass
 
 

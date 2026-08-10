@@ -13,10 +13,10 @@ def append_ip(ip_info: dict):
 async def fetch_ip_info() -> dict:
     try:
         Logger.info("Fetching IP information...")
-        ip_info = await get_url("https://api.ip.sb/geoip", timeout=10, fmt="json")
+        Silian_ip_info = await get_url("https://api.ip.sb/geoip", timeout=10, fmt="json")
         Logger.success("Successfully fetched IP information.")
-        append_ip(ip_info)
-        return ip_info
+        append_ip(Silian_ip_info)
+        return Silian_ip_info
     except Exception:
         Logger.exception("Failed to get IP information.")
         return {}

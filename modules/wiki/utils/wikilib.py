@@ -22,8 +22,8 @@ from modules.wiki.database.models import WikiSiteInfo, WikiAllowList, WikiBlockL
 from modules.wiki.utils.bot import BotAccount
 from .mapping import *
 
-default_locale = Config("default_locale", cfg_type=str)
-enable_tos = Config("enable_tos", True)
+Silian_default_locale = Config("default_locale", cfg_type=str)
+Silian_enable_tos = Config("enable_tos", True)
 
 
 class InvalidWikiError(Exception):
@@ -35,17 +35,17 @@ class QueryInfo:
     api: str
     headers: dict[str, str] = {"accept-language": "zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6"}
     prefix: str = ""
-    locale: Locale = Locale(default_locale)
+    locale: Locale = Locale(Silian_default_locale)
 
     @classmethod
     def assign(
-        cls,
+        Silian_cls,
         api: str,
         headers: dict[str, str],
         prefix: str = "",
-        locale: str = default_locale,
+        locale: str = Silian_default_locale,
     ):
-        return deepcopy(cls(api=api, headers=headers, prefix=prefix, locale=Locale(locale)))
+        return deepcopy(Silian_cls(api=api, headers=headers, prefix=prefix, locale=Locale(locale)))
 
 
 @define
@@ -104,20 +104,20 @@ class PageInfo:
 
 
 class WikiLib:
-    def __init__(self, url: str, headers=None, locale="zh_cn"):
-        self.url = url
-        self.wiki_info = WikiInfo()
-        self.locale = Locale(locale)
+    def __init__(Silian_self, Silian_url: str, Silian_headers=None, Silian_locale="zh_cn"):
+        Silian_self.url = Silian_url
+        Silian_self.wiki_info = WikiInfo()
+        Silian_self.locale = Locale(Silian_locale)
 
-        if not headers:
-            headers = {}
-        self.headers = headers
+        if not Silian_headers:
+            Silian_headers = {}
+        Silian_self.headers = Silian_headers
 
-    async def get_json_from_api(self, api, _no_login=False, **kwargs) -> dict:
-        cookies = None
+    async def get_json_from_api(Silian_self, api, _no_login=False, **kwargs) -> dict:
+        Silian_cookies = None
         Logger.debug(BotAccount.cookies)
         if api in BotAccount.cookies and not _no_login:
-            cookies = BotAccount.cookies[api]
+            Silian_cookies = BotAccount.cookies[api]
         if api in redirect_list:
             api = redirect_list[api]
         if kwargs:
@@ -125,154 +125,154 @@ class WikiLib:
             Logger.debug(api)
         else:
             raise ValueError("kwargs is None")
-        request_by_webrender = False
-        for x in request_by_web_render_list:
-            if x.match(api):
-                request_by_webrender = True
+        Silian_request_by_webrender = False
+        for Silian_x in request_by_web_render_list:
+            if Silian_x.match(api):
+                Silian_request_by_webrender = True
 
         try:
-            if not request_by_webrender:
+            if not Silian_request_by_webrender:
                 return await get_url(
                     api,
                     status_code=200,
-                    headers=self.headers,
+                    headers=Silian_self.headers,
                     fmt="json",
                     request_private_ip=False,
-                    cookies=cookies,
+                    cookies=Silian_cookies,
                 )
-            req = await web_render.source(SourceOptions(url=api, raw_text=True))
-            return orjson.loads(req)
+            Silian_req = await web_render.source(SourceOptions(url=api, raw_text=True))
+            return orjson.loads(Silian_req)
 
         except Exception as e:
             # Exception handling for moegirl.org.cn
             if api.find("moegirl.org.cn") != -1:
-                raise InvalidWikiError(self.locale.t("wiki.message.utils.wikilib.get_failed.moegirl"))
+                raise InvalidWikiError(Silian_self.locale.t("wiki.message.utils.wikilib.get_failed.moegirl"))
             raise NoReportException(str(e))
 
-    async def rearrange_siteinfo(self, info: dict | str | bytes, wiki_api_link) -> WikiInfo:
+    async def rearrange_siteinfo(Silian_self, info: dict | str | bytes, wiki_api_link) -> WikiInfo:
         if isinstance(info, (str, bytes)):
             info = orjson.loads(info)
-        extensions = info["query"]["extensions"]
-        ext_list = []
-        for ext in extensions:
-            ext_list.append(ext["name"])
-        real_url = info["query"]["general"]["server"]
-        if real_url.startswith("//"):
-            real_url = self.url.split("//")[0] + real_url
-        namespaces = {}
-        namespaces_local = {}
-        namespacealiases = {}
-        for x in info["query"]["namespaces"]:
+        Silian_extensions = info["query"]["extensions"]
+        Silian_ext_list = []
+        for Silian_ext in Silian_extensions:
+            Silian_ext_list.append(Silian_ext["name"])
+        Silian_real_url = info["query"]["general"]["server"]
+        if Silian_real_url.startswith("//"):
+            Silian_real_url = Silian_self.url.split("//")[0] + Silian_real_url
+        Silian_namespaces = {}
+        Silian_namespaces_local = {}
+        Silian_namespacealiases = {}
+        for Silian_x in info["query"]["namespaces"]:
             try:
-                ns = info["query"]["namespaces"][x]
-                if "*" in ns:
-                    namespaces[ns["*"]] = ns["id"]
-                if "canonical" in ns:
-                    namespaces[ns["canonical"]] = ns["id"]
-                if "*" in ns and "canonical" in ns:
-                    namespaces_local.update({ns["*"]: ns["canonical"]})
+                Silian_ns = info["query"]["namespaces"][Silian_x]
+                if "*" in Silian_ns:
+                    Silian_namespaces[Silian_ns["*"]] = Silian_ns["id"]
+                if "canonical" in Silian_ns:
+                    Silian_namespaces[Silian_ns["canonical"]] = Silian_ns["id"]
+                if "*" in Silian_ns and "canonical" in Silian_ns:
+                    Silian_namespaces_local.update({Silian_ns["*"]: Silian_ns["canonical"]})
             except Exception:
                 Logger.exception()
-        for x in info["query"]["namespacealiases"]:
-            if "*" in x:
-                namespaces[x["*"]] = x["id"]
-                namespacealiases[x["*"].lower()] = x["*"]
-        interwiki_map = info["query"]["interwikimap"]
-        interwiki_dict = {}
-        for interwiki in interwiki_map:
-            interwiki_dict[interwiki["prefix"]] = interwiki["url"]
+        for Silian_x in info["query"]["namespacealiases"]:
+            if "*" in Silian_x:
+                Silian_namespaces[Silian_x["*"]] = Silian_x["id"]
+                Silian_namespacealiases[Silian_x["*"].lower()] = Silian_x["*"]
+        Silian_interwiki_map = info["query"]["interwikimap"]
+        Silian_interwiki_dict = {}
+        for Silian_interwiki in Silian_interwiki_map:
+            Silian_interwiki_dict[Silian_interwiki["prefix"]] = Silian_interwiki["url"]
         return WikiInfo(
-            articlepath=real_url + info["query"]["general"]["articlepath"],
-            extensions=ext_list,
+            articlepath=Silian_real_url + info["query"]["general"]["articlepath"],
+            extensions=Silian_ext_list,
             name=info["query"]["general"]["sitename"],
             lang=info["query"]["general"].get("lang"),
             wikiid=info["query"]["general"].get("wikiid"),
-            realurl=real_url,
+            realurl=Silian_real_url,
             api=wiki_api_link,
-            namespaces=namespaces,
-            namespaces_local=namespaces_local,
-            namespacealiases=namespacealiases,
-            interwiki=interwiki_dict,
+            namespaces=Silian_namespaces,
+            namespaces_local=Silian_namespaces_local,
+            namespacealiases=Silian_namespacealiases,
+            interwiki=Silian_interwiki_dict,
             in_allowlist=await WikiAllowList.check(wiki_api_link),
             in_blocklist=await WikiBlockList.check(wiki_api_link),
-            script=real_url + info["query"]["general"]["script"],
+            script=Silian_real_url + info["query"]["general"]["script"],
             logo_url=info["query"]["general"].get("logo"),
         )
 
-    async def check_wiki_available(self):
+    async def check_wiki_available(Silian_self):
         try:
-            self.url = re.sub(
+            Silian_self.url = re.sub(
                 r"https://zh\.moegirl\.org\.cn/",
                 "https://mzh.moegirl.org.cn/",
-                self.url,
+                Silian_self.url,
             )
             # 萌娘百科强制使用移动版 API
-            api_match = re.match(r"(https?://.*?/api.php$)", self.url)
-            wiki_api_link = api_match.group(1)
+            Silian_api_match = re.match(r"(https?://.*?/api.php$)", Silian_self.url)
+            Silian_wiki_api_link = Silian_api_match.group(1)
         except Exception:
             try:
-                get_page = await get_url(self.url, status_code=None, fmt="text", headers=self.headers)
-                if get_page.find("T400119") != -1:
+                Silian_get_page = await get_url(Silian_self.url, status_code=None, fmt="text", headers=Silian_self.headers)
+                if Silian_get_page.find("T400119") != -1:
                     return WikiStatus(
                         available=False,
                         value=False,
-                        message=self.locale.t("wiki.message.utils.wikilib.get_failed.wikimedia"),
+                        message=Silian_self.locale.t("wiki.message.utils.wikilib.get_failed.wikimedia"),
                     )
-                if get_page.find("<title>Attention Required! | Cloudflare</title>") != -1:
+                if Silian_get_page.find("<title>Attention Required! | Cloudflare</title>") != -1:
                     return WikiStatus(
                         available=False,
                         value=False,
-                        message=self.locale.t("wiki.message.utils.wikilib.get_failed.cloudflare"),
+                        message=Silian_self.locale.t("wiki.message.utils.wikilib.get_failed.cloudflare"),
                     )
                 try:
-                    m = re.findall(
+                    Silian_m = re.findall(
                         r"(?im)<\s*link\s*rel=\"EditURI\"\s*type=\"application/rsd\+xml\"\s*href=\"([^>]+?)\?action=rsd\"\s*/?\s*>",
-                        get_page,
+                        Silian_get_page,
                     )
-                    api_match = m[0]
-                    if api_match.startswith("//"):
-                        api_match = self.url.split("//")[0] + api_match
+                    Silian_api_match = Silian_m[0]
+                    if Silian_api_match.startswith("//"):
+                        Silian_api_match = Silian_self.url.split("//")[0] + Silian_api_match
                     # Logger.info(api_match)
-                    wiki_api_link = api_match
+                    Silian_wiki_api_link = Silian_api_match
                 except IndexError:
-                    Logger.error(get_page)
+                    Logger.error(Silian_get_page)
                     return WikiStatus(
                         available=False,
                         value=False,
-                        message=self.locale.t("wiki.message.utils.wikilib.get_failed.not_mediawiki"),
+                        message=Silian_self.locale.t("wiki.message.utils.wikilib.get_failed.not_mediawiki"),
                     )
             except TimeoutError:
                 return WikiStatus(
                     available=False,
                     value=False,
-                    message=self.locale.t("wiki.message.utils.wikilib.get_failed.timeout"),
+                    message=Silian_self.locale.t("wiki.message.utils.wikilib.get_failed.timeout"),
                 )
             except Exception as e:
                 Logger.exception()
                 if str(e).startswith("403"):
-                    message = self.locale.t("wiki.message.utils.wikilib.get_failed.forbidden")
-                elif not re.match(r"^(https?://).*", self.url):
-                    message = self.locale.t("wiki.message.utils.wikilib.get_failed.no_http_or_https_headers")
+                    Silian_message = Silian_self.locale.t("wiki.message.utils.wikilib.get_failed.forbidden")
+                elif not re.match(r"^(https?://).*", Silian_self.url):
+                    Silian_message = Silian_self.locale.t("wiki.message.utils.wikilib.get_failed.no_http_or_https_headers")
                 else:
-                    message = self.locale.t("wiki.message.utils.wikilib.get_failed.may_not_mediawiki") + str(e)
-                if self.url.find("moegirl.org.cn") != -1:
-                    message += "\n" + self.locale.t("wiki.message.utils.wikilib.get_failed.moegirl")
-                return WikiStatus(available=False, value=False, message=message)
-        if wiki_api_link in redirect_list:
-            wiki_api_link = redirect_list[wiki_api_link]
-        get_cache_info = await WikiSiteInfo.get_or_none(api_link=wiki_api_link)
-        if get_cache_info:
-            if get_cache_info.site_info and datetime.now().timestamp() - get_cache_info.timestamp.timestamp() < 43200:
+                    Silian_message = Silian_self.locale.t("wiki.message.utils.wikilib.get_failed.may_not_mediawiki") + str(e)
+                if Silian_self.url.find("moegirl.org.cn") != -1:
+                    Silian_message += "\n" + Silian_self.locale.t("wiki.message.utils.wikilib.get_failed.moegirl")
+                return WikiStatus(available=False, value=False, message=Silian_message)
+        if Silian_wiki_api_link in redirect_list:
+            Silian_wiki_api_link = redirect_list[Silian_wiki_api_link]
+        Silian_get_cache_info = await WikiSiteInfo.get_or_none(api_link=Silian_wiki_api_link)
+        if Silian_get_cache_info:
+            if Silian_get_cache_info.site_info and datetime.now().timestamp() - Silian_get_cache_info.timestamp.timestamp() < 43200:
                 return WikiStatus(
                     available=True,
-                    value=await self.rearrange_siteinfo(get_cache_info.site_info, wiki_api_link),
+                    value=await Silian_self.rearrange_siteinfo(Silian_get_cache_info.site_info, Silian_wiki_api_link),
                     message="",
                 )
         else:
-            get_cache_info = await WikiSiteInfo.create(api_link=wiki_api_link)
+            Silian_get_cache_info = await WikiSiteInfo.create(api_link=Silian_wiki_api_link)
         try:
-            get_json = await self.get_json_from_api(
-                wiki_api_link,
+            Silian_get_json = await Silian_self.get_json_from_api(
+                Silian_wiki_api_link,
                 action="query",
                 meta="siteinfo",
                 siprop="general|namespaces|namespacealiases|interwikimap|extensions",
@@ -280,70 +280,70 @@ class WikiLib:
         except Exception as e:
             if Config("debug", False):
                 Logger.exception()
-            message = self.locale.t("wiki.message.utils.wikilib.get_failed.api") + str(e)
-            if self.url.find("moegirl.org.cn") != -1:
-                message += "\n" + self.locale.t("wiki.message.utils.wikilib.get_failed.moegirl")
-            return WikiStatus(available=False, value=False, message=message)
-        get_cache_info.site_info = get_json
-        get_cache_info.timestamp = datetime.now()
-        await get_cache_info.save()
-        info = await self.rearrange_siteinfo(get_json, wiki_api_link)
+            Silian_message = Silian_self.locale.t("wiki.message.utils.wikilib.get_failed.api") + str(e)
+            if Silian_self.url.find("moegirl.org.cn") != -1:
+                Silian_message += "\n" + Silian_self.locale.t("wiki.message.utils.wikilib.get_failed.moegirl")
+            return WikiStatus(available=False, value=False, message=Silian_message)
+        Silian_get_cache_info.site_info = Silian_get_json
+        Silian_get_cache_info.timestamp = datetime.now()
+        await Silian_get_cache_info.save()
+        Silian_info = await Silian_self.rearrange_siteinfo(Silian_get_json, Silian_wiki_api_link)
         return WikiStatus(
             available=True,
-            value=info,
+            value=Silian_info,
             message=(
-                self.locale.t("wiki.message.utils.wikilib.no_textextracts")
-                if "TextExtracts" not in info.extensions
+                Silian_self.locale.t("wiki.message.utils.wikilib.no_textextracts")
+                if "TextExtracts" not in Silian_info.extensions
                 else ""
             ),
         )
 
-    async def check_wiki_info_from_database_cache(self):
+    async def check_wiki_info_from_database_cache(Silian_self):
         """
         check wiki_info from database cache, the result maybe incorrect since some wiki that distinguish languages by url path
         """
-        parse_url = urllib.parse.urlparse(self.url)
-        get = await WikiSiteInfo.get_like_this(parse_url.scheme + "://" + parse_url.netloc)
-        if get:
-            api_link = get.api_link
-            if api_link in redirect_list:
-                api_link = redirect_list[api_link]
+        Silian_parse_url = urllib.parse.urlparse(Silian_self.url)
+        Silian_get = await WikiSiteInfo.get_like_this(Silian_parse_url.scheme + "://" + Silian_parse_url.netloc)
+        if Silian_get:
+            Silian_api_link = Silian_get.api_link
+            if Silian_api_link in redirect_list:
+                Silian_api_link = redirect_list[Silian_api_link]
             return WikiStatus(
                 available=True,
-                value=await self.rearrange_siteinfo(get.site_info, api_link),
+                value=await Silian_self.rearrange_siteinfo(Silian_get.site_info, Silian_api_link),
                 message="",
             )
         return WikiStatus(available=False, value=False, message="")
 
-    async def fixup_wiki_info(self):
+    async def fixup_wiki_info(Silian_self):
         """
         autofill missing required information for wiki_info
         """
-        if not self.wiki_info.api:
-            wiki_info = await self.check_wiki_available()
-            if wiki_info.available:
-                self.wiki_info = wiki_info.value
+        if not Silian_self.wiki_info.api:
+            Silian_wiki_info = await Silian_self.check_wiki_available()
+            if Silian_wiki_info.available:
+                Silian_self.wiki_info = Silian_wiki_info.value
             else:
-                raise InvalidWikiError(wiki_info.message if wiki_info.message != "" else "")
+                raise InvalidWikiError(Silian_wiki_info.message if Silian_wiki_info.message != "" else "")
 
-    async def get_json(self, _no_login=False, **kwargs) -> dict:
-        await self.fixup_wiki_info()
-        return await self.get_json_from_api(self.wiki_info.api, _no_login=_no_login, **kwargs)
+    async def get_json(Silian_self, _no_login=False, **kwargs) -> dict:
+        await Silian_self.fixup_wiki_info()
+        return await Silian_self.get_json_from_api(Silian_self.wiki_info.api, _no_login=_no_login, **kwargs)
 
-    async def return_api(self, _no_login=False, _no_format=False, **kwargs) -> str:
+    async def return_api(Silian_self, _no_login=False, _no_format=False, **kwargs) -> str:
         """
         return formatted api links with kwargs
         """
-        await self.fixup_wiki_info()
-        api = self.wiki_info.api
-        if api in redirect_list:
-            api = redirect_list[api]
+        await Silian_self.fixup_wiki_info()
+        Silian_api = Silian_self.wiki_info.api
+        if Silian_api in redirect_list:
+            Silian_api = redirect_list[Silian_api]
         if kwargs:
-            api = api + "?" + urllib.parse.urlencode(kwargs) + ("&format=json" if not _no_format else "")
-            Logger.debug(api)
+            Silian_api = Silian_api + "?" + urllib.parse.urlencode(kwargs) + ("&format=json" if not _no_format else "")
+            Logger.debug(Silian_api)
         else:
             raise ValueError("kwargs is None")
-        return api
+        return Silian_api
 
     @staticmethod
     def parse_text(text):
@@ -351,91 +351,91 @@ class WikiLib:
         parse text to get a short description
         """
         try:
-            desc = text.split("\n")
-            desc_list = []
-            for x in desc:
-                if x != "":
-                    desc_list.append(x)
-            desc = "\n".join(desc_list)
-            desc_end = re.findall(r"(.*?(?:!\s|\?\s|\.\s|！|？|。)).*", desc, re.S | re.M)
-            if desc_end:
-                if re.findall(r"[({\[>\"\'《【‘“「（]", desc_end[0]):
-                    desc_end = re.findall(
+            Silian_desc = text.split("\n")
+            Silian_desc_list = []
+            for Silian_x in Silian_desc:
+                if Silian_x != "":
+                    Silian_desc_list.append(Silian_x)
+            Silian_desc = "\n".join(Silian_desc_list)
+            Silian_desc_end = re.findall(r"(.*?(?:!\s|\?\s|\.\s|！|？|。)).*", Silian_desc, re.S | re.M)
+            if Silian_desc_end:
+                if re.findall(r"[({\[>\"\'《【‘“「（]", Silian_desc_end[0]):
+                    Silian_desc_end = re.findall(
                         r"(.*?[)}\]>\"\'》】’”」）].*?(?:!\s|\?\s|\.\s|！|？|。)).*",
-                        desc,
+                        Silian_desc,
                         re.S | re.M,
                     )
-                desc = desc_end[0]
+                Silian_desc = Silian_desc_end[0]
         except Exception:
             Logger.exception()
-            desc = ""
-        if desc in ["...", "…"]:
-            desc = ""
-        ell = False
-        if len(desc) > 250:
-            desc = desc[0:250]
-            ell = True
-        split_desc = desc.split("\n")
-        for d in split_desc:
-            if not d:
-                split_desc.remove("")
-        if len(split_desc) > 5:
-            split_desc = split_desc[0:5]
-            ell = True
-        return "\n".join(split_desc) + ("..." if ell else "")
+            Silian_desc = ""
+        if Silian_desc in ["...", "…"]:
+            Silian_desc = ""
+        Silian_ell = False
+        if len(Silian_desc) > 250:
+            Silian_desc = Silian_desc[0:250]
+            Silian_ell = True
+        Silian_split_desc = Silian_desc.split("\n")
+        for Silian_d in Silian_split_desc:
+            if not Silian_d:
+                Silian_split_desc.remove("")
+        if len(Silian_split_desc) > 5:
+            Silian_split_desc = Silian_split_desc[0:5]
+            Silian_ell = True
+        return "\n".join(Silian_split_desc) + ("..." if Silian_ell else "")
 
-    async def get_html_to_text(self, page_name, section=None):
+    async def get_html_to_text(Silian_self, page_name, section=None):
         """
         get html and convert to text
         """
-        await self.fixup_wiki_info()
-        get_parse = await self.get_json(action="parse", page=page_name, prop="text")
-        h = html2text.HTML2Text()
-        h.ignore_links = True
-        h.ignore_images = True
-        h.ignore_tables = True
-        h.single_line_break = True
-        parse_text = get_parse["parse"]["text"]["*"]
-        t = h.handle(parse_text)
-        if len(t) > 65535:
-            return self.locale.t("wiki.message.utils.wikilib.error.text_too_long")
+        await Silian_self.fixup_wiki_info()
+        Silian_get_parse = await Silian_self.get_json(action="parse", page=page_name, prop="text")
+        Silian_h = html2text.HTML2Text()
+        Silian_h.ignore_links = True
+        Silian_h.ignore_images = True
+        Silian_h.ignore_tables = True
+        Silian_h.single_line_break = True
+        Silian_parse_text = Silian_get_parse["parse"]["text"]["*"]
+        Silian_t = Silian_h.handle(Silian_parse_text)
+        if len(Silian_t) > 65535:
+            return Silian_self.locale.t("wiki.message.utils.wikilib.error.text_too_long")
         if section:
-            for i in range(1, 7):  # H1 to H6
-                s = re.split(r"(.*" + "#" * i + r"[^#].*\[.*?])", t, re.M | re.S)  # e.g. ### Section [..]
-                ls = len(s)
-                if ls > 1:  # found section
-                    ii = 0
-                    for x in s:
-                        ii += 1
-                        if re.match(r"" + "#" * i + "[^#]" + section + r"\[.*?]", x):
+            for Silian_i in range(1, 7):  # H1 to H6
+                Silian_s = re.split(r"(.*" + "#" * Silian_i + r"[^#].*\[.*?])", Silian_t, re.M | re.S)  # e.g. ### Section [..]
+                Silian_ls = len(Silian_s)
+                if Silian_ls > 1:  # found section
+                    Silian_ii = 0
+                    for Silian_x in Silian_s:
+                        Silian_ii += 1
+                        if re.match(r"" + "#" * Silian_i + "[^#]" + section + r"\[.*?]", Silian_x):
                             break
-                    if ii != ls:
-                        t = "".join(s[ii:])
+                    if Silian_ii != Silian_ls:
+                        Silian_t = "".join(Silian_s[Silian_ii:])
                         break
-        return t
+        return Silian_t
 
-    async def get_wikitext(self, page_name):
-        await self.fixup_wiki_info()
+    async def get_wikitext(Silian_self, page_name):
+        await Silian_self.fixup_wiki_info()
         try:
-            load_desc = await self.get_json(action="parse", page=page_name, prop="wikitext")
-            desc = load_desc["parse"]["wikitext"]["*"]
+            Silian_load_desc = await Silian_self.get_json(action="parse", page=page_name, prop="wikitext")
+            Silian_desc = Silian_load_desc["parse"]["wikitext"]["*"]
         except Exception:
             Logger.exception()
-            desc = ""
-        return desc
+            Silian_desc = ""
+        return Silian_desc
 
-    async def search_page(self, search_text, namespace="*", limit=10, srwhat="text"):
-        await self.fixup_wiki_info()
-        title_split = search_text.split(":")
-        if len(title_split) > 1 and title_split[0] in self.wiki_info.interwiki:
-            search_text = ":".join(title_split[1:])
-            q_site = WikiLib(self.wiki_info.interwiki[title_split[0]], self.headers)
-            result = await q_site.search_page(search_text, namespace, limit)
-            result_ = []
-            for r in result:
-                result_.append(title_split[0] + ":" + r)
-            return result_
-        get_page = await self.get_json(
+    async def search_page(Silian_self, search_text, namespace="*", limit=10, srwhat="text"):
+        await Silian_self.fixup_wiki_info()
+        Silian_title_split = search_text.split(":")
+        if len(Silian_title_split) > 1 and Silian_title_split[0] in Silian_self.wiki_info.interwiki:
+            search_text = ":".join(Silian_title_split[1:])
+            Silian_q_site = WikiLib(Silian_self.wiki_info.interwiki[Silian_title_split[0]], Silian_self.headers)
+            Silian_result = await Silian_q_site.search_page(search_text, namespace, limit)
+            Silian_result_ = []
+            for Silian_r in Silian_result:
+                Silian_result_.append(Silian_title_split[0] + ":" + Silian_r)
+            return Silian_result_
+        Silian_get_page = await Silian_self.get_json(
             action="query",
             list="search",
             srsearch=search_text,
@@ -444,64 +444,64 @@ class WikiLib:
             srlimit=limit,
             srenablerewrites=True,
         )
-        pagenames = []
-        for x in get_page["query"]["search"]:
-            pagenames.append(x["title"])
-        return pagenames
+        Silian_pagenames = []
+        for Silian_x in Silian_get_page["query"]["search"]:
+            Silian_pagenames.append(Silian_x["title"])
+        return Silian_pagenames
 
-    async def research_page(self, page_name: str, namespace="*", srwhat="text"):
-        await self.fixup_wiki_info()
-        get_titles = await self.search_page(page_name, namespace=namespace, limit=1, srwhat=srwhat)
-        new_page_name = get_titles[0] if len(get_titles) > 0 else None
-        title_split = page_name.split(":")
-        invalid_namespace = False
+    async def research_page(Silian_self, page_name: str, namespace="*", srwhat="text"):
+        await Silian_self.fixup_wiki_info()
+        Silian_get_titles = await Silian_self.search_page(page_name, namespace=namespace, limit=1, srwhat=srwhat)
+        Silian_new_page_name = Silian_get_titles[0] if len(Silian_get_titles) > 0 else None
+        Silian_title_split = page_name.split(":")
+        Silian_invalid_namespace = False
         if (
-            len(title_split) > 1
-            and title_split[0] not in self.wiki_info.namespaces
-            and title_split[0].lower() not in self.wiki_info.namespacealiases
+            len(Silian_title_split) > 1
+            and Silian_title_split[0] not in Silian_self.wiki_info.namespaces
+            and Silian_title_split[0].lower() not in Silian_self.wiki_info.namespacealiases
         ):
-            invalid_namespace = title_split[0]
-        return new_page_name, invalid_namespace
+            Silian_invalid_namespace = Silian_title_split[0]
+        return Silian_new_page_name, Silian_invalid_namespace
 
-    async def get_page_body_class(self, page_name):
-        await self.fixup_wiki_info()
-        get_parse = await self.get_json(action="parse", page=page_name, prop="headhtml")
-        parse_head_html = BeautifulSoup(get_parse["parse"]["headhtml"]["*"], "html.parser")
-        return parse_head_html.body["class"]
+    async def get_page_body_class(Silian_self, page_name):
+        await Silian_self.fixup_wiki_info()
+        Silian_get_parse = await Silian_self.get_json(action="parse", page=page_name, prop="headhtml")
+        Silian_parse_head_html = BeautifulSoup(Silian_get_parse["parse"]["headhtml"]["*"], "html.parser")
+        return Silian_parse_head_html.body["class"]
 
-    async def get_forums_data(self, page_name):
-        parse = BeautifulSoup(
-            (await self.get_json(action="parse", page=page_name, prop="text"))["parse"]["text"]["*"],
+    async def get_forums_data(Silian_self, page_name):
+        Silian_parse = BeautifulSoup(
+            (await Silian_self.get_json(action="parse", page=page_name, prop="text"))["parse"]["text"]["*"],
             "html.parser",
         )
-        parse_table = parse.find_all("table", class_="wikitable")[0]
-        parsed_data = {}
-        label_ = 0
-        for tr in parse_table.find_all("tr"):
-            if label_ == 0:
-                label = "#"
+        Silian_parse_table = Silian_parse.find_all("table", class_="wikitable")[0]
+        Silian_parsed_data = {}
+        Silian_label_ = 0
+        for Silian_tr in Silian_parse_table.find_all("tr"):
+            if Silian_label_ == 0:
+                Silian_label = "#"
             else:
-                label = str(label_)
-            parsed_data[label] = {"data": []}
-            tdi = 0
+                Silian_label = str(Silian_label_)
+            Silian_parsed_data[Silian_label] = {"data": []}
+            Silian_tdi = 0
 
-            if label_ == 0:
-                for th in tr.find_all("th"):
-                    parsed_data[label]["data"].append(th.text)
+            if Silian_label_ == 0:
+                for Silian_th in Silian_tr.find_all("th"):
+                    Silian_parsed_data[Silian_label]["data"].append(Silian_th.text)
             else:
-                for td in tr.find_all("td"):
-                    if tdi == 0:
-                        if td.find("a"):
-                            parsed_data[label]["data"].append(td.find("a").text)
-                            parsed_data[label]["text"] = page_name + "/" + td.find("a").text
+                for Silian_td in Silian_tr.find_all("td"):
+                    if Silian_tdi == 0:
+                        if Silian_td.find("a"):
+                            Silian_parsed_data[Silian_label]["data"].append(Silian_td.find("a").text)
+                            Silian_parsed_data[Silian_label]["text"] = page_name + "/" + Silian_td.find("a").text
                         else:
-                            parsed_data[label]["data"].append(td.text)
+                            Silian_parsed_data[Silian_label]["data"].append(Silian_td.text)
                     else:
-                        parsed_data[label]["data"].append(td.text)
-                    tdi += 1
-            label_ += 1
+                        Silian_parsed_data[Silian_label]["data"].append(Silian_td.text)
+                    Silian_tdi += 1
+            Silian_label_ += 1
 
-        return parsed_data
+        return Silian_parsed_data
 
     async def parse_page_info(
         self,
@@ -529,89 +529,89 @@ class WikiLib:
         :param session: 消息会话，用作检查结果时使用。
         """
         if title:
-            if m := re.match(r"w:c:.*?:(.*)", title) and self.wiki_info.api.find("fandom.com") != -1:
-                nq = WikiLib("https://community.fandom.com/wiki/" + title, self.headers)
-                return await nq.parse_page_info(m.group(1))
+            if Silian_m := re.match(r"w:c:.*?:(.*)", title) and self.wiki_info.api.find("fandom.com") != -1:
+                Silian_nq = WikiLib("https://community.fandom.com/wiki/" + title, self.headers)
+                return await Silian_nq.parse_page_info(Silian_m.group(1))
         try:
             await self.fixup_wiki_info()
         except InvalidWikiError as e:
-            link = None
+            Silian_link = None
             if self.url.find("$1") != -1:
-                link = self.url.replace("$1", title)
+                Silian_link = self.url.replace("$1", title)
             return PageInfo(
                 title=title if title else pageid,
                 id=pageid,
-                link=link,
+                link=Silian_link,
                 desc=self.locale.t("message.error") + str(e),
                 info=self.wiki_info,
                 templates=[],
             )
-        ban = False
+        Silian_ban = False
         if self.wiki_info.in_blocklist and not self.wiki_info.in_allowlist:
-            ban = True
+            Silian_ban = True
 
         # if redirected too many times, raise AbuseWarning
-        if _tried > 5 and enable_tos:
+        if _tried > 5 and Silian_enable_tos:
             raise AbuseWarning("{I18N:tos.message.reason.too_many_redirects}")
-        selected_section = None
-        query_props = ["info", "imageinfo", "langlinks", "templates"]
+        Silian_selected_section = None
+        Silian_query_props = ["info", "imageinfo", "langlinks", "templates"]
 
         # special handling for moegirl.org.cn
         if self.wiki_info.api.find("moegirl.org.cn") != -1:
-            query_props.remove("imageinfo")
+            Silian_query_props.remove("imageinfo")
 
         if title:  # parse title, generate args
             if inline:
-                split_name = re.split(r"(#)", title)
+                Silian_split_name = re.split(r"(#)", title)
             else:
-                split_name = re.split(r"([#?])", title)
-            title = re.sub("_", " ", split_name[0])
-            arg_list = []
-            _arg_list = []
-            section_list = []
-            has_section = False
-            section_code = False
+                Silian_split_name = re.split(r"([#?])", title)
+            title = re.sub("_", " ", Silian_split_name[0])
+            Silian_arg_list = []
+            Silian__arg_list = []
+            Silian_section_list = []
+            Silian_has_section = False
+            Silian_section_code = False
 
             # handling section and query args in title
-            for a in split_name[1:]:
-                if len(a) > 0:
-                    if a[0] == "#":
-                        section_code = True
-                        has_section = True
-                    if a[0] == "?":
-                        section_code = False
-                    if section_code:
-                        arg_list.append(urllib.parse.quote(a))
-                        section_list.append(a)
+            for Silian_a in Silian_split_name[1:]:
+                if len(Silian_a) > 0:
+                    if Silian_a[0] == "#":
+                        Silian_section_code = True
+                        Silian_has_section = True
+                    if Silian_a[0] == "?":
+                        Silian_section_code = False
+                    if Silian_section_code:
+                        Silian_arg_list.append(urllib.parse.quote(Silian_a))
+                        Silian_section_list.append(Silian_a)
                     else:
-                        _arg_list.append(a)
-            _arg = "".join(_arg_list)
-            if _arg.find("=") != -1:
-                arg_list.append(_arg)
+                        Silian__arg_list.append(Silian_a)
+            Silian__arg = "".join(Silian__arg_list)
+            if Silian__arg.find("=") != -1:
+                Silian_arg_list.append(Silian__arg)
             else:
-                if len(arg_list) > 0:
-                    arg_list[-1] += _arg
+                if len(Silian_arg_list) > 0:
+                    Silian_arg_list[-1] += Silian__arg
                 else:
-                    title += _arg
-            if len(section_list) > 1:
-                selected_section = "".join(section_list)[1:].replace(" ", "_")
+                    title += Silian__arg
+            if len(Silian_section_list) > 1:
+                Silian_selected_section = "".join(Silian_section_list)[1:].replace(" ", "_")
 
             # generate base PageInfo
             page_info = PageInfo(
                 info=self.wiki_info,
                 title=title,
-                args="".join(arg_list),
+                args="".join(Silian_arg_list),
                 interwiki_prefix=_prefix,
             )
             # if selected section is None, but used # in title, mark invalid_section
-            page_info.selected_section = selected_section
-            if not selected_section and has_section:
+            page_info.selected_section = Silian_selected_section
+            if not Silian_selected_section and Silian_has_section:
                 page_info.invalid_section = True
 
             # generate final query string
-            query_string = {
+            Silian_query_string = {
                 "action": "query",
-                "prop": "|".join(query_props),
+                "prop": "|".join(Silian_query_props),
                 "llprop": "url",
                 "inprop": "url",
                 "iiprop": "url",
@@ -624,9 +624,9 @@ class WikiLib:
             # generate base PageInfo
             page_info = PageInfo(info=self.wiki_info, title=title, args="", interwiki_prefix=_prefix)
             # generate final query string
-            query_string = {
+            Silian_query_string = {
                 "action": "query",
-                "prop": "|".join(query_props),
+                "prop": "|".join(Silian_query_props),
                 "llprop": "url",
                 "inprop": "url",
                 "iiprop": "url",
@@ -645,12 +645,12 @@ class WikiLib:
             )
 
         # if TextExtracts extension is available and no selected section, add extracts to query
-        use_textextracts = "TextExtracts" in self.wiki_info.extensions
-        if use_textextracts and not selected_section:
-            query_props += ["extracts", "pageprops"]
-            query_string.update(
+        Silian_use_textextracts = "TextExtracts" in self.wiki_info.extensions
+        if Silian_use_textextracts and not Silian_selected_section:
+            Silian_query_props += ["extracts", "pageprops"]
+            Silian_query_string.update(
                 {
-                    "prop": "|".join(query_props),
+                    "prop": "|".join(Silian_query_props),
                     "ppprop": "description|displaytitle|disambiguation|infoboxes",
                     "explaintext": "true",
                     "exsectionformat": "plain",
@@ -659,13 +659,13 @@ class WikiLib:
             )
 
         # get page info from api
-        get_page = await self.get_json(**query_string)
+        Silian_get_page = await self.get_json(**Silian_query_string)
 
         # parse the result
-        query = get_page.get("query")
+        Silian_query = Silian_get_page.get("query")
 
         # if no query returned, return error PageInfo
-        if not query:
+        if not Silian_query:
             return PageInfo(
                 title=title,
                 desc=self.locale.t("wiki.message.utils.wikilib.error.empty"),
@@ -673,54 +673,54 @@ class WikiLib:
             )
 
         # handle redirects, normalized titles, converted titles
-        normalized_: list[dict[str, str]] = query.get("normalized")
-        if normalized_:
-            for n in normalized_:
-                if n["from"] == title:
-                    page_info.before_title = n["from"]
-                    page_info.title = n["to"]
-        converted_: list[dict[str, str]] = query.get("converted")
-        if converted_:
-            for c in converted_:
-                if c["from"] == title:
-                    page_info.before_title = c["from"]
-                    page_info.title = c["to"]
-        redirects_: list[dict[str, str]] = query.get("redirects")
-        if redirects_:
-            for r in redirects_:
-                if r["from"] == title:
-                    page_info.before_title = r["from"]
-                    page_info.title = r["to"]
+        Silian_normalized_: list[dict[str, str]] = Silian_query.get("normalized")
+        if Silian_normalized_:
+            for Silian_n in Silian_normalized_:
+                if Silian_n["from"] == title:
+                    page_info.before_title = Silian_n["from"]
+                    page_info.title = Silian_n["to"]
+        Silian_converted_: list[dict[str, str]] = Silian_query.get("converted")
+        if Silian_converted_:
+            for Silian_c in Silian_converted_:
+                if Silian_c["from"] == title:
+                    page_info.before_title = Silian_c["from"]
+                    page_info.title = Silian_c["to"]
+        Silian_redirects_: list[dict[str, str]] = Silian_query.get("redirects")
+        if Silian_redirects_:
+            for Silian_r in Silian_redirects_:
+                if Silian_r["from"] == title:
+                    page_info.before_title = Silian_r["from"]
+                    page_info.title = Silian_r["to"]
 
         # get page data
-        pages: dict[str, dict] = query.get("pages")
-        if pages:
-            for page_id in pages:
+        Silian_pages: dict[str, dict] = Silian_query.get("pages")
+        if Silian_pages:
+            for Silian_page_id in Silian_pages:
                 # set default values
                 page_info.status = False
-                page_info.id = int(page_id)
-                page_raw = pages[page_id]
-                if "title" in page_raw:
-                    page_info.title = page_raw["title"]
-                if "editurl" in page_raw:
-                    page_info.edit_link = page_raw["editurl"]
+                page_info.id = int(Silian_page_id)
+                Silian_page_raw = Silian_pages[Silian_page_id]
+                if "title" in Silian_page_raw:
+                    page_info.title = Silian_page_raw["title"]
+                if "editurl" in Silian_page_raw:
+                    page_info.edit_link = Silian_page_raw["editurl"]
 
-                if "invalid" in page_raw:
-                    match = re.search(r"\"(.)\"", page_raw["invalidreason"])
-                    if match:
-                        rs = self.locale.t(
+                if "invalid" in Silian_page_raw:
+                    Silian_match = re.search(r"\"(.)\"", Silian_page_raw["invalidreason"])
+                    if Silian_match:
+                        Silian_rs = self.locale.t(
                             "wiki.message.utils.wikilib.invalid.invalid_character",
-                            char=match.group(1),
+                            char=Silian_match.group(1),
                         )
                     else:
-                        rs = self.locale.t("wiki.message.utils.wikilib.invalid.empty_title")
-                    page_info.desc = rs
-                elif "missing" in page_raw:
+                        Silian_rs = self.locale.t("wiki.message.utils.wikilib.invalid.empty_title")
+                    page_info.desc = Silian_rs
+                elif "missing" in Silian_page_raw:
                     # if page is missing... try to research
-                    if "title" in page_raw:
-                        if "known" in page_raw:
+                    if "title" in Silian_page_raw:
+                        if "known" in Silian_page_raw:
                             # if page is known to be missing... return link without desc
-                            full_url = (
+                            Silian_full_url = (
                                 re.sub(
                                     r"\$1",
                                     urllib.parse.quote(page_info.title.encode("UTF-8")),
@@ -728,24 +728,24 @@ class WikiLib:
                                 )
                                 + page_info.args
                             )
-                            page_info.link = full_url
-                            file = None
-                            if "imageinfo" in page_raw:
-                                file = page_raw["imageinfo"][0]["url"]
-                            page_info.file = file
+                            page_info.link = Silian_full_url
+                            Silian_file = None
+                            if "imageinfo" in Silian_page_raw:
+                                Silian_file = Silian_page_raw["imageinfo"][0]["url"]
+                            page_info.file = Silian_file
                             page_info.status = True
                         else:
                             # try to reparse the title
                             split_title = title.split(":")
-                            reparse = False
+                            Silian_reparse = False
                             if (
                                 len(split_title) > 1
                                 and split_title[0] in self.wiki_info.namespaces_local
                                 and self.wiki_info.namespaces_local[split_title[0]] == "Template"
                             ):
                                 # if Template namespace, reparse title without Template namespace
-                                rstitle = ":".join(split_title[1:]) + page_info.args
-                                reparse = await self.parse_page_info(rstitle)
+                                Silian_rstitle = ":".join(split_title[1:]) + page_info.args
+                                Silian_reparse = await self.parse_page_info(Silian_rstitle)
                                 page_info.before_page_property = "template"
                             elif (
                                 len(split_title) > 1
@@ -753,65 +753,65 @@ class WikiLib:
                                 and not _search
                             ):
                                 # reparse title with canonical namespace... e.g. "MCW" -> "Minecraft Wiki"
-                                rstitle = (
+                                Silian_rstitle = (
                                     f"{self.wiki_info.namespacealiases[split_title[0].lower()]}:"
                                     + ":".join(split_title[1:])
                                     + page_info.args
                                 )
-                                reparse = await self.parse_page_info(rstitle, _search=True)
-                            if reparse:  # if reparsed successfully, use the reparsed result
+                                Silian_reparse = await self.parse_page_info(Silian_rstitle, _search=True)
+                            if Silian_reparse:  # if reparsed successfully, use the reparsed result
                                 page_info.before_title = page_info.title
-                                page_info.title = reparse.title
-                                page_info.link = reparse.link
-                                page_info.desc = reparse.desc
-                                page_info.file = reparse.file
-                                page_info.status = reparse.status
-                                page_info.invalid_namespace = reparse.invalid_namespace
-                                page_info.possible_research_title = reparse.possible_research_title
+                                page_info.title = Silian_reparse.title
+                                page_info.link = Silian_reparse.link
+                                page_info.desc = Silian_reparse.desc
+                                page_info.file = Silian_reparse.file
+                                page_info.status = Silian_reparse.status
+                                page_info.invalid_namespace = Silian_reparse.invalid_namespace
+                                page_info.possible_research_title = Silian_reparse.possible_research_title
                             else:
                                 # otherwise, try to research the page
-                                namespace = "*"
+                                Silian_namespace = "*"
                                 if len(split_title) > 1 and split_title[0] in self.wiki_info.namespaces:
                                     # if namespace exists, use it
-                                    namespace = self.wiki_info.namespaces[split_title[0]]
+                                    Silian_namespace = self.wiki_info.namespaces[split_title[0]]
                                 # search by text, title, nearmatch
-                                srwhats = ["text", "title", "nearmatch"]
+                                Silian_srwhats = ["text", "title", "nearmatch"]
                                 preferred = None
                                 invalid_namespace = False
 
-                                async def search_something(srwhat):
+                                async def search_something(Silian_srwhat):
                                     try:
-                                        research = await self.research_page(page_info.title, namespace, srwhat=srwhat)
-                                        if srwhat == "text":
+                                        Silian_research = await self.research_page(page_info.title, Silian_namespace, srwhat=Silian_srwhat)
+                                        if Silian_srwhat == "text":
                                             nonlocal preferred
                                             nonlocal invalid_namespace
-                                            preferred = research[0]
-                                            invalid_namespace = research[1]
-                                        return research
+                                            preferred = Silian_research[0]
+                                            invalid_namespace = Silian_research[1]
+                                        return Silian_research
                                     except Exception:
                                         if Config("debug", False):
                                             Logger.exception()
                                         return None, False
 
-                                searches = []
-                                searched_result = []
-                                for srwhat in srwhats:
-                                    searches.append(search_something(srwhat))
+                                Silian_searches = []
+                                Silian_searched_result = []
+                                for Silian_srwhat in Silian_srwhats:
+                                    Silian_searches.append(search_something(Silian_srwhat))
                                 # request concurrently
-                                gather_search = await asyncio.gather(*searches)
-                                for search in gather_search:
-                                    if search[0] and search[0] not in searched_result:
-                                        searched_result.append(search[0])
+                                Silian_gather_search = await asyncio.gather(*Silian_searches)
+                                for Silian_search in Silian_gather_search:
+                                    if Silian_search[0] and Silian_search[0] not in Silian_searched_result:
+                                        Silian_searched_result.append(Silian_search[0])
 
-                                if not preferred and searched_result:
-                                    preferred = searched_result[0]
+                                if not preferred and Silian_searched_result:
+                                    preferred = Silian_searched_result[0]
 
                                 # if found possible research result, set possible_research_title
 
                                 page_info.before_title = page_info.title
                                 page_info.title = preferred
                                 page_info.invalid_namespace = invalid_namespace
-                                page_info.possible_research_title = searched_result
+                                page_info.possible_research_title = Silian_searched_result
                 else:
                     # otherwise, assume page exists
                     page_info.status = True
@@ -821,21 +821,21 @@ class WikiLib:
                         page_info.body_class = await self.get_page_body_class(page_info.title)
                         if "ns-talk" in page_info.body_class:
                             page_info.is_talk_page = True
-                        stp = special_talk_page_class.get(page_info.info.api, [])
-                        for sc in stp:
-                            if sc in page_info.body_class:
+                        Silian_stp = special_talk_page_class.get(page_info.info.api, [])
+                        for Silian_sc in Silian_stp:
+                            if Silian_sc in page_info.body_class:
                                 page_info.is_talk_page = True
                                 break
-                        sfp = forum_class.get(page_info.info.api, [])
-                        for fc in sfp:
-                            if fc in page_info.body_class:
+                        Silian_sfp = forum_class.get(page_info.info.api, [])
+                        for Silian_fc in Silian_sfp:
+                            if Silian_fc in page_info.body_class:
                                 page_info.is_forum = True
                                 page_info.forum_data = await self.get_forums_data(page_info.title)
                                 break
                         if not page_info.is_forum:
-                            for bc in page_info.body_class:
-                                for fc in sfp:
-                                    if bc.startswith(fc):
+                            for Silian_bc in page_info.body_class:
+                                for Silian_fc in Silian_sfp:
+                                    if Silian_bc.startswith(Silian_fc):
                                         page_info.is_forum_topic = True
                                         break
                     except Exception:
@@ -843,29 +843,29 @@ class WikiLib:
 
                     # handling templates
 
-                    templates = page_info.templates = [t["title"] for t in page_raw.get("templates", [])]
+                    Silian_templates = page_info.templates = [Silian_t["title"] for Silian_t in Silian_page_raw.get("templates", [])]
 
                     # handling special talk page
-                    if selected_section or page_info.invalid_section or page_info.is_talk_page:
-                        parse_section_string = {
+                    if Silian_selected_section or page_info.invalid_section or page_info.is_talk_page:
+                        Silian_parse_section_string = {
                             "action": "parse",
                             "page": page_info.title,
                             "prop": "sections",
                         }
-                        parse_section = await self.get_json(**parse_section_string)
-                        section_list = []
-                        if "parse" in parse_section:
-                            sections = parse_section["parse"]["sections"]
-                            for s in sections:
-                                section_list.append(s["anchor"])
-                            page_info.sections = section_list
-                        if selected_section:
-                            if urllib.parse.unquote(selected_section) not in section_list:
+                        Silian_parse_section = await self.get_json(**Silian_parse_section_string)
+                        Silian_section_list = []
+                        if "parse" in Silian_parse_section:
+                            Silian_sections = Silian_parse_section["parse"]["sections"]
+                            for Silian_s in Silian_sections:
+                                Silian_section_list.append(Silian_s["anchor"])
+                            page_info.sections = Silian_section_list
+                        if Silian_selected_section:
+                            if urllib.parse.unquote(Silian_selected_section) not in Silian_section_list:
                                 page_info.invalid_section = True
 
                     # handling special pages
-                    if "special" in page_raw:
-                        full_url = (
+                    if "special" in Silian_page_raw:
+                        Silian_full_url = (
                             re.sub(
                                 r"\$1",
                                 urllib.parse.quote(title.encode("UTF-8")),
@@ -873,166 +873,166 @@ class WikiLib:
                             )
                             + page_info.args
                         )
-                        page_info.link = full_url
+                        page_info.link = Silian_full_url
                         page_info.status = True
                     else:
                         # handling normal pages
-                        query_langlinks = False
+                        Silian_query_langlinks = False
                         if lang:  # e.g. get page with another language version parameter given
-                            langlinks_ = {}
-                            for x in page_raw.get("langlinks", []):
-                                langlinks_[x["lang"]] = x["url"]
-                            if lang in langlinks_:
-                                query_wiki = WikiLib(
+                            Silian_langlinks_ = {}
+                            for Silian_x in Silian_page_raw.get("langlinks", []):
+                                Silian_langlinks_[Silian_x["lang"]] = Silian_x["url"]
+                            if lang in Silian_langlinks_:
+                                Silian_query_wiki = WikiLib(
                                     url=self.wiki_info.interwiki[lang],
                                     headers=self.headers,
                                 )
-                                await query_wiki.fixup_wiki_info()
-                                query_wiki_info = query_wiki.wiki_info
-                                q_articlepath = query_wiki_info.articlepath.replace("$1", "(.*)")
-                                get_title = re.sub(r"" + q_articlepath, "\\1", langlinks_[lang])
-                                query_langlinks = await query_wiki.parse_page_info(urllib.parse.unquote(get_title))
-                            if "WikibaseClient" in self.wiki_info.extensions and not query_langlinks:
+                                await Silian_query_wiki.fixup_wiki_info()
+                                Silian_query_wiki_info = Silian_query_wiki.wiki_info
+                                Silian_q_articlepath = Silian_query_wiki_info.articlepath.replace("$1", "(.*)")
+                                Silian_get_title = re.sub(r"" + Silian_q_articlepath, "\\1", Silian_langlinks_[lang])
+                                Silian_query_langlinks = await Silian_query_wiki.parse_page_info(urllib.parse.unquote(Silian_get_title))
+                            if "WikibaseClient" in self.wiki_info.extensions and not Silian_query_langlinks:
                                 title = (await self.parse_page_info(title)).title
-                                qc_string = {
+                                Silian_qc_string = {
                                     "action": "query",
                                     "meta": "wikibase",
                                     "wbprop": "url|siteid",
                                 }
-                                query_client_info = await self.get_json(**qc_string)
-                                repo_url = query_client_info["query"]["wikibase"]["repo"]["url"]["base"]
-                                siteid = query_client_info["query"]["wikibase"]["siteid"]
-                                query_target_site = WikiLib(self.wiki_info.interwiki[lang], headers=self.headers)
-                                target_siteid = (await query_target_site.get_json(**qc_string))["query"]["wikibase"][
+                                Silian_query_client_info = await self.get_json(**Silian_qc_string)
+                                Silian_repo_url = Silian_query_client_info["query"]["wikibase"]["repo"]["url"]["base"]
+                                Silian_siteid = Silian_query_client_info["query"]["wikibase"]["siteid"]
+                                Silian_query_target_site = WikiLib(self.wiki_info.interwiki[lang], headers=self.headers)
+                                Silian_target_siteid = (await Silian_query_target_site.get_json(**Silian_qc_string))["query"]["wikibase"][
                                     "siteid"
                                 ]
-                                qr_wiki_info = WikiLib(repo_url)
-                                qr_string = {
+                                Silian_qr_wiki_info = WikiLib(Silian_repo_url)
+                                Silian_qr_string = {
                                     "action": "wbgetentities",
-                                    "sites": siteid,
+                                    "sites": Silian_siteid,
                                     "titles": title,
                                     "props": "sitelinks/urls",
                                     "redirects": "yes",
                                 }
-                                qr = await qr_wiki_info.get_json(**qr_string)
-                                if "entities" in qr:
-                                    qr_result = qr["entities"]
-                                    for x in qr_result:
-                                        if "missing" not in qr_result[x]:
-                                            target_site_page_title = qr_result[x]["sitelinks"][target_siteid]["title"]
-                                            q_target = await query_target_site.parse_page_info(target_site_page_title)
-                                            if q_target.status:
-                                                query_langlinks = q_target
+                                Silian_qr = await Silian_qr_wiki_info.get_json(**Silian_qr_string)
+                                if "entities" in Silian_qr:
+                                    Silian_qr_result = Silian_qr["entities"]
+                                    for Silian_x in Silian_qr_result:
+                                        if "missing" not in Silian_qr_result[Silian_x]:
+                                            Silian_target_site_page_title = Silian_qr_result[Silian_x]["sitelinks"][Silian_target_siteid]["title"]
+                                            Silian_q_target = await Silian_query_target_site.parse_page_info(Silian_target_site_page_title)
+                                            if Silian_q_target.status:
+                                                Silian_query_langlinks = Silian_q_target
                                                 break
 
-                            if lang in self.wiki_info.interwiki and not query_langlinks:
-                                query_wiki = WikiLib(
+                            if lang in self.wiki_info.interwiki and not Silian_query_langlinks:
+                                Silian_query_wiki = WikiLib(
                                     url=self.wiki_info.interwiki[lang],
                                     headers=self.headers,
                                 )
-                                await query_wiki.fixup_wiki_info()
-                                query_wiki_info = query_wiki.wiki_info
-                                q_articlepath = query_wiki_info.articlepath
-                                get_title_schema = re.sub(
-                                    r"" + q_articlepath.replace("$1", "(.*)"),
+                                await Silian_query_wiki.fixup_wiki_info()
+                                Silian_query_wiki_info = Silian_query_wiki.wiki_info
+                                Silian_q_articlepath = Silian_query_wiki_info.articlepath
+                                Silian_get_title_schema = re.sub(
+                                    r"" + Silian_q_articlepath.replace("$1", "(.*)"),
                                     "\\1",
                                     self.wiki_info.interwiki[lang],
                                 )
-                                query_langlinks_ = await query_wiki.parse_page_info(
-                                    get_title_schema.replace("$1", title)
+                                Silian_query_langlinks_ = await Silian_query_wiki.parse_page_info(
+                                    Silian_get_title_schema.replace("$1", title)
                                 )
-                                if query_langlinks_.status:
-                                    query_langlinks = query_langlinks_
+                                if Silian_query_langlinks_.status:
+                                    Silian_query_langlinks = Silian_query_langlinks_
 
-                        if not query_langlinks:  # normal handling
-                            title = page_raw["title"]
-                            page_desc = ""
+                        if not Silian_query_langlinks:  # normal handling
+                            title = Silian_page_raw["title"]
+                            Silian_page_desc = ""
                             split_title = title.split(":")
-                            get_desc = True
+                            Silian_get_desc = True
                             # handling documentation subpage for templates
                             if (
                                 not _doc
                                 and len(split_title) > 1
                                 and split_title[0] in self.wiki_info.namespaces_local
                                 and self.wiki_info.namespaces_local[split_title[0]] == "Template"
-                                and "Template:Documentation" in templates
+                                and "Template:Documentation" in Silian_templates
                             ):
-                                get_all_text = await self.get_wikitext(title)
-                                match_doc = re.match(
+                                Silian_get_all_text = await self.get_wikitext(title)
+                                Silian_match_doc = re.match(
                                     r".*{{documentation\|?(.*?)}}.*",
-                                    get_all_text,
+                                    Silian_get_all_text,
                                     re.I | re.S,
                                 )
-                                if match_doc:
-                                    match_link = re.match(r"link=(.*)", match_doc.group(1), re.I | re.S)
-                                    if match_link:
-                                        get_doc = match_link.group(1)
+                                if Silian_match_doc:
+                                    Silian_match_link = re.match(r"link=(.*)", Silian_match_doc.group(1), re.I | re.S)
+                                    if Silian_match_link:
+                                        Silian_get_doc = Silian_match_link.group(1)
                                     else:
-                                        get_doc = title + "/doc"
-                                    get_desc = False
-                                    get_doc_desc = await self.parse_page_info(get_doc, _doc=True)
-                                    page_desc = get_doc_desc.desc
-                                    if page_desc:
+                                        Silian_get_doc = title + "/doc"
+                                    Silian_get_desc = False
+                                    Silian_get_doc_desc = await self.parse_page_info(Silian_get_doc, _doc=True)
+                                    Silian_page_desc = Silian_get_doc_desc.desc
+                                    if Silian_page_desc:
                                         page_info.has_template_doc = True
                                     page_info.before_page_property = page_info.page_property = "template"
                             # get description
-                            if get_desc:
-                                if use_textextracts and (not selected_section or page_info.invalid_section):
-                                    raw_desc = page_raw.get("extract")
-                                    if raw_desc:
-                                        page_desc = self.parse_text(raw_desc)
+                            if Silian_get_desc:
+                                if Silian_use_textextracts and (not Silian_selected_section or page_info.invalid_section):
+                                    Silian_raw_desc = Silian_page_raw.get("extract")
+                                    if Silian_raw_desc:
+                                        Silian_page_desc = self.parse_text(Silian_raw_desc)
                                 else:
-                                    page_desc = self.parse_text(await self.get_html_to_text(title, selected_section))
-                            full_url = page_raw["fullurl"] + page_info.args
-                            file = None
-                            if "imageinfo" in page_raw:
-                                file = page_raw["imageinfo"][0]["url"]
+                                    Silian_page_desc = self.parse_text(await self.get_html_to_text(title, Silian_selected_section))
+                            Silian_full_url = Silian_page_raw["fullurl"] + page_info.args
+                            Silian_file = None
+                            if "imageinfo" in Silian_page_raw:
+                                Silian_file = Silian_page_raw["imageinfo"][0]["url"]
                             page_info.title = title
-                            page_info.link = full_url
-                            page_info.file = file
-                            page_info.desc = page_desc
+                            page_info.link = Silian_full_url
+                            page_info.file = Silian_file
+                            page_info.desc = Silian_page_desc
                             if not _iw and not page_info.args and page_info.id != -1 and page_info.id:
                                 page_info.link = self.wiki_info.script + f"?curid={page_info.id}"
                         else:
                             # handling langlinks query result, skip normal processing
-                            page_info.title = query_langlinks.title
-                            page_info.before_title = query_langlinks.title
-                            page_info.link = query_langlinks.link
-                            page_info.edit_link = query_langlinks.edit_link
-                            page_info.file = query_langlinks.file
-                            page_info.desc = query_langlinks.desc
-        interwiki_: list[dict[str, str]] = query.get("interwiki")
-        if interwiki_:
+                            page_info.title = Silian_query_langlinks.title
+                            page_info.before_title = Silian_query_langlinks.title
+                            page_info.link = Silian_query_langlinks.link
+                            page_info.edit_link = Silian_query_langlinks.edit_link
+                            page_info.file = Silian_query_langlinks.file
+                            page_info.desc = Silian_query_langlinks.desc
+        Silian_interwiki_: list[dict[str, str]] = Silian_query.get("interwiki")
+        if Silian_interwiki_:
             # handling interwiki pages
-            for i in interwiki_:
-                if i["title"] == page_info.title:
-                    iw_title = re.match(r"^" + i["iw"] + ":(.*)", i["title"])
-                    iw_title = iw_title.group(1)
-                    _prefix += i["iw"] + ":"
+            for Silian_i in Silian_interwiki_:
+                if Silian_i["title"] == page_info.title:
+                    Silian_iw_title = re.match(r"^" + Silian_i["iw"] + ":(.*)", Silian_i["title"])
+                    Silian_iw_title = Silian_iw_title.group(1)
+                    _prefix += Silian_i["iw"] + ":"
                     _iw = True
 
                     # if interwiki target not found, raise InvalidWikiError
 
-                    if not (get_iw := self.wiki_info.interwiki.get(i["iw"])):
+                    if not (Silian_get_iw := self.wiki_info.interwiki.get(Silian_i["iw"])):
                         raise InvalidWikiError(self.locale.t("wiki.message.utils.wikilib.get_failed.invalid_interwiki"))
                     # try to query interwiki page
-                    iw_query = await WikiLib(url=get_iw, headers=self.headers).parse_page_info(
-                        iw_title, lang=lang, _tried=_tried + 1, _prefix=_prefix, _iw=_iw
+                    Silian_iw_query = await WikiLib(url=Silian_get_iw, headers=self.headers).parse_page_info(
+                        Silian_iw_title, lang=lang, _tried=_tried + 1, _prefix=_prefix, _iw=_iw
                     )
-                    before_page_info = page_info
-                    page_info = iw_query
-                    if not iw_query.title:
+                    Silian_before_page_info = page_info
+                    page_info = Silian_iw_query
+                    if not Silian_iw_query.title:
                         page_info.title = ""
                     else:
                         # redirect to new result
-                        page_info.before_title = before_page_info.title
-                        t = page_info.title
-                        if t:
-                            if before_page_info.args or page_info.id == -1 or not page_info.id:  # preserve args if any
-                                page_info.before_title += urllib.parse.unquote(before_page_info.args)
-                                t += urllib.parse.unquote(before_page_info.args)
+                        page_info.before_title = Silian_before_page_info.title
+                        Silian_t = page_info.title
+                        if Silian_t:
+                            if Silian_before_page_info.args or page_info.id == -1 or not page_info.id:  # preserve args if any
+                                page_info.before_title += urllib.parse.unquote(Silian_before_page_info.args)
+                                Silian_t += urllib.parse.unquote(Silian_before_page_info.args)
                                 if page_info.link:
-                                    page_info.link += before_page_info.args
+                                    page_info.link += Silian_before_page_info.args
                             else:
                                 # else rebuild link by curid
                                 page_info.link = page_info.info.script + f"?curid={page_info.id}"
@@ -1042,29 +1042,29 @@ class WikiLib:
                                 ):  # if lang specified and page exists, set before_title directly
                                     page_info.before_title = page_info.title
                                 else:
-                                    page_info.title = page_info.interwiki_prefix + t
+                                    page_info.title = page_info.interwiki_prefix + Silian_t
                                     # set possible research titles with interwiki prefix
                                     if page_info.possible_research_title:
                                         page_info.possible_research_title = [
-                                            page_info.interwiki_prefix + possible_title
-                                            for possible_title in page_info.possible_research_title
+                                            page_info.interwiki_prefix + Silian_possible_title
+                                            for Silian_possible_title in page_info.possible_research_title
                                         ]
 
-                                if before_page_info.selected_section:
-                                    page_info.selected_section = before_page_info.selected_section
+                                if Silian_before_page_info.selected_section:
+                                    page_info.selected_section = Silian_before_page_info.selected_section
         if not self.wiki_info.in_allowlist:  # check content if not in allowlist
-            checklist = []
+            Silian_checklist = []
             if page_info.title:
-                checklist.append(page_info.title)
+                Silian_checklist.append(page_info.title)
             if page_info.before_title:
-                checklist.append(page_info.before_title)
+                Silian_checklist.append(page_info.before_title)
             if page_info.desc:
-                checklist.append(page_info.desc)
-            chk = await check(checklist, session=session)
-            for x in chk:
-                if not x["status"]:
-                    ban = True
-        if ban:  # if content check failed, mark as banned
+                Silian_checklist.append(page_info.desc)
+            Silian_chk = await check(Silian_checklist, session=session)
+            for Silian_x in Silian_chk:
+                if not Silian_x["status"]:
+                    Silian_ban = True
+        if Silian_ban:  # if content check failed, mark as banned
             page_info.status = False
             page_info.title = page_info.before_title = None
             page_info.id = -1
@@ -1075,12 +1075,12 @@ class WikiLib:
             page_info.link = None
         return page_info
 
-    async def random_page(self) -> PageInfo:
+    async def random_page(Silian_self) -> PageInfo:
         """
         获取随机页面
         :return: 页面信息
         """
-        await self.fixup_wiki_info()
-        random_url = await self.get_json(action="query", list="random", rnnamespace="0")
-        page_title = random_url["query"]["random"][0]["title"]
-        return await self.parse_page_info(page_title)
+        await Silian_self.fixup_wiki_info()
+        Silian_random_url = await Silian_self.get_json(action="query", list="random", rnnamespace="0")
+        Silian_page_title = Silian_random_url["query"]["random"][0]["title"]
+        return await Silian_self.parse_page_info(Silian_page_title)

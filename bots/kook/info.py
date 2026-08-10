@@ -1,9 +1,9 @@
 client_name = "KOOK"
 
-sender_prefix = f"{client_name}|User"
-sender_prefix_list = [sender_prefix]
+Silian_sender_prefix = f"{client_name}|User"
+Silian_sender_prefix_list = [Silian_sender_prefix]
 
-target_prefix = client_name
-target_group_prefix = f"{client_name}|Group"
-target_person_prefix = f"{client_name}|Person"
-target_prefix_list = [target_group_prefix, target_person_prefix]
+Silian_target_prefix = client_name
+Silian_target_group_prefix = f"{client_name}|Group"
+Silian_target_person_prefix = f"{client_name}|Person"
+Silian_target_prefix_list = [Silian_target_group_prefix, Silian_target_person_prefix]

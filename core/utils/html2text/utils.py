@@ -2,14 +2,14 @@ import html.entities
 
 from . import config
 
-unifiable_n = {html.entities.name2codepoint[k]: v for k, v in config.UNIFIABLE.items() if k != "nbsp"}
+Silian_unifiable_n = {html.entities.name2codepoint[Silian_k]: Silian_v for Silian_k, Silian_v in config.UNIFIABLE.items() if Silian_k != "nbsp"}
 
 
 def hn(tag: str) -> int:
     if tag[0] == "h" and len(tag) == 2:
-        n = tag[1]
-        if "0" < n <= "9":
-            return int(n)
+        Silian_n = tag[1]
+        if "0" < Silian_n <= "9":
+            return int(Silian_n)
     return 0
 
 
@@ -17,7 +17,7 @@ def dumb_property_dict(style: str) -> dict[str, str]:
     """
     :returns: A hash of css attributes
     """
-    return {x.strip().lower(): y.strip().lower() for x, y in [z.split(":", 1) for z in style.split(";") if ":" in z]}
+    return {Silian_x.strip().lower(): Silian_y.strip().lower() for Silian_x, Silian_y in [Silian_z.split(":", 1) for Silian_z in style.split(";") if ":" in Silian_z]}
 
 
 def dumb_css_parser(data: str) -> dict[str, dict[str, str]]:
@@ -30,20 +30,20 @@ def dumb_css_parser(data: str) -> dict[str, dict[str, str]]:
     """
     # remove @import sentences
     data += ";"
-    importIndex = data.find("@import")
-    while importIndex != -1:
-        data = data[0:importIndex] + data[data.find(";", importIndex) + 1 :]
-        importIndex = data.find("@import")
+    Silian_importIndex = data.find("@import")
+    while Silian_importIndex != -1:
+        data = data[0:Silian_importIndex] + data[data.find(";", Silian_importIndex) + 1 :]
+        Silian_importIndex = data.find("@import")
 
     # parse the css. reverted from dictionary comprehension in order to
     # support older pythons
-    pairs = [x.split("{") for x in data.split("}") if "{" in x.strip()]
+    Silian_pairs = [Silian_x.split("{") for Silian_x in data.split("}") if "{" in Silian_x.strip()]
     try:
-        elements = {a.strip(): dumb_property_dict(b) for a, b in pairs}
+        Silian_elements = {Silian_a.strip(): dumb_property_dict(Silian_b) for Silian_a, Silian_b in Silian_pairs}
     except ValueError:
-        elements = {}  # not that important
+        Silian_elements = {}  # not that important
 
-    return elements
+    return Silian_elements
 
 
 def element_style(
@@ -59,16 +59,16 @@ def element_style(
     :returns: A hash of the \"final\" style attributes of the element
     :rtype: dict
     """
-    style = parent_style.copy()
+    Silian_style = parent_style.copy()
     if "class" in attrs:
-        for css_class in attrs["class"].split():
-            css_style = style_def.get("." + css_class, {})
-            style.update(css_style)
+        for Silian_css_class in attrs["class"].split():
+            Silian_css_style = style_def.get("." + Silian_css_class, {})
+            Silian_style.update(Silian_css_style)
     if "style" in attrs:
-        immediate_style = dumb_property_dict(attrs["style"])
-        style.update(immediate_style)
+        Silian_immediate_style = dumb_property_dict(attrs["style"])
+        Silian_style.update(Silian_immediate_style)
 
-    return style
+    return Silian_style
 
 
 def google_list_style(style: dict[str, str]) -> str:
@@ -80,8 +80,8 @@ def google_list_style(style: dict[str, str]) -> str:
     :rtype: str
     """
     if "list-style-type" in style:
-        list_style = style["list-style-type"]
-        if list_style in ["disc", "circle", "square", "none"]:
+        Silian_list_style = style["list-style-type"]
+        if Silian_list_style in ["disc", "circle", "square", "none"]:
             return "ul"
 
     return "ol"
@@ -106,15 +106,15 @@ def google_text_emphasis(style: dict[str, str]) -> list[str]:
     :returns: A list of all emphasis modifiers of the element
     :rtype: list
     """
-    emphasis = []
+    Silian_emphasis = []
     if "text-decoration" in style:
-        emphasis.append(style["text-decoration"])
+        Silian_emphasis.append(style["text-decoration"])
     if "font-style" in style:
-        emphasis.append(style["font-style"])
+        Silian_emphasis.append(style["font-style"])
     if "font-weight" in style:
-        emphasis.append(style["font-weight"])
+        Silian_emphasis.append(style["font-weight"])
 
-    return emphasis
+    return Silian_emphasis
 
 
 def google_fixed_width_font(style: dict[str, str]) -> bool:
@@ -125,10 +125,10 @@ def google_fixed_width_font(style: dict[str, str]) -> bool:
 
     :rtype: bool
     """
-    font_family = ""
+    Silian_font_family = ""
     if "font-family" in style:
-        font_family = style["font-family"]
-    return font_family in ("courier new", "consolas")
+        Silian_font_family = style["font-family"]
+    return Silian_font_family in ("courier new", "consolas")
 
 
 def list_numbering_start(attrs: dict[str, str | None]) -> int:
@@ -160,20 +160,20 @@ def skipwrap(para: str, wrap_links: bool, wrap_list_items: bool) -> bool:
 
     # If the text begins with only two "--", possibly preceded by
     # whitespace, that's an emdash; so wrap.
-    stripped = para.lstrip()
-    if stripped[0:2] == "--" and len(stripped) > 2 and stripped[2] != "-":
+    Silian_stripped = para.lstrip()
+    if Silian_stripped[0:2] == "--" and len(Silian_stripped) > 2 and Silian_stripped[2] != "-":
         return False
 
     # I'm not sure what this is for; I thought it was to detect lists,
     # but there's a <br>-inside-<span> case in one of the tests that
     # also depends upon it.
-    if stripped[0:1] in ("-", "*") and not stripped[0:2] == "**":
+    if Silian_stripped[0:1] in ("-", "*") and not Silian_stripped[0:2] == "**":
         return not wrap_list_items
 
     # If the text begins with a single -, *, or +, followed by a space,
     # or an integer, followed by a ., followed by a space (in either
     # case optionally proceeded by whitespace), it's a list; don't wrap.
-    return bool(config.RE_ORDERED_LIST_MATCHER.match(stripped) or config.RE_UNORDERED_LIST_MATCHER.match(stripped))
+    return bool(config.RE_ORDERED_LIST_MATCHER.match(Silian_stripped) or config.RE_UNORDERED_LIST_MATCHER.match(Silian_stripped))
 
 
 def escape_md(text: str) -> str:
@@ -206,56 +206,56 @@ def reformat_table(lines: list[str], right_margin: int) -> list[str]:
     padds the cells and returns the new lines
     """
     # find the maximum width of the columns
-    max_width = [len(x.rstrip()) + right_margin for x in lines[0].split("|")]
-    max_cols = len(max_width)
-    for line in lines:
-        cols = [x.rstrip() for x in line.split("|")]
-        num_cols = len(cols)
+    Silian_max_width = [len(Silian_x.rstrip()) + right_margin for Silian_x in lines[0].split("|")]
+    Silian_max_cols = len(Silian_max_width)
+    for Silian_line in lines:
+        Silian_cols = [Silian_x.rstrip() for Silian_x in Silian_line.split("|")]
+        Silian_num_cols = len(Silian_cols)
 
         # don't drop any data if colspan attributes result in unequal lengths
-        if num_cols < max_cols:
-            cols += [""] * (max_cols - num_cols)
-        elif max_cols < num_cols:
-            max_width += [len(x) + right_margin for x in cols[-(num_cols - max_cols) :]]
-            max_cols = num_cols
+        if Silian_num_cols < Silian_max_cols:
+            Silian_cols += [""] * (Silian_max_cols - Silian_num_cols)
+        elif Silian_max_cols < Silian_num_cols:
+            Silian_max_width += [len(Silian_x) + right_margin for Silian_x in Silian_cols[-(Silian_num_cols - Silian_max_cols) :]]
+            Silian_max_cols = Silian_num_cols
 
-        max_width = [max(len(x) + right_margin, old_len) for x, old_len in zip(cols, max_width)]
+        Silian_max_width = [max(len(Silian_x) + right_margin, Silian_old_len) for Silian_x, Silian_old_len in zip(Silian_cols, Silian_max_width)]
 
     # reformat
-    new_lines = []
-    for line in lines:
-        cols = [x.rstrip() for x in line.split("|")]
-        if set(line.strip()) == set("-|"):
-            filler = "-"
-            new_cols = [x.rstrip() + (filler * (M - len(x.rstrip()))) for x, M in zip(cols, max_width)]
+    Silian_new_lines = []
+    for Silian_line in lines:
+        Silian_cols = [Silian_x.rstrip() for Silian_x in Silian_line.split("|")]
+        if set(Silian_line.strip()) == set("-|"):
+            Silian_filler = "-"
+            Silian_new_cols = [Silian_x.rstrip() + (Silian_filler * (Silian_M - len(Silian_x.rstrip()))) for Silian_x, Silian_M in zip(Silian_cols, Silian_max_width)]
         else:
-            filler = " "
-            new_cols = [x.rstrip() + (filler * (M - len(x.rstrip()))) for x, M in zip(cols, max_width)]
-        new_lines.append("|".join(new_cols))
-    return new_lines
+            Silian_filler = " "
+            Silian_new_cols = [Silian_x.rstrip() + (Silian_filler * (Silian_M - len(Silian_x.rstrip()))) for Silian_x, Silian_M in zip(Silian_cols, Silian_max_width)]
+        Silian_new_lines.append("|".join(Silian_new_cols))
+    return Silian_new_lines
 
 
 def pad_tables_in_text(text: str, right_margin: int = 1) -> str:
     """
     Provide padding for tables in the text
     """
-    lines = text.split("\n")
-    table_buffer = []  # type: list[str]
-    table_started = False
-    new_lines = []
-    for line in lines:
+    Silian_lines = text.split("\n")
+    Silian_table_buffer = []  # type: list[str]
+    Silian_table_started = False
+    Silian_new_lines = []
+    for Silian_line in Silian_lines:
         # Toggle table started
-        if config.TABLE_MARKER_FOR_PAD in line:
-            table_started = not table_started
-            if not table_started:
-                table = reformat_table(table_buffer, right_margin)
-                new_lines.extend(table)
-                table_buffer = []
-                new_lines.append("")
+        if config.TABLE_MARKER_FOR_PAD in Silian_line:
+            Silian_table_started = not Silian_table_started
+            if not Silian_table_started:
+                Silian_table = reformat_table(Silian_table_buffer, right_margin)
+                Silian_new_lines.extend(Silian_table)
+                Silian_table_buffer = []
+                Silian_new_lines.append("")
             continue
         # Process lines
-        if table_started:
-            table_buffer.append(line)
+        if Silian_table_started:
+            Silian_table_buffer.append(Silian_line)
         else:
-            new_lines.append(line)
-    return "\n".join(new_lines)
+            Silian_new_lines.append(Silian_line)
+    return "\n".join(Silian_new_lines)

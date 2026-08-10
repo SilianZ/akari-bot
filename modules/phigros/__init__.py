@@ -12,10 +12,10 @@ from .libraries.genb30 import get_b30
 from .libraries.update import remove_punctuations, update_assets, p_headers
 from .libraries.record import get_game_record
 
-pgr_assets_path = assets_path / "modules" / "phigros"
-song_info_path = pgr_assets_path / "song_info.json"
+Silian_pgr_assets_path = assets_path / "modules" / "phigros"
+Silian_song_info_path = Silian_pgr_assets_path / "song_info.json"
 
-phi = module(
+Silian_phi = module(
     "phigros",
     developers=["Mivik", "OasisAkari", "DoroWolf"],
     desc="{I18N:phigros.help.desc}",
@@ -24,9 +24,9 @@ phi = module(
 )
 
 
-@phi.command("bind <sessiontoken> {{I18N:phigros.help.bind}}")
-async def _(msg: Bot.MessageSession, sessiontoken: str):
-    if msg.session_info.target_from in [
+@Silian_phi.command("bind <sessiontoken> {{I18N:phigros.help.bind}}")
+async def _(Silian_msg: Bot.MessageSession, Silian_sessiontoken: str):
+    if Silian_msg.session_info.target_from in [
         "Discord|Channel",
         "KOOK|Group",
         "Matrix|Room",
@@ -36,45 +36,45 @@ async def _(msg: Bot.MessageSession, sessiontoken: str):
         "Telegram|Group",
         "Telegram|Supergroup",
     ]:
-        await msg.send_message(I18NContext("phigros.message.bind.warning"), quote=False)
-        await msg.delete()
-    headers = p_headers.copy()
-    headers["X-LC-Session"] = sessiontoken
+        await Silian_msg.send_message(I18NContext("phigros.message.bind.warning"), quote=False)
+        await Silian_msg.delete()
+    Silian_headers = p_headers.copy()
+    Silian_headers["X-LC-Session"] = Silian_sessiontoken
     try:
-        get_user_info = await get_url(
+        Silian_get_user_info = await get_url(
             "https://rak3ffdi.cloud.tds1.tapapis.cn/1.1/users/me",
-            headers=headers,
+            headers=Silian_headers,
             fmt="json",
         )
-        if get_user_info:
-            username = get_user_info.get("nickname", "Guest")
+        if Silian_get_user_info:
+            Silian_username = Silian_get_user_info.get("nickname", "Guest")
             await PhigrosBindInfo.set_bind_info(
-                sender_id=msg.session_info.sender_id, session_token=sessiontoken, username=username
+                sender_id=Silian_msg.session_info.sender_id, session_token=Silian_sessiontoken, username=Silian_username
             )
-            await msg.finish(I18NContext("phigros.message.bind.success", username=username), quote=False)
+            await Silian_msg.finish(I18NContext("phigros.message.bind.success", username=Silian_username), quote=False)
         else:
-            await msg.finish(I18NContext("phigros.message.bind.failed"), quote=False)
+            await Silian_msg.finish(I18NContext("phigros.message.bind.failed"), quote=False)
     except ValueError:
-        await msg.finish(I18NContext("phigros.message.bind.failed"), quote=False)
+        await Silian_msg.finish(I18NContext("phigros.message.bind.failed"), quote=False)
 
 
-@phi.command("unbind {{I18N:phigros.help.unbind}}")
-async def _(msg: Bot.MessageSession):
-    await PhigrosBindInfo.remove_bind_info(sender_id=msg.session_info.sender_id)
-    await msg.finish(I18NContext("phigros.message.unbind.success"))
+@Silian_phi.command("unbind {{I18N:phigros.help.unbind}}")
+async def _(Silian_msg: Bot.MessageSession):
+    await PhigrosBindInfo.remove_bind_info(sender_id=Silian_msg.session_info.sender_id)
+    await Silian_msg.finish(I18NContext("phigros.message.unbind.success"))
 
 
-@phi.command("b30 {{I18N:phigros.help.b30}}")
-async def _(msg: Bot.MessageSession):
-    bind_info = await PhigrosBindInfo.get_by_sender_id(msg, create=False)
-    if not bind_info:
-        await msg.finish(I18NContext("phigros.message.user_unbound", prefix=msg.session_info.prefixes[0]))
-    if not song_info_path.exists():
-        await msg.finish(I18NContext("phigros.message.file_not_found"))
+@Silian_phi.command("b30 {{I18N:phigros.help.b30}}")
+async def _(Silian_msg: Bot.MessageSession):
+    Silian_bind_info = await PhigrosBindInfo.get_by_sender_id(Silian_msg, create=False)
+    if not Silian_bind_info:
+        await Silian_msg.finish(I18NContext("phigros.message.user_unbound", prefix=Silian_msg.session_info.prefixes[0]))
+    if not Silian_song_info_path.exists():
+        await Silian_msg.finish(I18NContext("phigros.message.file_not_found"))
 
-    img = await get_b30(msg, bind_info.username, bind_info.session_token)
-    if img:
-        await msg.finish(Image(img))
+    Silian_img = await get_b30(Silian_msg, Silian_bind_info.username, Silian_bind_info.session_token)
+    if Silian_img:
+        await Silian_msg.finish(Image(Silian_img))
 
 
 def get_rank(score: int, full_combo: bool) -> str:
@@ -97,65 +97,65 @@ def get_rank(score: int, full_combo: bool) -> str:
     return ""
 
 
-@phi.command("random {{I18N:phigros.help.random}}")
-async def _(msg: Bot.MessageSession):
-    if not song_info_path.exists():
-        await msg.finish(I18NContext("phigros.message.file_not_found"))
+@Silian_phi.command("random {{I18N:phigros.help.random}}")
+async def _(Silian_msg: Bot.MessageSession):
+    if not Silian_song_info_path.exists():
+        await Silian_msg.finish(I18NContext("phigros.message.file_not_found"))
 
-    msg_chain = MessageChain.assign()
-    with open(song_info_path, "rb") as f:
-        song_info = orjson.loads(f.read())
-    sid, sinfo = Random.choice(list(song_info.items()))
-    illustration_path = pgr_assets_path / "illustration" / f"{sid.split('.')[0]}.png"
-    if illustration_path.exists():
-        msg_chain.append(Image(illustration_path))
+    Silian_msg_chain = MessageChain.assign()
+    with open(Silian_song_info_path, "rb") as Silian_f:
+        Silian_song_info = orjson.loads(Silian_f.read())
+    sid, Silian_sinfo = Random.choice(list(Silian_song_info.items()))
+    Silian_illustration_path = Silian_pgr_assets_path / "illustration" / f"{sid.split('.')[0]}.png"
+    if Silian_illustration_path.exists():
+        Silian_msg_chain.append(Image(Silian_illustration_path))
 
-    msg_chain.append(Plain(sinfo["name"]))
-    diff_lst = ["EZ", "HD", "IN", "AT"]
-    diffs = [sinfo["diff"][d] for d in diff_lst if d in sinfo["diff"]]
-    msg_chain.append(Plain("/".join(diffs)))
-    await msg.finish(msg_chain)
+    Silian_msg_chain.append(Plain(Silian_sinfo["name"]))
+    Silian_diff_lst = ["EZ", "HD", "IN", "AT"]
+    Silian_diffs = [Silian_sinfo["diff"][Silian_d] for Silian_d in Silian_diff_lst if Silian_d in Silian_sinfo["diff"]]
+    Silian_msg_chain.append(Plain("/".join(Silian_diffs)))
+    await Silian_msg.finish(Silian_msg_chain)
 
 
-@phi.command("score <song_name> {{I18N:phigros.help.score}}")
-async def _(msg: Bot.MessageSession, song_name: str):
-    bind_info = await PhigrosBindInfo.get_by_sender_id(msg, create=False)
-    if not bind_info:
-        await msg.finish(I18NContext("phigros.message.user_unbound", prefix=msg.session_info.prefixes[0]))
-    if not song_info_path.exists():
-        await msg.finish(I18NContext("phigros.message.file_not_found"))
+@Silian_phi.command("score <song_name> {{I18N:phigros.help.score}}")
+async def _(Silian_msg: Bot.MessageSession, Silian_song_name: str):
+    Silian_bind_info = await PhigrosBindInfo.get_by_sender_id(Silian_msg, create=False)
+    if not Silian_bind_info:
+        await Silian_msg.finish(I18NContext("phigros.message.user_unbound", prefix=Silian_msg.session_info.prefixes[0]))
+    if not Silian_song_info_path.exists():
+        await Silian_msg.finish(I18NContext("phigros.message.file_not_found"))
 
-    msg_chain = MessageChain.assign()
-    game_records: dict = await get_game_record(msg, bind_info.session_token)
-    for sid, record in game_records.items():
-        if remove_punctuations(record.get("name").lower()) == remove_punctuations(song_name.lower()):
-            illustration_path = pgr_assets_path / "illustration" / f"{sid.split('.')[0]}.png"
-            if illustration_path.exists():
-                msg_chain.append(Image(illustration_path))
+    Silian_msg_chain = MessageChain.assign()
+    Silian_game_records: dict = await get_game_record(Silian_msg, Silian_bind_info.session_token)
+    for sid, Silian_record in Silian_game_records.items():
+        if remove_punctuations(Silian_record.get("name").lower()) == remove_punctuations(Silian_song_name.lower()):
+            Silian_illustration_path = Silian_pgr_assets_path / "illustration" / f"{sid.split('.')[0]}.png"
+            if Silian_illustration_path.exists():
+                Silian_msg_chain.append(Image(Silian_illustration_path))
 
-            msg_chain.append(Plain(record.get("name")))
-            with open(song_info_path, "rb") as f:
-                song_info = orjson.loads(f.read())
-            diff_info = song_info.get(sid, {}).get("diff", {})
+            Silian_msg_chain.append(Plain(Silian_record.get("name")))
+            with open(Silian_song_info_path, "rb") as Silian_f:
+                Silian_song_info = orjson.loads(Silian_f.read())
+            diff_info = Silian_song_info.get(sid, {}).get("diff", {})
 
-            for diff, diff_data in diff_info.items():
-                msg_chain.append(Plain(f"{diff} {diff_info[diff]}"))
+            for diff, Silian_diff_data in diff_info.items():
+                Silian_msg_chain.append(Plain(f"{diff} {diff_info[diff]}"))
 
-                diff_data = record.get("diff", {}).get(diff)
-                if not diff_data:
-                    msg_chain.append(I18NContext("phigros.message.score.no_record"))
+                Silian_diff_data = Silian_record.get("diff", {}).get(diff)
+                if not Silian_diff_data:
+                    Silian_msg_chain.append(I18NContext("phigros.message.score.no_record"))
                 else:
-                    score = diff_data["score"]
-                    acc = diff_data["accuracy"]
-                    full_combo = diff_data["full_combo"]
-                    rank = get_rank(score, full_combo)
-                    msg_chain.append(Plain(f"{score} {acc:.2f}% {rank}"))
-            await msg.finish(msg_chain)
-    await msg.finish(I18NContext("phigros.message.music_not_found"))
+                    score = Silian_diff_data["score"]
+                    acc = Silian_diff_data["accuracy"]
+                    Silian_full_combo = Silian_diff_data["full_combo"]
+                    rank = get_rank(score, Silian_full_combo)
+                    Silian_msg_chain.append(Plain(f"{score} {acc:.2f}% {rank}"))
+            await Silian_msg.finish(Silian_msg_chain)
+    await Silian_msg.finish(I18NContext("phigros.message.music_not_found"))
 
 
-@phi.command("update [--no-illus]", required_superuser=True)
-async def _(msg: Bot.MessageSession):
-    if await update_assets(not msg.parsed_msg.get("--no-illus", False)):
-        await msg.finish(I18NContext("message.success"))
-    await msg.finish(I18NContext("message.failed"))
+@Silian_phi.command("update [--no-illus]", required_superuser=True)
+async def _(Silian_msg: Bot.MessageSession):
+    if await update_assets(not Silian_msg.parsed_msg.get("--no-illus", False)):
+        await Silian_msg.finish(I18NContext("message.success"))
+    await Silian_msg.finish(I18NContext("message.failed"))

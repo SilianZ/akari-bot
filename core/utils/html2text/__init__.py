@@ -35,10 +35,10 @@ __version__ = (2020, 1, 16)
 
 class HTML2Text(html.parser.HTMLParser):
     def __init__(
-        self,
-        out: OutCallback | None = None,
-        baseurl: str = "",
-        bodywidth: int = config.BODY_WIDTH,
+        Silian_self,
+        Silian_out: OutCallback | None = None,
+        Silian_baseurl: str = "",
+        Silian_bodywidth: int = config.BODY_WIDTH,
     ) -> None:
         """
         Input parameters:
@@ -49,131 +49,131 @@ class HTML2Text(html.parser.HTMLParser):
         super().__init__(convert_charrefs=False)
 
         # Config options
-        self.split_next_td = False
-        self.td_count = 0
-        self.table_start = False
-        self.unicode_snob = config.UNICODE_SNOB  # covered in cli
-        self.escape_snob = config.ESCAPE_SNOB  # covered in cli
-        self.links_each_paragraph = config.LINKS_EACH_PARAGRAPH
-        self.body_width = bodywidth  # covered in cli
-        self.skip_internal_links = config.SKIP_INTERNAL_LINKS  # covered in cli
-        self.inline_links = config.INLINE_LINKS  # covered in cli
-        self.protect_links = config.PROTECT_LINKS  # covered in cli
-        self.google_list_indent = config.GOOGLE_LIST_INDENT  # covered in cli
-        self.ignore_links = config.IGNORE_ANCHORS  # covered in cli
-        self.ignore_images = config.IGNORE_IMAGES  # covered in cli
-        self.images_as_html = config.IMAGES_AS_HTML  # covered in cli
-        self.images_to_alt = config.IMAGES_TO_ALT  # covered in cli
-        self.images_with_size = config.IMAGES_WITH_SIZE  # covered in cli
-        self.ignore_emphasis = config.IGNORE_EMPHASIS  # covered in cli
-        self.bypass_tables = config.BYPASS_TABLES  # covered in cli
-        self.ignore_tables = config.IGNORE_TABLES  # covered in cli
-        self.google_doc = False  # covered in cli
-        self.ul_item_mark = "*"  # covered in cli
-        self.emphasis_mark = "_"  # covered in cli
-        self.strong_mark = "**"
-        self.single_line_break = config.SINGLE_LINE_BREAK  # covered in cli
-        self.use_automatic_links = config.USE_AUTOMATIC_LINKS  # covered in cli
-        self.hide_strikethrough = False  # covered in cli
-        self.mark_code = config.MARK_CODE
-        self.wrap_list_items = config.WRAP_LIST_ITEMS  # covered in cli
-        self.wrap_links = config.WRAP_LINKS  # covered in cli
-        self.pad_tables = config.PAD_TABLES  # covered in cli
-        self.default_image_alt = config.DEFAULT_IMAGE_ALT  # covered in cli
-        self.tag_callback = None
-        self.open_quote = config.OPEN_QUOTE  # covered in cli
-        self.close_quote = config.CLOSE_QUOTE  # covered in cli
+        Silian_self.split_next_td = False
+        Silian_self.td_count = 0
+        Silian_self.table_start = False
+        Silian_self.unicode_snob = config.UNICODE_SNOB  # covered in cli
+        Silian_self.escape_snob = config.ESCAPE_SNOB  # covered in cli
+        Silian_self.links_each_paragraph = config.LINKS_EACH_PARAGRAPH
+        Silian_self.body_width = Silian_bodywidth  # covered in cli
+        Silian_self.skip_internal_links = config.SKIP_INTERNAL_LINKS  # covered in cli
+        Silian_self.inline_links = config.INLINE_LINKS  # covered in cli
+        Silian_self.protect_links = config.PROTECT_LINKS  # covered in cli
+        Silian_self.google_list_indent = config.GOOGLE_LIST_INDENT  # covered in cli
+        Silian_self.ignore_links = config.IGNORE_ANCHORS  # covered in cli
+        Silian_self.ignore_images = config.IGNORE_IMAGES  # covered in cli
+        Silian_self.images_as_html = config.IMAGES_AS_HTML  # covered in cli
+        Silian_self.images_to_alt = config.IMAGES_TO_ALT  # covered in cli
+        Silian_self.images_with_size = config.IMAGES_WITH_SIZE  # covered in cli
+        Silian_self.ignore_emphasis = config.IGNORE_EMPHASIS  # covered in cli
+        Silian_self.bypass_tables = config.BYPASS_TABLES  # covered in cli
+        Silian_self.ignore_tables = config.IGNORE_TABLES  # covered in cli
+        Silian_self.google_doc = False  # covered in cli
+        Silian_self.ul_item_mark = "*"  # covered in cli
+        Silian_self.emphasis_mark = "_"  # covered in cli
+        Silian_self.strong_mark = "**"
+        Silian_self.single_line_break = config.SINGLE_LINE_BREAK  # covered in cli
+        Silian_self.use_automatic_links = config.USE_AUTOMATIC_LINKS  # covered in cli
+        Silian_self.hide_strikethrough = False  # covered in cli
+        Silian_self.mark_code = config.MARK_CODE
+        Silian_self.wrap_list_items = config.WRAP_LIST_ITEMS  # covered in cli
+        Silian_self.wrap_links = config.WRAP_LINKS  # covered in cli
+        Silian_self.pad_tables = config.PAD_TABLES  # covered in cli
+        Silian_self.default_image_alt = config.DEFAULT_IMAGE_ALT  # covered in cli
+        Silian_self.tag_callback = None
+        Silian_self.open_quote = config.OPEN_QUOTE  # covered in cli
+        Silian_self.close_quote = config.CLOSE_QUOTE  # covered in cli
 
-        if out is None:
-            self.out = self.outtextf
+        if Silian_out is None:
+            Silian_self.out = Silian_self.outtextf
         else:
-            self.out = out
+            Silian_self.out = Silian_out
 
         # empty list to store output characters before they are "joined"
-        self.outtextlist = []  # type: list[str]
+        Silian_self.outtextlist = []  # type: list[str]
 
-        self.quiet = 0
-        self.p_p = 0  # number of newline character to print before next output
-        self.outcount = 0
-        self.start = True
-        self.space = False
-        self.a = []  # type: list[AnchorElement]
-        self.astack = []  # type: list[dict[str, str | None]]
-        self.maybe_automatic_link = None  # type: str | None
-        self.empty_link = False
-        self.absolute_url_matcher = re.compile(r"^[a-zA-Z+]+://")
-        self.acount = 0
-        self.list = []  # type: list[ListElement]
-        self.blockquote = 0
-        self.pre = False
-        self.startpre = False
-        self.code = False
-        self.quote = False
-        self.br_toggle = ""
-        self.lastWasNL = False
-        self.lastWasList = False
-        self.style = 0
-        self.style_def = {}  # type: dict[str, dict[str, str]]
-        self.tag_stack = []  # type: list[tuple[str, dict[str, str | None], dict[str, str]]]
-        self.emphasis = 0
-        self.drop_white_space = 0
-        self.inheader = False
+        Silian_self.quiet = 0
+        Silian_self.p_p = 0  # number of newline character to print before next output
+        Silian_self.outcount = 0
+        Silian_self.start = True
+        Silian_self.space = False
+        Silian_self.a = []  # type: list[AnchorElement]
+        Silian_self.astack = []  # type: list[dict[str, str | None]]
+        Silian_self.maybe_automatic_link = None  # type: str | None
+        Silian_self.empty_link = False
+        Silian_self.absolute_url_matcher = re.compile(r"^[a-zA-Z+]+://")
+        Silian_self.acount = 0
+        Silian_self.list = []  # type: list[ListElement]
+        Silian_self.blockquote = 0
+        Silian_self.pre = False
+        Silian_self.startpre = False
+        Silian_self.code = False
+        Silian_self.quote = False
+        Silian_self.br_toggle = ""
+        Silian_self.lastWasNL = False
+        Silian_self.lastWasList = False
+        Silian_self.style = 0
+        Silian_self.style_def = {}  # type: dict[str, dict[str, str]]
+        Silian_self.tag_stack = []  # type: list[tuple[str, dict[str, str | None], dict[str, str]]]
+        Silian_self.emphasis = 0
+        Silian_self.drop_white_space = 0
+        Silian_self.inheader = False
         # Current abbreviation definition
-        self.abbr_title = None  # type: str | None
+        Silian_self.abbr_title = None  # type: str | None
         # Last inner HTML (for abbr being defined)
-        self.abbr_data = None  # type: str | None
+        Silian_self.abbr_data = None  # type: str | None
         # Stack of abbreviations to write later
-        self.abbr_list = {}  # type: dict[str, str]
-        self.baseurl = baseurl
-        self.stressed = False
-        self.preceding_stressed = False
-        self.preceding_data = ""
-        self.current_tag = ""
+        Silian_self.abbr_list = {}  # type: dict[str, str]
+        Silian_self.baseurl = Silian_baseurl
+        Silian_self.stressed = False
+        Silian_self.preceding_stressed = False
+        Silian_self.preceding_data = ""
+        Silian_self.current_tag = ""
 
         config.UNIFIABLE["nbsp"] = "&nbsp_place_holder;"
 
-    def feed(self, data: str) -> None:
+    def feed(Silian_self, data: str) -> None:
         data = data.replace("</script>", "</ignore>")
         super().feed(data)
 
-    def handle(self, data: str) -> str:
-        self.feed(data)
-        self.feed("")
-        markdown = self.optwrap(self.finish())
-        if self.pad_tables:
-            return pad_tables_in_text(markdown)
-        return markdown
+    def handle(Silian_self, data: str) -> str:
+        Silian_self.feed(data)
+        Silian_self.feed("")
+        Silian_markdown = Silian_self.optwrap(Silian_self.finish())
+        if Silian_self.pad_tables:
+            return pad_tables_in_text(Silian_markdown)
+        return Silian_markdown
 
-    def outtextf(self, s: str) -> None:
-        self.outtextlist.append(s)
+    def outtextf(Silian_self, s: str) -> None:
+        Silian_self.outtextlist.append(s)
         if s:
-            self.lastWasNL = s[-1] == "\n"
+            Silian_self.lastWasNL = s[-1] == "\n"
 
-    def finish(self) -> str:
-        self.close()
+    def finish(Silian_self) -> str:
+        Silian_self.close()
 
-        self.pbr()
-        self.o("", force="end")
+        Silian_self.pbr()
+        Silian_self.o("", force="end")
 
-        outtext = "".join(self.outtextlist)
+        Silian_outtext = "".join(Silian_self.outtextlist)
 
-        if self.unicode_snob:
-            nbsp = html.entities.html5["nbsp;"]
+        if Silian_self.unicode_snob:
+            Silian_nbsp = html.entities.html5["nbsp;"]
         else:
-            nbsp = " "
-        outtext = outtext.replace("&nbsp_place_holder;", nbsp)
+            Silian_nbsp = " "
+        Silian_outtext = Silian_outtext.replace("&nbsp_place_holder;", Silian_nbsp)
 
         # Clear self.outtextlist to avoid memory leak of its content to
         # the next handling.
-        self.outtextlist = []
+        Silian_self.outtextlist = []
 
-        return outtext
+        return Silian_outtext
 
-    def handle_charref(self, c: str) -> None:
-        self.handle_data(self.charref(c), True)
+    def handle_charref(Silian_self, c: str) -> None:
+        Silian_self.handle_data(Silian_self.charref(c), True)
 
-    def handle_entityref(self, c: str) -> None:
-        ref = self.entityref(c)
+    def handle_entityref(Silian_self, c: str) -> None:
+        Silian_ref = Silian_self.entityref(c)
 
         # ref may be an empty string (e.g. for &lrm;/&rlm; markers that should
         # not contribute to the final output).
@@ -181,16 +181,16 @@ class HTML2Text(html.parser.HTMLParser):
         # stressed tag or mid-text within a stressed tag (text get split and
         # self.stressed/self.preceding_stressed gets switched after the first
         # part of that text).
-        if ref:
-            self.handle_data(ref, True)
+        if Silian_ref:
+            Silian_self.handle_data(Silian_ref, True)
 
-    def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
-        self.handle_tag(tag, dict(attrs), start=True)
+    def handle_starttag(Silian_self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
+        Silian_self.handle_tag(tag, dict(attrs), start=True)
 
-    def handle_endtag(self, tag: str) -> None:
-        self.handle_tag(tag, {}, start=False)
+    def handle_endtag(Silian_self, tag: str) -> None:
+        Silian_self.handle_tag(tag, {}, start=False)
 
-    def previousIndex(self, attrs: dict[str, str | None]) -> int | None:
+    def previousIndex(Silian_self, attrs: dict[str, str | None]) -> int | None:
         """
         :type attrs: dict
 
@@ -201,625 +201,625 @@ class HTML2Text(html.parser.HTMLParser):
         if "href" not in attrs:
             return None
 
-        match = False
-        for i, a in enumerate(self.a):
-            if "href" in a.attrs and a.attrs["href"] == attrs["href"]:
-                if "title" in a.attrs or "title" in attrs:
-                    if "title" in a.attrs and "title" in attrs and a.attrs["title"] == attrs["title"]:
-                        match = True
+        Silian_match = False
+        for Silian_i, Silian_a in enumerate(Silian_self.a):
+            if "href" in Silian_a.attrs and Silian_a.attrs["href"] == attrs["href"]:
+                if "title" in Silian_a.attrs or "title" in attrs:
+                    if "title" in Silian_a.attrs and "title" in attrs and Silian_a.attrs["title"] == attrs["title"]:
+                        Silian_match = True
                 else:
-                    match = True
+                    Silian_match = True
 
-            if match:
-                return i
+            if Silian_match:
+                return Silian_i
         return None
 
-    def handle_emphasis(self, start: bool, tag_style: dict[str, str], parent_style: dict[str, str]) -> None:
+    def handle_emphasis(Silian_self, start: bool, tag_style: dict[str, str], parent_style: dict[str, str]) -> None:
         """
         Handles various text emphases
         """
-        tag_emphasis = google_text_emphasis(tag_style)
-        parent_emphasis = google_text_emphasis(parent_style)
+        Silian_tag_emphasis = google_text_emphasis(tag_style)
+        Silian_parent_emphasis = google_text_emphasis(parent_style)
 
         # handle Google's text emphasis
-        strikethrough = "line-through" in tag_emphasis and self.hide_strikethrough
+        Silian_strikethrough = "line-through" in Silian_tag_emphasis and Silian_self.hide_strikethrough
 
         # google and others may mark a font's weight as `bold` or `700`
-        bold = False
-        for bold_marker in config.BOLD_TEXT_STYLE_VALUES:
-            bold = bold_marker in tag_emphasis and bold_marker not in parent_emphasis
-            if bold:
+        Silian_bold = False
+        for Silian_bold_marker in config.BOLD_TEXT_STYLE_VALUES:
+            Silian_bold = Silian_bold_marker in Silian_tag_emphasis and Silian_bold_marker not in Silian_parent_emphasis
+            if Silian_bold:
                 break
 
-        italic = "italic" in tag_emphasis and "italic" not in parent_emphasis
-        fixed = google_fixed_width_font(tag_style) and not google_fixed_width_font(parent_style) and not self.pre
+        Silian_italic = "italic" in Silian_tag_emphasis and "italic" not in Silian_parent_emphasis
+        Silian_fixed = google_fixed_width_font(tag_style) and not google_fixed_width_font(parent_style) and not Silian_self.pre
 
         if start:
             # crossed-out text must be handled before other attributes
             # in order not to output qualifiers unnecessarily
-            if bold or italic or fixed:
-                self.emphasis += 1
-            if strikethrough:
-                self.quiet += 1
-            if italic:
-                self.o(self.emphasis_mark)
-                self.drop_white_space += 1
-            if bold:
-                self.o(self.strong_mark)
-                self.drop_white_space += 1
-            if fixed:
-                self.o("`")
-                self.drop_white_space += 1
-                self.code = True
+            if Silian_bold or Silian_italic or Silian_fixed:
+                Silian_self.emphasis += 1
+            if Silian_strikethrough:
+                Silian_self.quiet += 1
+            if Silian_italic:
+                Silian_self.o(Silian_self.emphasis_mark)
+                Silian_self.drop_white_space += 1
+            if Silian_bold:
+                Silian_self.o(Silian_self.strong_mark)
+                Silian_self.drop_white_space += 1
+            if Silian_fixed:
+                Silian_self.o("`")
+                Silian_self.drop_white_space += 1
+                Silian_self.code = True
         else:
-            if bold or italic or fixed:
+            if Silian_bold or Silian_italic or Silian_fixed:
                 # there must not be whitespace before closing emphasis mark
-                self.emphasis -= 1
-                self.space = False
-            if fixed:
-                if self.drop_white_space:
+                Silian_self.emphasis -= 1
+                Silian_self.space = False
+            if Silian_fixed:
+                if Silian_self.drop_white_space:
                     # empty emphasis, drop it
-                    self.drop_white_space -= 1
+                    Silian_self.drop_white_space -= 1
                 else:
-                    self.o("`")
-                self.code = False
-            if bold:
-                if self.drop_white_space:
+                    Silian_self.o("`")
+                Silian_self.code = False
+            if Silian_bold:
+                if Silian_self.drop_white_space:
                     # empty emphasis, drop it
-                    self.drop_white_space -= 1
+                    Silian_self.drop_white_space -= 1
                 else:
-                    self.o(self.strong_mark)
-            if italic:
-                if self.drop_white_space:
+                    Silian_self.o(Silian_self.strong_mark)
+            if Silian_italic:
+                if Silian_self.drop_white_space:
                     # empty emphasis, drop it
-                    self.drop_white_space -= 1
+                    Silian_self.drop_white_space -= 1
                 else:
-                    self.o(self.emphasis_mark)
+                    Silian_self.o(Silian_self.emphasis_mark)
             # space is only allowed after *all* emphasis marks
-            if (bold or italic) and not self.emphasis:
-                self.o(" ")
-            if strikethrough:
-                self.quiet -= 1
+            if (Silian_bold or Silian_italic) and not Silian_self.emphasis:
+                Silian_self.o(" ")
+            if Silian_strikethrough:
+                Silian_self.quiet -= 1
 
-    def handle_tag(self, tag: str, attrs: dict[str, str | None], start: bool) -> None:
-        self.current_tag = tag
+    def handle_tag(Silian_self, tag: str, attrs: dict[str, str | None], start: bool) -> None:
+        Silian_self.current_tag = tag
 
-        if self.tag_callback is not None:
-            if self.tag_callback(self, tag, attrs, start) is True:
+        if Silian_self.tag_callback is not None:
+            if Silian_self.tag_callback(Silian_self, tag, attrs, start) is True:
                 return
 
         # first thing inside the anchor tag is another tag
         # that produces some output
         if (
             start
-            and self.maybe_automatic_link is not None
+            and Silian_self.maybe_automatic_link is not None
             and tag not in ["p", "div", "style", "dl", "dt"]
-            and (tag != "img" or self.ignore_images)
+            and (tag != "img" or Silian_self.ignore_images)
         ):
-            self.o("[")
-            self.maybe_automatic_link = None
-            self.empty_link = False
+            Silian_self.o("[")
+            Silian_self.maybe_automatic_link = None
+            Silian_self.empty_link = False
 
-        if self.google_doc:
+        if Silian_self.google_doc:
             # the attrs parameter is empty for a closing tag. in addition, we
             # need the attributes of the parent nodes in order to get a
             # complete style description for the current element. we assume
             # that google docs export well formed html.
-            parent_style = {}  # type: dict[str, str]
+            Silian_parent_style = {}  # type: dict[str, str]
             if start:
-                if self.tag_stack:
-                    parent_style = self.tag_stack[-1][2]
-                tag_style = element_style(attrs, self.style_def, parent_style)
-                self.tag_stack.append((tag, attrs, tag_style))
+                if Silian_self.tag_stack:
+                    Silian_parent_style = Silian_self.tag_stack[-1][2]
+                Silian_tag_style = element_style(attrs, Silian_self.style_def, Silian_parent_style)
+                Silian_self.tag_stack.append((tag, attrs, Silian_tag_style))
             else:
-                dummy, attrs, tag_style = self.tag_stack.pop() if self.tag_stack else (None, {}, {})
-                if self.tag_stack:
-                    parent_style = self.tag_stack[-1][2]
+                Silian_dummy, attrs, Silian_tag_style = Silian_self.tag_stack.pop() if Silian_self.tag_stack else (None, {}, {})
+                if Silian_self.tag_stack:
+                    Silian_parent_style = Silian_self.tag_stack[-1][2]
 
         if hn(tag):
-            self.p()
+            Silian_self.p()
             if start:
-                self.inheader = True
-                self.o(hn(tag) * "#" + " ")
+                Silian_self.inheader = True
+                Silian_self.o(hn(tag) * "#" + " ")
             else:
-                self.inheader = False
+                Silian_self.inheader = False
                 return  # prevent redundant emphasis marks on headers
 
         if tag in ["p", "div"]:
-            if self.google_doc:
-                if start and google_has_height(tag_style):
-                    self.p()
+            if Silian_self.google_doc:
+                if start and google_has_height(Silian_tag_style):
+                    Silian_self.p()
                 else:
-                    self.soft_br()
-            elif self.astack and tag == "div":
+                    Silian_self.soft_br()
+            elif Silian_self.astack and tag == "div":
                 pass
             else:
-                self.p()
+                Silian_self.p()
 
         if tag == "br" and start:
-            if self.blockquote > 0:
-                self.o("  \n> ")
+            if Silian_self.blockquote > 0:
+                Silian_self.o("  \n> ")
             else:
-                self.o("  \n")
+                Silian_self.o("  \n")
 
         if tag == "hr" and start:
-            self.p()
-            self.o("* * *")
-            self.p()
+            Silian_self.p()
+            Silian_self.o("* * *")
+            Silian_self.p()
 
         if tag in ["head", "style", "script"]:
             if start:
-                self.quiet += 1
+                Silian_self.quiet += 1
             else:
-                self.quiet -= 1
+                Silian_self.quiet -= 1
 
         if tag == "style":
             if start:
-                self.style += 1
+                Silian_self.style += 1
             else:
-                self.style -= 1
+                Silian_self.style -= 1
 
         if tag in ["body"]:
-            self.quiet = 0  # sites like 9rules.com never close <head>
+            Silian_self.quiet = 0  # sites like 9rules.com never close <head>
 
         if tag == "blockquote":
             if start:
-                self.p()
-                self.o("> ", force=True)
-                self.start = True
-                self.blockquote += 1
+                Silian_self.p()
+                Silian_self.o("> ", force=True)
+                Silian_self.start = True
+                Silian_self.blockquote += 1
             else:
-                self.blockquote -= 1
-                self.p()
+                Silian_self.blockquote -= 1
+                Silian_self.p()
 
-        def no_preceding_space(self: HTML2Text) -> bool:
-            return bool(self.preceding_data and re.match(r"[^\s]", self.preceding_data[-1]))
+        def no_preceding_space(Silian_self: HTML2Text) -> bool:
+            return bool(Silian_self.preceding_data and re.match(r"[^\s]", Silian_self.preceding_data[-1]))
 
-        if tag in ["em", "i", "u"] and not self.ignore_emphasis:
-            if start and no_preceding_space(self):
-                emphasis = " " + self.emphasis_mark
+        if tag in ["em", "i", "u"] and not Silian_self.ignore_emphasis:
+            if start and no_preceding_space(Silian_self):
+                Silian_emphasis = " " + Silian_self.emphasis_mark
             else:
-                emphasis = self.emphasis_mark
+                Silian_emphasis = Silian_self.emphasis_mark
 
-            self.o(emphasis)
+            Silian_self.o(Silian_emphasis)
             if start:
-                self.stressed = True
+                Silian_self.stressed = True
 
-        if tag in ["strong", "b"] and not self.ignore_emphasis:
-            if start and no_preceding_space(self):
-                strong = " " + self.strong_mark
+        if tag in ["strong", "b"] and not Silian_self.ignore_emphasis:
+            if start and no_preceding_space(Silian_self):
+                Silian_strong = " " + Silian_self.strong_mark
             else:
-                strong = self.strong_mark
+                Silian_strong = Silian_self.strong_mark
 
-            self.o(strong)
+            Silian_self.o(Silian_strong)
             if start:
-                self.stressed = True
+                Silian_self.stressed = True
 
         if tag in ["del", "strike", "s"]:
-            if start and no_preceding_space(self):
-                strike = " ~~"
+            if start and no_preceding_space(Silian_self):
+                Silian_strike = " ~~"
             else:
-                strike = "~~"
+                Silian_strike = "~~"
 
-            self.o(strike)
+            Silian_self.o(Silian_strike)
             if start:
-                self.stressed = True
+                Silian_self.stressed = True
 
-        if self.google_doc:
-            if not self.inheader:
+        if Silian_self.google_doc:
+            if not Silian_self.inheader:
                 # handle some font attributes, but leave headers clean
-                self.handle_emphasis(start, tag_style, parent_style)
+                Silian_self.handle_emphasis(start, Silian_tag_style, Silian_parent_style)
 
-        if tag in ["kbd", "code", "tt"] and not self.pre:
-            self.o("`")  # TODO: `` `this` ``
-            self.code = not self.code
+        if tag in ["kbd", "code", "tt"] and not Silian_self.pre:
+            Silian_self.o("`")  # TODO: `` `this` ``
+            Silian_self.code = not Silian_self.code
 
         if tag == "abbr":
             if start:
-                self.abbr_title = None
-                self.abbr_data = ""
+                Silian_self.abbr_title = None
+                Silian_self.abbr_data = ""
                 if "title" in attrs:
-                    self.abbr_title = attrs["title"]
+                    Silian_self.abbr_title = attrs["title"]
             else:
-                if self.abbr_title is not None:
-                    self.abbr_list[self.abbr_data] = self.abbr_title
-                    self.abbr_title = None
-                self.abbr_data = None
+                if Silian_self.abbr_title is not None:
+                    Silian_self.abbr_list[Silian_self.abbr_data] = Silian_self.abbr_title
+                    Silian_self.abbr_title = None
+                Silian_self.abbr_data = None
 
         if tag == "q":
-            if not self.quote:
-                self.o(self.open_quote)
+            if not Silian_self.quote:
+                Silian_self.o(Silian_self.open_quote)
             else:
-                self.o(self.close_quote)
-            self.quote = not self.quote
+                Silian_self.o(Silian_self.close_quote)
+            Silian_self.quote = not Silian_self.quote
 
-        def link_url(self: HTML2Text, link: str) -> None:
-            url = str(Url(urlparse.urljoin(self.baseurl, link)))
-            self.o(f"]({escape_md(url)})")
+        def link_url(Silian_self: HTML2Text, Silian_link: str) -> None:
+            url = str(Url(urlparse.urljoin(Silian_self.baseurl, Silian_link)))
+            Silian_self.o(f"]({escape_md(url)})")
 
-        if tag == "a" and not self.ignore_links:
+        if tag == "a" and not Silian_self.ignore_links:
             if start:
                 if (
                     "href" in attrs
                     and attrs["href"] is not None
-                    and not (self.skip_internal_links and attrs["href"].startswith("#"))
+                    and not (Silian_self.skip_internal_links and attrs["href"].startswith("#"))
                 ):
-                    self.astack.append(attrs)
-                    self.maybe_automatic_link = attrs["href"]
-                    self.empty_link = True
-                    if self.protect_links:
+                    Silian_self.astack.append(attrs)
+                    Silian_self.maybe_automatic_link = attrs["href"]
+                    Silian_self.empty_link = True
+                    if Silian_self.protect_links:
                         attrs["href"] = "<" + attrs["href"] + ">"
                 else:
-                    self.astack.append(None)
+                    Silian_self.astack.append(None)
             else:
-                if self.astack:
-                    a = self.astack.pop()
-                    if self.maybe_automatic_link and not self.empty_link:
-                        self.maybe_automatic_link = None
-                    elif a:
-                        if self.empty_link:
-                            self.o("[")
-                            self.empty_link = False
-                            self.maybe_automatic_link = None
-                        if self.inline_links:
-                            title = a.get("title") or ""
-                            title = escape_md(title)
-                            link_url(self, a["href"])
+                if Silian_self.astack:
+                    Silian_a = Silian_self.astack.pop()
+                    if Silian_self.maybe_automatic_link and not Silian_self.empty_link:
+                        Silian_self.maybe_automatic_link = None
+                    elif Silian_a:
+                        if Silian_self.empty_link:
+                            Silian_self.o("[")
+                            Silian_self.empty_link = False
+                            Silian_self.maybe_automatic_link = None
+                        if Silian_self.inline_links:
+                            Silian_title = Silian_a.get("title") or ""
+                            Silian_title = escape_md(Silian_title)
+                            link_url(Silian_self, Silian_a["href"])
                         else:
-                            i = self.previousIndex(a)
-                            if i is not None:
-                                a_props = self.a[i]
+                            Silian_i = Silian_self.previousIndex(Silian_a)
+                            if Silian_i is not None:
+                                Silian_a_props = Silian_self.a[Silian_i]
                             else:
-                                self.acount += 1
-                                a_props = AnchorElement(a, self.acount, self.outcount)
-                                self.a.append(a_props)
-                            self.o("][" + str(a_props.count) + "]")
+                                Silian_self.acount += 1
+                                Silian_a_props = AnchorElement(Silian_a, Silian_self.acount, Silian_self.outcount)
+                                Silian_self.a.append(Silian_a_props)
+                            Silian_self.o("][" + str(Silian_a_props.count) + "]")
 
-        if tag == "img" and start and not self.ignore_images:
+        if tag == "img" and start and not Silian_self.ignore_images:
             if "src" in attrs:
-                if not self.images_to_alt:
+                if not Silian_self.images_to_alt:
                     attrs["href"] = attrs["src"]
-                alt = attrs.get("alt") or self.default_image_alt
+                alt = attrs.get("alt") or Silian_self.default_image_alt
 
                 # If we have images_with_size, write raw html including width,
                 # height, and alt attributes
-                if self.images_as_html or (self.images_with_size and ("width" in attrs or "height" in attrs)):
-                    self.o(f"<img src='{attrs['src']}' ")
+                if Silian_self.images_as_html or (Silian_self.images_with_size and ("width" in attrs or "height" in attrs)):
+                    Silian_self.o(f"<img src='{attrs['src']}' ")
                     if "width" in attrs:
-                        self.o(f"width='{attrs['width']}' ")
+                        Silian_self.o(f"width='{attrs['width']}' ")
                     if "height" in attrs:
-                        self.o(f"height='{attrs['height']}' ")
+                        Silian_self.o(f"height='{attrs['height']}' ")
                     if alt:
-                        self.o(f"alt='{alt}' ")
-                    self.o("/>")
+                        Silian_self.o(f"alt='{alt}' ")
+                    Silian_self.o("/>")
                     return
 
                 # If we have a link to create, output the start
-                if self.maybe_automatic_link is not None:
-                    href = self.maybe_automatic_link
-                    if self.images_to_alt and escape_md(alt) == href and self.absolute_url_matcher.match(href):
-                        self.o("<" + escape_md(alt) + ">")
-                        self.empty_link = False
+                if Silian_self.maybe_automatic_link is not None:
+                    Silian_href = Silian_self.maybe_automatic_link
+                    if Silian_self.images_to_alt and escape_md(alt) == Silian_href and Silian_self.absolute_url_matcher.match(Silian_href):
+                        Silian_self.o("<" + escape_md(alt) + ">")
+                        Silian_self.empty_link = False
                         return
-                    self.o("[")
-                    self.maybe_automatic_link = None
-                    self.empty_link = False
+                    Silian_self.o("[")
+                    Silian_self.maybe_automatic_link = None
+                    Silian_self.empty_link = False
 
                 # If we have images_to_alt, we discard the image itself,
                 # considering only the alt text.
-                if self.images_to_alt:
-                    self.o(escape_md(alt))
+                if Silian_self.images_to_alt:
+                    Silian_self.o(escape_md(alt))
                 else:
-                    self.o("![" + str(Url(escape_md(alt))) + "]")
-                    if self.inline_links:
-                        href = attrs.get("href") or ""
-                        self.o("(" + str(Url(escape_md(urlparse.urljoin(self.baseurl, href)))) + ")")
+                    Silian_self.o("![" + str(Url(escape_md(alt))) + "]")
+                    if Silian_self.inline_links:
+                        Silian_href = attrs.get("href") or ""
+                        Silian_self.o("(" + str(Url(escape_md(urlparse.urljoin(Silian_self.baseurl, Silian_href)))) + ")")
                     else:
-                        i = self.previousIndex(attrs)
-                        if i is not None:
-                            a_props = self.a[i]
+                        Silian_i = Silian_self.previousIndex(attrs)
+                        if Silian_i is not None:
+                            Silian_a_props = Silian_self.a[Silian_i]
                         else:
-                            self.acount += 1
-                            a_props = AnchorElement(attrs, self.acount, self.outcount)
-                            self.a.append(a_props)
-                        self.o("[" + str(a_props.count) + "]")
+                            Silian_self.acount += 1
+                            Silian_a_props = AnchorElement(attrs, Silian_self.acount, Silian_self.outcount)
+                            Silian_self.a.append(Silian_a_props)
+                        Silian_self.o("[" + str(Silian_a_props.count) + "]")
 
         if tag == "dl" and start:
-            self.p()
+            Silian_self.p()
         if tag == "dt" and not start:
-            self.pbr()
+            Silian_self.pbr()
         if tag == "dd" and start:
-            self.o("    ")
+            Silian_self.o("    ")
         if tag == "dd" and not start:
-            self.pbr()
+            Silian_self.pbr()
 
         if tag in ["ol", "ul"]:
             # Google Docs create sub lists as top level lists
-            if not self.list and not self.lastWasList:
-                self.p()
+            if not Silian_self.list and not Silian_self.lastWasList:
+                Silian_self.p()
             if start:
-                if self.google_doc:
-                    list_style = google_list_style(tag_style)
+                if Silian_self.google_doc:
+                    Silian_list_style = google_list_style(Silian_tag_style)
                 else:
-                    list_style = tag
-                numbering_start = list_numbering_start(attrs)
-                self.list.append(ListElement(list_style, numbering_start))
+                    Silian_list_style = tag
+                Silian_numbering_start = list_numbering_start(attrs)
+                Silian_self.list.append(ListElement(Silian_list_style, Silian_numbering_start))
             else:
-                if self.list:
-                    self.list.pop()
-                    if not self.google_doc and not self.list:
-                        self.o("\n")
-            self.lastWasList = True
+                if Silian_self.list:
+                    Silian_self.list.pop()
+                    if not Silian_self.google_doc and not Silian_self.list:
+                        Silian_self.o("\n")
+            Silian_self.lastWasList = True
         else:
-            self.lastWasList = False
+            Silian_self.lastWasList = False
 
         if tag == "li":
-            self.pbr()
+            Silian_self.pbr()
             if start:
-                if self.list:
-                    li = self.list[-1]
+                if Silian_self.list:
+                    Silian_li = Silian_self.list[-1]
                 else:
-                    li = ListElement("ul", 0)
-                if self.google_doc:
-                    nest_count = self.google_nest_count(tag_style)
+                    Silian_li = ListElement("ul", 0)
+                if Silian_self.google_doc:
+                    Silian_nest_count = Silian_self.google_nest_count(Silian_tag_style)
                 else:
-                    nest_count = len(self.list)
+                    Silian_nest_count = len(Silian_self.list)
                 # TODO: line up <ol><li>s > 9 correctly.
-                self.o("  " * nest_count)
-                if li.name == "ul":
-                    self.o(self.ul_item_mark + " ")
-                elif li.name == "ol":
-                    li.num += 1
-                    self.o(str(li.num) + ". ")
-                self.start = True
+                Silian_self.o("  " * Silian_nest_count)
+                if Silian_li.name == "ul":
+                    Silian_self.o(Silian_self.ul_item_mark + " ")
+                elif Silian_li.name == "ol":
+                    Silian_li.num += 1
+                    Silian_self.o(str(Silian_li.num) + ". ")
+                Silian_self.start = True
 
         if tag in ["table", "tr", "td", "th"]:
-            if self.ignore_tables:
+            if Silian_self.ignore_tables:
                 if tag == "tr":
                     if start:
                         pass
                     else:
-                        self.soft_br()
+                        Silian_self.soft_br()
                 else:
                     pass
 
-            elif self.bypass_tables:
+            elif Silian_self.bypass_tables:
                 if start:
-                    self.soft_br()
+                    Silian_self.soft_br()
                 if tag in ["td", "th"]:
                     if start:
-                        self.o(f"<{tag}>\n\n")
+                        Silian_self.o(f"<{tag}>\n\n")
                     else:
-                        self.o(f"\n</{tag}>")
+                        Silian_self.o(f"\n</{tag}>")
                 else:
                     if start:
-                        self.o(f"<{tag}>")
+                        Silian_self.o(f"<{tag}>")
                     else:
-                        self.o(f"</{tag}>")
+                        Silian_self.o(f"</{tag}>")
 
             else:
                 if tag == "table":
                     if start:
-                        self.table_start = True
-                        if self.pad_tables:
-                            self.o("<" + config.TABLE_MARKER_FOR_PAD + ">")
-                            self.o("  \n")
+                        Silian_self.table_start = True
+                        if Silian_self.pad_tables:
+                            Silian_self.o("<" + config.TABLE_MARKER_FOR_PAD + ">")
+                            Silian_self.o("  \n")
                     else:
-                        if self.pad_tables:
-                            self.o("</" + config.TABLE_MARKER_FOR_PAD + ">")
-                            self.o("  \n")
+                        if Silian_self.pad_tables:
+                            Silian_self.o("</" + config.TABLE_MARKER_FOR_PAD + ">")
+                            Silian_self.o("  \n")
                 if tag in ["td", "th"] and start:
-                    if self.split_next_td:
-                        self.o("| ")
-                    self.split_next_td = True
+                    if Silian_self.split_next_td:
+                        Silian_self.o("| ")
+                    Silian_self.split_next_td = True
 
                 if tag == "tr" and start:
-                    self.td_count = 0
+                    Silian_self.td_count = 0
                 if tag == "tr" and not start:
-                    self.split_next_td = False
-                    self.soft_br()
-                if tag == "tr" and not start and self.table_start:
+                    Silian_self.split_next_td = False
+                    Silian_self.soft_br()
+                if tag == "tr" and not start and Silian_self.table_start:
                     # Underline table header
-                    self.o("|".join(["---"] * self.td_count))
-                    self.soft_br()
-                    self.table_start = False
+                    Silian_self.o("|".join(["---"] * Silian_self.td_count))
+                    Silian_self.soft_br()
+                    Silian_self.table_start = False
                 if tag in ["td", "th"] and start:
-                    self.td_count += 1
+                    Silian_self.td_count += 1
 
         if tag == "pre":
             if start:
-                self.startpre = True
-                self.pre = True
+                Silian_self.startpre = True
+                Silian_self.pre = True
             else:
-                self.pre = False
-                if self.mark_code:
-                    self.out("\n[/code]")
-            self.p()
+                Silian_self.pre = False
+                if Silian_self.mark_code:
+                    Silian_self.out("\n[/code]")
+            Silian_self.p()
 
     # TODO: Add docstring for these one letter functions
-    def pbr(self) -> None:
+    def pbr(Silian_self) -> None:
         "Pretty print has a line break"
-        if self.p_p == 0:
-            self.p_p = 1
+        if Silian_self.p_p == 0:
+            Silian_self.p_p = 1
 
-    def p(self) -> None:
+    def p(Silian_self) -> None:
         "Set pretty print to 1 or 2 lines"
-        self.p_p = 1 if self.single_line_break else 2
+        Silian_self.p_p = 1 if Silian_self.single_line_break else 2
 
-    def soft_br(self) -> None:
+    def soft_br(Silian_self) -> None:
         "Soft breaks"
-        self.pbr()
-        self.br_toggle = "  "
+        Silian_self.pbr()
+        Silian_self.br_toggle = "  "
 
-    def o(self, data: str, puredata: bool = False, force: bool | str = False) -> None:
+    def o(Silian_self, data: str, puredata: bool = False, force: bool | str = False) -> None:
         """
         Deal with indentation and whitespace
         """
-        if self.abbr_data is not None:
-            self.abbr_data += data
+        if Silian_self.abbr_data is not None:
+            Silian_self.abbr_data += data
 
-        if not self.quiet:
-            if self.google_doc:
+        if not Silian_self.quiet:
+            if Silian_self.google_doc:
                 # prevent white space immediately after "begin emphasis"
                 # marks ("**" and "_")
-                lstripped_data = data.lstrip()
-                if self.drop_white_space and not (self.pre or self.code):
-                    data = lstripped_data
-                if lstripped_data != "":
-                    self.drop_white_space = 0
+                Silian_lstripped_data = data.lstrip()
+                if Silian_self.drop_white_space and not (Silian_self.pre or Silian_self.code):
+                    data = Silian_lstripped_data
+                if Silian_lstripped_data != "":
+                    Silian_self.drop_white_space = 0
 
-            if puredata and not self.pre:
+            if puredata and not Silian_self.pre:
                 # This is a very dangerous call ... it could mess up
                 # all handling of &nbsp; when not handled properly
                 # (see entityref)
                 data = re.sub(r"\s+", r" ", data)
                 if data and data[0] == " ":
-                    self.space = True
+                    Silian_self.space = True
                     data = data[1:]
             if not data and not force:
                 return
 
-            if self.startpre:
+            if Silian_self.startpre:
                 # self.out(" :") #TODO: not output when already one there
                 if not data.startswith("\n") and not data.startswith("\r\n"):
                     # <pre>stuff...
                     data = "\n" + data
-                if self.mark_code:
-                    self.out("\n[code]")
-                    self.p_p = 0
+                if Silian_self.mark_code:
+                    Silian_self.out("\n[code]")
+                    Silian_self.p_p = 0
 
-            bq = ">" * self.blockquote
-            if not (force and data and data[0] == ">") and self.blockquote:
-                bq += " "
+            Silian_bq = ">" * Silian_self.blockquote
+            if not (force and data and data[0] == ">") and Silian_self.blockquote:
+                Silian_bq += " "
 
-            if self.pre:
-                if not self.list:
-                    bq += "    "
+            if Silian_self.pre:
+                if not Silian_self.list:
+                    Silian_bq += "    "
                 # else: list content is already partially indented
-                bq += "    " * len(self.list)
-                data = data.replace("\n", "\n" + bq)
+                Silian_bq += "    " * len(Silian_self.list)
+                data = data.replace("\n", "\n" + Silian_bq)
 
-            if self.startpre:
-                self.startpre = False
-                if self.list:
+            if Silian_self.startpre:
+                Silian_self.startpre = False
+                if Silian_self.list:
                     # use existing initial indentation
                     data = data.lstrip("\n")
 
-            if self.start:
-                self.space = False
-                self.p_p = 0
-                self.start = False
+            if Silian_self.start:
+                Silian_self.space = False
+                Silian_self.p_p = 0
+                Silian_self.start = False
 
             if force == "end":
                 # It's the end.
-                self.p_p = 0
-                self.out("\n")
-                self.space = False
+                Silian_self.p_p = 0
+                Silian_self.out("\n")
+                Silian_self.space = False
 
-            if self.p_p:
-                self.out((self.br_toggle + "\n" + bq) * self.p_p)
-                self.space = False
-                self.br_toggle = ""
+            if Silian_self.p_p:
+                Silian_self.out((Silian_self.br_toggle + "\n" + Silian_bq) * Silian_self.p_p)
+                Silian_self.space = False
+                Silian_self.br_toggle = ""
 
-            if self.space:
-                if not self.lastWasNL:
-                    self.out(" ")
-                self.space = False
+            if Silian_self.space:
+                if not Silian_self.lastWasNL:
+                    Silian_self.out(" ")
+                Silian_self.space = False
 
-            if self.a and ((self.p_p == 2 and self.links_each_paragraph) or force == "end"):
+            if Silian_self.a and ((Silian_self.p_p == 2 and Silian_self.links_each_paragraph) or force == "end"):
                 if force == "end":
-                    self.out("\n")
+                    Silian_self.out("\n")
 
-                newa = []
-                for link in self.a:
-                    if self.outcount > link.outcount:
-                        self.out(
+                Silian_newa = []
+                for Silian_link in Silian_self.a:
+                    if Silian_self.outcount > Silian_link.outcount:
+                        Silian_self.out(
                             "   ["
-                            + str(link.count)
+                            + str(Silian_link.count)
                             + "]: "
-                            + str(Url(urlparse.urljoin(self.baseurl, link.attrs["href"])))
+                            + str(Url(urlparse.urljoin(Silian_self.baseurl, Silian_link.attrs["href"])))
                         )
-                        if "title" in link.attrs:
-                            self.out(" (" + link.attrs["title"] + ")")
-                        self.out("\n")
+                        if "title" in Silian_link.attrs:
+                            Silian_self.out(" (" + Silian_link.attrs["title"] + ")")
+                        Silian_self.out("\n")
                     else:
-                        newa.append(link)
+                        Silian_newa.append(Silian_link)
 
                 # Don't need an extra line when nothing was done.
-                if self.a != newa:
-                    self.out("\n")
+                if Silian_self.a != Silian_newa:
+                    Silian_self.out("\n")
 
-                self.a = newa
+                Silian_self.a = Silian_newa
 
-            if self.abbr_list and force == "end":
-                for abbr, definition in self.abbr_list.items():
-                    self.out("  *[" + abbr + "]: " + definition + "\n")
+            if Silian_self.abbr_list and force == "end":
+                for Silian_abbr, Silian_definition in Silian_self.abbr_list.items():
+                    Silian_self.out("  *[" + Silian_abbr + "]: " + Silian_definition + "\n")
 
-            self.p_p = 0
-            self.out(data)
-            self.outcount += 1
+            Silian_self.p_p = 0
+            Silian_self.out(data)
+            Silian_self.outcount += 1
 
-    def handle_data(self, data: str, entity_char: bool = False) -> None:
+    def handle_data(Silian_self, data: str, entity_char: bool = False) -> None:
         if not data:
             # Data may be empty for some HTML entities. For example,
             # LEFT-TO-RIGHT MARK.
             return
 
-        if self.stressed:
+        if Silian_self.stressed:
             data = data.strip()
-            self.stressed = False
-            self.preceding_stressed = True
-        elif self.preceding_stressed:
+            Silian_self.stressed = False
+            Silian_self.preceding_stressed = True
+        elif Silian_self.preceding_stressed:
             if (
                 re.match(r"[^\s.!?]", data[0])
-                and not hn(self.current_tag)
-                and self.current_tag not in ["a", "code", "pre"]
+                and not hn(Silian_self.current_tag)
+                and Silian_self.current_tag not in ["a", "code", "pre"]
             ):
                 # should match a letter or common punctuation
                 data = " " + data
-            self.preceding_stressed = False
+            Silian_self.preceding_stressed = False
 
-        if self.style:
-            self.style_def.update(dumb_css_parser(data))
+        if Silian_self.style:
+            Silian_self.style_def.update(dumb_css_parser(data))
 
-        if self.maybe_automatic_link is not None:
-            href = self.maybe_automatic_link
-            if href == data and self.absolute_url_matcher.match(href) and self.use_automatic_links:
-                self.o("<" + data + ">")
-                self.empty_link = False
+        if Silian_self.maybe_automatic_link is not None:
+            Silian_href = Silian_self.maybe_automatic_link
+            if Silian_href == data and Silian_self.absolute_url_matcher.match(Silian_href) and Silian_self.use_automatic_links:
+                Silian_self.o("<" + data + ">")
+                Silian_self.empty_link = False
                 return
-            self.o("[")
-            self.maybe_automatic_link = None
-            self.empty_link = False
+            Silian_self.o("[")
+            Silian_self.maybe_automatic_link = None
+            Silian_self.empty_link = False
 
-        if not self.code and not self.pre and not entity_char:
-            data = escape_md_section(data, snob=self.escape_snob)
-        self.preceding_data = data
-        self.o(data, puredata=True)
+        if not Silian_self.code and not Silian_self.pre and not entity_char:
+            data = escape_md_section(data, snob=Silian_self.escape_snob)
+        Silian_self.preceding_data = data
+        Silian_self.o(data, puredata=True)
 
-    def charref(self, name: str) -> str:
+    def charref(Silian_self, name: str) -> str:
         if name[0] in ["x", "X"]:
-            c = int(name[1:], 16)
+            Silian_c = int(name[1:], 16)
         else:
-            c = int(name)
+            Silian_c = int(name)
 
-        if not self.unicode_snob and c in unifiable_n:
-            return unifiable_n[c]
+        if not Silian_self.unicode_snob and Silian_c in unifiable_n:
+            return unifiable_n[Silian_c]
         try:
-            return chr(c)
+            return chr(Silian_c)
         except ValueError:  # invalid unicode
             return ""
 
-    def entityref(self, c: str) -> str:
-        if not self.unicode_snob and c in config.UNIFIABLE:
+    def entityref(Silian_self, c: str) -> str:
+        if not Silian_self.unicode_snob and c in config.UNIFIABLE:
             return config.UNIFIABLE[c]
         try:
-            ch = html.entities.html5[c + ";"]
+            Silian_ch = html.entities.html5[c + ";"]
         except KeyError:
             return "&" + c + ";"
-        return config.UNIFIABLE[c] if c == "nbsp" else ch
+        return config.UNIFIABLE[c] if c == "nbsp" else Silian_ch
 
-    def google_nest_count(self, style: dict[str, str]) -> int:
+    def google_nest_count(Silian_self, style: dict[str, str]) -> int:
         """
         Calculate the nesting count of google doc lists
 
@@ -827,13 +827,13 @@ class HTML2Text(html.parser.HTMLParser):
 
         :rtype: int
         """
-        nest_count = 0
+        Silian_nest_count = 0
         if "margin-left" in style:
-            nest_count = int(style["margin-left"][:-2]) // self.google_list_indent
+            Silian_nest_count = int(style["margin-left"][:-2]) // Silian_self.google_list_indent
 
-        return nest_count
+        return Silian_nest_count
 
-    def optwrap(self, text: str) -> str:
+    def optwrap(Silian_self, text: str) -> str:
         """
         Wrap all paragraphs in the provided text.
 
@@ -841,62 +841,62 @@ class HTML2Text(html.parser.HTMLParser):
 
         :rtype: str
         """
-        if not self.body_width:
+        if not Silian_self.body_width:
             return text
 
-        result = ""
-        newlines = 0
+        Silian_result = ""
+        Silian_newlines = 0
         # I cannot think of a better solution for now.
         # To avoid the non-wrap behaviour for entire paras
         # because of the presence of a link in it
-        if not self.wrap_links:
-            self.inline_links = False
-        for para in text.split("\n"):
-            if len(para) > 0:
-                if not skipwrap(para, self.wrap_links, self.wrap_list_items):
-                    indent = ""
-                    if para.startswith("  " + self.ul_item_mark):
+        if not Silian_self.wrap_links:
+            Silian_self.inline_links = False
+        for Silian_para in text.split("\n"):
+            if len(Silian_para) > 0:
+                if not skipwrap(Silian_para, Silian_self.wrap_links, Silian_self.wrap_list_items):
+                    Silian_indent = ""
+                    if Silian_para.startswith("  " + Silian_self.ul_item_mark):
                         # list item continuation: add a double indent to the
                         # new lines
-                        indent = "    "
-                    elif para.startswith("> "):
+                        Silian_indent = "    "
+                    elif Silian_para.startswith("> "):
                         # blockquote continuation: add the greater than symbol
                         # to the new lines
-                        indent = "> "
-                    wrapped = wrap(
-                        para,
-                        self.body_width,
+                        Silian_indent = "> "
+                    Silian_wrapped = wrap(
+                        Silian_para,
+                        Silian_self.body_width,
                         break_long_words=False,
-                        subsequent_indent=indent,
+                        subsequent_indent=Silian_indent,
                     )
-                    result += "\n".join(wrapped)
-                    if para.endswith("  "):
-                        result += "  \n"
-                        newlines = 1
-                    elif indent:
-                        result += "\n"
-                        newlines = 1
+                    Silian_result += "\n".join(Silian_wrapped)
+                    if Silian_para.endswith("  "):
+                        Silian_result += "  \n"
+                        Silian_newlines = 1
+                    elif Silian_indent:
+                        Silian_result += "\n"
+                        Silian_newlines = 1
                     else:
-                        result += "\n\n"
-                        newlines = 2
+                        Silian_result += "\n\n"
+                        Silian_newlines = 2
                 else:
                     # Warning for the tempted!!!
                     # Be aware that obvious replacement of this with
                     # line.isspace()
                     # DOES NOT work! Explanations are welcome.
-                    if not config.RE_SPACE.match(para):
-                        result += para + "\n"
-                        newlines = 1
+                    if not config.RE_SPACE.match(Silian_para):
+                        Silian_result += Silian_para + "\n"
+                        Silian_newlines = 1
             else:
-                if newlines < 2:
-                    result += "\n"
-                    newlines += 1
-        return result
+                if Silian_newlines < 2:
+                    Silian_result += "\n"
+                    Silian_newlines += 1
+        return Silian_result
 
 
 def html2text(html: str, baseurl: str = "", bodywidth: int | None = None) -> str:
     if bodywidth is None:
         bodywidth = config.BODY_WIDTH
-    h = HTML2Text(baseurl=baseurl, bodywidth=bodywidth)
+    Silian_h = HTML2Text(baseurl=baseurl, bodywidth=bodywidth)
 
-    return h.handle(html)
+    return Silian_h.handle(html)

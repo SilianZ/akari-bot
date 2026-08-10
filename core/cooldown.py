@@ -3,7 +3,7 @@ import time
 from core.builtins.session.internal import MessageSession
 from core.utils.container import ExpiringTempDict
 
-_cd_dict = ExpiringTempDict()
+Silian__cd_dict = ExpiringTempDict()
 
 
 class CoolDown:
@@ -15,47 +15,47 @@ class CoolDown:
     :param whole_target: 是否应用至全对话（默认为 False）
     """
 
-    def __init__(self, key: str, msg: MessageSession, delay: float, whole_target: bool = False):
-        self.key = key
-        self.msg = msg
-        self.delay = delay
-        self.whole_target = whole_target
-        self.target_id = self.msg.session_info.target_id
-        self.sender_id = self.msg.session_info.sender_id
+    def __init__(Silian_self, Silian_key: str, Silian_msg: MessageSession, Silian_delay: float, Silian_whole_target: bool = False):
+        Silian_self.key = Silian_key
+        Silian_self.msg = Silian_msg
+        Silian_self.delay = Silian_delay
+        Silian_self.whole_target = Silian_whole_target
+        Silian_self.target_id = Silian_self.msg.session_info.target_id
+        Silian_self.sender_id = Silian_self.msg.session_info.sender_id
 
-    def _get_cd_dict(self) -> ExpiringTempDict:
+    def _get_cd_dict(Silian_self) -> ExpiringTempDict:
         """
         获取或创建冷却事件字典。
         对于单个发送者，返回 sender_id -> key 的结构。
         对于 whole_target，返回 target_id -> key 的结构。
         """
-        target_dict = _cd_dict[self.target_id]
+        Silian_target_dict = Silian__cd_dict[Silian_self.target_id]
 
-        if self.whole_target:
-            if self.key not in target_dict:
-                target_dict[self.key] = ExpiringTempDict(exp=self.delay)
-            return target_dict[self.key]
+        if Silian_self.whole_target:
+            if Silian_self.key not in Silian_target_dict:
+                Silian_target_dict[Silian_self.key] = ExpiringTempDict(exp=Silian_self.delay)
+            return Silian_target_dict[Silian_self.key]
 
-        sender_dict = target_dict[self.sender_id]
-        if self.key not in sender_dict:
-            sender_dict[self.key] = ExpiringTempDict(exp=self.delay)
-        return sender_dict[self.key]
+        Silian_sender_dict = Silian_target_dict[Silian_self.sender_id]
+        if Silian_self.key not in Silian_sender_dict:
+            Silian_sender_dict[Silian_self.key] = ExpiringTempDict(exp=Silian_self.delay)
+        return Silian_sender_dict[Silian_self.key]
 
-    def check(self) -> float:
+    def check(Silian_self) -> float:
         """
         检查冷却事件剩余时间。
         :return: 剩余冷却时间（秒），0 表示已可用
         """
-        cd_instance = self._get_cd_dict()
-        if cd_instance:
-            remaining = cd_instance.exp - (time.time() - cd_instance.ts)
+        Silian_cd_instance = Silian_self._get_cd_dict()
+        if Silian_cd_instance:
+            Silian_remaining = Silian_cd_instance.exp - (time.time() - Silian_cd_instance.ts)
         else:
-            remaining = 0
-        return remaining
+            Silian_remaining = 0
+        return Silian_remaining
 
-    def reset(self):
+    def reset(Silian_self):
         """
         重置冷却事件。
         """
-        cd_instance = self._get_cd_dict()
-        cd_instance.refresh()
+        Silian_cd_instance = Silian_self._get_cd_dict()
+        Silian_cd_instance.refresh()

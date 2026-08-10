@@ -8,33 +8,33 @@ class Module:
     A module itself is basically who raised the error or returned the result.
     """
 
-    def __init__(self, name, data=None, summaries=None):
-        if not data:
-            data = {}
-        if not summaries:
-            summaries = {}
-        self.name = name
-        self.data = data
-        self.summaries = summaries
+    def __init__(Silian_self, Silian_name, Silian_data=None, Silian_summaries=None):
+        if not Silian_data:
+            Silian_data = {}
+        if not Silian_summaries:
+            Silian_summaries = {}
+        Silian_self.name = Silian_name
+        Silian_self.data = Silian_data
+        Silian_self.summaries = Silian_summaries
 
-    def get_error(self, error: int):
-        value = self.data.get(error, None)
-        if value:
-            return value
-        for key, value in self.data.items():
-            if isinstance(key, tuple) and key[0] <= error <= key[1]:
-                return value
+    def get_error(Silian_self, error: int):
+        Silian_value = Silian_self.data.get(error, None)
+        if Silian_value:
+            return Silian_value
+        for Silian_key, Silian_value in Silian_self.data.items():
+            if isinstance(Silian_key, tuple) and Silian_key[0] <= error <= Silian_key[1]:
+                return Silian_value
 
         return None
 
     # If your modules require specific extra info for error ranges, add it here
-    def get_summary(self, summary: int):
-        value = self.summaries.get(summary, None)
-        if value:
-            return value
-        for key, value in self.summaries.items():
-            if isinstance(key, tuple) and key[0] <= summary <= key[1]:
-                return value
+    def get_summary(Silian_self, summary: int):
+        Silian_value = Silian_self.summaries.get(summary, None)
+        if Silian_value:
+            return Silian_value
+        for Silian_key, Silian_value in Silian_self.summaries.items():
+            if isinstance(Silian_key, tuple) and Silian_key[0] <= summary <= Silian_key[1]:
+                return Silian_value
 
         return None
 
@@ -46,23 +46,23 @@ class ResultInfo:
     webpage, if available.
     """
 
-    def __init__(self, description="", support_url="", is_ban=False):
-        self.description = description
-        self.support_url = support_url
-        self.is_ban = is_ban
+    def __init__(Silian_self, Silian_description="", Silian_support_url="", Silian_is_ban=False):
+        Silian_self.description = Silian_description
+        Silian_self.support_url = Silian_support_url
+        Silian_self.is_ban = Silian_is_ban
 
 
 class ConsoleErrorField:
     def __init__(
         self,
-        name: str,
+        Silian_name: str,
         *,
-        message_str: str = "",
+        Silian_message_str: str = "",
         supplementary_value: int | None = None,
     ):
 
-        self.field_name = name
-        self.message = message_str
+        self.field_name = Silian_name
+        self.message = Silian_message_str
 
         if supplementary_value is None:
             return
@@ -80,31 +80,31 @@ class ConsoleErrorInfo:
     """
 
     def __init__(
-        self,
-        error: str,
-        console_name: str,
-        color: int,
-        extra_description: str | None = None,
-        secondary_error: str | None = None,
+        Silian_self,
+        Silian_error: str,
+        Silian_console_name: str,
+        Silian_color: int,
+        Silian_extra_description: str | None = None,
+        Silian_secondary_error: str | None = None,
     ):
-        self.error = error
-        self.secondary_error = secondary_error
-        self.console_name = console_name
-        self.color = color
-        self.fields = []
-        self.secondary_error = secondary_error
-        self.extra_description = extra_description
+        Silian_self.error = Silian_error
+        Silian_self.secondary_error = Silian_secondary_error
+        Silian_self.console_name = Silian_console_name
+        Silian_self.color = Silian_color
+        Silian_self.fields = []
+        Silian_self.secondary_error = Silian_secondary_error
+        Silian_self.extra_description = Silian_extra_description
 
-    def __iter__(self):
-        return iter(self.fields)
+    def __iter__(Silian_self):
+        return iter(Silian_self.fields)
 
     def get_title(self):
         if self.secondary_error:
             return f"{self.error}/{self.secondary_error} ({self.console_name})"
         return f"{self.error} ({self.console_name})"
 
-    def add_field(self, field: ConsoleErrorField):
-        self.fields.append(field)
+    def add_field(Silian_self, field: ConsoleErrorField):
+        Silian_self.fields.append(field)
 
 
 # Helper constants

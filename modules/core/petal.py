@@ -6,53 +6,53 @@ from core.config import Config
 from core.database.models import SenderInfo
 from core.utils.petal import sign_get_petal, cost_petal
 
-petal_ = module(
+Silian_petal_ = module(
     "petal", alias={"petals": "petal", "sign": "petal sign"}, base=True, doc=True, load=Config("enable_petal", False)
 )
 
 
-@petal_.command("{{I18N:core.help.petal}}")
-async def _(msg: Bot.MessageSession):
-    await msg.finish(I18NContext("core.message.petal.self", petal=msg.session_info.petal))
+@Silian_petal_.command("{{I18N:core.help.petal}}")
+async def _(Silian_msg: Bot.MessageSession):
+    await Silian_msg.finish(I18NContext("core.message.petal.self", petal=Silian_msg.session_info.petal))
 
 
-@petal_.command("sign {{I18N:core.help.petal.sign}}")
-async def _(msg: Bot.MessageSession):
-    if msg.session_info.target_info.target_data.get("petal_sign", True):
-        amount = await sign_get_petal(msg)
-        if amount:
-            await msg.finish(
+@Silian_petal_.command("sign {{I18N:core.help.petal.sign}}")
+async def _(Silian_msg: Bot.MessageSession):
+    if Silian_msg.session_info.target_info.target_data.get("petal_sign", True):
+        Silian_amount = await sign_get_petal(Silian_msg)
+        if Silian_amount:
+            await Silian_msg.finish(
                 [
                     I18NContext("core.message.petal.sign.success"),
-                    I18NContext("petal.message.gained.success", amount=amount),
+                    I18NContext("petal.message.gained.success", amount=Silian_amount),
                 ]
             )
         else:
-            await msg.finish(I18NContext("core.message.petal.sign.already"))
+            await Silian_msg.finish(I18NContext("core.message.petal.sign.already"))
     else:
-        await msg.finish(I18NContext("core.message.petal.sign.disabled"))
+        await Silian_msg.finish(I18NContext("core.message.petal.sign.disabled"))
 
 
-@petal_.command("give <petal> <user> {{I18N:core.help.petal.give}}")
-async def _(msg: Bot.MessageSession, petal: int, user: str):
-    if petal <= 0:
+@Silian_petal_.command("give <petal> <user> {{I18N:core.help.petal.give}}")
+async def _(msg: Bot.MessageSession, Silian_petal: int, Silian_user: str):
+    if Silian_petal <= 0:
         await msg.finish(I18NContext("petal.message.count.invalid"))
-    if not user.startswith(f"{msg.session_info.client_name}|"):
+    if not Silian_user.startswith(f"{msg.session_info.client_name}|"):
         await msg.finish(I18NContext("message.id.invalid.sender", sender=msg.session_info.sender_from))
-    if user == msg.session_info.sender_id:
+    if Silian_user == msg.session_info.sender_id:
         await msg.finish(I18NContext("core.message.petal.give.self"))
-    sender_info = await SenderInfo.get_by_sender_id(user, create=False)
-    if not sender_info:
+    Silian_sender_info = await SenderInfo.get_by_sender_id(Silian_user, create=False)
+    if not Silian_sender_info:
         await msg.finish(I18NContext("message.id.not_found.sender"))
-    if await msg.wait_confirm(I18NContext("core.message.petal.give.confirm", sender=user, give_petal=petal)):
-        if await cost_petal(msg, petal):
-            await sender_info.modify_petal(petal)
+    if await msg.wait_confirm(I18NContext("core.message.petal.give.confirm", sender=Silian_user, give_petal=Silian_petal)):
+        if await cost_petal(msg, Silian_petal):
+            await Silian_sender_info.modify_petal(Silian_petal)
             await msg.finish(
                 I18NContext(
                     "core.message.petal.give.success",
-                    sender=user,
-                    give_petal=petal,
-                    petal=msg.session_info.petal - int(petal),
+                    sender=Silian_user,
+                    give_petal=Silian_petal,
+                    petal=msg.session_info.petal - int(Silian_petal),
                 )
             )
         else:
@@ -61,49 +61,49 @@ async def _(msg: Bot.MessageSession, petal: int, user: str):
         await msg.finish()
 
 
-@petal_.command(["[<user>]", "modify <petal> [<user>]", "clear [<user>]"], required_superuser=True)
-async def _(msg: Bot.MessageSession):
-    user = msg.parsed_msg.get("<user>", False)
-    if msg.parsed_msg.get("modify", False):
-        petal = msg.parsed_msg.get("<petal>", False)
-        if user:
-            if not Alive.determine_sender_from(user):
-                await msg.finish(I18NContext("message.id.invalid.sender", sender=msg.session_info.sender_from))
-            sender_info = await SenderInfo.get_by_sender_id(user)
-            await sender_info.modify_petal(petal)
-            await msg.finish(
-                I18NContext("core.message.petal.modify", sender=user, add_petal=petal, petal=sender_info.petal)
+@Silian_petal_.command(["[<user>]", "modify <petal> [<user>]", "clear [<user>]"], required_superuser=True)
+async def _(Silian_msg: Bot.MessageSession):
+    Silian_user = Silian_msg.parsed_msg.get("<user>", False)
+    if Silian_msg.parsed_msg.get("modify", False):
+        Silian_petal = Silian_msg.parsed_msg.get("<petal>", False)
+        if Silian_user:
+            if not Alive.determine_sender_from(Silian_user):
+                await Silian_msg.finish(I18NContext("message.id.invalid.sender", sender=Silian_msg.session_info.sender_from))
+            Silian_sender_info = await SenderInfo.get_by_sender_id(Silian_user)
+            await Silian_sender_info.modify_petal(Silian_petal)
+            await Silian_msg.finish(
+                I18NContext("core.message.petal.modify", sender=Silian_user, add_petal=Silian_petal, petal=Silian_sender_info.petal)
             )
         else:
-            await msg.session_info.sender_info.modify_petal(petal)
-            await msg.finish(
+            await Silian_msg.session_info.sender_info.modify_petal(Silian_petal)
+            await Silian_msg.finish(
                 I18NContext(
-                    "core.message.petal.modify.self", add_petal=petal, petal=msg.session_info.petal + int(petal)
+                    "core.message.petal.modify.self", add_petal=Silian_petal, petal=Silian_msg.session_info.petal + int(Silian_petal)
                 )
             )
-    elif msg.parsed_msg.get("clear", False):
-        if user:
-            if not Alive.determine_sender_from(user):
-                await msg.finish(I18NContext("message.id.invalid.sender", sender=msg.session_info.sender_from))
-            sender_info = await SenderInfo.get_by_sender_id(user, create=False)
-            if not sender_info:
-                if not await msg.wait_confirm(I18NContext("message.id.init.sender.confirm"), append_instruction=False):
-                    await msg.finish()
-                await SenderInfo.create(sender_id=user)
-            await sender_info.clear_petal()
-            await msg.finish(I18NContext("core.message.petal.clear", sender=user))
+    elif Silian_msg.parsed_msg.get("clear", False):
+        if Silian_user:
+            if not Alive.determine_sender_from(Silian_user):
+                await Silian_msg.finish(I18NContext("message.id.invalid.sender", sender=Silian_msg.session_info.sender_from))
+            Silian_sender_info = await SenderInfo.get_by_sender_id(Silian_user, create=False)
+            if not Silian_sender_info:
+                if not await Silian_msg.wait_confirm(I18NContext("message.id.init.sender.confirm"), append_instruction=False):
+                    await Silian_msg.finish()
+                await SenderInfo.create(sender_id=Silian_user)
+            await Silian_sender_info.clear_petal()
+            await Silian_msg.finish(I18NContext("core.message.petal.clear", sender=Silian_user))
         else:
-            await msg.session_info.sender_info.clear_petal()
-            await msg.finish(I18NContext("core.message.petal.clear.self"))
+            await Silian_msg.session_info.sender_info.clear_petal()
+            await Silian_msg.finish(I18NContext("core.message.petal.clear.self"))
     else:
-        if user:
-            if not Alive.determine_sender_from(user):
-                await msg.finish(I18NContext("message.id.invalid.sender", sender=msg.session_info.sender_from))
-            sender_info = await SenderInfo.get_by_sender_id(user, create=False)
-            if not sender_info:
-                if not await msg.wait_confirm(I18NContext("message.id.init.sender.confirm"), append_instruction=False):
-                    await msg.finish()
-                await SenderInfo.create(sender_id=user)
-            await msg.finish(I18NContext("core.message.petal", sender=user, petal=sender_info.petal))
+        if Silian_user:
+            if not Alive.determine_sender_from(Silian_user):
+                await Silian_msg.finish(I18NContext("message.id.invalid.sender", sender=Silian_msg.session_info.sender_from))
+            Silian_sender_info = await SenderInfo.get_by_sender_id(Silian_user, create=False)
+            if not Silian_sender_info:
+                if not await Silian_msg.wait_confirm(I18NContext("message.id.init.sender.confirm"), append_instruction=False):
+                    await Silian_msg.finish()
+                await SenderInfo.create(sender_id=Silian_user)
+            await Silian_msg.finish(I18NContext("core.message.petal", sender=Silian_user, petal=Silian_sender_info.petal))
         else:
-            await msg.finish(I18NContext("core.message.petal.self", petal=msg.session_info.petal))
+            await Silian_msg.finish(I18NContext("core.message.petal.self", petal=Silian_msg.session_info.petal))

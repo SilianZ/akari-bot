@@ -13,42 +13,42 @@ from .chunithm_mapping import (
 )
 from .chunithm_music import TotalList
 
-total_list = TotalList()
+Silian_total_list = TotalList()
 
 
 class ChartInfo:
     def __init__(
-        self, mid: str, diff: int, ra: float, score: int, fc: str, title: str, ds: float, level: str, rate: str
+        Silian_self, Silian_mid: str, Silian_diff: int, Silian_ra: float, Silian_score: int, Silian_fc: str, Silian_title: str, Silian_ds: float, Silian_level: str, Silian_rate: str
     ):
-        self.mid = mid
-        self.diff = diff
-        self.ra = ra
-        self.score = score
-        self.fc = fc
-        self.title = title
-        self.ds = ds
-        self.level = level
-        self.rate = rate
+        Silian_self.mid = Silian_mid
+        Silian_self.diff = Silian_diff
+        Silian_self.ra = Silian_ra
+        Silian_self.score = Silian_score
+        Silian_self.fc = Silian_fc
+        Silian_self.title = Silian_title
+        Silian_self.ds = Silian_ds
+        Silian_self.level = Silian_level
+        Silian_self.rate = Silian_rate
 
-    def __eq__(self, other):
-        return self.ra == other.ra
+    def __eq__(Silian_self, Silian_other):
+        return Silian_self.ra == Silian_other.ra
 
-    def __lt__(self, other):
-        return self.ra < other.ra
+    def __lt__(Silian_self, Silian_other):
+        return Silian_self.ra < Silian_other.ra
 
-    def __hash__(self):
-        return hash(self.ra)
+    def __hash__(Silian_self):
+        return hash(Silian_self.ra)
 
     @classmethod
-    async def from_json(cls, data):
-        for sr, r in score_to_rate.items():
-            if sr[0] <= data["score"] <= sr[1]:
-                rate = r
+    async def from_json(Silian_cls, data):
+        for Silian_sr, Silian_r in score_to_rate.items():
+            if Silian_sr[0] <= data["score"] <= Silian_sr[1]:
+                Silian_rate = Silian_r
                 break
         else:
-            rate = ""
+            Silian_rate = ""
 
-        return cls(
+        return Silian_cls(
             mid=data["mid"],
             title=data["title"],
             diff=data["level_index"],
@@ -57,291 +57,291 @@ class ChartInfo:
             fc=combo_mapping.get(data["fc"], ""),
             level=data["level"],
             score=data["score"],
-            rate=rate,
+            rate=Silian_rate,
         )
 
 
 class BestList:
-    def __init__(self, size: int):
-        self._data = []
-        self._size = size
+    def __init__(Silian_self, Silian_size: int):
+        Silian_self._data = []
+        Silian_self._size = Silian_size
 
-    def push(self, chart: ChartInfo):
-        if len(self._data) >= self._size and chart.ra < self._data[-1].ra:
+    def push(Silian_self, chart: ChartInfo):
+        if len(Silian_self._data) >= Silian_self._size and chart.ra < Silian_self._data[-1].ra:
             return
-        self._data.append(chart)
-        self._data.sort(reverse=True)
-        self._data = self._data[: self._size]
+        Silian_self._data.append(chart)
+        Silian_self._data.sort(reverse=True)
+        Silian_self._data = Silian_self._data[: Silian_self._size]
 
-    def pop(self):
-        if self._data:
-            self._data.pop()
+    def pop(Silian_self):
+        if Silian_self._data:
+            Silian_self._data.pop()
 
-    def __len__(self):
-        return len(self._data)
+    def __len__(Silian_self):
+        return len(Silian_self._data)
 
-    def __getitem__(self, index):
-        return self._data[index]
+    def __getitem__(Silian_self, Silian_index):
+        return Silian_self._data[Silian_index]
 
-    def __str__(self):
-        return "[\n\t" + ", \n\t".join(map(str, self._data)) + "\n]"
+    def __str__(Silian_self):
+        return "[\n\t" + ", \n\t".join(map(str, Silian_self._data)) + "\n]"
 
 
 class DrawBest:
-    def __init__(self, best_30: BestList, new_20: BestList, username: str, rating: float, source: str):
-        self.best_30 = best_30
-        self.new_20 = new_20
-        self.username = self._fullwidth_to_halfwidth(username)
-        self.source = source
-        self.player_rating = 0
-        self.b30_rating = sum(c.ra for c in best_30) / len(best_30) if len(best_30) != 0 else 0.0
-        self.n20_rating = sum(c.ra for c in new_20) / len(new_20) if len(new_20) != 0 else 0.0
-        self.player_rating = rating
+    def __init__(Silian_self, Silian_best_30: BestList, Silian_new_20: BestList, Silian_username: str, Silian_rating: float, Silian_source: str):
+        Silian_self.best_30 = Silian_best_30
+        Silian_self.new_20 = Silian_new_20
+        Silian_self.username = Silian_self._fullwidth_to_halfwidth(Silian_username)
+        Silian_self.source = Silian_source
+        Silian_self.player_rating = 0
+        Silian_self.b30_rating = sum(Silian_c.ra for Silian_c in Silian_best_30) / len(Silian_best_30) if len(Silian_best_30) != 0 else 0.0
+        Silian_self.n20_rating = sum(Silian_c.ra for Silian_c in Silian_new_20) / len(Silian_new_20) if len(Silian_new_20) != 0 else 0.0
+        Silian_self.player_rating = Silian_rating
 
-        self.img = Image.new("RGBA", (860, 1300), color=(211, 211, 211, 255))  # 创建空白图像
-        self.rows_image = [140 + 110 * i for i in range(6)] + [830 + 110 * i for i in range(4)]
-        self.columns_image = [30] + [30 + 160 * i for i in range(5)]
+        Silian_self.img = Image.new("RGBA", (860, 1300), color=(211, 211, 211, 255))  # 创建空白图像
+        Silian_self.rows_image = [140 + 110 * Silian_i for Silian_i in range(6)] + [830 + 110 * Silian_i for Silian_i in range(4)]
+        Silian_self.columns_image = [30] + [30 + 160 * Silian_i for Silian_i in range(5)]
 
-        self.draw()
-
-    @staticmethod
-    def _fullwidth_to_halfwidth(text: str) -> str:
-        return "".join(chr(ord(c) - 0xFEE0) if 0xFF01 <= ord(c) <= 0xFF5E else c for c in text)
+        Silian_self.draw()
 
     @staticmethod
-    def _resize_image(img: Image.Image, scale: float) -> Image.Image:
-        return img.resize((int(img.width * scale), int(img.height * scale)))
+    def _fullwidth_to_halfwidth(Silian_text: str) -> str:
+        return "".join(chr(ord(Silian_c) - 0xFEE0) if 0xFF01 <= ord(Silian_c) <= 0xFF5E else Silian_c for Silian_c in Silian_text)
 
     @staticmethod
-    def _draw_rating(img, draw, position, rating, font):
-        x, y = position
-        text = f"RATING    {rating:.2f}"
+    def _resize_image(Silian_img: Image.Image, Silian_scale: float) -> Image.Image:
+        return Silian_img.resize((int(Silian_img.width * Silian_scale), int(Silian_img.height * Silian_scale)))
 
-        padding = 2
-        bbox = draw.textbbox((0, 0), text, font=font)
-        text_width = bbox[2] - bbox[0] + 2 * padding
-        text_height = bbox[3] - bbox[1] + 2 * padding
+    @staticmethod
+    def _draw_rating(Silian_img, Silian_draw, Silian_position, rating, Silian_font):
+        Silian_x, Silian_y = Silian_position
+        Silian_text = f"RATING    {rating:.2f}"
 
-        outline_width = 1
-        outline_color = (0, 0, 0)
+        Silian_padding = 2
+        Silian_bbox = Silian_draw.textbbox((0, 0), Silian_text, font=Silian_font)
+        Silian_text_width = Silian_bbox[2] - Silian_bbox[0] + 2 * Silian_padding
+        Silian_text_height = Silian_bbox[3] - Silian_bbox[1] + 2 * Silian_padding
+
+        Silian_outline_width = 1
+        Silian_outline_color = (0, 0, 0)
 
         if rating >= 16.00:
-            gradient_colors = DrawBest._get_rating_color(rating)
-            gradient = Image.new("RGB", (text_width, text_height))
-            grad_draw = ImageDraw.Draw(gradient)
-            for y_pos in range(text_height):
-                t = y_pos / (text_height - 1)
-                n = len(gradient_colors) - 1
-                segment = t * n
-                i = int(segment)
-                t_seg = segment - i
-                if i >= n:
-                    i = n - 1
-                    t_seg = 1
-                c0 = gradient_colors[i]
-                c1 = gradient_colors[i + 1]
-                r = int(c0[0] + (c1[0] - c0[0]) * t_seg)
-                g = int(c0[1] + (c1[1] - c0[1]) * t_seg)
-                b = int(c0[2] + (c1[2] - c0[2]) * t_seg)
-                grad_draw.line([(0, y_pos), (text_width, y_pos)], fill=(r, g, b))
+            Silian_gradient_colors = DrawBest._get_rating_color(rating)
+            Silian_gradient = Image.new("RGB", (Silian_text_width, Silian_text_height))
+            Silian_grad_draw = ImageDraw.Draw(Silian_gradient)
+            for Silian_y_pos in range(Silian_text_height):
+                Silian_t = Silian_y_pos / (Silian_text_height - 1)
+                Silian_n = len(Silian_gradient_colors) - 1
+                Silian_segment = Silian_t * Silian_n
+                Silian_i = int(Silian_segment)
+                Silian_t_seg = Silian_segment - Silian_i
+                if Silian_i >= Silian_n:
+                    Silian_i = Silian_n - 1
+                    Silian_t_seg = 1
+                Silian_c0 = Silian_gradient_colors[Silian_i]
+                Silian_c1 = Silian_gradient_colors[Silian_i + 1]
+                Silian_r = int(Silian_c0[0] + (Silian_c1[0] - Silian_c0[0]) * Silian_t_seg)
+                Silian_g = int(Silian_c0[1] + (Silian_c1[1] - Silian_c0[1]) * Silian_t_seg)
+                Silian_b = int(Silian_c0[2] + (Silian_c1[2] - Silian_c0[2]) * Silian_t_seg)
+                Silian_grad_draw.line([(0, Silian_y_pos), (Silian_text_width, Silian_y_pos)], fill=(Silian_r, Silian_g, Silian_b))
 
-            mask = Image.new("L", (text_width, text_height), 0)
-            mask_draw = ImageDraw.Draw(mask)
-            mask_draw.text((0, 0), text, font=font, fill=255)
+            Silian_mask = Image.new("L", (Silian_text_width, Silian_text_height), 0)
+            Silian_mask_draw = ImageDraw.Draw(Silian_mask)
+            Silian_mask_draw.text((0, 0), Silian_text, font=Silian_font, fill=255)
 
-            for dx in [-outline_width, 0, outline_width]:
-                for dy in [-outline_width, 0, outline_width]:
-                    if dx != 0 or dy != 0:
-                        temp_mask = Image.new("L", (text_width, text_height), 0)
-                        temp_draw = ImageDraw.Draw(temp_mask)
-                        temp_draw.text((dx, dy), text, font=font, fill=255)
-                        img.paste(outline_color, (x, y), temp_mask)
+            for Silian_dx in [-Silian_outline_width, 0, Silian_outline_width]:
+                for Silian_dy in [-Silian_outline_width, 0, Silian_outline_width]:
+                    if Silian_dx != 0 or Silian_dy != 0:
+                        Silian_temp_mask = Image.new("L", (Silian_text_width, Silian_text_height), 0)
+                        Silian_temp_draw = ImageDraw.Draw(Silian_temp_mask)
+                        Silian_temp_draw.text((Silian_dx, Silian_dy), Silian_text, font=Silian_font, fill=255)
+                        Silian_img.paste(Silian_outline_color, (Silian_x, Silian_y), Silian_temp_mask)
 
-            img.paste(gradient, (x, y), mask)
+            Silian_img.paste(Silian_gradient, (Silian_x, Silian_y), Silian_mask)
         else:
-            color = DrawBest._get_rating_color(rating)
-            for dx in [-outline_width, 0, outline_width]:
-                for dy in [-outline_width, 0, outline_width]:
-                    if dx != 0 or dy != 0:
-                        draw.text((x + dx, y + dy), text, font=font, fill=outline_color)
-            draw.text((x, y), text, font=font, fill=color)
+            Silian_color = DrawBest._get_rating_color(rating)
+            for Silian_dx in [-Silian_outline_width, 0, Silian_outline_width]:
+                for Silian_dy in [-Silian_outline_width, 0, Silian_outline_width]:
+                    if Silian_dx != 0 or Silian_dy != 0:
+                        Silian_draw.text((Silian_x + Silian_dx, Silian_y + Silian_dy), Silian_text, font=Silian_font, fill=Silian_outline_color)
+            Silian_draw.text((Silian_x, Silian_y), Silian_text, font=Silian_font, fill=Silian_color)
 
     @staticmethod
-    def _get_rating_color(rating: float):
-        if rating >= 17.00:
-            color = [(255, 235, 0), (255, 56, 56), (186, 82, 255), (50, 90, 200), (69, 174, 255)]  # 彩极
-        elif rating >= 16.00:
-            color = [(11, 229, 186), (60, 249, 25), (244, 222, 49), (255, 235, 238), (42, 201, 240)]  # 彩
-        elif rating >= 15.25:
-            color = (255, 255, 224)  # 白金
-        elif rating >= 14.50:
-            color = (255, 215, 0)  # 金
-        elif rating >= 13.25:
-            color = (202, 242, 255)  # 银
-        elif rating >= 12.00:
-            color = (150, 107, 231)  # 铜
-        elif rating >= 10.00:
-            color = (128, 0, 128)  # 紫
-        elif rating >= 7.00:
-            color = (255, 0, 0)  # 红
-        elif rating >= 4.00:
-            color = (255, 165, 0)  # 橙
-        elif rating >= 0.00:
-            color = (0, 128, 0)  # 绿
+    def _get_rating_color(Silian_rating: float):
+        if Silian_rating >= 17.00:
+            Silian_color = [(255, 235, 0), (255, 56, 56), (186, 82, 255), (50, 90, 200), (69, 174, 255)]  # 彩极
+        elif Silian_rating >= 16.00:
+            Silian_color = [(11, 229, 186), (60, 249, 25), (244, 222, 49), (255, 235, 238), (42, 201, 240)]  # 彩
+        elif Silian_rating >= 15.25:
+            Silian_color = (255, 255, 224)  # 白金
+        elif Silian_rating >= 14.50:
+            Silian_color = (255, 215, 0)  # 金
+        elif Silian_rating >= 13.25:
+            Silian_color = (202, 242, 255)  # 银
+        elif Silian_rating >= 12.00:
+            Silian_color = (150, 107, 231)  # 铜
+        elif Silian_rating >= 10.00:
+            Silian_color = (128, 0, 128)  # 紫
+        elif Silian_rating >= 7.00:
+            Silian_color = (255, 0, 0)  # 红
+        elif Silian_rating >= 4.00:
+            Silian_color = (255, 165, 0)  # 橙
+        elif Silian_rating >= 0.00:
+            Silian_color = (0, 128, 0)  # 绿
         else:
-            color = (0, 0, 0)
-        return color
+            Silian_color = (0, 0, 0)
+        return Silian_color
 
     @staticmethod
-    def _get_goal_color(goal: str):
-        match goal:
+    def _get_goal_color(Silian_goal: str):
+        match Silian_goal:
             case "C" | "D":
-                color = (206, 196, 204)
+                Silian_color = (206, 196, 204)
             case "B" | "BB" | "BBB":
-                color = (202, 242, 255)
+                Silian_color = (202, 242, 255)
             case "A" | "AA" | "AAA":
-                color = (255, 215, 0)
+                Silian_color = (255, 215, 0)
             case "S" | "S+" | "SS" | "SS+" | "SSS" | "SSS+":
-                color = (255, 255, 224)
+                Silian_color = (255, 255, 224)
             case "FULL COMBO":
-                color = (255, 215, 0)
+                Silian_color = (255, 215, 0)
             case "ALL JUSTICE":
-                color = (255, 255, 224)
+                Silian_color = (255, 255, 224)
             case _:
-                color = (255, 255, 255)
-        return color
+                Silian_color = (255, 255, 255)
+        return Silian_color
 
-    def _draw_best_list(self, img: Image.Image, sd_best: BestList, dx_best: BestList):
-        item_width = 150
-        item_height = 100
-        color = [
+    def _draw_best_list(Silian_self, Silian_img: Image.Image, Silian_sd_best: BestList, Silian_dx_best: BestList):
+        Silian_item_width = 150
+        Silian_item_height = 100
+        Silian_color = [
             (69, 193, 36),
             (255, 186, 1),
             (255, 90, 102),
             (134, 49, 200),
             (25, 25, 25),
         ]
-        level_triangle = [(item_width, 0), (item_width - 27, 0), (item_width, 27)]
+        Silian_level_triangle = [(Silian_item_width, 0), (Silian_item_width - 27, 0), (Silian_item_width, 27)]
 
-        for num in range(min(len(self.best_30), 30)):
-            i = num // 5
-            j = num % 5
-            chart_info: ChartInfo = sd_best[num]
-            cover_path = chu_cover_path / f"{chart_info.mid}.png"
+        for num in range(min(len(Silian_self.best_30), 30)):
+            Silian_i = num // 5
+            Silian_j = num % 5
+            chart_info: ChartInfo = Silian_sd_best[num]
+            Silian_cover_path = chu_cover_path / f"{chart_info.mid}.png"
 
-            if cover_path.exists():
-                temp = Image.open(cover_path).convert("RGBA")
-                temp = self._resize_image(temp, item_width / temp.size[0])
-                temp = temp.crop((0, (temp.size[1] - item_height) / 2, item_width, (temp.size[1] + item_height) / 2))
-                overlay = Image.new("RGBA", temp.size, (0, 0, 0, 100))
-                temp = Image.alpha_composite(temp, overlay)
+            if Silian_cover_path.exists():
+                Silian_temp = Image.open(Silian_cover_path).convert("RGBA")
+                Silian_temp = Silian_self._resize_image(Silian_temp, Silian_item_width / Silian_temp.size[0])
+                Silian_temp = Silian_temp.crop((0, (Silian_temp.size[1] - Silian_item_height) / 2, Silian_item_width, (Silian_temp.size[1] + Silian_item_height) / 2))
+                Silian_overlay = Image.new("RGBA", Silian_temp.size, (0, 0, 0, 100))
+                Silian_temp = Image.alpha_composite(Silian_temp, Silian_overlay)
             else:
-                temp = Image.new("RGBA", (item_width, item_height), (111, 111, 111, 255))
+                Silian_temp = Image.new("RGBA", (Silian_item_width, Silian_item_height), (111, 111, 111, 255))
 
-            temp_draw = ImageDraw.Draw(temp)
-            temp_draw.polygon(level_triangle, color[chart_info.diff])
-            font = ImageFont.truetype(noto_sans_demilight_path, 18, encoding="utf-8")
-            title = truncate_text(chart_info.title, 12)
-            temp_draw.text((6, 7), title, "white", font)
-            font = ImageFont.truetype(noto_sans_demilight_path, 10, encoding="utf-8")
-            temp_draw.text((7, 29), f"ID: {chart_info.mid}", "white", font)
-            font = ImageFont.truetype(noto_sans_demilight_path, 16, encoding="utf-8")
-            temp_draw.text((6, 42), f"{chart_info.score:,}", "white", font)
-            font = ImageFont.truetype(noto_sans_bold_path, 18, encoding="utf-8")
-            temp_draw.text((96, 42), chart_info.rate, self._get_goal_color(chart_info.rate), font)
-            font = ImageFont.truetype(noto_sans_bold_path, 12, encoding="utf-8")
+            Silian_temp_draw = ImageDraw.Draw(Silian_temp)
+            Silian_temp_draw.polygon(Silian_level_triangle, Silian_color[chart_info.diff])
+            Silian_font = ImageFont.truetype(noto_sans_demilight_path, 18, encoding="utf-8")
+            Silian_title = truncate_text(chart_info.title, 12)
+            Silian_temp_draw.text((6, 7), Silian_title, "white", Silian_font)
+            Silian_font = ImageFont.truetype(noto_sans_demilight_path, 10, encoding="utf-8")
+            Silian_temp_draw.text((7, 29), f"ID: {chart_info.mid}", "white", Silian_font)
+            Silian_font = ImageFont.truetype(noto_sans_demilight_path, 16, encoding="utf-8")
+            Silian_temp_draw.text((6, 42), f"{chart_info.score:,}", "white", Silian_font)
+            Silian_font = ImageFont.truetype(noto_sans_bold_path, 18, encoding="utf-8")
+            Silian_temp_draw.text((96, 42), chart_info.rate, Silian_self._get_goal_color(chart_info.rate), Silian_font)
+            Silian_font = ImageFont.truetype(noto_sans_bold_path, 12, encoding="utf-8")
             if chart_info.fc:
-                temp_draw.text((7, 64), chart_info.fc, self._get_goal_color(chart_info.fc), font)
-            font = ImageFont.truetype(noto_sans_demilight_path, 12, encoding="utf-8")
-            temp_draw.text(
+                Silian_temp_draw.text((7, 64), chart_info.fc, Silian_self._get_goal_color(chart_info.fc), Silian_font)
+            Silian_font = ImageFont.truetype(noto_sans_demilight_path, 12, encoding="utf-8")
+            Silian_temp_draw.text(
                 (7, 80),
                 f"{chart_info.ds} -> {chart_info.ra:.2f}",
                 "white",
-                font,
+                Silian_font,
             )
-            temp_draw.text((120, 80), f"#{num + 1}", "white", font)
+            Silian_temp_draw.text((120, 80), f"#{num + 1}", "white", Silian_font)
 
-            rec_base = Image.new("RGBA", (item_width, item_height), "black")
-            rec_base = rec_base.point(lambda p: int(p * 0.8))
-            self.img.paste(rec_base, (self.columns_image[j + 1] + 5, self.rows_image[i] + 5))
-            self.img.paste(temp, (self.columns_image[j + 1] + 4, self.rows_image[i] + 4))
+            Silian_rec_base = Image.new("RGBA", (Silian_item_width, Silian_item_height), "black")
+            Silian_rec_base = Silian_rec_base.point(lambda Silian_p: int(Silian_p * 0.8))
+            Silian_self.img.paste(Silian_rec_base, (Silian_self.columns_image[Silian_j + 1] + 5, Silian_self.rows_image[Silian_i] + 5))
+            Silian_self.img.paste(Silian_temp, (Silian_self.columns_image[Silian_j + 1] + 4, Silian_self.rows_image[Silian_i] + 4))
 
-        for num in range(min(len(self.new_20), 20)):
-            i = num // 5
-            j = num % 5
-            chart_info: ChartInfo = dx_best[num]
-            cover_path = chu_cover_path / f"{chart_info.mid}.png"
-            if cover_path.exists():
-                temp = Image.open(cover_path).convert("RGBA")
-                temp = self._resize_image(temp, item_width / temp.size[0])
-                temp = temp.crop((0, (temp.size[1] - item_height) / 2, item_width, (temp.size[1] + item_height) / 2))
-                overlay = Image.new("RGBA", temp.size, (0, 0, 0, 100))
-                temp = Image.alpha_composite(temp, overlay)
+        for num in range(min(len(Silian_self.new_20), 20)):
+            Silian_i = num // 5
+            Silian_j = num % 5
+            chart_info: ChartInfo = Silian_dx_best[num]
+            Silian_cover_path = chu_cover_path / f"{chart_info.mid}.png"
+            if Silian_cover_path.exists():
+                Silian_temp = Image.open(Silian_cover_path).convert("RGBA")
+                Silian_temp = Silian_self._resize_image(Silian_temp, Silian_item_width / Silian_temp.size[0])
+                Silian_temp = Silian_temp.crop((0, (Silian_temp.size[1] - Silian_item_height) / 2, Silian_item_width, (Silian_temp.size[1] + Silian_item_height) / 2))
+                Silian_overlay = Image.new("RGBA", Silian_temp.size, (0, 0, 0, 100))
+                Silian_temp = Image.alpha_composite(Silian_temp, Silian_overlay)
             else:
-                temp = Image.new("RGBA", (item_width, item_height), (111, 111, 111, 255))
+                Silian_temp = Image.new("RGBA", (Silian_item_width, Silian_item_height), (111, 111, 111, 255))
 
-            temp_draw = ImageDraw.Draw(temp)
-            temp_draw.polygon(level_triangle, color[chart_info.diff])
-            font = ImageFont.truetype(noto_sans_demilight_path, 18, encoding="utf-8")
-            title = truncate_text(chart_info.title, 12)
-            temp_draw.text((6, 7), title, "white", font)
-            font = ImageFont.truetype(noto_sans_demilight_path, 10, encoding="utf-8")
-            temp_draw.text((7, 29), f"ID: {chart_info.mid}", "white", font)
-            font = ImageFont.truetype(noto_sans_demilight_path, 16, encoding="utf-8")
-            temp_draw.text((6, 42), f"{chart_info.score:,}", "white", font)
-            font = ImageFont.truetype(noto_sans_bold_path, 18, encoding="utf-8")
-            temp_draw.text((96, 42), chart_info.rate, self._get_goal_color(chart_info.rate), font)
-            font = ImageFont.truetype(noto_sans_bold_path, 12, encoding="utf-8")
+            Silian_temp_draw = ImageDraw.Draw(Silian_temp)
+            Silian_temp_draw.polygon(Silian_level_triangle, Silian_color[chart_info.diff])
+            Silian_font = ImageFont.truetype(noto_sans_demilight_path, 18, encoding="utf-8")
+            Silian_title = truncate_text(chart_info.title, 12)
+            Silian_temp_draw.text((6, 7), Silian_title, "white", Silian_font)
+            Silian_font = ImageFont.truetype(noto_sans_demilight_path, 10, encoding="utf-8")
+            Silian_temp_draw.text((7, 29), f"ID: {chart_info.mid}", "white", Silian_font)
+            Silian_font = ImageFont.truetype(noto_sans_demilight_path, 16, encoding="utf-8")
+            Silian_temp_draw.text((6, 42), f"{chart_info.score:,}", "white", Silian_font)
+            Silian_font = ImageFont.truetype(noto_sans_bold_path, 18, encoding="utf-8")
+            Silian_temp_draw.text((96, 42), chart_info.rate, Silian_self._get_goal_color(chart_info.rate), Silian_font)
+            Silian_font = ImageFont.truetype(noto_sans_bold_path, 12, encoding="utf-8")
             if chart_info.fc:
-                temp_draw.text((7, 64), chart_info.fc, self._get_goal_color(chart_info.fc), font)
-            font = ImageFont.truetype(noto_sans_demilight_path, 12, encoding="utf-8")
-            temp_draw.text(
+                Silian_temp_draw.text((7, 64), chart_info.fc, Silian_self._get_goal_color(chart_info.fc), Silian_font)
+            Silian_font = ImageFont.truetype(noto_sans_demilight_path, 12, encoding="utf-8")
+            Silian_temp_draw.text(
                 (7, 80),
                 f"{chart_info.ds} -> {chart_info.ra:.2f}",
                 "white",
-                font,
+                Silian_font,
             )
-            temp_draw.text((120, 80), f"#{num + 1}", "white", font)
+            Silian_temp_draw.text((120, 80), f"#{num + 1}", "white", Silian_font)
 
-            rec_base = Image.new("RGBA", (item_width, item_height), "black")
-            rec_base = rec_base.point(lambda p: int(p * 0.8))
-            self.img.paste(rec_base, (self.columns_image[j + 1] + 5, self.rows_image[i + 6] + 5))
-            self.img.paste(temp, (self.columns_image[j + 1] + 4, self.rows_image[i + 6] + 4))
+            Silian_rec_base = Image.new("RGBA", (Silian_item_width, Silian_item_height), "black")
+            Silian_rec_base = Silian_rec_base.point(lambda Silian_p: int(Silian_p * 0.8))
+            Silian_self.img.paste(Silian_rec_base, (Silian_self.columns_image[Silian_j + 1] + 5, Silian_self.rows_image[Silian_i + 6] + 5))
+            Silian_self.img.paste(Silian_temp, (Silian_self.columns_image[Silian_j + 1] + 4, Silian_self.rows_image[Silian_i + 6] + 4))
 
     def draw(self):
-        img_draw = ImageDraw.Draw(self.img)
-        font = ImageFont.truetype(noto_sans_demilight_path, 30, encoding="utf-8")
-        img_draw.text((34, 24), " ".join(self.username), fill="black", font=font)
-        font = ImageFont.truetype(noto_sans_demilight_path, 24, encoding="utf-8")
-        img_draw.text((512, 60), f"API Source: {self.source}", fill="black", font=font)
-        font = ImageFont.truetype(noto_sans_bold_path, 16, encoding="utf-8")
-        self._draw_rating(self.img, img_draw, (38, 64), self.player_rating, font)
-        font = ImageFont.truetype(noto_sans_demilight_path, 20, encoding="utf-8")
-        img_draw.text((34, 114), f"BEST ({self.b30_rating:.2f})", fill="black", font=font)
-        img_draw.text((34, 804), f"NEW ({self.n20_rating:.2f})", fill="black", font=font)
+        Silian_img_draw = ImageDraw.Draw(self.img)
+        Silian_font = ImageFont.truetype(noto_sans_demilight_path, 30, encoding="utf-8")
+        Silian_img_draw.text((34, 24), " ".join(self.username), fill="black", font=Silian_font)
+        Silian_font = ImageFont.truetype(noto_sans_demilight_path, 24, encoding="utf-8")
+        Silian_img_draw.text((512, 60), f"API Source: {self.source}", fill="black", font=Silian_font)
+        Silian_font = ImageFont.truetype(noto_sans_bold_path, 16, encoding="utf-8")
+        self._draw_rating(self.img, Silian_img_draw, (38, 64), self.player_rating, Silian_font)
+        Silian_font = ImageFont.truetype(noto_sans_demilight_path, 20, encoding="utf-8")
+        Silian_img_draw.text((34, 114), f"BEST ({self.b30_rating:.2f})", fill="black", font=Silian_font)
+        Silian_img_draw.text((34, 804), f"NEW ({self.n20_rating:.2f})", fill="black", font=Silian_font)
         self._draw_best_list(self.img, self.best_30, self.new_20)
 
-        font = ImageFont.truetype(noto_sans_demilight_path, 10, encoding="utf-8")
-        img_draw.text((5, 1285), 'Generated by Teahouse Studios "AkariBot"', "black", font=font)
+        Silian_font = ImageFont.truetype(noto_sans_demilight_path, 10, encoding="utf-8")
+        Silian_img_draw.text((5, 1285), 'Generated by Teahouse Studios "AkariBot"', "black", font=Silian_font)
 
-    def get_dir(self):
-        return self.img
+    def get_dir(Silian_self):
+        return Silian_self.img
 
 
 async def generate(
     msg: Bot.MessageSession, token: Any = None, source: str = "Lxns", use_cache: bool = True
 ) -> Image.Image | None:
     if source == "Lxns":
-        resp = await get_record_lx(msg, token, use_cache)
+        Silian_resp = await get_record_lx(msg, token, use_cache)
     else:
-        resp = await get_record_df(msg, token, use_cache)
-    best = BestList(30)
-    new = BestList(20)
-    b30: list[dict] = resp["records"]["b30"]
-    n20: list[dict] = resp["records"]["n20"]
-    for c in b30:
-        best.push(await ChartInfo.from_json(c))
-    for c in n20:
-        new.push(await ChartInfo.from_json(c))
-    pic = DrawBest(best, new, resp["nickname"], resp["rating"], source).get_dir()
-    return pic
+        Silian_resp = await get_record_df(msg, token, use_cache)
+    Silian_best = BestList(30)
+    Silian_new = BestList(20)
+    Silian_b30: list[dict] = Silian_resp["records"]["b30"]
+    Silian_n20: list[dict] = Silian_resp["records"]["n20"]
+    for Silian_c in Silian_b30:
+        Silian_best.push(await ChartInfo.from_json(Silian_c))
+    for Silian_c in Silian_n20:
+        Silian_new.push(await ChartInfo.from_json(Silian_c))
+    Silian_pic = DrawBest(Silian_best, Silian_new, Silian_resp["nickname"], Silian_resp["rating"], source).get_dir()
+    return Silian_pic

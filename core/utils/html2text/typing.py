@@ -1,3 +1,3 @@
 class OutCallback:
-    def __call__(self, s: str) -> None:
+    def __call__(Silian_self, Silian_s: str) -> None:
         raise NotImplementedError

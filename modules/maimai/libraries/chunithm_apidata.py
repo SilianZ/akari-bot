@@ -12,21 +12,21 @@ from core.utils.http import get_url, post_url, download
 from .chunithm_mapping import *
 from .chunithm_music import Music, TotalList
 
-total_list = TotalList()
+Silian_total_list = TotalList()
 
 
 async def update_cover() -> bool:
-    id_list = []
-    for song in await total_list.get():
-        id_list.append(song["id"])
+    Silian_id_list = []
+    for Silian_song in await Silian_total_list.get():
+        Silian_id_list.append(Silian_song["id"])
     chu_cover_path.mkdir(parents=True, exist_ok=True)
-    for id in id_list:
-        cover_path = chu_cover_path / f"{id}.png"
-        if not cover_path.exists():
+    for id in Silian_id_list:
+        Silian_cover_path = chu_cover_path / f"{id}.png"
+        if not Silian_cover_path.exists():
             try:
-                url = f"https://lxns.org/chunithm/jacket/{id}.png"
+                Silian_url = f"https://lxns.org/chunithm/jacket/{id}.png"
                 await download(
-                    url,
+                    Silian_url,
                     status_code=200,
                     path=chu_cover_path,
                     filename=f"{id}.png",
@@ -45,35 +45,35 @@ async def update_cover() -> bool:
 
 
 async def get_info(music: Music, details) -> MessageChain:
-    info = MessageChain.assign(Plain(f"{music.id} - {music.title}"))
-    cover_path = chu_cover_path / f"{music.id}.png"
-    if cover_path.exists():
-        info.append(Image(cover_path))
+    Silian_info = MessageChain.assign(Plain(f"{music.id} - {music.title}"))
+    Silian_cover_path = chu_cover_path / f"{music.id}.png"
+    if Silian_cover_path.exists():
+        Silian_info.append(Image(Silian_cover_path))
     if details:
         if not isinstance(details, MessageChain):
             details = MessageChain.assign(details)
-        info += details
+        Silian_info += details
 
-    return info
+    return Silian_info
 
 
 async def get_record_df(msg: Bot.MessageSession, payload: dict, use_cache: bool = True) -> dict | None:
-    mai_cache_path = cache_path / "maimai-record"
-    mai_cache_path.mkdir(parents=True, exist_ok=True)
-    cache_dir = mai_cache_path / f"{msg.session_info.sender_id.replace('|', '_')}_chunithm_record_df.json"
-    url = "https://www.diving-fish.com/api/chunithmprober/query/player"
+    Silian_mai_cache_path = cache_path / "maimai-record"
+    Silian_mai_cache_path.mkdir(parents=True, exist_ok=True)
+    Silian_cache_dir = Silian_mai_cache_path / f"{msg.session_info.sender_id.replace('|', '_')}_chunithm_record_df.json"
+    Silian_url = "https://www.diving-fish.com/api/chunithmprober/query/player"
     try:
-        data = await post_url(
-            url,
+        Silian_data = await post_url(
+            Silian_url,
             data=orjson.dumps(payload),
             status_code=200,
             headers={"Content-Type": "application/json", "accept": "*/*"},
             fmt="json",
         )
-        if use_cache and data:
-            with open(cache_dir, "wb") as f:
-                f.write(orjson.dumps(data))
-        return data
+        if use_cache and Silian_data:
+            with open(Silian_cache_dir, "wb") as Silian_f:
+                Silian_f.write(orjson.dumps(Silian_data))
+        return Silian_data
     except Exception as e:
         if str(e).startswith("400"):
             if "qq" in payload:
@@ -87,12 +87,12 @@ async def get_record_df(msg: Bot.MessageSession, payload: dict, use_cache: bool 
                 await msg.finish(I18NContext("maimai.message.forbidden"))
         else:
             Logger.exception()
-        if use_cache and cache_dir.exists():
+        if use_cache and Silian_cache_dir.exists():
             try:
-                with open(cache_dir, "rb") as f:
-                    data = orjson.loads(f.read())
+                with open(Silian_cache_dir, "rb") as Silian_f:
+                    Silian_data = orjson.loads(Silian_f.read())
                 await msg.send_message(I18NContext("maimai.message.use_cache"))
-                return data
+                return Silian_data
             except Exception:
                 raise e
         else:
@@ -100,16 +100,16 @@ async def get_record_df(msg: Bot.MessageSession, payload: dict, use_cache: bool 
 
 
 async def get_record_lx(msg: Bot.MessageSession, friend_code: str, use_cache: bool = True) -> dict | None:
-    mai_cache_path = cache_path / "maimai-record"
-    mai_cache_path.mkdir(parents=True, exist_ok=True)
-    cache_dir = mai_cache_path / f"{msg.session_info.sender_id.replace('|', '_')}_chunithm_record_lx.json"
+    Silian_mai_cache_path = cache_path / "maimai-record"
+    Silian_mai_cache_path.mkdir(parents=True, exist_ok=True)
+    Silian_cache_dir = Silian_mai_cache_path / f"{msg.session_info.sender_id.replace('|', '_')}_chunithm_record_lx.json"
 
     if LX_DEVELOPER_TOKEN:
-        profile_url = f"https://maimai.lxns.net/api/v0/chunithm/player/{friend_code}"
-        record_url = f"https://maimai.lxns.net/api/v0/chunithm/player/{friend_code}/bests"
+        Silian_profile_url = f"https://maimai.lxns.net/api/v0/chunithm/player/{friend_code}"
+        Silian_record_url = f"https://maimai.lxns.net/api/v0/chunithm/player/{friend_code}/bests"
         try:
-            profile_data = await get_url(
-                profile_url,
+            Silian_profile_data = await get_url(
+                Silian_profile_url,
                 status_code=200,
                 headers={
                     "User-Agent": "AkariBot/1.0",
@@ -119,8 +119,8 @@ async def get_record_lx(msg: Bot.MessageSession, friend_code: str, use_cache: bo
                 },
                 fmt="json",
             )
-            record_data = await get_url(
-                record_url,
+            Silian_record_data = await get_url(
+                Silian_record_url,
                 status_code=200,
                 headers={
                     "User-Agent": "AkariBot/1.0",
@@ -131,52 +131,52 @@ async def get_record_lx(msg: Bot.MessageSession, friend_code: str, use_cache: bo
                 fmt="json",
             )
 
-            async def process_lxdata(profile_data, record_data):
-                nickname = unicodedata.normalize("NFKC", profile_data["data"]["name"])
-                rating = profile_data["data"]["rating"]
+            async def process_lxdata(Silian_profile_data, Silian_record_data):
+                Silian_nickname = unicodedata.normalize("NFKC", Silian_profile_data["data"]["name"])
+                Silian_rating = Silian_profile_data["data"]["rating"]
 
-                record = record_data["data"]
-                origin_bests = record["bests"]
-                origin_new_bests = record["new_bests"]
+                Silian_record = Silian_record_data["data"]
+                Silian_origin_bests = Silian_record["bests"]
+                Silian_origin_new_bests = Silian_record["new_bests"]
 
-                new_bests = []
-                for item in origin_bests:
-                    music = (await total_list.get()).by_id(item["id"])
-                    new_bests.append(
+                Silian_new_bests = []
+                for Silian_item in Silian_origin_bests:
+                    Silian_music = (await Silian_total_list.get()).by_id(Silian_item["id"])
+                    Silian_new_bests.append(
                         {
-                            "mid": item["id"],
-                            "title": item["song_name"],
-                            "level": item["level"],
-                            "level_index": item["level_index"],
-                            "ds": music.ds[item["level_index"]],
-                            "score": item["score"],
-                            "ra": item["rating"],
-                            "fc": item["full_combo"],
+                            "mid": Silian_item["id"],
+                            "title": Silian_item["song_name"],
+                            "level": Silian_item["level"],
+                            "level_index": Silian_item["level_index"],
+                            "ds": Silian_music.ds[Silian_item["level_index"]],
+                            "score": Silian_item["score"],
+                            "ra": Silian_item["rating"],
+                            "fc": Silian_item["full_combo"],
                         }
                     )
-                new_new_bests = []
-                for item in origin_new_bests:
-                    music = (await total_list.get()).by_id(item["id"])
-                    new_new_bests.append(
+                Silian_new_new_bests = []
+                for Silian_item in Silian_origin_new_bests:
+                    Silian_music = (await Silian_total_list.get()).by_id(Silian_item["id"])
+                    Silian_new_new_bests.append(
                         {
-                            "mid": item["id"],
-                            "title": item["song_name"],
-                            "level": item["level"],
-                            "level_index": item["level_index"],
-                            "ds": music.ds[item["level_index"]],
-                            "score": item["score"],
-                            "ra": item["rating"],
-                            "fc": item["full_combo"],
+                            "mid": Silian_item["id"],
+                            "title": Silian_item["song_name"],
+                            "level": Silian_item["level"],
+                            "level_index": Silian_item["level_index"],
+                            "ds": Silian_music.ds[Silian_item["level_index"]],
+                            "score": Silian_item["score"],
+                            "ra": Silian_item["rating"],
+                            "fc": Silian_item["full_combo"],
                         }
                     )
 
-                return {"nickname": nickname, "rating": rating, "records": {"b30": new_bests, "n20": new_new_bests}}
+                return {"nickname": Silian_nickname, "rating": Silian_rating, "records": {"b30": Silian_new_bests, "n20": Silian_new_new_bests}}
 
-            data = await process_lxdata(profile_data, record_data)
-            if use_cache and data:
-                with open(cache_dir, "wb") as f:
-                    f.write(orjson.dumps(data))
-            return data
+            Silian_data = await process_lxdata(Silian_profile_data, Silian_record_data)
+            if use_cache and Silian_data:
+                with open(Silian_cache_dir, "wb") as Silian_f:
+                    Silian_f.write(orjson.dumps(Silian_data))
+            return Silian_data
         except Exception as e:
             if str(e).startswith(("400", "404")):
                 await msg.finish(I18NContext("maimai.message.user_not_found.lx"))
@@ -186,12 +186,12 @@ async def get_record_lx(msg: Bot.MessageSession, friend_code: str, use_cache: bo
                 await msg.finish(I18NContext("maimai.message.forbidden"))
             else:
                 Logger.exception()
-            if use_cache and cache_dir.exists():
+            if use_cache and Silian_cache_dir.exists():
                 try:
-                    with open(cache_dir, "rb") as f:
-                        data = orjson.loads(f.read())
+                    with open(Silian_cache_dir, "rb") as Silian_f:
+                        Silian_data = orjson.loads(Silian_f.read())
                     await msg.send_message(I18NContext("maimai.message.use_cache"))
-                    return data
+                    return Silian_data
                 except Exception:
                     raise e
             else:

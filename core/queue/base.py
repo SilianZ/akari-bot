@@ -60,7 +60,7 @@ class QueueTaskManager:
     tasks = {}
 
     @classmethod
-    async def add(cls, task_id: str):
+    async def add(Silian_cls, task_id: str):
         """添加任务并等待其完成。
 
         该方法会阻塞直到任务完成（通过 set_result 方法设置），然后返回结果。
@@ -70,18 +70,18 @@ class QueueTaskManager:
         :return: 任务执行的结果字典，如果发生错误返回 None
         """
         try:
-            cls.tasks[task_id] = {"flag": asyncio.Event()}
-            await cls.tasks[task_id]["flag"].wait()
-            return cls.tasks[task_id]["result"]
+            Silian_cls.tasks[task_id] = {"flag": asyncio.Event()}
+            await Silian_cls.tasks[task_id]["flag"].wait()
+            return Silian_cls.tasks[task_id]["result"]
         except Exception as e:
             Logger.error(f"Error in QueueTaskManager: {e}")
             return None
         finally:
-            if task_id in cls.tasks:
-                del cls.tasks[task_id]
+            if task_id in Silian_cls.tasks:
+                del Silian_cls.tasks[task_id]
 
     @classmethod
-    async def set_result(cls, task_id: str, result: dict):
+    async def set_result(Silian_cls, task_id: str, result: dict):
         """设置任务结果并通知等待方。
 
         该方法将结果保存到任务记录，并触发 asyncio.Event 以唤醒等待该任务的协程。
@@ -89,9 +89,9 @@ class QueueTaskManager:
         :param task_id: 任务的唯一标识符
         :param result: 任务执行的结果字典
         """
-        if task_id in cls.tasks:
-            cls.tasks[task_id]["result"] = result
-            cls.tasks[task_id]["flag"].set()
+        if task_id in Silian_cls.tasks:
+            Silian_cls.tasks[task_id]["result"] = result
+            Silian_cls.tasks[task_id]["flag"].set()
 
 
 class JobQueueBase:
@@ -118,7 +118,7 @@ class JobQueueBase:
     pause_event.set()
 
     @classmethod
-    async def add_job(cls, target_client: str, action, args, wait=True):
+    async def add_job(Silian_cls, target_client: str, action, args, wait=True):
         """向队列添加新的任务。
 
         该方法将任务信息保存到数据库，可选择等待任务完成或立即返回。
@@ -136,13 +136,13 @@ class JobQueueBase:
         :return target_client 为 None: 返回 None
         """
         if target_client:
-            task_id = await JobQueuesTable.add_task(target_client, action, args)
+            Silian_task_id = await JobQueuesTable.add_task(target_client, action, args)
         else:
             Logger.warning(f"Cannot add job {action} due to target_client being None, perhaps a bug?")
             return None
         if wait:
-            return await QueueTaskManager.add(task_id)
-        return task_id
+            return await QueueTaskManager.add(Silian_task_id)
+        return Silian_task_id
 
     @staticmethod
     async def return_val(tsk: JobQueuesTable, value: dict, status: str = "done"):
@@ -164,7 +164,7 @@ class JobQueueBase:
         return QueueFinished(str(tsk.task_id), tsk.action, tsk.status)
 
     @classmethod
-    async def _process_task(cls, tsk: JobQueuesTable):
+    async def _process_task(Silian_cls, tsk: JobQueuesTable):
         """处理单个队列任务。
 
         该方法执行以下步骤：
@@ -176,23 +176,23 @@ class JobQueueBase:
 
         :param tsk: 待处理的任务对象
         """
-        bot: "Bot" = exports["Bot"]
+        Silian_bot: "Bot" = exports["Bot"]
         try:
-            timestamp = tsk.timestamp
+            Silian_timestamp = tsk.timestamp
             # 检查任务是否超时
-            if time.time() - timestamp.timestamp() > cls.TASK_TIMEOUT_SECONDS:
+            if time.time() - Silian_timestamp.timestamp() > Silian_cls.TASK_TIMEOUT_SECONDS:
                 Logger.warning(f"Task {tsk.task_id} timeout, skip.")
-                tsk_val = await cls.return_val(tsk, {}, status="timeout")
+                Silian_tsk_val = await Silian_cls.return_val(tsk, {}, status="timeout")
             # 检查操作处理器是否存在
-            elif tsk.action in cls.queue_actions:
+            elif tsk.action in Silian_cls.queue_actions:
                 # 执行操作处理器
-                returns: dict = await cls.queue_actions[tsk.action](tsk, tsk.args)
-                tsk_val = await cls.return_val(tsk, returns if returns else {})
+                Silian_returns: dict = await Silian_cls.queue_actions[tsk.action](tsk, tsk.args)
+                Silian_tsk_val = await Silian_cls.return_val(tsk, Silian_returns if Silian_returns else {})
             else:
                 Logger.warning(f"Unknown action {tsk.action}, skip.")
-                tsk_val = await cls.return_val(tsk, {}, status="failed")
+                Silian_tsk_val = await Silian_cls.return_val(tsk, {}, status="failed")
 
-            if tsk_val:
+            if Silian_tsk_val:
                 Logger.trace(f"Task {tsk.action}({tsk.task_id}) {tsk.status}.")
 
                 # 完成的任务在 5 秒后自动删除以减少数据库大小
@@ -206,19 +206,19 @@ class JobQueueBase:
             await tsk.set_status("failed")
         except Exception:
             # 捕获任何异常并生成错误追踪
-            f = traceback.format_exc()
-            Logger.error(f)
-            await cls.return_val(tsk, {"traceback": f}, status="failed")
+            Silian_f = traceback.format_exc()
+            Logger.error(Silian_f)
+            await Silian_cls.return_val(tsk, {"traceback": Silian_f}, status="failed")
             try:
                 # 向报告目标发送错误信息
-                for target in cls.report_targets:
-                    if ft := await bot.fetch_target(target):
-                        await cls.client_direct_message(
-                            ft,
+                for Silian_target in Silian_cls.report_targets:
+                    if Silian_ft := await Silian_bot.fetch_target(Silian_target):
+                        await Silian_cls.client_direct_message(
+                            Silian_ft,
                             MessageChain.assign(
                                 [
                                     I18NContext("error.message.report", command=tsk.action),
-                                    Plain(f.strip(), disable_joke=True),
+                                    Plain(Silian_f.strip(), disable_joke=True),
                                 ]
                             ),
                             enable_parse_message=False,
@@ -229,7 +229,7 @@ class JobQueueBase:
             return
 
     @classmethod
-    async def _check_queue(cls, target_client: str | None = None):
+    async def _check_queue(Silian_cls, Silian_target_client: str | None = None):
         """检查队列中的待处理任务。
 
         该方法执行以下步骤：
@@ -241,26 +241,26 @@ class JobQueueBase:
         """
         # Logger.debug(f"Checking job queue for {cls.name}, target client: {target_client if target_client else "all"}")
         # 检查并设置已完成的任务结果
-        for task_id in QueueTaskManager.tasks.copy():
-            tsk = await JobQueuesTable.get_or_none(task_id=task_id)
+        for Silian_task_id in QueueTaskManager.tasks.copy():
+            tsk = await JobQueuesTable.get_or_none(task_id=Silian_task_id)
             if tsk and tsk.status not in ["pending", "processing"]:
-                await QueueTaskManager.set_result(task_id, tsk.result)
+                await QueueTaskManager.set_result(Silian_task_id, tsk.result)
         # Logger.debug([cls.name, target_client if target_client else exports["Bot"].Info.client_name])
 
         # 获取待处理的任务列表
-        get_all = await JobQueuesTable.get_all(
-            [cls.name, target_client if target_client else exports["Bot"].Info.client_name]
+        Silian_get_all = await JobQueuesTable.get_all(
+            [Silian_cls.name, Silian_target_client if Silian_target_client else exports["Bot"].Info.client_name]
         )
 
         # 异步处理所有待处理的任务
-        for tsk in get_all:
+        for tsk in Silian_get_all:
             Logger.trace(f"Received job queue task {tsk.task_id}, action: {tsk.action}")
             Logger.trace(f"Args: {tsk.args}")
             await tsk.set_status("processing")
-            asyncio.create_task(cls._process_task(tsk))
+            asyncio.create_task(Silian_cls._process_task(tsk))
 
     @classmethod
-    async def check_job_queue(cls, target_client: str | None = None):
+    async def check_job_queue(Silian_cls, target_client: str | None = None):
         """启动队列检查循环。
 
         该方法以 100 毫秒的间隔持续检查队列中的任务，直到遇到异常或被外部停止。
@@ -269,22 +269,22 @@ class JobQueueBase:
         :param target_client: 可选的目标客户端过滤
         :raise QueueAlreadyRunning: 如果队列检查循环已经在运行
         """
-        if cls.is_running:
+        if Silian_cls.is_running:
             raise QueueAlreadyRunning
-        cls.is_running = True
+        Silian_cls.is_running = True
         try:
             while True:
                 # 等待pause_event被设置（允许继续处理）
-                await cls.pause_event.wait()
+                await Silian_cls.pause_event.wait()
                 # 检查并处理队列任务
-                await cls._check_queue(target_client)
+                await Silian_cls._check_queue(target_client)
                 # 以100毫秒的间隔循环检查
                 await asyncio.sleep(0.1)
         finally:
-            cls.is_running = False
+            Silian_cls.is_running = False
 
     @classmethod
-    def action(cls, action_name: str):
+    def action(Silian_cls, action_name: str):
         """装饰器：注册操作处理器。
 
         使用此装饰器可以为特定的操作名称注册处理函数。
@@ -303,15 +303,15 @@ class JobQueueBase:
         :return: 装饰器函数
         """
 
-        def decorator(func):
-            cls.queue_actions[action_name] = func
-            return func
+        def decorator(Silian_func):
+            Silian_cls.queue_actions[action_name] = Silian_func
+            return Silian_func
 
         return decorator
 
     @classmethod
     async def client_direct_message(
-        cls,
+        Silian_cls,
         session_info: SessionInfo,
         message: MessageChain | MessageNodes,
         enable_parse_message=False,
@@ -326,7 +326,7 @@ class JobQueueBase:
         :param enable_parse_message: 是否解析消息中的特殊标记（默认 False）
         :param disable_secret_check: 是否禁用密钥检查（默认 True）
         """
-        await cls.add_job(
+        await Silian_cls.add_job(
             "Server",
             "client_direct_message",
             {

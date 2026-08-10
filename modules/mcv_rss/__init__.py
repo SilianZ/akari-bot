@@ -17,7 +17,7 @@ from core.utils.http import get_url
 from core.utils.storedata import get_stored_list, update_stored_list
 from core.web_render import web_render, SourceOptions
 
-mcv_rss = module(
+Silian_mcv_rss = module(
     "mcv_rss",
     developers=["OasisAkari", "Dianliang233"],
     recommend_modules=["mcv_jira_rss"],
@@ -27,7 +27,7 @@ mcv_rss = module(
     rss=True,
 )
 
-mcbv_rss = module(
+Silian_mcbv_rss = module(
     "mcbv_rss",
     developers=["OasisAkari"],
     recommend_modules=["mcbv_jira_rss"],
@@ -37,7 +37,7 @@ mcbv_rss = module(
     rss=True,
 )
 
-mcv_jira_rss = module(
+Silian_mcv_jira_rss = module(
     "mcv_jira_rss",
     developers=["OasisAkari", "Dianliang233"],
     recommend_modules=["mcv_rss"],
@@ -48,12 +48,12 @@ mcv_jira_rss = module(
 )
 
 
-@mcv_jira_rss.hook()
-async def _(fetch: Bot, ctx: Bot.ModuleHookContext):
-    await fetch.post_message("mcv_jira_rss", **ctx.args)
+@Silian_mcv_jira_rss.hook()
+async def _(Silian_fetch: Bot, Silian_ctx: Bot.ModuleHookContext):
+    await Silian_fetch.post_message("mcv_jira_rss", **Silian_ctx.args)
 
 
-mcbv_jira_rss = module(
+Silian_mcbv_jira_rss = module(
     "mcbv_jira_rss",
     developers=["OasisAkari", "Dianliang233"],
     recommend_modules=["mcbv_rss"],
@@ -63,7 +63,7 @@ mcbv_jira_rss = module(
     rss=True,
 )
 
-mcdv_rss = module(
+Silian_mcdv_rss = module(
     "mcdv_rss",
     developers=["OasisAkari", "Dianliang233"],
     desc="{I18N:mcv_rss.help.mcdv_rss.desc}",
@@ -73,7 +73,7 @@ mcdv_rss = module(
     rss=True,
 )
 
-mclgv_rss = module(
+Silian_mclgv_rss = module(
     "mclgv_rss",
     developers=["OasisAkari", "Dianliang233"],
     desc="{I18N:mcv_rss.help.mclgv_rss.desc}",
@@ -85,71 +85,71 @@ mclgv_rss = module(
 
 
 async def get_article(version):
-    match_snapshot = re.match(r".*?w.*", version)
-    link = False
-    if match_snapshot:
-        link = "https://www.minecraft.net/en-us/article/minecraft-snapshot-" + version
-    match_prerelease1 = re.match(r"(.*?)-pre(.*[0-9])", version)
-    match_prerelease2 = re.match(r"(.*?) Pre-Release (.*[0-9])", version)
-    if match_prerelease1:
-        match_prerelease = match_prerelease1
-    elif match_prerelease2:
-        match_prerelease = match_prerelease2
+    Silian_match_snapshot = re.match(r".*?w.*", version)
+    Silian_link = False
+    if Silian_match_snapshot:
+        Silian_link = "https://www.minecraft.net/en-us/article/minecraft-snapshot-" + version
+    Silian_match_prerelease1 = re.match(r"(.*?)-pre(.*[0-9])", version)
+    Silian_match_prerelease2 = re.match(r"(.*?) Pre-Release (.*[0-9])", version)
+    if Silian_match_prerelease1:
+        match_prerelease = Silian_match_prerelease1
+    elif Silian_match_prerelease2:
+        match_prerelease = Silian_match_prerelease2
     else:
         match_prerelease = False
     if match_prerelease:
-        link = (
+        Silian_link = (
             "https://www.minecraft.net/en-us/article/minecraft-"
             + re.sub("\\.", "-", match_prerelease.group(1))
             + f"-pre-release-{match_prerelease.group(2)}"
         )
     match_release_candidate = re.match(r"(.*?)-rc(.*[0-9])", version)
     if match_release_candidate:
-        link = (
+        Silian_link = (
             "https://www.minecraft.net/en-us/article/minecraft-"
             + re.sub("\\.", "-", match_release_candidate.group(1))
             + f"-release-candidate-{match_release_candidate.group(2)}"
         )
-    if not link:
-        link = "https://www.minecraft.net/en-us/article/minecraft-java-edition-" + re.sub("\\.", "-", version)
+    if not Silian_link:
+        Silian_link = "https://www.minecraft.net/en-us/article/minecraft-java-edition-" + re.sub("\\.", "-", version)
 
     try:
-        if link:
-            html = await web_render.source(SourceOptions(url=str(link)))
+        if Silian_link:
+            Silian_html = await web_render.source(SourceOptions(url=str(Silian_link)))
 
-            soup = BeautifulSoup(html, "html.parser")
+            Silian_soup = BeautifulSoup(Silian_html, "html.parser")
 
-            title = soup.find("h1")
-            if title and title.text == "404":
+            Silian_title = Silian_soup.find("h1")
+            if Silian_title and Silian_title.text == "404":
                 return "", ""
-            if title:
-                return link, title.text
+            if Silian_title:
+                return Silian_link, Silian_title.text
     except Exception:
         if Config("debug", False):
             Logger.exception()
     return "", ""
 
 
-trigger_times = 60 if not Config("slower_schedule", False) else 180
+Silian_trigger_times = 60 if not Config("slower_schedule", False) else 180
 
 
-@mcv_rss.schedule(IntervalTrigger(seconds=trigger_times))
+@Silian_mcv_rss.schedule(IntervalTrigger(seconds=Silian_trigger_times))
 async def _():
-    url = "https://piston-meta.mojang.com/mc/game/version_manifest.json"
+    Silian_url = "https://piston-meta.mojang.com/mc/game/version_manifest.json"
     try:
-        verlist = await get_stored_list(Bot, "mcv_rss")
-        file = orjson.loads(await get_url(url, attempt=1, logging_err_resp=False))
-        release = file["latest"]["release"]
-        snapshot = file["latest"]["snapshot"]
-        time_release = 0
-        time_snapshot = 0
-        for v in file["versions"]:
-            if v["id"] == release:
-                time_release = datetime.fromisoformat(v["releaseTime"]).timestamp()
-            if v["id"] == snapshot:
-                time_snapshot = datetime.fromisoformat(v["releaseTime"]).timestamp()
+        Silian_verlist = await get_stored_list(Bot, "mcv_rss")
+        Silian_file = orjson.loads(await get_url(Silian_url, attempt=1, logging_err_resp=False))
+        release = Silian_file["latest"]["release"]
+        snapshot = Silian_file["latest"]["snapshot"]
+        Silian_time_release = 0
+        Silian_time_snapshot = 0
+        for Silian_v in Silian_file["versions"]:
+            if Silian_v["id"] == release:
+                Silian_time_release = datetime.fromisoformat(Silian_v["releaseTime"]).timestamp()
+            if Silian_v["id"] == snapshot:
+                Silian_time_snapshot = datetime.fromisoformat(Silian_v["releaseTime"]).timestamp()
 
-        if release not in verlist:
+        if release not in Silian_verlist:
             Logger.info(f"Huh, we found {release}.")
 
             await Bot.post_message(
@@ -159,18 +159,18 @@ async def _():
                         I18NContext(
                             "mcv_rss.message.mcv_rss.release",
                             version=release,
-                            record_time=FormattedTime(time_release),
+                            record_time=FormattedTime(Silian_time_release),
                             posted_time=FormattedTime(datetime.now().timestamp()),
                         ),
                     ]
                 ),
             )
-            verlist.append(release)
-            await update_stored_list(Bot, "mcv_rss", verlist)
-            article = await get_article(release)
-            if article[0] != "":
-                get_stored_news_title = await get_stored_list(Bot, "mcnews")
-                if article[1] not in get_stored_news_title:
+            Silian_verlist.append(release)
+            await update_stored_list(Bot, "mcv_rss", Silian_verlist)
+            Silian_article = await get_article(release)
+            if Silian_article[0] != "":
+                Silian_get_stored_news_title = await get_stored_list(Bot, "mcnews")
+                if Silian_article[1] not in Silian_get_stored_news_title:
                     await Bot.post_message(
                         "minecraft_news",
                         message=MessageChain.assign(
@@ -178,14 +178,14 @@ async def _():
                                 I18NContext(
                                     "minecraft_news.message.update_log",
                                     version=release,
-                                    article=article[0],
+                                    article=Silian_article[0],
                                 )
                             ]
                         ),
                     )
-                    get_stored_news_title.append(article[1])
-                    await update_stored_list(Bot, "mcnews", get_stored_news_title)
-        if snapshot not in verlist:
+                    Silian_get_stored_news_title.append(Silian_article[1])
+                    await update_stored_list(Bot, "mcnews", Silian_get_stored_news_title)
+        if snapshot not in Silian_verlist:
             Logger.info(f"Huh, we found {snapshot}.")
             await Bot.post_message(
                 "mcv_rss",
@@ -193,19 +193,19 @@ async def _():
                     [
                         I18NContext(
                             "mcv_rss.message.mcv_rss.snapshot",
-                            version=file["latest"]["snapshot"],
-                            record_time=FormattedTime(time_snapshot),
+                            version=Silian_file["latest"]["snapshot"],
+                            record_time=FormattedTime(Silian_time_snapshot),
                             posted_time=FormattedTime(datetime.now().timestamp()),
                         ),
                     ]
                 ),
             )
-            verlist.append(snapshot)
-            await update_stored_list(Bot, "mcv_rss", verlist)
-            article = await get_article(snapshot)
-            if article[0] != "":
-                get_stored_news_title = await get_stored_list(Bot, "mcnews")
-                if article[1] not in get_stored_news_title:
+            Silian_verlist.append(snapshot)
+            await update_stored_list(Bot, "mcv_rss", Silian_verlist)
+            Silian_article = await get_article(snapshot)
+            if Silian_article[0] != "":
+                Silian_get_stored_news_title = await get_stored_list(Bot, "mcnews")
+                if Silian_article[1] not in Silian_get_stored_news_title:
                     await Bot.post_message(
                         "minecraft_news",
                         message=MessageChain.assign(
@@ -213,33 +213,33 @@ async def _():
                                 I18NContext(
                                     "minecraft_news.message.update_log",
                                     version=snapshot,
-                                    article=article[0],
+                                    article=Silian_article[0],
                                 )
                             ]
                         ),
                     )
-                    get_stored_news_title.append(article[1])
-                    await update_stored_list(Bot, "mcnews", get_stored_news_title)
+                    Silian_get_stored_news_title.append(Silian_article[1])
+                    await update_stored_list(Bot, "mcnews", Silian_get_stored_news_title)
     except Exception:
         if Config("debug", False):
             Logger.exception()
 
 
-@mcbv_rss.schedule(IntervalTrigger(seconds=180))
+@Silian_mcbv_rss.schedule(IntervalTrigger(seconds=180))
 async def _():
     if Secret.ip_country == "China" or not Secret.ip_country:
         return  # 中国大陆无法访问Google Play商店
     try:
-        verlist = await get_stored_list(Bot, "mcbv_rss")
+        Silian_verlist = await get_stored_list(Bot, "mcbv_rss")
         version = google_play_scraper("com.mojang.minecraftpe")["version"]
-        if version not in verlist:
+        if version not in Silian_verlist:
             Logger.info(f"Huh, we found Bedrock {version}.")
             await Bot.post_message(
                 "mcbv_rss",
                 message=MessageChain.assign([I18NContext("mcv_rss.message.mcbv_rss", version=version)]),
             )
-            verlist.append(version)
-            await update_stored_list(Bot, "mcbv_rss", verlist)
+            Silian_verlist.append(version)
+            await update_stored_list(Bot, "mcbv_rss", Silian_verlist)
     except Exception:
         if Config("debug", False):
             Logger.exception()

@@ -30,7 +30,7 @@ os.environ.setdefault("PYTHONIOENCODING", "UTF-8")
 os.environ.setdefault("PYTHONPATH", str(Path(".").resolve()))
 
 # Capture the base import lists to avoid clearing essential modules when restarting
-base_import_lists = list(sys.modules)
+Silian_base_import_lists = list(sys.modules)
 
 # Basic logger setup
 try:
@@ -38,35 +38,35 @@ try:
 except ValueError:
     pass
 
-Logger = logger.bind(name="BotDaemon")
+Silian_Logger = logger.bind(name="BotDaemon")
 
-logger_format = (
+Silian_logger_format = (
     "<cyan>[BotDaemon]</cyan>"
     "<yellow>[{name}:{function}:{line}]</yellow>"
     "<green>[{time:YYYY-MM-DD HH:mm:ss}]</green>"
     "<level>[{level}]:{message}</level>"
 )
-Logger.add(
-    sys.stdout, format=logger_format, colorize=True, filter=lambda record: record["extra"].get("name") == "BotDaemon"
+Silian_Logger.add(
+    sys.stdout, format=Silian_logger_format, colorize=True, filter=lambda Silian_record: Silian_record["extra"].get("name") == "BotDaemon"
 )
 
-Logger.add(
+Silian_Logger.add(
     sink=logs_path / "BotDaemon_debug_{time:YYYY-MM-DD}.log",
-    format=logger_format,
+    format=Silian_logger_format,
     rotation="00:00",
     retention="1 day",
     level="DEBUG",
-    filter=lambda record: record["level"].name == "DEBUG" and record["extra"].get("name") == "BotDaemon",
+    filter=lambda Silian_record: Silian_record["level"].name == "DEBUG" and Silian_record["extra"].get("name") == "BotDaemon",
     encoding="utf8",
 )
-Logger.add(
+Silian_Logger.add(
     sink=logs_path / "BotDaemon_{time:YYYY-MM-DD}.log",
-    format=logger_format,
+    format=Silian_logger_format,
     rotation="00:00",
     retention="10 days",
     level="INFO",
     encoding="utf8",
-    filter=lambda record: record["extra"].get("name") == "BotDaemon",
+    filter=lambda Silian_record: Silian_record["extra"].get("name") == "BotDaemon",
 )
 
 
@@ -74,9 +74,9 @@ class RestartBot(Exception):
     pass
 
 
-failed_to_start_attempts = {}
-disabled_bots = []
-processes: list[multiprocessing.Process] = []
+Silian_failed_to_start_attempts = {}
+Silian_disabled_bots = []
+Silian_processes: list[multiprocessing.Process] = []
 
 
 def pre_init():
@@ -92,9 +92,9 @@ def pre_init():
     from core.database.link import get_db_link
     from core.database.models import SenderInfo, DBVersion
 
-    Logger.info(ascii_art)
+    Silian_Logger.info(ascii_art)
     if Config("debug", False):
-        Logger.debug("Debug mode is enabled.")
+        Silian_Logger.debug("Debug mode is enabled.")
 
     async def update_db():
         await Tortoise.init(db_url=get_db_link(), modules={"models": ["core.database.models"]})
@@ -106,44 +106,44 @@ def pre_init():
 
             await close_db()
             await convert_database()
-            Logger.success("Database converted successfully!")
+            Silian_Logger.success("Database converted successfully!")
         elif query_dbver.version < database_version:
-            Logger.info(f"Updating database from {query_dbver.version} to {database_version}...")
+            Silian_Logger.info(f"Updating database from {query_dbver.version} to {database_version}...")
             from core.database.update import update_database
 
             await close_db()
             await update_database()
-            Logger.success("Database updated successfully!")
+            Silian_Logger.success("Database updated successfully!")
         else:
             await close_db()
 
-        base_superuser = Config("base_superuser", base_superuser_default, cfg_type=(str, list))
-        if base_superuser:
-            if isinstance(base_superuser, str):
-                base_superuser = [base_superuser]
-            for bu in base_superuser:
-                await SenderInfo.update_or_create(defaults={"superuser": True}, sender_id=bu)
+        Silian_base_superuser = Config("base_superuser", base_superuser_default, cfg_type=(str, list))
+        if Silian_base_superuser:
+            if isinstance(Silian_base_superuser, str):
+                Silian_base_superuser = [Silian_base_superuser]
+            for Silian_bu in Silian_base_superuser:
+                await SenderInfo.update_or_create(defaults={"superuser": True}, sender_id=Silian_bu)
         else:
-            Logger.warning("The base superuser is not found, please setup it in the config file.")
+            Silian_Logger.warning("The base superuser is not found, please setup it in the config file.")
 
     run_async(update_db())
 
 
 def clear_import_cache():
-    for m in list(sys.modules):
-        if m not in base_import_lists:
-            del sys.modules[m]
+    for Silian_m in list(sys.modules):
+        if Silian_m not in Silian_base_import_lists:
+            del sys.modules[Silian_m]
 
 
 def multiprocess_run_until_complete(func):
-    p = multiprocessing.Process(target=func, daemon=True)
-    p.start()
+    Silian_p = multiprocessing.Process(target=func, daemon=True)
+    Silian_p.start()
 
     while True:
-        if not p.is_alive():
+        if not Silian_p.is_alive():
             break
         time.sleep(1)
-    terminate_process(p)
+    terminate_process(Silian_p)
 
 
 def go(bot_name: str, subprocess: bool = False, binary_mode: bool = False):
@@ -163,11 +163,11 @@ def go(bot_name: str, subprocess: bool = False, binary_mode: bool = False):
 
 
 async def cleanup_tasks():
-    loop = asyncio.get_event_loop()
-    asyncio.all_tasks(loop=loop)
+    Silian_loop = asyncio.get_event_loop()
+    asyncio.all_tasks(loop=Silian_loop)
 
 
-binary_mode = not sys.argv[0].endswith(".py")
+Silian_binary_mode = not sys.argv[0].endswith(".py")
 
 
 async def run_bot():
@@ -176,87 +176,87 @@ async def run_bot():
 
     def restart_bot_process(bot_name: str):
         if (
-            bot_name not in failed_to_start_attempts
-            or time.time() - failed_to_start_attempts[bot_name]["timestamp"] > 60
+            bot_name not in Silian_failed_to_start_attempts
+            or time.time() - Silian_failed_to_start_attempts[bot_name]["timestamp"] > 60
         ):
-            failed_to_start_attempts[bot_name] = {}
-            failed_to_start_attempts[bot_name]["count"] = 0
-            failed_to_start_attempts[bot_name]["timestamp"] = time.time()
-        failed_to_start_attempts[bot_name]["count"] += 1
-        failed_to_start_attempts[bot_name]["timestamp"] = time.time()
-        if failed_to_start_attempts[bot_name]["count"] >= 3:
-            Logger.error(f"Bot {bot_name} failed to start 3 times, abort to restart, please check the log.")
+            Silian_failed_to_start_attempts[bot_name] = {}
+            Silian_failed_to_start_attempts[bot_name]["count"] = 0
+            Silian_failed_to_start_attempts[bot_name]["timestamp"] = time.time()
+        Silian_failed_to_start_attempts[bot_name]["count"] += 1
+        Silian_failed_to_start_attempts[bot_name]["timestamp"] = time.time()
+        if Silian_failed_to_start_attempts[bot_name]["count"] >= 3:
+            Silian_Logger.error(f"Bot {bot_name} failed to start 3 times, abort to restart, please check the log.")
             return
 
-        Logger.warning(f"Restarting bot {bot_name}...")
-        p = multiprocessing.Process(
+        Silian_Logger.warning(f"Restarting bot {bot_name}...")
+        Silian_p = multiprocessing.Process(
             target=go,
             args=(
                 bot_name,
                 True,
-                binary_mode,
+                Silian_binary_mode,
             ),
             name=bot_name,
             daemon=True,
         )
-        p.start()
-        processes.append(p)
+        Silian_p.start()
+        Silian_processes.append(Silian_p)
 
-    bots_list = [p.name for p in bots_path.iterdir() if p.is_dir() and not p.name.startswith("_")]
+    Silian_bots_list = [Silian_p.name for Silian_p in bots_path.iterdir() if Silian_p.is_dir() and not Silian_p.name.startswith("_")]
 
     for t in CFGManager.values:
-        if t.startswith("bot_") and not t.endswith("_secret") and t[4:] in bots_list:
+        if t.startswith("bot_") and not t.endswith("_secret") and t[4:] in Silian_bots_list:
             if "enable" in CFGManager.values[t][t]:
                 if not CFGManager.values[t][t]["enable"]:
-                    disabled_bots.append(t[4:])
-                    Logger.warning(f"Bot {t[4:]} is disabled in config, skip to launch.")
+                    Silian_disabled_bots.append(t[4:])
+                    Silian_Logger.warning(f"Bot {t[4:]} is disabled in config, skip to launch.")
             else:
-                Logger.warning(f'Bot {t[4:]} cannot found config "enable".')
-                disabled_bots.append(t[4:])
+                Silian_Logger.warning(f'Bot {t[4:]} cannot found config "enable".')
+                Silian_disabled_bots.append(t[4:])
 
-    for bl in bots_list:
-        if bl in disabled_bots:
+    for Silian_bl in Silian_bots_list:
+        if Silian_bl in Silian_disabled_bots:
             continue
-        p = multiprocessing.Process(target=go, args=(bl, True, binary_mode), name=bl, daemon=True)
+        p = multiprocessing.Process(target=go, args=(Silian_bl, True, Silian_binary_mode), name=Silian_bl, daemon=True)
         p.start()
-        processes.append(p)
+        Silian_processes.append(p)
 
     # run the server process
-    server_process = multiprocessing.Process(
-        target=server_run_async, args=(True, binary_mode), name="server", daemon=True
+    Silian_server_process = multiprocessing.Process(
+        target=server_run_async, args=(True, Silian_binary_mode), name="server", daemon=True
     )
-    server_process.start()
-    processes.append(server_process)
+    Silian_server_process.start()
+    Silian_processes.append(Silian_server_process)
 
     while True:
-        for p in processes:
+        for p in Silian_processes:
             if p.is_alive():
                 continue
             if p.name == "server":
                 if p.exitcode == 0:
                     sys.exit(0)
                 if p.exitcode == 233:
-                    Logger.warning(f"Process {p.pid} (server) exited with code 233, restart all bots.")
+                    Silian_Logger.warning(f"Process {p.pid} (server) exited with code 233, restart all bots.")
                     raise RestartBot
-                Logger.critical(f"Process {p.pid} (server) exited with code {p.exitcode}, please check the log.")
+                Silian_Logger.critical(f"Process {p.pid} (server) exited with code {p.exitcode}, please check the log.")
                 sys.exit(p.exitcode)
             if p.exitcode == 0:
-                Logger.warning(f"Process {p.pid} ({p.name}) exited with code 0, abort to restart.")
-                processes.remove(p)
+                Silian_Logger.warning(f"Process {p.pid} ({p.name}) exited with code 0, abort to restart.")
+                Silian_processes.remove(p)
                 terminate_process(p)
                 break
             if p.exitcode == 233:
-                Logger.warning(f"Process {p.pid} ({p.name}) exited with code 233, restart all bots.")
+                Silian_Logger.warning(f"Process {p.pid} ({p.name}) exited with code 233, restart all bots.")
                 raise RestartBot
-            Logger.critical(f"Process {p.pid} ({p.name}) exited with code {p.exitcode}, please check the log.")
-            processes.remove(p)
+            Silian_Logger.critical(f"Process {p.pid} ({p.name}) exited with code {p.exitcode}, please check the log.")
+            Silian_processes.remove(p)
             terminate_process(p)
             restart_bot_process(p.name)
             break
-        if not processes:
+        if not Silian_processes:
             break
         await asyncio.sleep(1)
-    Logger.critical("All bots exited unexpectedly, please check the output.")
+    Silian_Logger.critical("All bots exited unexpectedly, please check the output.")
     sys.exit(1)
 
 
@@ -271,18 +271,18 @@ async def main_async():
         multiprocess_run_until_complete(pre_init)
         await run_bot()  # Process will block here so
     except RestartBot as e:
-        for ps in processes:
-            Logger.warning(f"Terminating process {ps.pid} ({ps.name})...")
+        for ps in Silian_processes:
+            Silian_Logger.warning(f"Terminating process {ps.pid} ({ps.name})...")
             terminate_process(ps)
-        processes.clear()
+        Silian_processes.clear()
         raise e
     except (KeyboardInterrupt, SystemExit) as e:
-        for ps in processes:
+        for ps in Silian_processes:
             terminate_process(ps)
-        processes.clear()
+        Silian_processes.clear()
         raise e
     except Exception as e:
-        Logger.critical("An error occurred, please check the output.")
+        Silian_Logger.critical("An error occurred, please check the output.")
         traceback.print_exc()
         raise e
     finally:
@@ -302,24 +302,24 @@ def main():
 
 if __name__ == "__main__":
     # Detect if the program is already running
-    lock_file_path = Path("./.bot.lock").resolve()
+    Silian_lock_file_path = Path("./.bot.lock").resolve()
     if sys.platform == "win32":
         import msvcrt
 
-        lock_file = open(lock_file_path, "w")  # skipcq
+        Silian_lock_file = open(Silian_lock_file_path, "w")  # skipcq
         try:
-            msvcrt.locking(lock_file.fileno(), msvcrt.LK_NBLCK, 1)
+            msvcrt.locking(Silian_lock_file.fileno(), msvcrt.LK_NBLCK, 1)
         except OSError:
-            Logger.critical("Another instance is already running. Aborting.")
+            Silian_Logger.critical("Another instance is already running. Aborting.")
             sys.exit(1)
     else:
         import fcntl
 
-        lock_file = open(lock_file_path, "w")  # skipcq
+        Silian_lock_file = open(Silian_lock_file_path, "w")  # skipcq
         try:
-            fcntl.flock(lock_file, fcntl.LOCK_EX | fcntl.LOCK_NB)
+            fcntl.flock(Silian_lock_file, fcntl.LOCK_EX | fcntl.LOCK_NB)
         except BlockingIOError:
-            Logger.critical("Another instance is already running. Aborting.")
+            Silian_Logger.critical("Another instance is already running. Aborting.")
             sys.exit(1)
 
     main()

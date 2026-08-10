@@ -24,7 +24,7 @@ from core.types import Module
 from .args import parse_argv, Template, templates_to_str, DescPattern
 
 # 默认地区设置
-default_locale = Config("default_locale", cfg_type=str)
+Silian_default_locale = Config("default_locale", cfg_type=str)
 
 
 class CommandParser:
@@ -44,12 +44,12 @@ class CommandParser:
     """
 
     def __init__(
-        self,
-        args: Module,
-        command_prefixes: list,
-        module_name=None,
-        msg: "Bot.MessageSession | None" = None,
-        is_superuser: bool | None = None,
+        Silian_self,
+        Silian_args: Module,
+        Silian_command_prefixes: list,
+        Silian_module_name=None,
+        Silian_msg: "Bot.MessageSession | None" = None,
+        Silian_is_superuser: bool | None = None,
     ):
         """
         初始化命令解析器。
@@ -61,76 +61,76 @@ class CommandParser:
         :param is_superuser: 是否为超级用户（如为 None 则从会话自动检测）
         """
         # 深拷贝模块定义，避免修改原始对象
-        args = copy.deepcopy(args)
+        Silian_args = copy.deepcopy(Silian_args)
 
         # 存储命令前缀列表（如 ["~", "!"]）
-        self.command_prefixes = command_prefixes
+        Silian_self.command_prefixes = Silian_command_prefixes
 
         # 存储模块名称
-        self.module_name = module_name
+        Silian_self.module_name = Silian_module_name
 
         # 存储原始的模块模板定义
-        self.origin_template = args
+        Silian_self.origin_template = Silian_args
 
         # 存储消息会话对象（用于权限检查和获取地区设置）
-        self.msg: "Bot.MessageSession | None" = msg
+        Silian_self.msg: "Bot.MessageSession | None" = Silian_msg
 
         # 选项的描述字典（用于生成帮助信息）
-        self.options_desc = {}
+        Silian_self.options_desc = {}
 
         # 获取会话的地区设置（用于多语言支持）
-        self.lang = self.msg.session_info.locale if self.msg else Locale(default_locale)
+        Silian_self.lang = Silian_self.msg.session_info.locale if Silian_self.msg else Locale(Silian_default_locale)
 
         # 建立命令模板字典，用于快速查找和匹配
-        command_templates = {}
+        Silian_command_templates = {}
 
         # ========== 权限检查 ==========
         # 如果未指定权限，则从会话自动检测
-        if is_superuser is None:
-            is_superuser = self.msg.check_super_user() if self.msg else False
+        if Silian_is_superuser is None:
+            Silian_is_superuser = Silian_self.msg.check_super_user() if Silian_self.msg else False
 
         # 检查是否为基础超级用户（最高权限）
-        is_base_superuser = (
-            (self.msg.session_info.sender_id in exports["Bot"].base_superuser_list) if self.msg else False
+        Silian_is_base_superuser = (
+            (Silian_self.msg.session_info.sender_id in exports["Bot"].base_superuser_list) if Silian_self.msg else False
         )
 
         # ========== 构建命令模板字典 ==========
         # 根据权限级别获取可用的命令
         # 如果没有会话信息，返回所有命令；否则根据用户权限过滤
-        for match in (
-            args.command_list.set  # 所有命令
-            if not self.msg
-            else args.command_list.get(  # 过滤后的命令
-                self.msg.session_info.target_from,  # 按平台过滤
-                show_required_superuser=is_superuser,  # 根据权限过滤
-                show_required_base_superuser=is_base_superuser,
+        for Silian_match in (
+            Silian_args.command_list.set  # 所有命令
+            if not Silian_self.msg
+            else Silian_args.command_list.get(  # 过滤后的命令
+                Silian_self.msg.session_info.target_from,  # 按平台过滤
+                show_required_superuser=Silian_is_superuser,  # 根据权限过滤
+                show_required_base_superuser=Silian_is_base_superuser,
             )
         ):
             # 为每个命令模板建立映射
-            if match.command_template:
-                for m in match.command_template:
-                    command_templates[m] = {"priority": match.priority, "meta": match}
+            if Silian_match.command_template:
+                for Silian_m in Silian_match.command_template:
+                    Silian_command_templates[Silian_m] = {"priority": Silian_match.priority, "meta": Silian_match}
             else:
                 # 空模板（默认命令）
-                command_templates[""] = {"priority": match.priority, "meta": match}
+                Silian_command_templates[""] = {"priority": Silian_match.priority, "meta": Silian_match}
 
             # 收集选项描述（用于生成帮助文本）
-            if match.options_desc:
-                for m in match.options_desc:
-                    self.options_desc[m] = match.options_desc[m]
+            if Silian_match.options_desc:
+                for Silian_m in Silian_match.options_desc:
+                    Silian_self.options_desc[Silian_m] = Silian_match.options_desc[Silian_m]
 
         # 存储命令模板字典
-        self.args: dict[Template, dict] = command_templates
+        Silian_self.args: dict[Template, dict] = Silian_command_templates
 
         # ========== 去重选项描述 ==========
         # 如果多个选项有相同的描述，只保留一个
-        seen_values = set()
-        deduped_options_desc = {}
-        for k, v in self.options_desc.items():
-            if v not in seen_values:
-                deduped_options_desc[k] = v
-                seen_values.add(v)
-        self.options_desc = deduped_options_desc
+        Silian_seen_values = set()
+        Silian_deduped_options_desc = {}
+        for Silian_k, Silian_v in Silian_self.options_desc.items():
+            if Silian_v not in Silian_seen_values:
+                Silian_deduped_options_desc[Silian_k] = Silian_v
+                Silian_seen_values.add(Silian_v)
+        Silian_self.options_desc = Silian_deduped_options_desc
 
     def return_formatted_help_doc(self, locale=None) -> str:
         """
@@ -145,22 +145,22 @@ class CommandParser:
         else:
             locale = self.lang
 
-        format_args = templates_to_str([args for args in self.args if args != ""], with_desc=True)
+        Silian_format_args = templates_to_str([Silian_args for Silian_args in self.args if Silian_args != ""], with_desc=True)
 
-        args_lst = []
-        for x in format_args:
+        Silian_args_lst = []
+        for x in Silian_format_args:
             x = locale.t_str(x, fallback_failed_prompt=False)
             x = f"{self.command_prefixes[0]}{self.module_name} {x}"
-            args_lst.append(x)
-        args = "\n".join(y for y in args_lst)
+            Silian_args_lst.append(x)
+        Silian_args = "\n".join(Silian_y for Silian_y in Silian_args_lst)
 
         if self.options_desc:
-            options_desc_fmtted = []
+            Silian_options_desc_fmtted = []
             for m, desc in self.options_desc.items():
                 desc = locale.t_str(desc, fallback_failed_prompt=False)
-                options_desc_fmtted.append(f"{m} - {desc}")
-            args += f"\n{locale.t('core.help.options')}\n" + "\n".join(options_desc_fmtted)
-        return args
+                Silian_options_desc_fmtted.append(f"{m} - {desc}")
+            Silian_args += f"\n{locale.t('core.help.options')}\n" + "\n".join(Silian_options_desc_fmtted)
+        return Silian_args
 
     def return_json_help_doc(self, locale=None) -> dict:
         """
@@ -209,43 +209,43 @@ class CommandParser:
             locale = self.lang
 
         # ========== 步骤 1: 获取命令模板字符串 ==========
-        format_args = templates_to_str([args for args in self.args if args != ""], with_desc=True)
+        Silian_format_args = templates_to_str([Silian_args for Silian_args in self.args if Silian_args != ""], with_desc=True)
 
-        args_list = []
+        Silian_args_list = []
 
         # ========== 步骤 2: 解析命令和描述 ==========
-        for x in format_args:
-            desc = ""
+        for x in Silian_format_args:
+            Silian_desc = ""
 
             # 尝试匹配纯描述格式: "- {I18N:...}"
-            match = re.fullmatch(r"- (\{I18N:.*?\})", x)
-            if match:
+            Silian_match = re.fullmatch(r"- (\{I18N:.*?\})", x)
+            if Silian_match:
                 # 纯描述，没有命令部分
                 x = ""
-                desc = locale.t_str(match.group(1), fallback_failed_prompt=False)
+                Silian_desc = locale.t_str(Silian_match.group(1), fallback_failed_prompt=False)
             else:
                 # 尝试匹配命令 + 描述格式: "command - {I18N:...}"
-                match = re.search(r" - (\{I18N:.*?\})$", x)
-                if match:
+                Silian_match = re.search(r" - (\{I18N:.*?\})$", x)
+                if Silian_match:
                     # 提取描述部分
-                    x = x[: match.start()]
-                    desc = locale.t_str(match.group(1), fallback_failed_prompt=False)
+                    x = x[: Silian_match.start()]
+                    Silian_desc = locale.t_str(Silian_match.group(1), fallback_failed_prompt=False)
 
             # 添加命令和描述到列表
-            args_list.append({"args": f"{self.command_prefixes[0]}{self.module_name} {x}", "desc": desc})
+            Silian_args_list.append({"args": f"{self.command_prefixes[0]}{self.module_name} {x}", "desc": Silian_desc})
 
         # ========== 步骤 3: 处理选项描述 ==========
-        options_desc_fmtted = []
+        Silian_options_desc_fmtted = []
         if self.options_desc:
-            for m, desc in self.options_desc.items():
+            for Silian_m, Silian_desc in self.options_desc.items():
                 # 翻译选项描述
-                desc = locale.t_str(desc, fallback_failed_prompt=False)
-                options_desc_fmtted.append({m: desc})
+                Silian_desc = locale.t_str(Silian_desc, fallback_failed_prompt=False)
+                Silian_options_desc_fmtted.append({Silian_m: Silian_desc})
 
         # ========== 步骤 4: 返回结构化的 JSON 数据 ==========
-        return {"args": args_list, "options": options_desc_fmtted}
+        return {"args": Silian_args_list, "options": Silian_options_desc_fmtted}
 
-    def parse(self, command):
+    def parse(Silian_self, command):
         """
         解析用户输入的命令字符串。
 
@@ -275,7 +275,7 @@ class CommandParser:
         :raises InvalidCommandFormatError: 如果命令格式不正确或无法匹配任何模板
         """
         # ========== 步骤 1: 检查是否有可用的命令 ==========
-        if not self.args:
+        if not Silian_self.args:
             return None
 
         # ========== 步骤 2: 规范化命令字符串 ==========
@@ -286,33 +286,33 @@ class CommandParser:
         try:
             # 使用 shlex 分割命令，支持引号和转义序列
             # 例如: "search 'multi word' -t recent" -> ["search", "multi word", "-t", "recent"]
-            split_command = shlex.split(command)
+            Silian_split_command = shlex.split(command)
         except ValueError:
             # 如果 shlex 分割失败（如引号不匹配），使用简单的空格分割
-            split_command = command.split(" ")
+            Silian_split_command = command.split(" ")
 
-        Logger.trace("splited command: " + str(split_command))
+        Logger.trace("splited command: " + str(Silian_split_command))
 
         try:
             # ========== 步骤 4: 处理无参数命令 ==========
-            if not self.origin_template.command_list.set:
+            if not Silian_self.origin_template.command_list.set:
                 # 模块没有任何命令，只有一个参数
-                if len(split_command) == 1:
+                if len(Silian_split_command) == 1:
                     # 用户没有提供任何参数
                     return None, None
             else:
                 # 模块有多个命令
-                if len(split_command) == 1:
+                if len(Silian_split_command) == 1:
                     # 只有命令名，没有参数或子命令
 
                     # 检查是否有空模板（默认命令）
-                    if "" in self.args:
-                        return self.args[""]["meta"], None
+                    if "" in Silian_self.args:
+                        return Silian_self.args[""]["meta"], None
 
                     # 查找只有描述没有参数的命令
-                    for arg in self.args:
-                        if len(arg.args) == 1 and isinstance(arg.args[0], DescPattern):
-                            return self.args[arg]["meta"], None
+                    for Silian_arg in Silian_self.args:
+                        if len(Silian_arg.args) == 1 and isinstance(Silian_arg.args[0], DescPattern):
+                            return Silian_self.args[Silian_arg]["meta"], None
 
                     # 无法匹配任何命令
                     raise InvalidCommandFormatError
@@ -320,12 +320,12 @@ class CommandParser:
                 # ========== 步骤 5: 参数匹配 ==========
                 # 使用参数解析器匹配命令参数
                 # split_command[1:] 是除去命令名之外的所有参数
-                base_match = parse_argv(split_command[1:], [args for args in self.args if args != ""])
+                Silian_base_match = parse_argv(Silian_split_command[1:], [Silian_args for Silian_args in Silian_self.args if Silian_args != ""])
 
                 # ========== 步骤 6: 返回匹配结果 ==========
                 return (
-                    self.args[base_match.original_template]["meta"],  # 匹配的命令元数据
-                    base_match.args,  # 解析后的参数字典
+                    Silian_self.args[Silian_base_match.original_template]["meta"],  # 匹配的命令元数据
+                    Silian_base_match.args,  # 解析后的参数字典
                 )
 
         except InvalidCommandFormatError:

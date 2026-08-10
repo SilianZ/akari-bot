@@ -10,7 +10,7 @@ from .info import *
 from .path import *
 from .version import *
 
-ascii_art = r"""
+Silian_ascii_art = r"""
            _              _   ____        _
      /\   | |            (_) |  _ \      | |
     /  \  | | ____ _ _ __ _  | |_) | ___ | |_
@@ -18,5 +18,5 @@ ascii_art = r"""
   / ____ \|   < (_| | |  | | | |_) | (_) | |_
  /_/    \_\_|\_\__,_|_|  |_| |____/ \___/ \__|
 """
-config_filename = "config.toml"
-dev_mode = str(os.getenv("DEV_MODE")).lower() == "true"
+Silian_config_filename = "config.toml"
+Silian_dev_mode = str(os.getenv("DEV_MODE")).lower() == "true"

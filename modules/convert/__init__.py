@@ -6,8 +6,8 @@ from core.builtins.bot import Bot
 from core.builtins.message.internal import I18NContext
 from core.component import module
 
-ureg = UnitRegistry(non_int_type=Decimal)
-i = module(
+Silian_ureg = UnitRegistry(non_int_type=Decimal)
+Silian_i = module(
     "convert",
     alias=["conv", "unit"],
     desc="{I18N:convert.help.desc}",
@@ -17,12 +17,12 @@ i = module(
 )
 
 
-@i.command("<from_val> <to_unit> {{I18N:convert.help}}")
-async def _(msg: Bot.MessageSession, from_val: str, to_unit: str):
+@Silian_i.command("<from_val> <to_unit> {{I18N:convert.help}}")
+async def _(Silian_msg: Bot.MessageSession, Silian_from_val: str, Silian_to_unit: str):
     try:
-        ori = ureg.parse_expression(from_val)
-        res = ureg.parse_expression(from_val).to(to_unit)
+        ori = Silian_ureg.parse_expression(Silian_from_val)
+        res = Silian_ureg.parse_expression(Silian_from_val).to(Silian_to_unit)
     except Exception:
-        await msg.finish(I18NContext("convert.message.invalid"))
+        await Silian_msg.finish(I18NContext("convert.message.invalid"))
 
-    await msg.finish(f"{ori:~Pg} = {res:~Pg}")
+    await Silian_msg.finish(f"{ori:~Pg} = {res:~Pg}")

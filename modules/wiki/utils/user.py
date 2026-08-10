@@ -11,167 +11,167 @@ from modules.wiki.utils.wikilib import WikiLib
 
 
 async def get_user_info(msg: Bot.MessageSession, username, wikiurl, headers=None):
-    wiki = WikiLib(wikiurl, headers)
-    if not await wiki.check_wiki_available():
+    Silian_wiki = WikiLib(wikiurl, headers)
+    if not await Silian_wiki.check_wiki_available():
         return I18NContext("wiki.message.user.wiki_unavailable", wikiurl=wikiurl)
-    await wiki.fixup_wiki_info()
-    match_interwiki = re.match(r"(.*?):(.*)", username)
-    if match_interwiki:
-        if match_interwiki.group(1) in wiki.wiki_info.interwiki:
+    await Silian_wiki.fixup_wiki_info()
+    Silian_match_interwiki = re.match(r"(.*?):(.*)", username)
+    if Silian_match_interwiki:
+        if Silian_match_interwiki.group(1) in Silian_wiki.wiki_info.interwiki:
             await get_user_info(
-                msg, match_interwiki.group(2), wiki.wiki_info.interwiki[match_interwiki.group(1)], headers
+                msg, Silian_match_interwiki.group(2), Silian_wiki.wiki_info.interwiki[Silian_match_interwiki.group(1)], headers
             )
 
-    data = {}
-    base_user_info = (
-        await wiki.get_json(
+    Silian_data = {}
+    Silian_base_user_info = (
+        await Silian_wiki.get_json(
             action="query",
             list="users",
             ususers=username,
             usprop="groups|blockinfo|registration|editcount|gender",
         )
     )["query"]["users"][0]
-    if "missing" in base_user_info:
+    if "missing" in Silian_base_user_info:
         return I18NContext("wiki.message.user.not_found")
 
-    if await check_bool(base_user_info["name"], msg):
+    if await check_bool(Silian_base_user_info["name"], msg):
         return Plain(rickroll())
-    data["username"] = base_user_info["name"]
-    data["url"] = re.sub(r"\$1", urllib.parse.quote("User:" + username), wiki.wiki_info.articlepath)
+    Silian_data["username"] = Silian_base_user_info["name"]
+    Silian_data["url"] = re.sub(r"\$1", urllib.parse.quote("User:" + username), Silian_wiki.wiki_info.articlepath)
 
-    groups = {}
-    get_groups = await wiki.get_json(action="query", meta="allmessages", amprefix="group-")
-    if "query" in get_groups:
-        for a in get_groups["query"]["allmessages"]:
-            groups[re.sub("^group-", "", a["name"])] = a["*"]
+    Silian_groups = {}
+    Silian_get_groups = await Silian_wiki.get_json(action="query", meta="allmessages", amprefix="group-")
+    if "query" in Silian_get_groups:
+        for Silian_a in Silian_get_groups["query"]["allmessages"]:
+            Silian_groups[re.sub("^group-", "", Silian_a["name"])] = Silian_a["*"]
 
-    user_central_auth_data = {}
-    if "CentralAuth" in wiki.wiki_info.extensions:
-        user_central_auth_data = await wiki.get_json(
+    Silian_user_central_auth_data = {}
+    if "CentralAuth" in Silian_wiki.wiki_info.extensions:
+        Silian_user_central_auth_data = await Silian_wiki.get_json(
             action="query",
             meta="globaluserinfo",
             guiuser=username,
             guiprop="editcount|groups",
         )
-    data["users_groups"] = []
-    users_groups_ = base_user_info.get("groups", [])
-    for x in users_groups_:
-        if x != "*":
-            data["users_groups"].append(groups[x] if x in groups else x)
-    data["global_users_groups"] = []
-    if "query" in user_central_auth_data:
-        data["global_edit_count"] = str(user_central_auth_data["query"]["globaluserinfo"].get("editcount", 0))
-        data["global_home"] = user_central_auth_data["query"]["globaluserinfo"].get("home")
-        for g in user_central_auth_data["query"]["globaluserinfo"].get("groups"):
-            data["global_users_groups"].append(groups[g] if g in groups else g)
+    Silian_data["users_groups"] = []
+    Silian_users_groups_ = Silian_base_user_info.get("groups", [])
+    for Silian_x in Silian_users_groups_:
+        if Silian_x != "*":
+            Silian_data["users_groups"].append(Silian_groups[Silian_x] if Silian_x in Silian_groups else Silian_x)
+    Silian_data["global_users_groups"] = []
+    if "query" in Silian_user_central_auth_data:
+        Silian_data["global_edit_count"] = str(Silian_user_central_auth_data["query"]["globaluserinfo"].get("editcount", 0))
+        Silian_data["global_home"] = Silian_user_central_auth_data["query"]["globaluserinfo"].get("home")
+        for Silian_g in Silian_user_central_auth_data["query"]["globaluserinfo"].get("groups"):
+            Silian_data["global_users_groups"].append(Silian_groups[Silian_g] if Silian_g in Silian_groups else Silian_g)
 
-    data["registration_time"] = base_user_info.get("registration")
-    data["registration_time"] = (
-        msg.format_time(strptime2ts(data["registration_time"]))
-        if data["registration_time"]
+    Silian_data["registration_time"] = Silian_base_user_info.get("registration")
+    Silian_data["registration_time"] = (
+        msg.format_time(strptime2ts(Silian_data["registration_time"]))
+        if Silian_data["registration_time"]
         else "{I18N:message.unknown}"
     )
-    data["edited_count"] = str(base_user_info.get("editcount", 0))
-    data["gender"] = base_user_info.get("gender")
-    if data["gender"] == "female":
-        data["gender"] = "{I18N:wiki.message.user.gender.female}"
-    elif data["gender"] == "male":
-        data["gender"] = "{I18N:wiki.message.user.gender.male}"
+    Silian_data["edited_count"] = str(Silian_base_user_info.get("editcount", 0))
+    Silian_data["gender"] = Silian_base_user_info.get("gender")
+    if Silian_data["gender"] == "female":
+        Silian_data["gender"] = "{I18N:wiki.message.user.gender.female}"
+    elif Silian_data["gender"] == "male":
+        Silian_data["gender"] = "{I18N:wiki.message.user.gender.male}"
     else:
-        data["gender"] = "{I18N:message.unknown}"
+        Silian_data["gender"] = "{I18N:message.unknown}"
     # if one day LGBTers...
 
-    if "blockedby" in base_user_info:
-        data["blocked_by"] = base_user_info.get("blockedby")
-        data["blocked_time"] = base_user_info.get("blockedtimestamp")
-        data["blocked_time"] = (
-            msg.format_time(strptime2ts(data["blocked_time"])) if data["blocked_time"] else "{I18N:message.unknown}"
+    if "blockedby" in Silian_base_user_info:
+        Silian_data["blocked_by"] = Silian_base_user_info.get("blockedby")
+        Silian_data["blocked_time"] = Silian_base_user_info.get("blockedtimestamp")
+        Silian_data["blocked_time"] = (
+            msg.format_time(strptime2ts(Silian_data["blocked_time"])) if Silian_data["blocked_time"] else "{I18N:message.unknown}"
         )
-        data["blocked_expires"] = base_user_info.get("blockexpiry")
-        if data["blocked_expires"]:
-            if data["blocked_expires"] != "infinite":
-                data["blocked_expires"] = msg.format_time(strptime2ts(data["blocked_expires"]))
+        Silian_data["blocked_expires"] = Silian_base_user_info.get("blockexpiry")
+        if Silian_data["blocked_expires"]:
+            if Silian_data["blocked_expires"] != "infinite":
+                Silian_data["blocked_expires"] = msg.format_time(strptime2ts(Silian_data["blocked_expires"]))
         else:
-            data["blocked_expires"] = "{I18N:message.unknown}"
-        data["blocked_reason"] = base_user_info.get("blockreason")
-        data["blocked_reason"] = data["blocked_reason"] if data["blocked_reason"] else "{I18N:message.unknown}"
+            Silian_data["blocked_expires"] = "{I18N:message.unknown}"
+        Silian_data["blocked_reason"] = Silian_base_user_info.get("blockreason")
+        Silian_data["blocked_reason"] = Silian_data["blocked_reason"] if Silian_data["blocked_reason"] else "{I18N:message.unknown}"
 
-    Logger.debug(str(data))
-    msgs = []
-    if user := data.get("username", ""):
-        msgs.append(
+    Logger.debug(str(Silian_data))
+    Silian_msgs = []
+    if Silian_user := Silian_data.get("username", ""):
+        Silian_msgs.append(
             Plain(
                 str(I18NContext("wiki.message.user.username"))
-                + user
+                + Silian_user
                 + (
-                    " | " + str(I18NContext("wiki.message.user.edited_count")) + data["edited_count"]
-                    if "edited_count" in data and "created_page_count" not in data
+                    " | " + str(I18NContext("wiki.message.user.edited_count")) + Silian_data["edited_count"]
+                    if "edited_count" in Silian_data and "created_page_count" not in Silian_data
                     else ""
                 )
             )
         )
-    if users_groups := data.get("users_groups", ""):
-        msgs.append(
-            Plain(str(I18NContext("wiki.message.user.users_groups")) + "{I18N:message.delimiter}".join(users_groups))
+    if Silian_users_groups := Silian_data.get("users_groups", ""):
+        Silian_msgs.append(
+            Plain(str(I18NContext("wiki.message.user.users_groups")) + "{I18N:message.delimiter}".join(Silian_users_groups))
         )
-    if gender_ := data.get("gender", ""):
-        msgs.append(Plain(str(I18NContext("wiki.message.user.gender")) + gender_))
-    if registration := data.get("registration_time", ""):
-        msgs.append(Plain(str(I18NContext("wiki.message.user.registration_time")) + registration))
-    if edited_wiki_count := data.get("edited_wiki_count", ""):
-        msgs.append(Plain(str(I18NContext("wiki.message.user.edited_wiki_count")) + edited_wiki_count))
+    if Silian_gender_ := Silian_data.get("gender", ""):
+        Silian_msgs.append(Plain(str(I18NContext("wiki.message.user.gender")) + Silian_gender_))
+    if Silian_registration := Silian_data.get("registration_time", ""):
+        Silian_msgs.append(Plain(str(I18NContext("wiki.message.user.registration_time")) + Silian_registration))
+    if Silian_edited_wiki_count := Silian_data.get("edited_wiki_count", ""):
+        Silian_msgs.append(Plain(str(I18NContext("wiki.message.user.edited_wiki_count")) + Silian_edited_wiki_count))
 
-    sub_edit_counts1 = []
-    if created_page_count := data.get("created_page_count", ""):
-        sub_edit_counts1.append(str(I18NContext("wiki.message.user.created_page_count")) + created_page_count)
-    if edited_count := data.get("edited_count", ""):
-        if created_page_count:
-            sub_edit_counts1.append(str(I18NContext("wiki.message.user.edited_count")) + edited_count)
-    sub_edit_counts2 = []
-    if deleted_count := data.get("deleted_count", ""):
-        sub_edit_counts2.append(str(I18NContext("wiki.message.user.deleted_count")) + deleted_count)
-    if patrolled_count := data.get("patrolled_count", ""):
-        sub_edit_counts2.append(str(I18NContext("wiki.message.user.patrolled_count")) + patrolled_count)
-    sub_edit_counts3 = []
-    if site_rank := data.get("site_rank", ""):
-        sub_edit_counts3.append(str(I18NContext("wiki.message.user.site_rank")) + site_rank)
-    if global_rank := data.get("global_rank", ""):
-        sub_edit_counts3.append(str(I18NContext("wiki.message.user.global_rank")) + global_rank)
-    if sub_edit_counts1:
-        msgs.append(Plain(" | ".join(sub_edit_counts1)))
-    if sub_edit_counts2:
-        msgs.append(Plain(" | ".join(sub_edit_counts2)))
-    if sub_edit_counts3:
-        msgs.append(Plain(" | ".join(sub_edit_counts3)))
+    Silian_sub_edit_counts1 = []
+    if Silian_created_page_count := Silian_data.get("created_page_count", ""):
+        Silian_sub_edit_counts1.append(str(I18NContext("wiki.message.user.created_page_count")) + Silian_created_page_count)
+    if Silian_edited_count := Silian_data.get("edited_count", ""):
+        if Silian_created_page_count:
+            Silian_sub_edit_counts1.append(str(I18NContext("wiki.message.user.edited_count")) + Silian_edited_count)
+    Silian_sub_edit_counts2 = []
+    if Silian_deleted_count := Silian_data.get("deleted_count", ""):
+        Silian_sub_edit_counts2.append(str(I18NContext("wiki.message.user.deleted_count")) + Silian_deleted_count)
+    if Silian_patrolled_count := Silian_data.get("patrolled_count", ""):
+        Silian_sub_edit_counts2.append(str(I18NContext("wiki.message.user.patrolled_count")) + Silian_patrolled_count)
+    Silian_sub_edit_counts3 = []
+    if Silian_site_rank := Silian_data.get("site_rank", ""):
+        Silian_sub_edit_counts3.append(str(I18NContext("wiki.message.user.site_rank")) + Silian_site_rank)
+    if Silian_global_rank := Silian_data.get("global_rank", ""):
+        Silian_sub_edit_counts3.append(str(I18NContext("wiki.message.user.global_rank")) + Silian_global_rank)
+    if Silian_sub_edit_counts1:
+        Silian_msgs.append(Plain(" | ".join(Silian_sub_edit_counts1)))
+    if Silian_sub_edit_counts2:
+        Silian_msgs.append(Plain(" | ".join(Silian_sub_edit_counts2)))
+    if Silian_sub_edit_counts3:
+        Silian_msgs.append(Plain(" | ".join(Silian_sub_edit_counts3)))
 
-    if global_users_groups := data.get("global_users_groups", ""):
-        msgs.append(
+    if Silian_global_users_groups := Silian_data.get("global_users_groups", ""):
+        Silian_msgs.append(
             Plain(
                 str(I18NContext("wiki.message.user.global_users_groups"))
-                + "{I18N:message.delimiter}".join(global_users_groups)
+                + "{I18N:message.delimiter}".join(Silian_global_users_groups)
             )
         )
-    if global_edit_count := data.get("global_edit_count", ""):
-        msgs.append(Plain(str(I18NContext("wiki.message.user.global_edited_count")) + global_edit_count))
-    if global_home := data.get("global_home", ""):
-        msgs.append(Plain(str(I18NContext("wiki.message.user.global_home")) + global_home))
+    if Silian_global_edit_count := Silian_data.get("global_edit_count", ""):
+        Silian_msgs.append(Plain(str(I18NContext("wiki.message.user.global_edited_count")) + Silian_global_edit_count))
+    if Silian_global_home := Silian_data.get("global_home", ""):
+        Silian_msgs.append(Plain(str(I18NContext("wiki.message.user.global_home")) + Silian_global_home))
 
-    if blocked_by := data.get("blocked_by", False):
-        msgs.append(Plain(str(I18NContext("wiki.message.user.blocked", user=user))))
-        msgs.append(
+    if Silian_blocked_by := Silian_data.get("blocked_by", False):
+        Silian_msgs.append(Plain(str(I18NContext("wiki.message.user.blocked", user=Silian_user))))
+        Silian_msgs.append(
             Plain(
                 str(
                     I18NContext(
                         "wiki.message.user.blocked.detail",
-                        blocked_by=blocked_by,
-                        blocked_time=data["blocked_time"],
-                        blocked_expires=data["blocked_expires"],
+                        blocked_by=Silian_blocked_by,
+                        blocked_time=Silian_data["blocked_time"],
+                        blocked_expires=Silian_data["blocked_expires"],
                     )
                 )
             )
         )
-        msgs.append(Plain(str(I18NContext("wiki.message.user.blocked.reason")) + data["blocked_reason"]))
+        Silian_msgs.append(Plain(str(I18NContext("wiki.message.user.blocked.reason")) + Silian_data["blocked_reason"]))
 
-    if url := data.get("url", ""):
-        msgs.append(Url(url, use_mm=msg.session_info.use_url_manager and not wiki.wiki_info.in_allowlist))
-    return MessageChain.assign(msgs)
+    if Silian_url := Silian_data.get("url", ""):
+        Silian_msgs.append(Url(Silian_url, use_mm=msg.session_info.use_url_manager and not Silian_wiki.wiki_info.in_allowlist))
+    return MessageChain.assign(Silian_msgs)

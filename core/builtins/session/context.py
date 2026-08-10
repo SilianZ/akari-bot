@@ -43,7 +43,7 @@ class ContextManager(ABC):
     context_marks_hold: dict[str, int] = {}
 
     @classmethod
-    def add_context(cls, session_info: SessionInfo, context: Any):
+    def add_context(Silian_cls, session_info: SessionInfo, context: Any):
         """
         为会话添加上下文。
 
@@ -51,10 +51,10 @@ class ContextManager(ABC):
         :param context: 要存储的上下文对象（通常是对应平台框架下的消息实例）
         """
         # 以 session_id 为键存储上下文
-        cls.context[session_info.session_id] = context
+        Silian_cls.context[session_info.session_id] = context
 
     @classmethod
-    def del_context(cls, session_info: SessionInfo):
+    def del_context(Silian_cls, session_info: SessionInfo):
         """
         删除会话的上下文。
 
@@ -63,15 +63,15 @@ class ContextManager(ABC):
         :param session_info: 会话信息对象
         """
         # 检查上下文是否存在且未被保持
-        if session_info.session_id in cls.context and session_info.session_id not in cls.context_marks_hold:
-            del cls.context[session_info.session_id]
+        if session_info.session_id in Silian_cls.context and session_info.session_id not in Silian_cls.context_marks_hold:
+            del Silian_cls.context[session_info.session_id]
             Logger.trace(f"Context for session {session_info.session_id} deleted.")
         # 如果上下文被保持，记录日志但不删除
-        if session_info.session_id in cls.context_marks_hold:
+        if session_info.session_id in Silian_cls.context_marks_hold:
             Logger.trace(f"Context for session {session_info.session_id} is held, skipping deletion.")
 
     @classmethod
-    def hold_context(cls, session_info: SessionInfo):
+    def hold_context(Silian_cls, session_info: SessionInfo):
         """
         保持会话的上下文。
 
@@ -81,18 +81,18 @@ class ContextManager(ABC):
         :raises ValueError: 如果会话上下文不存在
         """
         # 检查上下文是否存在
-        if session_info.session_id not in cls.context:
+        if session_info.session_id not in Silian_cls.context:
             raise ValueError("Session not found in context")
 
         # 增加持有计数
-        if session_info.session_id in cls.context_marks_hold:
-            cls.context_marks_hold[session_info.session_id] += 1
+        if session_info.session_id in Silian_cls.context_marks_hold:
+            Silian_cls.context_marks_hold[session_info.session_id] += 1
         else:
-            cls.context_marks_hold[session_info.session_id] = 1
+            Silian_cls.context_marks_hold[session_info.session_id] = 1
             Logger.trace(f"Context for session {session_info.session_id} is now held.")
 
     @classmethod
-    def release_context(cls, session_info: SessionInfo):
+    def release_context(Silian_cls, session_info: SessionInfo):
         """
         释放会话的上下文保持。
 
@@ -101,24 +101,24 @@ class ContextManager(ABC):
         :param session_info: 会话信息对象
         """
         # 递减保持计数
-        if session_info.session_id in cls.context_marks_hold:
-            cls.context_marks_hold[session_info.session_id] -= 1
+        if session_info.session_id in Silian_cls.context_marks_hold:
+            Silian_cls.context_marks_hold[session_info.session_id] -= 1
             # 当计数达到 0 时，删除上下文和计数记录
-            if cls.context_marks_hold[session_info.session_id] == 0:
-                del cls.context[session_info.session_id]
-                del cls.context_marks_hold[session_info.session_id]
+            if Silian_cls.context_marks_hold[session_info.session_id] == 0:
+                del Silian_cls.context[session_info.session_id]
+                del Silian_cls.context_marks_hold[session_info.session_id]
                 Logger.trace(f"Context for session {session_info.session_id} is released.")
 
     @classmethod
     @abstractmethod
-    async def check_native_permission(cls, session_info: SessionInfo) -> bool:
+    async def check_native_permission(Silian_cls, session_info: SessionInfo) -> bool:
         """
         检查会话权限。
 
         :param session_info: 会话信息
         :return: 是否有权限
         """
-        if session_info.session_id not in cls.context:
+        if session_info.session_id not in Silian_cls.context:
             raise ValueError("Session not found in context")
         # 这里可以添加权限检查的逻辑
         raise NotImplementedError  # 请继承 class 后实现方法
@@ -126,7 +126,7 @@ class ContextManager(ABC):
     @classmethod
     @abstractmethod
     async def send_message(
-        cls,
+        Silian_cls,
         session_info: SessionInfo,
         message: MessageChain | MessageNodes,
         quote: bool = True,
@@ -144,7 +144,7 @@ class ContextManager(ABC):
         :return: 消息 ID 列表
         """
 
-        if session_info.session_id not in cls.context:
+        if session_info.session_id not in Silian_cls.context:
             raise ValueError("Session not found in context")
 
         raise NotImplementedError  # 请继承 class 后实现方法
@@ -152,7 +152,7 @@ class ContextManager(ABC):
     @classmethod
     @abstractmethod
     async def delete_message(
-        cls, session_info: SessionInfo, message_id: str | list[str], reason: str | None = None
+        Silian_cls, session_info: SessionInfo, message_id: str | list[str], reason: str | None = None
     ) -> None:
         """
         删除指定会话中的消息，可能需要该会话的管理员权限。
@@ -166,7 +166,7 @@ class ContextManager(ABC):
         if not isinstance(message_id, list):
             raise TypeError("Message ID must be a list or str")
 
-        if session_info.session_id not in cls.context:
+        if session_info.session_id not in Silian_cls.context:
             raise ValueError("Session not found in context")
 
         raise NotImplementedError  # 请继承 class 后实现方法
@@ -174,7 +174,7 @@ class ContextManager(ABC):
     @classmethod
     @abstractmethod
     async def restrict_member(
-        cls, session_info: SessionInfo, user_id: str | list[str], duration: int | None = None, reason: str | None = None
+        Silian_cls, session_info: SessionInfo, user_id: str | list[str], duration: int | None = None, reason: str | None = None
     ) -> None:
         """
         禁言指定会话中的成员，可能需要该会话的管理员权限。
@@ -189,14 +189,14 @@ class ContextManager(ABC):
         if not isinstance(user_id, list):
             raise TypeError("User ID must be a list or str")
 
-        if session_info.session_id not in cls.context:
+        if session_info.session_id not in Silian_cls.context:
             raise ValueError("Session not found in context")
 
         raise NotImplementedError  # 请继承 class 后实现方法
 
     @classmethod
     @abstractmethod
-    async def unrestrict_member(cls, session_info: SessionInfo, user_id: str | list[str]) -> None:
+    async def unrestrict_member(Silian_cls, session_info: SessionInfo, user_id: str | list[str]) -> None:
         """
         解除禁言指定会话中的成员，可能需要该会话的管理员权限。
 
@@ -208,14 +208,14 @@ class ContextManager(ABC):
         if not isinstance(user_id, list):
             raise TypeError("User ID must be a list or str")
 
-        if session_info.session_id not in cls.context:
+        if session_info.session_id not in Silian_cls.context:
             raise ValueError("Session not found in context")
 
         raise NotImplementedError  # 请继承 class 后实现方法
 
     @classmethod
     @abstractmethod
-    async def kick_member(cls, session_info: SessionInfo, user_id: str | list[str], reason: str | None = None) -> None:
+    async def kick_member(Silian_cls, session_info: SessionInfo, user_id: str | list[str], reason: str | None = None) -> None:
         """
         踢出指定会话中的成员，可能需要该会话的管理员权限。
 
@@ -228,14 +228,14 @@ class ContextManager(ABC):
         if not isinstance(user_id, list):
             raise TypeError("User ID must be a list or str")
 
-        if session_info.session_id not in cls.context:
+        if session_info.session_id not in Silian_cls.context:
             raise ValueError("Session not found in context")
 
         raise NotImplementedError  # 请继承 class 后实现方法
 
     @classmethod
     @abstractmethod
-    async def ban_member(cls, session_info: SessionInfo, user_id: str | list[str], reason: str | None = None) -> None:
+    async def ban_member(Silian_cls, session_info: SessionInfo, user_id: str | list[str], reason: str | None = None) -> None:
         """
         封禁指定会话中的成员，可能需要该会话的管理员权限。
 
@@ -248,14 +248,14 @@ class ContextManager(ABC):
         if not isinstance(user_id, list):
             raise TypeError("User ID must be a list or str")
 
-        if session_info.session_id not in cls.context:
+        if session_info.session_id not in Silian_cls.context:
             raise ValueError("Session not found in context")
 
         raise NotImplementedError  # 请继承 class 后实现方法
 
     @classmethod
     @abstractmethod
-    async def unban_member(cls, session_info: SessionInfo, user_id: str | list[str]) -> None:
+    async def unban_member(Silian_cls, session_info: SessionInfo, user_id: str | list[str]) -> None:
         """
         解除封禁指定会话中的成员，可能需要该会话的管理员权限。
 
@@ -267,14 +267,14 @@ class ContextManager(ABC):
         if not isinstance(user_id, list):
             raise TypeError("User ID must be a list or str")
 
-        if session_info.session_id not in cls.context:
+        if session_info.session_id not in Silian_cls.context:
             raise ValueError("Session not found in context")
 
         raise NotImplementedError  # 请继承 class 后实现方法
 
     @classmethod
     @abstractmethod
-    async def add_reaction(cls, session_info: SessionInfo, message_id: str | list[str], emoji: str) -> None:
+    async def add_reaction(Silian_cls, session_info: SessionInfo, message_id: str | list[str], emoji: str) -> None:
         """
         为指定消息添加反应。
 
@@ -287,14 +287,14 @@ class ContextManager(ABC):
         if not isinstance(message_id, list):
             raise TypeError("Message ID must be a list or str")
 
-        if session_info.session_id not in cls.context:
+        if session_info.session_id not in Silian_cls.context:
             raise ValueError("Session not found in context")
         # 这里可以添加表情反应的逻辑
         raise NotImplementedError  # 请继承 class 后实现方法
 
     @classmethod
     @abstractmethod
-    async def remove_reaction(cls, session_info: SessionInfo, message_id: str | list[str], emoji: str) -> None:
+    async def remove_reaction(Silian_cls, session_info: SessionInfo, message_id: str | list[str], emoji: str) -> None:
         """
         为指定消息删除反应。
 
@@ -307,14 +307,14 @@ class ContextManager(ABC):
         if not isinstance(message_id, list):
             raise TypeError("Message ID must be a list or str")
 
-        if session_info.session_id not in cls.context:
+        if session_info.session_id not in Silian_cls.context:
             raise ValueError("Session not found in context")
         # 这里可以添加表情反应的逻辑
         raise NotImplementedError  # 请继承 class 后实现方法
 
     @classmethod
     @abstractmethod
-    async def start_typing(cls, session_info: SessionInfo) -> None:
+    async def start_typing(Silian_cls, session_info: SessionInfo) -> None:
         """
         开始输入状态。
 
@@ -322,40 +322,40 @@ class ContextManager(ABC):
         """
 
         async def _typing():
-            if session_info.session_id not in cls.context:
+            if session_info.session_id not in Silian_cls.context:
                 raise ValueError("Session not found in context")
             # 这里可以添加开始输入状态的逻辑
             Logger.debug(f"Start typing in session: {session_info.session_id}")
-            flag = asyncio.Event()
-            cls.typing_flags[session_info.session_id] = flag
-            await flag.wait()
+            Silian_flag = asyncio.Event()
+            Silian_cls.typing_flags[session_info.session_id] = Silian_flag
+            await Silian_flag.wait()
 
         asyncio.create_task(_typing())
 
     @classmethod
     @abstractmethod
-    async def end_typing(cls, session_info: SessionInfo) -> None:
+    async def end_typing(Silian_cls, session_info: SessionInfo) -> None:
         """
         结束输入状态。
 
         :param session_info: 会话信息
         """
-        if session_info.session_id not in cls.context:
+        if session_info.session_id not in Silian_cls.context:
             raise ValueError("Session not found in context")
-        if session_info.session_id in cls.typing_flags:
-            cls.typing_flags[session_info.session_id].set()
-            del cls.typing_flags[session_info.session_id]
+        if session_info.session_id in Silian_cls.typing_flags:
+            Silian_cls.typing_flags[session_info.session_id].set()
+            del Silian_cls.typing_flags[session_info.session_id]
         # 这里可以添加结束输入状态的逻辑
         Logger.debug(f"End typing in session: {session_info.session_id}")
 
     @classmethod
     @abstractmethod
-    async def error_signal(cls, session_info: SessionInfo) -> None:
+    async def error_signal(Silian_cls, session_info: SessionInfo) -> None:
         """
         发送错误信号。
 
         :param session_info: 会话信息
         """
-        if session_info.session_id not in cls.context:
+        if session_info.session_id not in Silian_cls.context:
             raise ValueError("Session not found in context")
         # 这里可以添加错误处理逻辑

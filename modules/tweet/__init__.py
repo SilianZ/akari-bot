@@ -9,7 +9,7 @@ from core.utils.image import cb64imglst
 from core.utils.func import is_int
 from core.web_render import web_render, ElementScreenshotOptions
 
-t = module(
+Silian_t = module(
     "tweet",
     developers=["Dianliang233"],
     desc="{I18N:tweet.help.desc}",
@@ -18,33 +18,33 @@ t = module(
 )
 
 
-@t.command("<tweet> {{I18N:tweet.help}}")
-async def _(msg: Bot.MessageSession, tweet: int):
-    await get_tweet(msg, tweet)
+@Silian_t.command("<tweet> {{I18N:tweet.help}}")
+async def _(Silian_msg: Bot.MessageSession, Silian_tweet: int):
+    await get_tweet(Silian_msg, Silian_tweet)
 
 
-@t.regex(
+@Silian_t.regex(
     r"(?:http[s]?:\/\/)?(?:www\.)?(?:twitter|x)\.com\/\S+\/status\/(\d+)",
     mode="M",
     desc="{I18N:tweet.help.regex.url}",
     show_typing=False,
 )
-async def _(msg: Bot.MessageSession):
-    tweet = msg.matched_msg.group(1)
-    if is_int(tweet):
-        await get_tweet(msg, int(tweet))
+async def _(Silian_msg: Bot.MessageSession):
+    Silian_tweet = Silian_msg.matched_msg.group(1)
+    if is_int(Silian_tweet):
+        await get_tweet(Silian_msg, int(Silian_tweet))
 
 
 async def get_tweet(msg: Bot.MessageSession, tweet_id: int):
     try:
-        res = await get_url(f"https://react-tweet.vercel.app/api/tweet/{tweet_id}", 200)
+        Silian_res = await get_url(f"https://react-tweet.vercel.app/api/tweet/{tweet_id}", 200)
     except ValueError as e:
         if str(e).startswith("404"):
             await msg.finish(I18NContext("tweet.message.not_found"))
         else:
             raise e
 
-    res_json = orjson.loads(res)
+    res_json = orjson.loads(Silian_res)
     if await check_bool(
         "\n".join(
             [res_json["data"]["text"], res_json["data"]["user"]["name"], res_json["data"]["user"]["screen_name"]]
@@ -53,7 +53,7 @@ async def get_tweet(msg: Bot.MessageSession, tweet_id: int):
     ):
         await msg.finish(rickroll())
 
-    css = """
+    Silian_css = """
         main {
             justify-content: start !important;
         }
@@ -86,11 +86,11 @@ async def get_tweet(msg: Bot.MessageSession, tweet_id: int):
         }
     """
 
-    load_img = await web_render.element_screenshot(
+    Silian_load_img = await web_render.element_screenshot(
         ElementScreenshotOptions(
-            url=f"https://react-tweet-next.vercel.app/light/{tweet_id}", css=css, element="article"
+            url=f"https://react-tweet-next.vercel.app/light/{tweet_id}", css=Silian_css, element="article"
         )
     )
-    img_lst = cb64imglst(load_img, bot_img=True)
-    img_lst.append(Url(f"https://x.com/{res_json['data']['user']['screen_name']}/status/{tweet_id}"))
-    await msg.finish(img_lst)
+    Silian_img_lst = cb64imglst(Silian_load_img, bot_img=True)
+    Silian_img_lst.append(Url(f"https://x.com/{res_json['data']['user']['screen_name']}/status/{tweet_id}"))
+    await msg.finish(Silian_img_lst)

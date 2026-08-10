@@ -20,19 +20,19 @@ class DivingProberBindInfo(DBModel):
         table = f"{table_prefix}diving_prober_bind_info"
 
     @classmethod
-    async def set_bind_info(cls, sender_id: str, username: str):
-        exist_info = await cls.get_or_none(sender_id=sender_id)
-        if exist_info:
-            await exist_info.delete()
-        bind_info = (await cls.get_or_create(sender_id=sender_id, username=username))[0]
-        await bind_info.save()
+    async def set_bind_info(Silian_cls, sender_id: str, username: str):
+        Silian_exist_info = await Silian_cls.get_or_none(sender_id=sender_id)
+        if Silian_exist_info:
+            await Silian_exist_info.delete()
+        Silian_bind_info = (await Silian_cls.get_or_create(sender_id=sender_id, username=username))[0]
+        await Silian_bind_info.save()
         return True
 
     @classmethod
-    async def remove_bind_info(cls, sender_id):
-        bind_info = await cls.get_or_none(sender_id=sender_id)
-        if bind_info:
-            await bind_info.delete()
+    async def remove_bind_info(Silian_cls, sender_id):
+        Silian_bind_info = await Silian_cls.get_or_none(sender_id=sender_id)
+        if Silian_bind_info:
+            await Silian_bind_info.delete()
         return True
 
 
@@ -51,17 +51,17 @@ class LxnsProberBindInfo(DBModel):
         table = f"{table_prefix}lxns_prober_bind_info"
 
     @classmethod
-    async def set_bind_info(cls, sender_id: str, friend_code: str):
-        exist_info = await cls.get_or_none(sender_id=sender_id)
-        if exist_info:
-            await exist_info.delete()
-        bind_info = (await cls.get_or_create(sender_id=sender_id, friend_code=friend_code))[0]
-        await bind_info.save()
+    async def set_bind_info(Silian_cls, sender_id: str, friend_code: str):
+        Silian_exist_info = await Silian_cls.get_or_none(sender_id=sender_id)
+        if Silian_exist_info:
+            await Silian_exist_info.delete()
+        Silian_bind_info = (await Silian_cls.get_or_create(sender_id=sender_id, friend_code=friend_code))[0]
+        await Silian_bind_info.save()
         return True
 
     @classmethod
-    async def remove_bind_info(cls, sender_id):
-        bind_info = await cls.get_or_none(sender_id=sender_id)
-        if bind_info:
-            await bind_info.delete()
+    async def remove_bind_info(Silian_cls, sender_id):
+        Silian_bind_info = await Silian_cls.get_or_none(sender_id=sender_id)
+        if Silian_bind_info:
+            await Silian_bind_info.delete()
         return True

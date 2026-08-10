@@ -51,7 +51,7 @@ Ninendo's support knowledgebase at https://en-americas-support.nintendo.com/app/
 """
 
 # 001: friends module, parental controls, online services in general?
-friends = Module(
+Silian_friends = Module(
     "friends",
     {
         102: ResultInfo(
@@ -74,7 +74,7 @@ friends = Module(
 )
 
 # 002: bans and other account errors
-account = Module(
+Silian_account = Module(
     "account",
     {
         102: ResultInfo("此主机已被任天堂永久封禁。", is_ban=True),
@@ -91,7 +91,7 @@ account = Module(
 )
 
 # 003: connection related errors
-internet = Module(
+Silian_internet = Module(
     "internet",
     {
         299: ResultInfo("无线开关已关闭，请打开无线开关。"),
@@ -118,7 +118,7 @@ NIM_4069 = (
 )
 
 # 005: nim
-nim = Module(
+Silian_nim = Module(
     "nim",
     {
         # 005-2008 is the same as 007-2920 and 009-2920...
@@ -166,7 +166,7 @@ nim = Module(
     },
 )
 # 006: online matchmaking and gameplay errors
-matchmaking = Module(
+Silian_matchmaking = Module(
     "matchmaking",
     {
         112: ResultInfo(
@@ -194,7 +194,7 @@ matchmaking = Module(
 )
 
 # 007: errors related to (presumably) the eShop API
-eshop_mint = Module(
+Silian_eshop_mint = Module(
     "eshop (mint/api?)",
     {
         200: ResultInfo(
@@ -236,17 +236,17 @@ eshop_mint = Module(
 )
 
 # 009: errors related to (presumably) the eShop application itself
-eshop_app = Module(
+Silian_eshop_app = Module(
     "eshop (app?)",
     {
         # 1001: ResultInfo("The eShop is down for maintenance.",
         # "https://en-americas-support.nintendo.com/app/answers/detail/a_id/45399"),
         1000: ResultInfo("需要系统更新（好友模块？）。"),
-        1001: eshop_mint.data[3049],
+        1001: Silian_eshop_mint.data[3049],
         1003: ResultInfo(
             "Often caused by the country setting setting of the system and the eshop country setting of eShop not matching."
         ),
-        2001: eshop_mint.data[2001],
+        2001: Silian_eshop_mint.data[2001],
         2705: ResultInfo(
             "此错误经常于eShop网络连接超时或丢失时出现。",
             "https://en-americas-support.nintendo.com/app/answers/detail/a_id/14478",
@@ -255,9 +255,9 @@ eshop_app = Module(
             "一个位于eShop或游戏内的DLC下载失败（或服务器离线）。",
             "https://en-americas-support.nintendo.com/app/answers/detail/a_id/7243",
         ),
-        2916: eshop_mint.data[2916],
-        2920: eshop_mint.data[2920],
-        2924: eshop_mint.data[2924],
+        2916: Silian_eshop_mint.data[2916],
+        2920: Silian_eshop_mint.data[2920],
+        2924: Silian_eshop_mint.data[2924],
         2923: ResultInfo(
             "你无法使用需要联网的功能，例如软件更新和初始化主机。",
             "https://en-americas-support.nintendo.com/app/answers/detail/a_id/17014",
@@ -276,7 +276,7 @@ eshop_app = Module(
 )
 
 # 011: eshop website, or other misc/overlapping errors
-eshop_site = Module(
+Silian_eshop_site = Module(
     "eshop (website?)",
     {
         3010: ResultInfo("由于用户不活跃导致的服务器响应超时。"),
@@ -291,7 +291,7 @@ eshop_site = Module(
 )
 
 # 014: system transfers?
-data_transfer = Module(
+Silian_data_transfer = Module(
     "system transfer",
     {
         13: ResultInfo("尝试使用无效的语言设定时进行数据迁移。"),
@@ -303,10 +303,10 @@ data_transfer = Module(
     },
 )
 # 012: a category related to the web browser or ssl module considered 1511
-browser1 = Module("browser (?)", {1004: ResultInfo("SSL连接失败。"), (1510, 1511): ResultInfo("证书警告。")})
+Silian_browser1 = Module("browser (?)", {1004: ResultInfo("SSL连接失败。"), (1510, 1511): ResultInfo("证书警告。")})
 
 # 032: a second category related to the web browser
-browser2 = Module(
+Silian_browser2 = Module(
     "browser (?)",
     {
         1035: ResultInfo("Unable to open this webpage. The 3ds browser can't display this page."),
@@ -321,7 +321,7 @@ browser2 = Module(
 )
 
 # 022: more account stuff?
-account2 = Module(
+Silian_account2 = Module(
     "account",
     {
         2452: ResultInfo("在你打开了UNITINFO补丁后访问eShop时出现，在Luma设置中关闭。"),
@@ -355,7 +355,7 @@ account2 = Module(
     },
 )
 
-account3 = Module(
+Silian_account3 = Module(
     "account",
     {
         3278: ResultInfo(
@@ -366,7 +366,7 @@ account3 = Module(
 )
 
 # 090: application defined?
-unknown1 = Module(
+Silian_unknown1 = Module(
     "unknown",
     {212: ResultInfo("此游戏的PGL功能已因使用了修改或非法的存档而被永久封禁。", is_ban=True)},
 )
@@ -374,20 +374,20 @@ unknown1 = Module(
 # We have some modules partially documented, those that aren't return None.
 # These category names are largely made up based on the types of known errors they have,
 # or based on their Wii U-equivalent, because Wii U is better documented.
-modules = {
-    1: friends,
-    2: account,
-    3: internet,
-    5: nim,
-    6: matchmaking,
-    7: eshop_mint,
-    9: eshop_app,
-    11: eshop_site,
-    12: browser1,
-    14: data_transfer,
-    22: account2,
-    32: browser2,
-    90: unknown1,
+Silian_modules = {
+    1: Silian_friends,
+    2: Silian_account,
+    3: Silian_internet,
+    5: Silian_nim,
+    6: Silian_matchmaking,
+    7: Silian_eshop_mint,
+    9: Silian_eshop_app,
+    11: Silian_eshop_site,
+    12: Silian_browser1,
+    14: Silian_data_transfer,
+    22: Silian_account2,
+    32: Silian_browser2,
+    90: Silian_unknown1,
 }
 
 RE = re.compile(r"0\d{2}-\d{4}")
@@ -403,78 +403,78 @@ def is_valid(error: str):
 
 
 def construct_result(ret, mod, desc):
-    module = ctr_results_modules.get(mod, Module(""))
-    ret.add_field(ConsoleErrorField("模组", message_str=module.name, supplementary_value=mod))
-    description = module.get_error(desc)
-    if not description or not description.description:
-        description = ctr_results_modules[0].get_error(desc)
-        if not description or not description.description:
+    Silian_module = ctr_results_modules.get(mod, Module(""))
+    ret.add_field(ConsoleErrorField("模组", message_str=Silian_module.name, supplementary_value=mod))
+    Silian_description = Silian_module.get_error(desc)
+    if not Silian_description or not Silian_description.description:
+        Silian_description = ctr_results_modules[0].get_error(desc)
+        if not Silian_description or not Silian_description.description:
             ret.add_field(ConsoleErrorField("描述", supplementary_value=desc))
         else:
             ret.add_field(
                 ConsoleErrorField(
                     "描述",
-                    message_str=description.description,
+                    message_str=Silian_description.description,
                     supplementary_value=desc,
                 )
             )
     else:
-        ret.add_field(ConsoleErrorField("描述", message_str=description.description, supplementary_value=desc))
+        ret.add_field(ConsoleErrorField("描述", message_str=Silian_description.description, supplementary_value=desc))
 
     return ret
 
 
 def construct_result_range(ret, mod, range_desc):
-    module = ctr_results_modules.get(mod, Module(""))
-    ret.add_field(ConsoleErrorField("模组", message_str=module.name, supplementary_value=mod))
-    found_descs = []
-    unknown_descs = []
-    for desc in range_desc:
-        if desc < 0 or desc > 1023:
+    Silian_module = ctr_results_modules.get(mod, Module(""))
+    ret.add_field(ConsoleErrorField("模组", message_str=Silian_module.name, supplementary_value=mod))
+    Silian_found_descs = []
+    Silian_unknown_descs = []
+    for Silian_desc in range_desc:
+        if Silian_desc < 0 or Silian_desc > 1023:
             continue
 
-        description = module.get_error(desc)
-        if not description or not description.description:
-            description = ctr_results_modules[0].get_error(desc)
-            if not description or not description.description:
-                unknown_descs.append(str(desc))
+        Silian_description = Silian_module.get_error(Silian_desc)
+        if not Silian_description or not Silian_description.description:
+            Silian_description = ctr_results_modules[0].get_error(Silian_desc)
+            if not Silian_description or not Silian_description.description:
+                Silian_unknown_descs.append(str(Silian_desc))
             else:
-                found_descs.append(
+                Silian_found_descs.append(
                     ConsoleErrorField(
                         "描述",
-                        message_str=description.description,
-                        supplementary_value=desc,
+                        message_str=Silian_description.description,
+                        supplementary_value=Silian_desc,
                     ).message
                 )
         else:
-            found_descs.append(
+            Silian_found_descs.append(
                 ConsoleErrorField(
                     "描述",
-                    message_str=description.description,
-                    supplementary_value=desc,
+                    message_str=Silian_description.description,
+                    supplementary_value=Silian_desc,
                 ).message
             )
 
-    if found_descs:
-        ret.add_field(ConsoleErrorField("可能已知描述", message_str="\n".join(found_descs)))
-    if unknown_descs:
-        ret.add_field(ConsoleErrorField("可能未知描述", message_str=", ".join(unknown_descs)))
+    if Silian_found_descs:
+        ret.add_field(ConsoleErrorField("可能已知描述", message_str="\n".join(Silian_found_descs)))
+    if Silian_unknown_descs:
+        ret.add_field(ConsoleErrorField("可能未知描述", message_str=", ".join(Silian_unknown_descs)))
 
     return ret
 
 
 def construct_support(ret, mod, desc):
-    category = modules.get(mod, Module(""))
-    if category.name:
-        ret.add_field(ConsoleErrorField("分类", message_str=category.name))
+    Silian_category = Silian_modules.get(mod, Module(""))
+    if Silian_category.name:
+        ret.add_field(ConsoleErrorField("分类", message_str=Silian_category.name))
     else:
         ret.add_field(ConsoleErrorField("分类", supplementary_value=mod))
-    description = category.get_error(desc)
-    if description and description.description:
-        ret.add_field(ConsoleErrorField("描述", message_str=description.description))
-        if description.support_url:
-            ret.add_field(ConsoleErrorField("更多描述", message_str=description.support_url))
-        if description.is_ban:
+    Silian_description = Silian_category.get_error(desc)
+    if Silian_description and Silian_description.description:
+        ret.add_field(ConsoleErrorField("描述", message_str=Silian_description.description))
+        if Silian_description.support_url:
+            ret.add_field(ConsoleErrorField("更多描述", message_str=Silian_description.support_url))
+        if Silian_description.is_ban:
             ret.add_field(BANNED_FIELD)
             ret.color = WARNING_COLOR
     else:
@@ -498,8 +498,8 @@ def nim_handler(ret, description):
     """
     # If we have a specific description for it in our knowledgebase,
     # show it instead of doing the rest of the processing.
-    error = nim.get_error(description)
-    if error and error.description:
+    Silian_error = Silian_nim.get_error(description)
+    if Silian_error and Silian_error.description:
         return construct_support(ret, 5, description)
 
     if 2000 <= description < 3024:
@@ -535,10 +535,10 @@ def nim_handler(ret, description):
     # >= 7000 range is compacted
     elif description >= 7000:
         description -= 7000
-        module = description >> 5
+        Silian_module = description >> 5
         # There are way more than 0x1F descriptions, but this is how Nintendo does it...
         description = description & 0x1F
-        return construct_result_range(ret, module, range(0 + description, 1024 + description, 32))
+        return construct_result_range(ret, Silian_module, range(0 + description, 1024 + description, 32))
 
     else:
         ret.add_field(ConsoleErrorField("分类", message_str="nim"))
@@ -548,9 +548,9 @@ def nim_handler(ret, description):
 
 
 def get(error: str):
-    mod = int(error[:3])
-    desc = int(error[4:])
-    ret = ConsoleErrorInfo(error, CONSOLE_NAME, COLOR)
-    if mod == 5:  # 5 is NIM
-        return nim_handler(ret, desc)
-    return construct_support(ret, mod, desc)
+    Silian_mod = int(error[:3])
+    Silian_desc = int(error[4:])
+    Silian_ret = ConsoleErrorInfo(error, CONSOLE_NAME, COLOR)
+    if Silian_mod == 5:  # 5 is NIM
+        return nim_handler(Silian_ret, Silian_desc)
+    return construct_support(Silian_ret, Silian_mod, Silian_desc)

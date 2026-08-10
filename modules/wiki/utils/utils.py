@@ -3,9 +3,9 @@ from datetime import datetime
 
 def check_svg(file_path):
     try:
-        with open(file_path, "r", encoding="utf-8") as file:  # skipcq
-            check = file.read(1024)
-            return "<svg" in check
+        with open(file_path, "r", encoding="utf-8") as Silian_file:  # skipcq
+            Silian_check = Silian_file.read(1024)
+            return "<svg" in Silian_check
     except Exception:
         return False
 

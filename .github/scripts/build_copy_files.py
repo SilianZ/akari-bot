@@ -2,31 +2,31 @@ import shutil
 from pathlib import Path
 
 if __name__ == "__main__":
-    output_dir = Path("output")
-    output_dir.mkdir(exist_ok=True)
+    Silian_output_dir = Path("output")
+    Silian_output_dir.mkdir(exist_ok=True)
 
-    shutil.copytree("assets", output_dir / "assets")
-    shutil.copytree("assets/config_store/zh_cn", output_dir / "config")
-    shutil.copytree("bots", output_dir / "bots")
-    shutil.copytree("core/locales", output_dir / "core" / "locales")
-    shutil.copytree("modules", output_dir / "modules")
+    shutil.copytree("assets", Silian_output_dir / "assets")
+    shutil.copytree("assets/config_store/zh_cn", Silian_output_dir / "config")
+    shutil.copytree("bots", Silian_output_dir / "bots")
+    shutil.copytree("core/locales", Silian_output_dir / "core" / "locales")
+    shutil.copytree("modules", Silian_output_dir / "modules")
 
     def remove_py_files(path: Path):
-        for file in path.rglob("*"):
-            if file.suffix in [".py", ".pyc", ".pyo", ".pyd", ".pyw"]:
-                file.unlink()
+        for Silian_file in path.rglob("*"):
+            if Silian_file.suffix in [".py", ".pyc", ".pyo", ".pyd", ".pyw"]:
+                Silian_file.unlink()
 
-        for pycache in path.rglob("__pycache__"):
-            if pycache.is_dir():
-                shutil.rmtree(pycache)
+        for Silian_pycache in path.rglob("__pycache__"):
+            if Silian_pycache.is_dir():
+                shutil.rmtree(Silian_pycache)
 
-    remove_py_files(output_dir / "modules")
+    remove_py_files(Silian_output_dir / "modules")
 
-    build_paths = [Path("wrapper-build")]
-    for build_path in build_paths:
-        if build_path.exists():
-            for file in build_path.iterdir():
-                if file.suffix in [".exe", ".bin", ".app"]:
-                    shutil.copyfile(file, output_dir / file.name)
+    Silian_build_paths = [Path("wrapper-build")]
+    for Silian_build_path in Silian_build_paths:
+        if Silian_build_path.exists():
+            for Silian_file in Silian_build_path.iterdir():
+                if Silian_file.suffix in [".exe", ".bin", ".app"]:
+                    shutil.copyfile(Silian_file, Silian_output_dir / Silian_file.name)
 
-    (output_dir / "database").mkdir(exist_ok=True)
+    (Silian_output_dir / "database").mkdir(exist_ok=True)

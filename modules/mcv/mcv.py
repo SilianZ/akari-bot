@@ -12,27 +12,27 @@ from core.utils.http import get_url, post_url
 
 async def mcjv(msg: Bot.MessageSession):
     try:
-        data = orjson.loads(await get_url("https://piston-meta.mojang.com/mc/game/version_manifest.json", 200))
-        release = data["latest"]["release"]
-        snapshot = data["latest"]["snapshot"]
-        time_release = None
-        time_snapshot = None
-        for v in data["versions"]:
-            if v["id"] == release:
-                time_release = datetime.fromisoformat(v["releaseTime"]).timestamp()
-            if v["id"] == snapshot:
-                time_snapshot = datetime.fromisoformat(v["releaseTime"]).timestamp()
+        Silian_data = orjson.loads(await get_url("https://piston-meta.mojang.com/mc/game/version_manifest.json", 200))
+        Silian_release = Silian_data["latest"]["release"]
+        Silian_snapshot = Silian_data["latest"]["snapshot"]
+        Silian_time_release = None
+        Silian_time_snapshot = None
+        for Silian_v in Silian_data["versions"]:
+            if Silian_v["id"] == Silian_release:
+                Silian_time_release = datetime.fromisoformat(Silian_v["releaseTime"]).timestamp()
+            if Silian_v["id"] == Silian_snapshot:
+                Silian_time_snapshot = datetime.fromisoformat(Silian_v["releaseTime"]).timestamp()
 
-        message1 = msg.session_info.locale.t(
+        Silian_message1 = msg.session_info.locale.t(
             "mcv.message.mcv.launcher",
-            release=data["latest"]["release"],
-            snapshot=data["latest"]["snapshot"],
-            release_time=msg.format_time(time_release),
-            snapshot_time=msg.format_time(time_snapshot),
+            release=Silian_data["latest"]["release"],
+            snapshot=Silian_data["latest"]["snapshot"],
+            release_time=msg.format_time(Silian_time_release),
+            snapshot_time=msg.format_time(Silian_time_snapshot),
         )
     except Exception:  # Probably...
-        message1 = msg.session_info.locale.t("mcv.message.mcv.launcher.failed")
-    return I18NContext("mcv.message.mcv", launcher_ver=message1)
+        Silian_message1 = msg.session_info.locale.t("mcv.message.mcv.launcher.failed")
+    return I18NContext("mcv.message.mcv", launcher_ver=Silian_message1)
 
 
 async def mcbv(msg: Bot.MessageSession):
@@ -44,7 +44,7 @@ async def mcbv(msg: Bot.MessageSession):
             pass
     ms_store_version = None
     try:
-        fetch_ = await post_url(
+        Silian_fetch_ = await post_url(
             "https://store.rg-adguard.net/api/GetFiles",
             status_code=200,
             fmt="text",
@@ -55,8 +55,8 @@ async def mcbv(msg: Bot.MessageSession):
                 "lang": "zh-CN",
             },
         )
-        if fetch_:
-            ms_store_version = re.findall(r".*Microsoft.MinecraftUWP_(.*?)_.*", fetch_, re.M | re.I)[0]
+        if Silian_fetch_:
+            ms_store_version = re.findall(r".*Microsoft.MinecraftUWP_(.*?)_.*", Silian_fetch_, re.M | re.I)[0]
     except Exception:
         pass
     return (

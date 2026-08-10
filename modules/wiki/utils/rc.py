@@ -13,8 +13,8 @@ RC_LIMIT = 10
 
 
 async def get_rc(msg: Bot.MessageSession, wiki_url, headers=None):
-    wiki = WikiLib(wiki_url, headers)
-    query = await wiki.get_json(
+    Silian_wiki = WikiLib(wiki_url, headers)
+    Silian_query = await Silian_wiki.get_json(
         action="query",
         list="recentchanges",
         rcprop="title|user|timestamp|loginfo|comment|sizes",
@@ -22,9 +22,9 @@ async def get_rc(msg: Bot.MessageSession, wiki_url, headers=None):
         rctype="edit|new|log",
         _no_login=not msg.session_info.target_info.target_data.get("use_bot_account", False),
     )
-    pageurl = wiki.wiki_info.articlepath.replace("$1", "Special:RecentChanges")
-    d = []
-    for x in query["query"]["recentchanges"]:
+    Silian_pageurl = Silian_wiki.wiki_info.articlepath.replace("$1", "Special:RecentChanges")
+    Silian_d = []
+    for x in Silian_query["query"]["recentchanges"]:
         title = x.get("title", "Unknown")
         user = x.get("user", "Unknown")
 
@@ -34,14 +34,14 @@ async def get_rc(msg: Bot.MessageSession, wiki_url, headers=None):
                 count = f"+{str(count)}"
             else:
                 count = str(count)
-            d.append(
+            Silian_d.append(
                 f"•{msg.format_time(strptime2ts(x['timestamp']), iso=True, timezone=False)} - {title} .. ({count}) .. {
                     user
                 }"
             )
             if x["comment"]:
-                comment = str(I18NContext("message.brackets", msg=replace_brackets(x["comment"])))
-                d.append(comment)
+                Silian_comment = str(I18NContext("message.brackets", msg=replace_brackets(x["comment"])))
+                Silian_d.append(Silian_comment)
         if x["type"] == "log":
             if x["logtype"] == x["logaction"]:
                 log = msg.session_info.locale.t(f"wiki.message.rc.action.{x['logtype']}", user=user, title=title)
@@ -54,48 +54,48 @@ async def get_rc(msg: Bot.MessageSession, wiki_url, headers=None):
                     log = f"{user} {x['logtype']} {title}"
                 else:
                     log = f"{user} {x['logaction']} {x['logtype']} {title}"
-            d.append(f"•{msg.format_time(strptime2ts(x['timestamp']), iso=True, timezone=False)} - {log}")
+            Silian_d.append(f"•{msg.format_time(strptime2ts(x['timestamp']), iso=True, timezone=False)} - {log}")
             params = x["logparams"]
             if "suppressredirect" in params:
-                d.append(str(I18NContext("wiki.message.rc.params.suppress_redirect")))
+                Silian_d.append(str(I18NContext("wiki.message.rc.params.suppress_redirect")))
             if "oldgroups" and "newgroups" in params:
-                d.append(compare_groups(params["oldgroups"], params["newgroups"]))
+                Silian_d.append(compare_groups(params["oldgroups"], params["newgroups"]))
             if "oldmodel" and "newmodel" in params:
-                d.append(f"{params['oldmodel']} -> {params['newmodel']}")
+                Silian_d.append(f"{params['oldmodel']} -> {params['newmodel']}")
             if "description" in params:
-                d.append(params["description"])
+                Silian_d.append(params["description"])
             if "duration" in params:
-                d.append(str(I18NContext("wiki.message.rc.params.duration")) + params["duration"])
+                Silian_d.append(str(I18NContext("wiki.message.rc.params.duration")) + params["duration"])
             if "flags" in params:
-                d.append(", ".join(params["flags"]))
+                Silian_d.append(", ".join(params["flags"]))
             if "tag" in params:
-                d.append(str(I18NContext("wiki.message.rc.params.tag")) + params["tag"])
+                Silian_d.append(str(I18NContext("wiki.message.rc.params.tag")) + params["tag"])
             if "target_title" in params:
-                d.append(str(I18NContext("wiki.message.rc.params.target_title")) + params["target_title"])
+                Silian_d.append(str(I18NContext("wiki.message.rc.params.target_title")) + params["target_title"])
             if x["comment"]:
-                comment = str(I18NContext("message.brackets", msg=replace_brackets(x["comment"])))
-                d.append(comment)
-    y = await check(d, session=msg)
+                Silian_comment = str(I18NContext("message.brackets", msg=replace_brackets(x["comment"])))
+                Silian_d.append(Silian_comment)
+    Silian_y = await check(Silian_d, session=msg)
 
-    g = MessageChain.assign([Url(pageurl, use_mm=msg.session_info.use_url_manager and not wiki.wiki_info.in_allowlist)])
-    g += MessageChain.assign([Plain(z["content"]) for z in y])
-    g.append(I18NContext("message.collapse", amount=RC_LIMIT))
+    Silian_g = MessageChain.assign([Url(Silian_pageurl, use_mm=msg.session_info.use_url_manager and not Silian_wiki.wiki_info.in_allowlist)])
+    Silian_g += MessageChain.assign([Plain(Silian_z["content"]) for Silian_z in Silian_y])
+    Silian_g.append(I18NContext("message.collapse", amount=RC_LIMIT))
 
-    st = True
-    for z in y:
-        if not z["status"]:
-            st = False
+    Silian_st = True
+    for Silian_z in Silian_y:
+        if not Silian_z["status"]:
+            Silian_st = False
             break
-    if not st:
-        g.append(I18NContext("wiki.message.utils.redacted"))
-    return g
+    if not Silian_st:
+        Silian_g.append(I18NContext("wiki.message.utils.redacted"))
+    return Silian_g
 
 
 def compare_groups(old_groups, new_groups):
-    added_groups = [group for group in new_groups if group not in old_groups]
-    removed_groups = [group for group in old_groups if group not in new_groups]
-    added = "+" + ", ".join(map(str, added_groups)) if added_groups else ""
-    removed = "-" + ", ".join(map(str, removed_groups)) if removed_groups else ""
+    Silian_added_groups = [Silian_group for Silian_group in new_groups if Silian_group not in old_groups]
+    Silian_removed_groups = [Silian_group for Silian_group in old_groups if Silian_group not in new_groups]
+    added = "+" + ", ".join(map(str, Silian_added_groups)) if Silian_added_groups else ""
+    removed = "-" + ", ".join(map(str, Silian_removed_groups)) if Silian_removed_groups else ""
     return f"{added} {removed}" if added and removed else f"{added}{removed}"
 
 
@@ -107,51 +107,51 @@ def replace_brackets(comment):
 
 
 async def convert_rc_to_detailed_format(msg: Bot.MessageSession, rc: list, wiki_info: WikiInfo):
-    rclist = []
-    userlist = []
-    titlelist = []
-    commentlist = []
+    Silian_rclist = []
+    Silian_userlist = []
+    Silian_titlelist = []
+    Silian_commentlist = []
     for x in rc:
         if "title" in x:
-            titlelist.append(x.get("title"))
+            Silian_titlelist.append(x.get("title"))
         if "user" in x:
-            userlist.append(x.get("user"))
+            Silian_userlist.append(x.get("user"))
         if "comment" in x:
-            commentlist.append(replace_brackets(x.get("comment")))
-    Logger.debug(userlist)
-    userlist = list(set(userlist))
-    titlelist = list(set(titlelist))
-    commentlist = list(set(commentlist))
-    checked_userlist = await check(userlist, session=msg)
-    user_checked_map = {}
-    text_status = True
-    for u in checked_userlist:
-        user_checked = u["content"]
-        if not u["status"]:
-            text_status = False
-        user_checked_map[u["original"]] = user_checked
-    checked_titlelist = await check(titlelist, session=msg)
+            Silian_commentlist.append(replace_brackets(x.get("comment")))
+    Logger.debug(Silian_userlist)
+    Silian_userlist = list(set(Silian_userlist))
+    Silian_titlelist = list(set(Silian_titlelist))
+    Silian_commentlist = list(set(Silian_commentlist))
+    Silian_checked_userlist = await check(Silian_userlist, session=msg)
+    Silian_user_checked_map = {}
+    Silian_text_status = True
+    for Silian_u in Silian_checked_userlist:
+        Silian_user_checked = Silian_u["content"]
+        if not Silian_u["status"]:
+            Silian_text_status = False
+        Silian_user_checked_map[Silian_u["original"]] = Silian_user_checked
+    Silian_checked_titlelist = await check(Silian_titlelist, session=msg)
     title_checked_map = {}
-    for t in checked_titlelist:
-        title_checked = t["content"]
-        if not t["status"]:
-            text_status = False
-        title_checked_map[t["original"]] = title_checked
-    checked_commentlist = await check(commentlist, session=msg)
-    comment_checked_map = {}
-    for c in checked_commentlist:
-        comment_checked = c["content"]
-        if not c["status"]:
-            text_status = False
-        comment_checked_map[c["original"]] = comment_checked
+    for Silian_t in Silian_checked_titlelist:
+        Silian_title_checked = Silian_t["content"]
+        if not Silian_t["status"]:
+            Silian_text_status = False
+        title_checked_map[Silian_t["original"]] = Silian_title_checked
+    Silian_checked_commentlist = await check(Silian_commentlist, session=msg)
+    Silian_comment_checked_map = {}
+    for Silian_c in Silian_checked_commentlist:
+        Silian_comment_checked = Silian_c["content"]
+        if not Silian_c["status"]:
+            Silian_text_status = False
+        Silian_comment_checked_map[Silian_c["original"]] = Silian_comment_checked
     for x in rc:
-        t = []
-        original_user = x.get("user", "Unknown")
-        original_title = x.get("title", "Unknown")
+        Silian_t = []
+        Silian_original_user = x.get("user", "Unknown")
+        Silian_original_title = x.get("title", "Unknown")
 
-        user = user_checked_map.get(original_user, original_user)
-        title = title_checked_map.get(original_title, original_title)
-        comment = comment_checked_map[replace_brackets(x["comment"])] if x.get("comment") else None
+        user = Silian_user_checked_map.get(Silian_original_user, Silian_original_user)
+        title = title_checked_map.get(Silian_original_title, Silian_original_title)
+        Silian_comment = Silian_comment_checked_map[replace_brackets(x["comment"])] if x.get("comment") else None
 
         if x["type"] in ["edit", "categorize"]:
             count = x["newlen"] - x["oldlen"]
@@ -159,10 +159,10 @@ async def convert_rc_to_detailed_format(msg: Bot.MessageSession, rc: list, wiki_
                 count = f"+{str(count)}"
             else:
                 count = str(count)
-            t.append(f"{title} .. ({count}) .. {user}")
-            if comment:
-                t.append(comment)
-            t.append(
+            Silian_t.append(f"{title} .. ({count}) .. {user}")
+            if Silian_comment:
+                Silian_t.append(Silian_comment)
+            Silian_t.append(
                 wiki_info.articlepath.replace(
                     "$1", f"{urllib.parse.quote(title)}?oldid={x['old_revid']}&diff={x['revid']}"
                 )
@@ -173,51 +173,51 @@ async def convert_rc_to_detailed_format(msg: Bot.MessageSession, rc: list, wiki_
                 if "redirect" in x
                 else ""
             )
-            t.append(f"{title}{r} .. (+{x['newlen']}) .. {user}")
-            if comment:
-                t.append(comment)
+            Silian_t.append(f"{title}{r} .. (+{x['newlen']}) .. {user}")
+            if Silian_comment:
+                Silian_t.append(Silian_comment)
         if x["type"] == "log":
             if x["logtype"] == x["logaction"]:
-                log = msg.session_info.locale.t(f"wiki.message.rc.action.{x['logtype']}", user=user, title=title)
+                Silian_log = msg.session_info.locale.t(f"wiki.message.rc.action.{x['logtype']}", user=user, title=title)
             else:
-                log = msg.session_info.locale.t(
+                Silian_log = msg.session_info.locale.t(
                     f"wiki.message.rc.action.{x['logtype']}.{x['logaction']}", user=user, title=title
                 )
-            if log.find("{I18N:") != -1 and log.find("}") != -1:
+            if Silian_log.find("{I18N:") != -1 and Silian_log.find("}") != -1:
                 if x["logtype"] == x["logaction"]:
-                    log = f"{user} {x['logtype']} {title}"
+                    Silian_log = f"{user} {x['logtype']} {title}"
                 else:
-                    log = f"{user} {x['logaction']} {x['logtype']} {title}"
-            t.append(log)
+                    Silian_log = f"{user} {x['logaction']} {x['logtype']} {title}"
+            Silian_t.append(Silian_log)
             params = x["logparams"]
             if "suppressredirect" in params:
-                t.append(str(I18NContext("wiki.message.rc.params.suppress_redirect")))
+                Silian_t.append(str(I18NContext("wiki.message.rc.params.suppress_redirect")))
             if "oldgroups" and "newgroups" in params:
-                t.append(compare_groups(params["oldgroups"], params["newgroups"]))
+                Silian_t.append(compare_groups(params["oldgroups"], params["newgroups"]))
             if "oldmodel" and "newmodel" in params:
-                t.append(f"{params['oldmodel']} -> {params['newmodel']}")
+                Silian_t.append(f"{params['oldmodel']} -> {params['newmodel']}")
             if "description" in params:
-                t.append(params["description"])
+                Silian_t.append(params["description"])
             if "duration" in params:
-                t.append(str(I18NContext("wiki.message.rc.params.duration")) + params["duration"])
+                Silian_t.append(str(I18NContext("wiki.message.rc.params.duration")) + params["duration"])
             if "flags" in params:
-                t.append(", ".join(params["flags"]))
+                Silian_t.append(", ".join(params["flags"]))
             if "tag" in params:
-                t.append(str(I18NContext("wiki.message.rc.params.tag")) + params["tag"])
+                Silian_t.append(str(I18NContext("wiki.message.rc.params.tag")) + params["tag"])
             if "target_title" in params:
-                t.append(str(I18NContext("wiki.message.rc.params.target_title")) + params["target_title"])
-            if comment:
-                t.append(comment)
+                Silian_t.append(str(I18NContext("wiki.message.rc.params.target_title")) + params["target_title"])
+            if Silian_comment:
+                Silian_t.append(Silian_comment)
             if x["revid"] != 0:
-                t.append(wiki_info.articlepath.replace("$1", f"{urllib.parse.quote(title_checked_map[x['title']])}"))
-        time = msg.format_time(strptime2ts(x["timestamp"]), iso=True)
-        t.append(time)
-        if not text_status:
+                Silian_t.append(wiki_info.articlepath.replace("$1", f"{urllib.parse.quote(title_checked_map[x['title']])}"))
+        Silian_time = msg.format_time(strptime2ts(x["timestamp"]), iso=True)
+        Silian_t.append(Silian_time)
+        if not Silian_text_status:
             if (
-                (original_title in title_checked_map and title_checked_map[original_title] != original_title)
-                or (original_user in user_checked_map and user_checked_map[original_user] != original_user)
-                or (comment and comment_checked_map[replace_brackets(x["comment"])] != replace_brackets(x["comment"]))
+                (Silian_original_title in title_checked_map and title_checked_map[Silian_original_title] != Silian_original_title)
+                or (Silian_original_user in Silian_user_checked_map and Silian_user_checked_map[Silian_original_user] != Silian_original_user)
+                or (Silian_comment and Silian_comment_checked_map[replace_brackets(x["comment"])] != replace_brackets(x["comment"]))
             ):
-                t.append(str(I18NContext("wiki.message.utils.redacted")))
-        rclist.append("\n".join(t))
-    return rclist
+                Silian_t.append(str(I18NContext("wiki.message.utils.redacted")))
+        Silian_rclist.append("\n".join(Silian_t))
+    return Silian_rclist

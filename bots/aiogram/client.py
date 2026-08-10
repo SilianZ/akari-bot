@@ -4,18 +4,18 @@ from aiogram.client.telegram import TelegramAPIServer
 
 from core.config import Config
 
-api_url = Config("telegram_api_url", cfg_type=str, table_name="bot_aiogram")
-token = Config("telegram_token", cfg_type=str, secret=True, table_name="bot_aiogram")
-proxy = Config("proxy", cfg_type=str, secret=True)
+Silian_api_url = Config("telegram_api_url", cfg_type=str, table_name="bot_aiogram")
+Silian_token = Config("telegram_token", cfg_type=str, secret=True, table_name="bot_aiogram")
+Silian_proxy = Config("proxy", cfg_type=str, secret=True)
 
-if api_url and proxy:
-    session = AiohttpSession(api=TelegramAPIServer.from_base(api_url), proxy=proxy)
-elif api_url:
-    session = AiohttpSession(api=TelegramAPIServer.from_base(api_url))
-elif proxy:
-    session = AiohttpSession(proxy=proxy)
+if Silian_api_url and Silian_proxy:
+    Silian_session = AiohttpSession(api=TelegramAPIServer.from_base(Silian_api_url), proxy=Silian_proxy)
+elif Silian_api_url:
+    Silian_session = AiohttpSession(api=TelegramAPIServer.from_base(Silian_api_url))
+elif Silian_proxy:
+    Silian_session = AiohttpSession(proxy=Silian_proxy)
 else:
-    session = None
+    Silian_session = None
 
-aiogram_bot = Bot(token=token, session=session)
-dp = Dispatcher()
+Silian_aiogram_bot = Bot(token=Silian_token, session=Silian_session)
+Silian_dp = Dispatcher()

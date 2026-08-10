@@ -10,28 +10,28 @@ from core.utils.http import get_url
 API = "https://idlist.projectxero.top/search"
 SEARCH_LIMIT = 5
 
-i = module("idlist", doc=True, support_languages=["zh_cn"])
+Silian_i = module("idlist", doc=True, support_languages=["zh_cn"])
 
 
-@i.command("<query> {{I18N:idlist.help}}")
-async def _(msg: Bot.MessageSession, query: str):
-    query_options = {"q": query, "limit": f"{SEARCH_LIMIT + 1}"}
-    query_url = f"{API}?{urllib.parse.urlencode(query_options)}"
-    resp = await get_url(query_url, 200, fmt="json")
-    result = resp["data"]["result"]
-    msg_chain = MessageChain.assign()
-    if result:
-        for x in result[0:SEARCH_LIMIT]:
+@Silian_i.command("<query> {{I18N:idlist.help}}")
+async def _(Silian_msg: Bot.MessageSession, Silian_query: str):
+    query_options = {"q": Silian_query, "limit": f"{SEARCH_LIMIT + 1}"}
+    Silian_query_url = f"{API}?{urllib.parse.urlencode(query_options)}"
+    resp = await get_url(Silian_query_url, 200, fmt="json")
+    Silian_result = resp["data"]["result"]
+    Silian_msg_chain = MessageChain.assign()
+    if Silian_result:
+        for x in Silian_result[0:SEARCH_LIMIT]:
             v = x["value"].split("\n")[0]
-            msg_chain.append(f"{x['enumName']}：{x['key']} -> {v}")
+            Silian_msg_chain.append(f"{x['enumName']}：{x['key']} -> {v}")
         if resp["data"]["count"] > SEARCH_LIMIT:
-            msg_chain.append(
+            Silian_msg_chain.append(
                 Plain(
                     str(I18NContext("message.collapse", amount=SEARCH_LIMIT))
                     + str(I18NContext("idlist.message.collapse"))
                 )
             )
-            msg_chain.append(Url(f"https://idlist.projectxero.top/{resp['data']['hash']}", use_mm=False))
-        await msg.finish(msg_chain)
+            Silian_msg_chain.append(Url(f"https://idlist.projectxero.top/{resp['data']['hash']}", use_mm=False))
+        await Silian_msg.finish(Silian_msg_chain)
     else:
-        await msg.finish(I18NContext("idlist.message.none"))
+        await Silian_msg.finish(I18NContext("idlist.message.none"))

@@ -30,42 +30,42 @@ class WikiTargetInfo(DBModel):
     class Meta:
         table = f"{table_prefix}target_set_info"
 
-    async def add_start_wiki(self, url: str):
-        self.api_link = url
-        await self.save()
+    async def add_start_wiki(Silian_self, url: str):
+        Silian_self.api_link = url
+        await Silian_self.save()
         return True
 
-    async def config_interwikis(self, iw: str, iwlink: str | None = None):
-        interwikis = self.interwikis
+    async def config_interwikis(Silian_self, iw: str, iwlink: str | None = None):
+        Silian_interwikis = Silian_self.interwikis
         if iwlink:
-            interwikis[iw] = iwlink
+            Silian_interwikis[iw] = iwlink
         else:
-            if iw in interwikis:
-                del interwikis[iw]
-        self.interwikis = interwikis
-        await self.save()
+            if iw in Silian_interwikis:
+                del Silian_interwikis[iw]
+        Silian_self.interwikis = Silian_interwikis
+        await Silian_self.save()
         return True
 
-    async def config_headers(self, headers: str | None = None, add: bool = True):
+    async def config_headers(Silian_self, headers: str | None = None, add: bool = True):
         try:
-            headers_ = self.headers
+            Silian_headers_ = Silian_self.headers
             if headers and add:
                 headers = orjson.loads(headers)
-                for x in headers:
-                    headers_[x] = headers[x]
+                for Silian_x in headers:
+                    Silian_headers_[Silian_x] = headers[Silian_x]
             elif headers:
-                headers_ = {k: v for k, v in headers_.items() if k not in headers}
+                Silian_headers_ = {Silian_k: Silian_v for Silian_k, Silian_v in Silian_headers_.items() if Silian_k not in headers}
             else:
-                headers_ = {}
-            self.headers = headers_
-            await self.save()
+                Silian_headers_ = {}
+            Silian_self.headers = Silian_headers_
+            await Silian_self.save()
             return True
         except Exception:
             return False
 
-    async def config_prefix(self, prefix: str | None = None):
-        self.prefix = prefix
-        await self.save()
+    async def config_prefix(Silian_self, prefix: str | None = None):
+        Silian_self.prefix = prefix
+        await Silian_self.save()
         return True
 
 
@@ -85,20 +85,20 @@ class WikiSiteInfo(DBModel):
     class Meta:
         table = f"{table_prefix}site_info"
 
-    async def update(self, info: dict):
+    async def update(Silian_self, info: dict):
         try:
-            query = await WikiSiteInfo.get(api_link=self.api_link)
-            query.site_info = orjson.dumps(info)
-            query.timestamp = datetime.now()
-            await query.save()
+            Silian_query = await WikiSiteInfo.get(api_link=Silian_self.api_link)
+            Silian_query.site_info = orjson.dumps(info)
+            Silian_query.timestamp = datetime.now()
+            await Silian_query.save()
         except DoesNotExist:
-            await WikiSiteInfo.create(api_link=self.api_link, site_info=orjson.dumps(info), timestamp=datetime.now())
+            await WikiSiteInfo.create(api_link=Silian_self.api_link, site_info=orjson.dumps(info), timestamp=datetime.now())
 
         return True
 
     @classmethod
-    async def get_like_this(cls, t: str):
-        return await (cls.filter(api_link__contains=t)).first()
+    async def get_like_this(Silian_cls, t: str):
+        return await (Silian_cls.filter(api_link__contains=t)).first()
 
 
 class WikiAllowList(DBModel):
@@ -116,22 +116,22 @@ class WikiAllowList(DBModel):
         table = f"{table_prefix}allow_list"
 
     @classmethod
-    async def check(cls, api_link) -> bool:
+    async def check(Silian_cls, api_link) -> bool:
         api_link = urlparse(api_link).netloc
-        return bool(await cls.filter(api_link__icontains=api_link).first())
+        return bool(await Silian_cls.filter(api_link__icontains=api_link).first())
 
     @classmethod
-    async def add(cls, api_link) -> bool:
-        if await cls.filter(api_link=api_link).exists():
+    async def add(Silian_cls, api_link) -> bool:
+        if await Silian_cls.filter(api_link=api_link).exists():
             return False
-        await cls.create(api_link=api_link)
+        await Silian_cls.create(api_link=api_link)
         return True
 
     @classmethod
-    async def remove(cls, api_link) -> bool:
-        if not await cls.filter(api_link=api_link).exists():
+    async def remove(Silian_cls, api_link) -> bool:
+        if not await Silian_cls.filter(api_link=api_link).exists():
             return False
-        await cls.filter(api_link=api_link).delete()
+        await Silian_cls.filter(api_link=api_link).delete()
         return True
 
 
@@ -150,21 +150,21 @@ class WikiBlockList(DBModel):
         table = f"{table_prefix}block_list"
 
     @classmethod
-    async def check(cls, api_link: str) -> bool:
-        return await (cls.filter(api_link=api_link)).exists()
+    async def check(Silian_cls, api_link: str) -> bool:
+        return await (Silian_cls.filter(api_link=api_link)).exists()
 
     @classmethod
-    async def add(cls, api_link) -> bool:
-        if await (cls.filter(api_link=api_link)).exists():
+    async def add(Silian_cls, api_link) -> bool:
+        if await (Silian_cls.filter(api_link=api_link)).exists():
             return False
-        await cls.create(api_link=api_link)
+        await Silian_cls.create(api_link=api_link)
         return True
 
     @classmethod
-    async def remove(cls, api_link) -> bool:
-        if not await (cls.filter(api_link=api_link)).exists():
+    async def remove(Silian_cls, api_link) -> bool:
+        if not await (Silian_cls.filter(api_link=api_link)).exists():
             return False
-        await cls.filter(api_link=api_link).delete()
+        await Silian_cls.filter(api_link=api_link).delete()
         return True
 
 
@@ -185,18 +185,18 @@ class WikiBotAccountList(DBModel):
         table = f"{table_prefix}bot_account_list"
 
     @classmethod
-    async def add(cls, api_link: str, bot_account: str, bot_password: str):
-        if await (cls.filter(api_link=api_link)).exists():
+    async def add(Silian_cls, api_link: str, bot_account: str, bot_password: str):
+        if await (Silian_cls.filter(api_link=api_link)).exists():
             return False
 
-        await cls.create(api_link=api_link, bot_account=bot_account, bot_password=bot_password)
+        await Silian_cls.create(api_link=api_link, bot_account=bot_account, bot_password=bot_password)
         return True
 
     @classmethod
-    async def remove(cls, api_link):
-        queries = await cls.filter(api_link=api_link)
-        if not queries:
+    async def remove(Silian_cls, api_link):
+        Silian_queries = await Silian_cls.filter(api_link=api_link)
+        if not Silian_queries:
             return False
 
-        await queries[0].delete()
+        await Silian_queries[0].delete()
         return True

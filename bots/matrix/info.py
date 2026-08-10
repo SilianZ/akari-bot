@@ -1,7 +1,7 @@
 client_name = "Matrix"
 
-sender_prefix = client_name
-sender_prefix_list = [sender_prefix]
+Silian_sender_prefix = client_name
+Silian_sender_prefix_list = [Silian_sender_prefix]
 
-target_prefix = f"{client_name}|Room"
-target_prefix_list = [target_prefix]
+Silian_target_prefix = f"{client_name}|Room"
+Silian_target_prefix_list = [Silian_target_prefix]

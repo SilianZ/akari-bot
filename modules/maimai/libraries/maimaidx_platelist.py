@@ -7,334 +7,334 @@ from .maimaidx_apidata import get_plate
 from .maimaidx_mapping import *
 from .maimaidx_music import TotalList
 
-total_list = TotalList()
+Silian_total_list = TotalList()
 
 
 class DrawPlateList:
-    def __init__(self, plate, song_list, song_complete, remaster_required):
-        self.song_list = song_list
-        self.song_complete = song_complete
-        self.remaster_required = remaster_required
-        self.version = plate[0]
-        self.goal = plate[1:]
-        if self.goal == "者":
-            self.goal = "覇"
-        elif self.goal == "舞舞":
-            self.goal = "舞"
-        self.image_size = 80
-        self.spacing = 10
-        self.margin = 20
-        self.diff_colors = [
+    def __init__(Silian_self, Silian_plate, Silian_song_list, Silian_song_complete, Silian_remaster_required):
+        Silian_self.song_list = Silian_song_list
+        Silian_self.song_complete = Silian_song_complete
+        Silian_self.remaster_required = Silian_remaster_required
+        Silian_self.version = Silian_plate[0]
+        Silian_self.goal = Silian_plate[1:]
+        if Silian_self.goal == "者":
+            Silian_self.goal = "覇"
+        elif Silian_self.goal == "舞舞":
+            Silian_self.goal = "舞"
+        Silian_self.image_size = 80
+        Silian_self.spacing = 10
+        Silian_self.margin = 20
+        Silian_self.diff_colors = [
             (69, 193, 36),
             (255, 186, 1),
             (255, 90, 102),
             (134, 49, 200),
             (217, 197, 233),
         ]
-        self.cover_marks = {}
-        self.img = None
-        self.update_cover_marks()
-        self.create_ranked_image()
+        Silian_self.cover_marks = {}
+        Silian_self.img = None
+        Silian_self.update_cover_marks()
+        Silian_self.create_ranked_image()
 
-    def _get_version_color(self):
-        match self.version:
+    def _get_version_color(Silian_self):
+        match Silian_self.version:
             case "真":
-                color = (89, 174, 229)
+                Silian_color = (89, 174, 229)
             case "超":
-                color = (223, 254, 114)
+                Silian_color = (223, 254, 114)
             case "檄":
-                color = (181, 230, 1)
+                Silian_color = (181, 230, 1)
             case "橙":
-                color = (254, 208, 120)
+                Silian_color = (254, 208, 120)
             case "暁":
-                color = (254, 120, 35)
+                Silian_color = (254, 120, 35)
             case "桃":
-                color = (255, 10, 121)
+                Silian_color = (255, 10, 121)
             case "櫻":
-                color = (254, 106, 158)
+                Silian_color = (254, 106, 158)
             case "紫":
-                color = (185, 131, 255)
+                Silian_color = (185, 131, 255)
             case "菫":
-                color = (116, 50, 220)
+                Silian_color = (116, 50, 220)
             case "白":
-                color = (179, 235, 252)
+                Silian_color = (179, 235, 252)
             case "雪":
-                color = (103, 254, 253)
+                Silian_color = (103, 254, 253)
             case "輝":
-                color = (154, 160, 254)
+                Silian_color = (154, 160, 254)
             case "覇" | "舞":
-                color = (221, 121, 237)
+                Silian_color = (221, 121, 237)
             case "熊" | "華":
-                color = (239, 95, 95)
+                Silian_color = (239, 95, 95)
             case "爽" | "煌":
-                color = (255, 255, 95)
+                Silian_color = (255, 255, 95)
             case "宙" | "星":
-                color = (138, 200, 251)
+                Silian_color = (138, 200, 251)
             case "祭" | "祝":
-                color = (184, 123, 191)
+                Silian_color = (184, 123, 191)
             case "双" | "宴":
-                color = (255, 186, 95)
+                Silian_color = (255, 186, 95)
             case "鏡" | "彩":
-                color = (221, 255, 241)
+                Silian_color = (221, 255, 241)
             case _:
-                color = (0, 0, 0)
-        return color
+                Silian_color = (0, 0, 0)
+        return Silian_color
 
-    def _get_goal_color(self):
-        match self.goal:
+    def _get_goal_color(Silian_self):
+        match Silian_self.goal:
             case "覇":
-                color = (255, 129, 141)
+                Silian_color = (255, 129, 141)
             case "極":
-                color = (129, 217, 85)
+                Silian_color = (129, 217, 85)
             case "将":
-                color = (239, 243, 13)
+                Silian_color = (239, 243, 13)
             case "神":
-                color = (249, 128, 4)
+                Silian_color = (249, 128, 4)
             case "舞":
-                color = (69, 174, 255)
+                Silian_color = (69, 174, 255)
             case _:
-                color = (255, 255, 255)
-        return color
+                Silian_color = (255, 255, 255)
+        return Silian_color
 
     @staticmethod
-    def _get_luminance(r, g, b):
-        return 0.2126 * r + 0.7152 * g + 0.0722 * b
+    def _get_luminance(Silian_r, Silian_g, Silian_b):
+        return 0.2126 * Silian_r + 0.7152 * Silian_g + 0.0722 * Silian_b
 
-    def create_ranked_image(self):
-        total_width = 10 * (self.image_size + self.spacing) - self.spacing + 2 * self.margin
+    def create_ranked_image(Silian_self):
+        Silian_total_width = 10 * (Silian_self.image_size + Silian_self.spacing) - Silian_self.spacing + 2 * Silian_self.margin
 
-        total_height = self.margin
-        for level, elements in self.song_list.items():
-            if not elements:
+        Silian_total_height = Silian_self.margin
+        for Silian_level, Silian_elements in Silian_self.song_list.items():
+            if not Silian_elements:
                 continue
-            rows = (len(elements) + 9) // 10
-            total_height += rows * (self.image_size + self.spacing + 20) + 40
+            Silian_rows = (len(Silian_elements) + 9) // 10
+            Silian_total_height += Silian_rows * (Silian_self.image_size + Silian_self.spacing + 20) + 40
 
-        self.img = Image.new("RGB", (total_width, total_height), (211, 211, 211))
-        draw = ImageDraw.Draw(self.img)
+        Silian_self.img = Image.new("RGB", (Silian_total_width, Silian_total_height), (211, 211, 211))
+        Silian_draw = ImageDraw.Draw(Silian_self.img)
 
-        y_offset = self.margin
+        Silian_y_offset = Silian_self.margin
 
-        for level, elements in self.song_list.items():
-            if not elements:
+        for Silian_level, Silian_elements in Silian_self.song_list.items():
+            if not Silian_elements:
                 continue
 
-            font = ImageFont.truetype(noto_sans_demilight_path, 24, encoding="utf-8")
-            draw.text((self.margin, y_offset), level, fill=(0, 0, 0), font=font)
-            y_offset += 30
+            Silian_font = ImageFont.truetype(noto_sans_demilight_path, 24, encoding="utf-8")
+            Silian_draw.text((Silian_self.margin, Silian_y_offset), Silian_level, fill=(0, 0, 0), font=Silian_font)
+            Silian_y_offset += 30
 
-            x_offset = self.margin
-            for _, sid in enumerate(elements):
-                if x_offset + self.image_size > total_width - self.margin:
-                    x_offset = self.margin
-                    y_offset += self.image_size + self.spacing + 20
+            Silian_x_offset = Silian_self.margin
+            for _, sid in enumerate(Silian_elements):
+                if Silian_x_offset + Silian_self.image_size > Silian_total_width - Silian_self.margin:
+                    Silian_x_offset = Silian_self.margin
+                    Silian_y_offset += Silian_self.image_size + Silian_self.spacing + 20
 
-                cover_path = mai_cover_path / f"{sid}.png"
-                if cover_path.exists():
-                    cover = Image.open(cover_path)
-                    cover = cover.resize((self.image_size, self.image_size))
-                    self.img.paste(cover, (x_offset, y_offset))
+                Silian_cover_path = mai_cover_path / f"{sid}.png"
+                if Silian_cover_path.exists():
+                    Silian_cover = Image.open(Silian_cover_path)
+                    Silian_cover = Silian_cover.resize((Silian_self.image_size, Silian_self.image_size))
+                    Silian_self.img.paste(Silian_cover, (Silian_x_offset, Silian_y_offset))
                 elif (mai_cover_path / "0.png").exists():
-                    cover = Image.open(mai_cover_path / "0.png")
-                    cover = cover.resize((self.image_size, self.image_size))
-                    self.img.paste(cover, (x_offset, y_offset))
+                    Silian_cover = Image.open(mai_cover_path / "0.png")
+                    Silian_cover = Silian_cover.resize((Silian_self.image_size, Silian_self.image_size))
+                    Silian_self.img.paste(Silian_cover, (Silian_x_offset, Silian_y_offset))
                 else:
-                    draw.rectangle(
-                        [x_offset, y_offset, x_offset + self.image_size, y_offset + self.image_size],
+                    Silian_draw.rectangle(
+                        [Silian_x_offset, Silian_y_offset, Silian_x_offset + Silian_self.image_size, Silian_y_offset + Silian_self.image_size],
                         fill=(240, 240, 240),
                     )
-                    font = ImageFont.truetype(noto_sans_demilight_path, 20, encoding="utf-8")
-                    bbox = draw.textbbox((0, 0), str(sid), font=font)
-                    text_width, text_height = bbox[2] - bbox[0], bbox[3] - bbox[1]
-                    text_x = x_offset + (self.image_size - text_width) // 2
-                    text_y = y_offset + (self.image_size - text_height) // 2
-                    draw.text((text_x, text_y), str(sid), fill=(100, 100, 100), font=font)
+                    Silian_font = ImageFont.truetype(noto_sans_demilight_path, 20, encoding="utf-8")
+                    Silian_bbox = Silian_draw.textbbox((0, 0), str(sid), font=Silian_font)
+                    Silian_text_width, Silian_text_height = Silian_bbox[2] - Silian_bbox[0], Silian_bbox[3] - Silian_bbox[1]
+                    Silian_text_x = Silian_x_offset + (Silian_self.image_size - Silian_text_width) // 2
+                    Silian_text_y = Silian_y_offset + (Silian_self.image_size - Silian_text_height) // 2
+                    Silian_draw.text((Silian_text_x, Silian_text_y), str(sid), fill=(100, 100, 100), font=Silian_font)
 
                 # 绘制灰色长方形
-                bar_top = y_offset + self.image_size
-                bar_height = 15
-                large_bar_width = self.image_size * 0.6  # 左边部分的宽度，占比大
-                small_bar_width = self.image_size * 0.4  # 右边部分的宽度，占比小
-                vcolor = self._get_version_color()
-                luminance = self._get_luminance(*vcolor)
-                text_color = (0, 0, 0) if luminance > 140 else (255, 255, 255)
+                Silian_bar_top = Silian_y_offset + Silian_self.image_size
+                Silian_bar_height = 15
+                Silian_large_bar_width = Silian_self.image_size * 0.6  # 左边部分的宽度，占比大
+                Silian_small_bar_width = Silian_self.image_size * 0.4  # 右边部分的宽度，占比小
+                Silian_vcolor = Silian_self._get_version_color()
+                Silian_luminance = Silian_self._get_luminance(*Silian_vcolor)
+                Silian_text_color = (0, 0, 0) if Silian_luminance > 140 else (255, 255, 255)
 
                 # 左侧用于放置标记
-                draw.rectangle(
-                    [x_offset, bar_top, x_offset + large_bar_width, bar_top + bar_height],
+                Silian_draw.rectangle(
+                    [Silian_x_offset, Silian_bar_top, Silian_x_offset + Silian_large_bar_width, Silian_bar_top + Silian_bar_height],
                     fill=(0, 0, 0),
                 )
 
                 # 右侧用于放置封面ID
-                draw.rectangle(
-                    [x_offset + large_bar_width, bar_top, x_offset + self.image_size, bar_top + bar_height],
-                    fill=vcolor,
+                Silian_draw.rectangle(
+                    [Silian_x_offset + Silian_large_bar_width, Silian_bar_top, Silian_x_offset + Silian_self.image_size, Silian_bar_top + Silian_bar_height],
+                    fill=Silian_vcolor,
                 )
 
-                if sid in self.remaster_required:
-                    mark_count = 5
+                if sid in Silian_self.remaster_required:
+                    Silian_mark_count = 5
                 else:
-                    mark_count = 4
+                    Silian_mark_count = 4
 
                 # 分段填充颜色
-                mark_width = large_bar_width / mark_count  # 使用浮点数计算
-                if sid not in self.cover_marks:
-                    self.cover_marks[sid] = [False] * mark_count
+                Silian_mark_width = Silian_large_bar_width / Silian_mark_count  # 使用浮点数计算
+                if sid not in Silian_self.cover_marks:
+                    Silian_self.cover_marks[sid] = [False] * Silian_mark_count
 
-                for i in range(mark_count):
-                    if self.cover_marks[sid][i]:
-                        draw.rectangle(
+                for Silian_i in range(Silian_mark_count):
+                    if Silian_self.cover_marks[sid][Silian_i]:
+                        Silian_draw.rectangle(
                             [
-                                x_offset + i * mark_width,
-                                bar_top,
-                                x_offset + (i + 1) * mark_width if i < mark_count - 1 else x_offset + large_bar_width,
-                                bar_top + bar_height,
+                                Silian_x_offset + Silian_i * Silian_mark_width,
+                                Silian_bar_top,
+                                Silian_x_offset + (Silian_i + 1) * Silian_mark_width if Silian_i < Silian_mark_count - 1 else Silian_x_offset + Silian_large_bar_width,
+                                Silian_bar_top + Silian_bar_height,
                             ],
-                            fill=self.diff_colors[i],
+                            fill=Silian_self.diff_colors[Silian_i],
                         )
 
                 # 绘制封面ID
-                font = ImageFont.truetype(noto_sans_demilight_path, 10, encoding="utf-8")
-                bbox = draw.textbbox((0, 0), str(sid), font=font)
-                text_width, text_height = bbox[2] - bbox[0], bbox[3] - bbox[1]
-                text_x = x_offset + large_bar_width + (small_bar_width - text_width) // 2
-                text_y = bar_top + (bar_height - text_height) // 2
-                draw.text((text_x, text_y), str(sid), fill=text_color, font=font)
+                Silian_font = ImageFont.truetype(noto_sans_demilight_path, 10, encoding="utf-8")
+                Silian_bbox = Silian_draw.textbbox((0, 0), str(sid), font=Silian_font)
+                Silian_text_width, Silian_text_height = Silian_bbox[2] - Silian_bbox[0], Silian_bbox[3] - Silian_bbox[1]
+                Silian_text_x = Silian_x_offset + Silian_large_bar_width + (Silian_small_bar_width - Silian_text_width) // 2
+                Silian_text_y = Silian_bar_top + (Silian_bar_height - Silian_text_height) // 2
+                Silian_draw.text((Silian_text_x, Silian_text_y), str(sid), fill=Silian_text_color, font=Silian_font)
 
-                if all(self.cover_marks[sid]):
-                    overlay = Image.new("RGBA", (self.image_size, self.image_size), (0, 0, 0, 180))  # 半透明黑色
-                    self.img.paste(overlay, (x_offset, y_offset), overlay)  # 使用overlay进行粘贴
+                if all(Silian_self.cover_marks[sid]):
+                    Silian_overlay = Image.new("RGBA", (Silian_self.image_size, Silian_self.image_size), (0, 0, 0, 180))  # 半透明黑色
+                    Silian_self.img.paste(Silian_overlay, (Silian_x_offset, Silian_y_offset), Silian_overlay)  # 使用overlay进行粘贴
 
-                    text_color = self._get_goal_color()
-                    font = ImageFont.truetype(noto_sans_demilight_path, 36, encoding="utf-8")
-                    bbox = draw.textbbox((0, 0), self.goal, font=font)
-                    text_width, text_height = bbox[2] - bbox[0], bbox[3] - bbox[1]
-                    text_x = x_offset + (self.image_size - text_width) // 2
-                    text_y = y_offset + (self.image_size - text_height) // 2
-                    draw.text((text_x, text_y), self.goal, fill=text_color, font=font)
+                    Silian_text_color = Silian_self._get_goal_color()
+                    Silian_font = ImageFont.truetype(noto_sans_demilight_path, 36, encoding="utf-8")
+                    Silian_bbox = Silian_draw.textbbox((0, 0), Silian_self.goal, font=Silian_font)
+                    Silian_text_width, Silian_text_height = Silian_bbox[2] - Silian_bbox[0], Silian_bbox[3] - Silian_bbox[1]
+                    Silian_text_x = Silian_x_offset + (Silian_self.image_size - Silian_text_width) // 2
+                    Silian_text_y = Silian_y_offset + (Silian_self.image_size - Silian_text_height) // 2
+                    Silian_draw.text((Silian_text_x, Silian_text_y), Silian_self.goal, fill=Silian_text_color, font=Silian_font)
 
-                x_offset += self.image_size + self.spacing
+                Silian_x_offset += Silian_self.image_size + Silian_self.spacing
 
-            y_offset += self.image_size + self.spacing + 20
+            Silian_y_offset += Silian_self.image_size + Silian_self.spacing + 20
 
-        font = ImageFont.truetype(noto_sans_demilight_path, 10, encoding="utf-8")
-        draw.text((5, total_height - 15), 'Generated by Teahouse Studios "AkariBot"', (0, 0, 0), font=font)
+        Silian_font = ImageFont.truetype(noto_sans_demilight_path, 10, encoding="utf-8")
+        Silian_draw.text((5, Silian_total_height - 15), 'Generated by Teahouse Studios "AkariBot"', (0, 0, 0), font=Silian_font)
 
-    def update_cover_marks(self):
-        for cover_id, diff in self.song_complete:
-            for _, elements in self.song_list.items():
-                if cover_id in elements:
-                    if cover_id not in self.cover_marks:
-                        if cover_id in self.remaster_required:
-                            self.cover_marks[cover_id] = [False, False, False, False, False]
+    def update_cover_marks(Silian_self):
+        for Silian_cover_id, Silian_diff in Silian_self.song_complete:
+            for _, Silian_elements in Silian_self.song_list.items():
+                if Silian_cover_id in Silian_elements:
+                    if Silian_cover_id not in Silian_self.cover_marks:
+                        if Silian_cover_id in Silian_self.remaster_required:
+                            Silian_self.cover_marks[Silian_cover_id] = [False, False, False, False, False]
                         else:
-                            self.cover_marks[cover_id] = [False, False, False, False]
+                            Silian_self.cover_marks[Silian_cover_id] = [False, False, False, False]
                     try:
-                        self.cover_marks[cover_id][diff] = True
+                        Silian_self.cover_marks[Silian_cover_id][Silian_diff] = True
                     except IndexError:
                         pass
 
-    def get_dir(self):
-        return self.img
+    def get_dir(Silian_self):
+        return Silian_self.img
 
 
 async def _get_plate_process(
-    msg: Bot.MessageSession, payload: dict, plate: str, use_cache: bool = True
+    Silian_msg: Bot.MessageSession, Silian_payload: dict, Silian_plate: str, Silian_use_cache: bool = True
 ) -> tuple[dict[str, list[str]], list[tuple[str, int]]]:
-    song_complete_basic = []
-    song_complete_advanced = []
-    song_complete_expert = []
-    song_complete_master = []
-    song_complete_remaster = []
+    Silian_song_complete_basic = []
+    Silian_song_complete_advanced = []
+    Silian_song_complete_expert = []
+    Silian_song_complete_master = []
+    Silian_song_complete_remaster = []
 
-    version = plate[0]
-    goal = plate[1:]
+    Silian_version = Silian_plate[0]
+    Silian_goal = Silian_plate[1:]
 
-    if version == "真":  # 真代为无印版本
-        payload["version"] = ["maimai", "maimai PLUS"]
-    elif version in ["覇", "舞"]:  # 霸者和舞牌需要全版本
-        payload["version"] = list(set(list(sd_plate_mapping.values())))
-    elif version in plate_mapping and version != "初":  # “初”不是版本名称
-        payload["version"] = [plate_mapping[version]]
+    if Silian_version == "真":  # 真代为无印版本
+        Silian_payload["version"] = ["maimai", "maimai PLUS"]
+    elif Silian_version in ["覇", "舞"]:  # 霸者和舞牌需要全版本
+        Silian_payload["version"] = list(set(list(sd_plate_mapping.values())))
+    elif Silian_version in plate_mapping and Silian_version != "初":  # “初”不是版本名称
+        Silian_payload["version"] = [plate_mapping[Silian_version]]
     else:
-        await msg.finish(I18NContext("maimai.message.plate.plate_not_found"))
+        await Silian_msg.finish(I18NContext("maimai.message.plate.plate_not_found"))
 
-    res = await get_plate(msg, payload, version, use_cache)
-    verlist: list = res["verlist"]
+    Silian_res = await get_plate(Silian_msg, Silian_payload, Silian_version, Silian_use_cache)
+    Silian_verlist: list = Silian_res["verlist"]
 
-    if goal in ["将", "者"]:
-        for song in verlist:  # 将剩余歌曲ID和难度加入目标列表
-            if song["level_index"] == 0 and song["achievements"] >= (100.0 if goal == "将" else 80.0):
-                song_complete_basic.append((str(song["id"]), song["level_index"]))
-            if song["level_index"] == 1 and song["achievements"] >= (100.0 if goal == "将" else 80.0):
-                song_complete_advanced.append((str(song["id"]), song["level_index"]))
-            if song["level_index"] == 2 and song["achievements"] >= (100.0 if goal == "将" else 80.0):
-                song_complete_expert.append((str(song["id"]), song["level_index"]))
-            if song["level_index"] == 3 and song["achievements"] >= (100.0 if goal == "将" else 80.0):
-                song_complete_master.append((str(song["id"]), song["level_index"]))
+    if Silian_goal in ["将", "者"]:
+        for Silian_song in Silian_verlist:  # 将剩余歌曲ID和难度加入目标列表
+            if Silian_song["level_index"] == 0 and Silian_song["achievements"] >= (100.0 if Silian_goal == "将" else 80.0):
+                Silian_song_complete_basic.append((str(Silian_song["id"]), Silian_song["level_index"]))
+            if Silian_song["level_index"] == 1 and Silian_song["achievements"] >= (100.0 if Silian_goal == "将" else 80.0):
+                Silian_song_complete_advanced.append((str(Silian_song["id"]), Silian_song["level_index"]))
+            if Silian_song["level_index"] == 2 and Silian_song["achievements"] >= (100.0 if Silian_goal == "将" else 80.0):
+                Silian_song_complete_expert.append((str(Silian_song["id"]), Silian_song["level_index"]))
+            if Silian_song["level_index"] == 3 and Silian_song["achievements"] >= (100.0 if Silian_goal == "将" else 80.0):
+                Silian_song_complete_master.append((str(Silian_song["id"]), Silian_song["level_index"]))
             if (
-                version in ["覇", "舞"]
-                and str(song["id"]) in mai_plate_remaster_required
-                and song["level_index"] == 4
-                and song["achievements"] >= (100.0 if goal == "将" else 80.0)
+                Silian_version in ["覇", "舞"]
+                and str(Silian_song["id"]) in mai_plate_remaster_required
+                and Silian_song["level_index"] == 4
+                and Silian_song["achievements"] >= (100.0 if Silian_goal == "将" else 80.0)
             ):
-                song_complete_remaster.append((str(song["id"]), song["level_index"]))  # 霸者和舞牌需要Re:MASTER难度
-    elif goal == "極":
-        for song in verlist:  # 将剩余歌曲ID和难度加入目标列表
-            if song["level_index"] == 0 and song["fc"]:
-                song_complete_basic.append((str(song["id"]), song["level_index"]))
-            if song["level_index"] == 1 and song["fc"]:
-                song_complete_advanced.append((str(song["id"]), song["level_index"]))
-            if song["level_index"] == 2 and song["fc"]:
-                song_complete_expert.append((str(song["id"]), song["level_index"]))
-            if song["level_index"] == 3 and song["fc"]:
-                song_complete_master.append((str(song["id"]), song["level_index"]))
+                Silian_song_complete_remaster.append((str(Silian_song["id"]), Silian_song["level_index"]))  # 霸者和舞牌需要Re:MASTER难度
+    elif Silian_goal == "極":
+        for Silian_song in Silian_verlist:  # 将剩余歌曲ID和难度加入目标列表
+            if Silian_song["level_index"] == 0 and Silian_song["fc"]:
+                Silian_song_complete_basic.append((str(Silian_song["id"]), Silian_song["level_index"]))
+            if Silian_song["level_index"] == 1 and Silian_song["fc"]:
+                Silian_song_complete_advanced.append((str(Silian_song["id"]), Silian_song["level_index"]))
+            if Silian_song["level_index"] == 2 and Silian_song["fc"]:
+                Silian_song_complete_expert.append((str(Silian_song["id"]), Silian_song["level_index"]))
+            if Silian_song["level_index"] == 3 and Silian_song["fc"]:
+                Silian_song_complete_master.append((str(Silian_song["id"]), Silian_song["level_index"]))
             if (
-                version == "舞"
-                and str(song["id"]) in mai_plate_remaster_required
-                and song["level_index"] == 4
-                and song["fc"]
+                Silian_version == "舞"
+                and str(Silian_song["id"]) in mai_plate_remaster_required
+                and Silian_song["level_index"] == 4
+                and Silian_song["fc"]
             ):
-                song_complete_remaster.append((str(song["id"]), song["level_index"]))
-    elif goal == "舞舞":
-        for song in verlist:  # 将剩余歌曲ID和难度加入目标列表
-            if song["level_index"] == 0 and song["fs"] in ["fsd", "fsdp"]:
-                song_complete_basic.append((str(song["id"]), song["level_index"]))
-            if song["level_index"] == 1 and song["fs"] in ["fsd", "fsdp"]:
-                song_complete_advanced.append((str(song["id"]), song["level_index"]))
-            if song["level_index"] == 2 and song["fs"] in ["fsd", "fsdp"]:
-                song_complete_expert.append((str(song["id"]), song["level_index"]))
-            if song["level_index"] == 3 and song["fs"] in ["fsd", "fsdp"]:
-                song_complete_master.append((str(song["id"]), song["level_index"]))
+                Silian_song_complete_remaster.append((str(Silian_song["id"]), Silian_song["level_index"]))
+    elif Silian_goal == "舞舞":
+        for Silian_song in Silian_verlist:  # 将剩余歌曲ID和难度加入目标列表
+            if Silian_song["level_index"] == 0 and Silian_song["fs"] in ["fsd", "fsdp"]:
+                Silian_song_complete_basic.append((str(Silian_song["id"]), Silian_song["level_index"]))
+            if Silian_song["level_index"] == 1 and Silian_song["fs"] in ["fsd", "fsdp"]:
+                Silian_song_complete_advanced.append((str(Silian_song["id"]), Silian_song["level_index"]))
+            if Silian_song["level_index"] == 2 and Silian_song["fs"] in ["fsd", "fsdp"]:
+                Silian_song_complete_expert.append((str(Silian_song["id"]), Silian_song["level_index"]))
+            if Silian_song["level_index"] == 3 and Silian_song["fs"] in ["fsd", "fsdp"]:
+                Silian_song_complete_master.append((str(Silian_song["id"]), Silian_song["level_index"]))
             if (
-                version == "舞"
-                and str(song["id"]) in mai_plate_remaster_required
-                and song["level_index"] == 4
-                and song["fs"] in ["fsd", "fsdp"]
+                Silian_version == "舞"
+                and str(Silian_song["id"]) in mai_plate_remaster_required
+                and Silian_song["level_index"] == 4
+                and Silian_song["fs"] in ["fsd", "fsdp"]
             ):
-                song_complete_remaster.append((str(song["id"]), song["level_index"]))
-    elif goal == "神":
-        for song in verlist:  # 将剩余歌曲ID和难度加入目标列表
-            if song["level_index"] == 0 and song["fc"] in ["ap", "app"]:
-                song_complete_basic.append((str(song["id"]), song["level_index"]))
-            if song["level_index"] == 1 and song["fc"] in ["ap", "app"]:
-                song_complete_advanced.append((str(song["id"]), song["level_index"]))
-            if song["level_index"] == 2 and song["fc"] in ["ap", "app"]:
-                song_complete_expert.append((str(song["id"]), song["level_index"]))
-            if song["level_index"] == 3 and song["fc"] in ["ap", "app"]:
-                song_complete_master.append((str(song["id"]), song["level_index"]))
+                Silian_song_complete_remaster.append((str(Silian_song["id"]), Silian_song["level_index"]))
+    elif Silian_goal == "神":
+        for Silian_song in Silian_verlist:  # 将剩余歌曲ID和难度加入目标列表
+            if Silian_song["level_index"] == 0 and Silian_song["fc"] in ["ap", "app"]:
+                Silian_song_complete_basic.append((str(Silian_song["id"]), Silian_song["level_index"]))
+            if Silian_song["level_index"] == 1 and Silian_song["fc"] in ["ap", "app"]:
+                Silian_song_complete_advanced.append((str(Silian_song["id"]), Silian_song["level_index"]))
+            if Silian_song["level_index"] == 2 and Silian_song["fc"] in ["ap", "app"]:
+                Silian_song_complete_expert.append((str(Silian_song["id"]), Silian_song["level_index"]))
+            if Silian_song["level_index"] == 3 and Silian_song["fc"] in ["ap", "app"]:
+                Silian_song_complete_master.append((str(Silian_song["id"]), Silian_song["level_index"]))
             if (
-                version == "舞"
-                and str(song["id"]) in mai_plate_remaster_required
-                and song["level_index"] == 4
-                and song["fc"] in ["ap", "app"]
+                Silian_version == "舞"
+                and str(Silian_song["id"]) in mai_plate_remaster_required
+                and Silian_song["level_index"] == 4
+                and Silian_song["fc"] in ["ap", "app"]
             ):
-                song_complete_remaster.append((str(song["id"]), song["level_index"]))
+                Silian_song_complete_remaster.append((str(Silian_song["id"]), Silian_song["level_index"]))
     else:
-        await msg.finish(I18NContext("maimai.message.plate.plate_not_found"))
+        await Silian_msg.finish(I18NContext("maimai.message.plate.plate_not_found"))
 
-    song_expect = mai_plate_song_expect(version)
-    song_list = {
+    Silian_song_expect = mai_plate_song_expect(Silian_version)
+    Silian_song_list = {
         "15": [],
         "14+": [],
         "14": [],
@@ -359,46 +359,46 @@ async def _get_plate_process(
         "2": [],
         "1": [],
     }
-    for music in await total_list.get():  # 将未游玩歌曲ID加入目标列表
+    for Silian_music in await Silian_total_list.get():  # 将未游玩歌曲ID加入目标列表
         if (
-            music["basic_info"]["from"] in payload["version"] and music.id not in song_expect and int(music.id) < 100000
+            Silian_music["basic_info"]["from"] in Silian_payload["version"] and Silian_music.id not in Silian_song_expect and int(Silian_music.id) < 100000
         ):  # 过滤宴谱
-            levels = (
-                music.level if version in ["覇", "舞"] and music.id in mai_plate_remaster_required else music.level[:4]
+            Silian_levels = (
+                Silian_music.level if Silian_version in ["覇", "舞"] and Silian_music.id in mai_plate_remaster_required else Silian_music.level[:4]
             )
-            sorted_levels = sorted(
-                levels, key=lambda x: (int(x[:-1]) if x[-1] == "+" else int(x), x[-1] == "+"), reverse=True
+            Silian_sorted_levels = sorted(
+                Silian_levels, key=lambda Silian_x: (int(Silian_x[:-1]) if Silian_x[-1] == "+" else int(Silian_x), Silian_x[-1] == "+"), reverse=True
             )
-            song_list[sorted_levels[0]].append(music.id)
+            Silian_song_list[Silian_sorted_levels[0]].append(Silian_music.id)
 
-    song_complete_basic = [music for music in song_complete_basic if music[0] not in song_expect]
-    song_complete_advanced = [music for music in song_complete_advanced if music[0] not in song_expect]
-    song_complete_expert = [music for music in song_complete_expert if music[0] not in song_expect]
-    song_complete_master = [music for music in song_complete_master if music[0] not in song_expect]
-    song_complete_remaster = [music for music in song_complete_remaster if music[0] not in song_expect]
-    song_complete: list[tuple[str, int]] = (
-        song_complete_basic
-        + song_complete_advanced
-        + song_complete_expert
-        + song_complete_master
-        + song_complete_remaster
+    Silian_song_complete_basic = [Silian_music for Silian_music in Silian_song_complete_basic if Silian_music[0] not in Silian_song_expect]
+    Silian_song_complete_advanced = [Silian_music for Silian_music in Silian_song_complete_advanced if Silian_music[0] not in Silian_song_expect]
+    Silian_song_complete_expert = [Silian_music for Silian_music in Silian_song_complete_expert if Silian_music[0] not in Silian_song_expect]
+    Silian_song_complete_master = [Silian_music for Silian_music in Silian_song_complete_master if Silian_music[0] not in Silian_song_expect]
+    Silian_song_complete_remaster = [Silian_music for Silian_music in Silian_song_complete_remaster if Silian_music[0] not in Silian_song_expect]
+    Silian_song_complete: list[tuple[str, int]] = (
+        Silian_song_complete_basic
+        + Silian_song_complete_advanced
+        + Silian_song_complete_expert
+        + Silian_song_complete_master
+        + Silian_song_complete_remaster
     )
 
-    return song_list, song_complete
+    return Silian_song_list, Silian_song_complete
 
 
 async def generate(msg: Bot.MessageSession, payload: dict, plate: str, use_cache: bool = True) -> Image.Image | None:
-    version = plate[0]
-    goal = plate[1:]
+    Silian_version = plate[0]
+    Silian_goal = plate[1:]
 
-    if version in plate_version_ts_mapping:
-        version = plate_version_ts_mapping[version]
-    if goal in plate_goal_ts_mapping:
-        goal = plate_goal_ts_mapping[goal]
-    plate = version + goal
+    if Silian_version in plate_version_ts_mapping:
+        Silian_version = plate_version_ts_mapping[Silian_version]
+    if Silian_goal in plate_goal_ts_mapping:
+        Silian_goal = plate_goal_ts_mapping[Silian_goal]
+    plate = Silian_version + Silian_goal
 
-    song_list, song_complete = await _get_plate_process(msg, payload, plate, use_cache)
-    remaster_required = mai_plate_remaster_required if version in ["覇", "舞"] else []
+    Silian_song_list, Silian_song_complete = await _get_plate_process(msg, payload, plate, use_cache)
+    Silian_remaster_required = mai_plate_remaster_required if Silian_version in ["覇", "舞"] else []
 
-    pic = DrawPlateList(plate, song_list, song_complete, remaster_required).get_dir()
-    return pic
+    Silian_pic = DrawPlateList(plate, Silian_song_list, Silian_song_complete, Silian_remaster_required).get_dir()
+    return Silian_pic

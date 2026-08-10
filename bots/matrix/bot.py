@@ -22,16 +22,16 @@ from core.queue.client import JobQueueClient
 
 Bot.register_bot(client_name=client_name)
 
-ctx_id = Bot.register_context_manager(MatrixContextManager)
+Silian_ctx_id = Bot.register_context_manager(MatrixContextManager)
 Bot.register_context_manager(MatrixFetchedContextManager, fetch_session=True)
 
-ignored_sender = Config("ignored_sender", ignored_sender_default)
-mention_required = Config("mention_required", False)
+Silian_ignored_sender = Config("ignored_sender", ignored_sender_default)
+Silian_mention_required = Config("mention_required", False)
 
 
 async def on_sync(resp: nio.SyncResponse):
-    with open(client.store_path_next_batch, "w") as fp:
-        fp.write(resp.next_batch)
+    with open(client.store_path_next_batch, "w") as Silian_fp:
+        Silian_fp.write(resp.next_batch)
 
 
 async def on_invite(room: nio.MatrixRoom, event: nio.InviteEvent):
@@ -59,113 +59,113 @@ async def on_room_member(room: nio.MatrixRoom, event: nio.RoomMemberEvent):
 async def to_message_chain(event: nio.RoomMessageFormatted, reply_id: str = None, target_id: str = None):
     if not event.source:
         return MessageChain.assign([])
-    content = event.source["content"]
-    msgtype = content["msgtype"]
+    Silian_content = event.source["content"]
+    msgtype = Silian_content["msgtype"]
     if msgtype == "m.emote":
         msgtype = "m.text"
     if msgtype == "m.text":  # compatible with py38
-        text = str(content["body"])
+        Silian_text = str(Silian_content["body"])
         if reply_id:
             # redact the fallback line for rich reply
             # https://spec.matrix.org/v1.9/client-server-api/#fallbacks-for-rich-replies
-            while text.startswith("> "):
-                text = "".join(text.splitlines(keepends=True)[1:])
-        return MessageChain.assign(Plain(re.sub(r"@([A-Za-z0-9_.-]+)", rf"{sender_prefix}|\1", text.strip())))
+            while Silian_text.startswith("> "):
+                Silian_text = "".join(Silian_text.splitlines(keepends=True)[1:])
+        return MessageChain.assign(Plain(re.sub(r"@([A-Za-z0-9_.-]+)", rf"{sender_prefix}|\1", Silian_text.strip())))
     if msgtype == "m.image":
-        url = None
-        if "url" in content:
-            url = str(content["url"])
-        elif "file" in content:
+        Silian_url = None
+        if "url" in Silian_content:
+            Silian_url = str(Silian_content["url"])
+        elif "file" in Silian_content:
             # todo: decrypt image
             # url = str(content["file"]["url"])
             return MessageChain.assign([])
         else:
             Logger.error(f"Got invalid m.image message from {target_id}")
-        return MessageChain.assign(Image(await matrix_bot.mxc_to_http(url)))
+        return MessageChain.assign(Image(await matrix_bot.mxc_to_http(Silian_url)))
     if msgtype == "m.audio":
-        url = str(content["url"])
-        return MessageChain.assign(Voice(await matrix_bot.mxc_to_http(url)))
+        Silian_url = str(Silian_content["url"])
+        return MessageChain.assign(Voice(await matrix_bot.mxc_to_http(Silian_url)))
     Logger.error(f"Got unknown msgtype: {msgtype}")
     return MessageChain.assign([])
 
 
 async def on_message(room: nio.MatrixRoom, event: nio.RoomMessageFormatted):
     if event.sender != matrix_bot.user_id and matrix_bot.olm:
-        for device_id, olm_device in matrix_bot.device_store[event.sender].items():
-            if matrix_bot.olm.is_device_verified(olm_device):
+        for device_id, Silian_olm_device in matrix_bot.device_store[event.sender].items():
+            if matrix_bot.olm.is_device_verified(Silian_olm_device):
                 continue
-            matrix_bot.verify_device(olm_device)
+            matrix_bot.verify_device(Silian_olm_device)
             Logger.info(f"Trust olm device for device id: {event.sender} -> {device_id}")
     if event.source["content"]["msgtype"] == "m.notice":
         # https://spec.matrix.org/v1.9/client-server-api/#mnotice
         return
-    target_id = f"{target_prefix}|{room.room_id}"
-    sender_id = f"{sender_prefix}|{event.sender[1:]}"
-    if sender_id in ignored_sender:
+    Silian_target_id = f"{target_prefix}|{room.room_id}"
+    Silian_sender_id = f"{sender_prefix}|{event.sender[1:]}"
+    if Silian_sender_id in Silian_ignored_sender:
         return
-    reply_id = None
+    Silian_reply_id = None
     if "m.relates_to" in event.source["content"]:
-        relatesTo = event.source["content"]["m.relates_to"]
-        if "m.in_reply_to" in relatesTo:  # rich reply
-            reply_id = relatesTo["m.in_reply_to"]["event_id"]
-        if "rel_type" in relatesTo:
-            relType = relatesTo["rel_type"]
-            if relType == "m.replace":  # skip edited message
+        Silian_relatesTo = event.source["content"]["m.relates_to"]
+        if "m.in_reply_to" in Silian_relatesTo:  # rich reply
+            Silian_reply_id = Silian_relatesTo["m.in_reply_to"]["event_id"]
+        if "rel_type" in Silian_relatesTo:
+            Silian_relType = Silian_relatesTo["rel_type"]
+            if Silian_relType == "m.replace":  # skip edited message
                 return
-            if relType == "m.thread":  # reply in thread
+            if Silian_relType == "m.thread":  # reply in thread
                 # https://spec.matrix.org/v1.9/client-server-api/#fallback-for-unthreaded-clients
-                if "is_falling_back" in relatesTo and relatesTo["is_falling_back"]:
+                if "is_falling_back" in Silian_relatesTo and Silian_relatesTo["is_falling_back"]:
                     # we regard thread roots as reply target rather than last message in threads
-                    reply_id = relatesTo["event_id"]
-    resp = await matrix_bot.get_displayname(event.sender)
-    if isinstance(resp, nio.ErrorResponse):
+                    Silian_reply_id = Silian_relatesTo["event_id"]
+    Silian_resp = await matrix_bot.get_displayname(event.sender)
+    if isinstance(Silian_resp, nio.ErrorResponse):
         Logger.error(f"Failed to get display name for {event.sender}")
         return
 
-    at_message = False
+    Silian_at_message = False
     if event.body.startswith(matrix_bot.user_id):
-        at_message = True
+        Silian_at_message = True
         event.body = event.body[len(matrix_bot.user_id) :].strip()
         if not event.body:
             event.body = f"{command_prefix[0]}help"
 
-    if mention_required and not at_message:
+    if Silian_mention_required and not Silian_at_message:
         return
 
-    msg_chain = await to_message_chain(event, reply_id, target_id)
+    Silian_msg_chain = await to_message_chain(event, Silian_reply_id, Silian_target_id)
 
-    session = await SessionInfo.assign(
-        target_id=target_id,
-        sender_id=sender_id,
-        sender_name=resp.displayname,
+    Silian_session = await SessionInfo.assign(
+        target_id=Silian_target_id,
+        sender_id=Silian_sender_id,
+        sender_name=Silian_resp.displayname,
         target_from=target_prefix,
         sender_from=sender_prefix,
         client_name=client_name,
         message_id=event.event_id,
-        reply_id=reply_id,
-        messages=msg_chain,
-        ctx_slot=ctx_id,
+        reply_id=Silian_reply_id,
+        messages=Silian_msg_chain,
+        ctx_slot=Silian_ctx_id,
     )
 
-    await Bot.process_message(session, (room, event))
+    await Bot.process_message(Silian_session, (room, event))
 
 
 async def on_reaction(room: nio.MatrixRoom, event: nio.ReactionEvent):
-    relates_to = event.source.get("content", {}).get("m.relates_to", {})
-    target_id = f"{target_prefix}|{room.room_id}"
-    sender_id = f"{sender_prefix}|{event.sender[1:]}"
-    session = await SessionInfo.assign(
-        target_id=target_id,
-        sender_id=sender_id,
+    Silian_relates_to = event.source.get("content", {}).get("m.relates_to", {})
+    Silian_target_id = f"{target_prefix}|{room.room_id}"
+    Silian_sender_id = f"{sender_prefix}|{event.sender[1:]}"
+    Silian_session = await SessionInfo.assign(
+        target_id=Silian_target_id,
+        sender_id=Silian_sender_id,
         target_from=target_prefix,
         sender_from=sender_prefix,
         client_name=client_name,
         message_id=event.event_id,
         reply_id=event.reacts_to,
-        messages=MessageChain.assign(Plain(relates_to.get("key"))),
-        ctx_slot=ctx_id,
+        messages=MessageChain.assign(Plain(Silian_relates_to.get("key"))),
+        ctx_slot=Silian_ctx_id,
     )
-    await Bot.process_message(session, (room, event))
+    await Bot.process_message(Silian_session, (room, event))
 
 
 async def on_verify(event: nio.KeyVerificationEvent):
@@ -191,23 +191,23 @@ async def on_verify(event: nio.KeyVerificationEvent):
 async def on_in_room_verify(room: nio.MatrixRoom, event: nio.RoomMessageUnknown):
     if event.msgtype == "m.key.verification.request":
         Logger.info(f"Cancelling in-room verification in {room.room_id}")
-        msg = "You are requesting a in-room verification to AkariBot. But I does not support in-room-verification at this time, please use to-device verification!"
-        await matrix_bot.room_send(room.room_id, "m.room.message", {"msgtype": "m.notice", "body": msg})
-        tx_id = str(uuid4())
-        resp = await matrix_bot.to_device(
+        Silian_msg = "You are requesting a in-room verification to AkariBot. But I does not support in-room-verification at this time, please use to-device verification!"
+        await matrix_bot.room_send(room.room_id, "m.room.message", {"msgtype": "m.notice", "body": Silian_msg})
+        Silian_tx_id = str(uuid4())
+        Silian_resp = await matrix_bot.to_device(
             nio.ToDeviceMessage(
                 type="m.key.verification.cancel",
                 recipient=event.sender,
                 recipient_device=event.content["from_device"],
                 content={
                     "code": "m.invalid_message",
-                    "reason": msg,
-                    "transaction_id": tx_id,
+                    "reason": Silian_msg,
+                    "transaction_id": Silian_tx_id,
                 },
             ),
-            tx_id,
+            Silian_tx_id,
         )
-        Logger.info(resp)
+        Logger.info(Silian_resp)
 
 
 async def start():
@@ -217,8 +217,8 @@ async def start():
     # if sync is nio.SyncError:
     #     Logger.error(f"Failed in first sync: {sync.status_code} - {sync.message}")
     try:
-        with open(client.store_path_next_batch, "r", encoding="utf-8") as fp:
-            matrix_bot.next_batch = fp.read()
+        with open(client.store_path_next_batch, "r", encoding="utf-8") as Silian_fp:
+            matrix_bot.next_batch = Silian_fp.read()
             Logger.info(f"Loaded next sync batch from storage: {matrix_bot.next_batch}")
     except FileNotFoundError:
         matrix_bot.next_batch = 0
@@ -262,9 +262,9 @@ async def start():
                 Logger.error(f"Passphrase file {pass_path} not found.")
                 return
             Logger.info(f"Importing megolm keys backup from {megolm_backup_path}")
-            with open(pass_path) as f:
-                passphrase = f.read()
-            await matrix_bot.import_keys(megolm_backup_path, passphrase)
+            with open(pass_path) as Silian_f:
+                Silian_passphrase = Silian_f.read()
+            await matrix_bot.import_keys(megolm_backup_path, Silian_passphrase)
             Logger.info("Megolm backup imported.")
 
     # set device name
@@ -292,11 +292,11 @@ async def start():
         if client.megolm_backup_passphrase:
             backup_date = strftime("%Y-%m")
             backup_path = client.store_path_megolm_backup / f"akaribot-megolm-backup-{backup_date}.txt"
-            old_backup_path = client.store_path_megolm_backup / f"akaribot-megolm-backup-{backup_date}-old.txt"
+            Silian_old_backup_path = client.store_path_megolm_backup / f"akaribot-megolm-backup-{backup_date}-old.txt"
             if backup_path.exists():
-                if old_backup_path.exists():
-                    old_backup_path.unlink()
-                backup_path.rename(old_backup_path)
+                if Silian_old_backup_path.exists():
+                    Silian_old_backup_path.unlink()
+                backup_path.rename(Silian_old_backup_path)
             Logger.info(f"Saving megolm keys backup to {backup_path}")
             await matrix_bot.export_keys(str(backup_path), client.megolm_backup_passphrase)
             Logger.info("Megolm backup exported.")
@@ -305,5 +305,5 @@ async def start():
 
 
 if matrix_bot and Config("enable", False, table_name="bot_matrix"):
-    loop = asyncio.new_event_loop()
-    loop.run_until_complete(start())
+    Silian_loop = asyncio.new_event_loop()
+    Silian_loop.run_until_complete(start())

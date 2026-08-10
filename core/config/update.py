@@ -12,343 +12,343 @@ from core.constants.version import config_version
 from core.i18n import Locale
 from core.utils.func import is_int, is_float
 
-cfg_file_path = config_path / config_filename
-old_cfg_file_path = config_path / "config.cfg"
+Silian_cfg_file_path = config_path / config_filename
+Silian_old_cfg_file_path = config_path / "config.cfg"
 
 
 def convert_cfg_to_toml():
     import configparser
 
-    config_old = configparser.ConfigParser()
-    config_old.read(old_cfg_file_path)
-    config_dict = {}
-    for section in config_old.sections():
-        config_dict[section] = {}
-        config_dict[section].update(dict(config_old[section]))
+    Silian_config_old = configparser.ConfigParser()
+    Silian_config_old.read(Silian_old_cfg_file_path)
+    Silian_config_dict = {}
+    for Silian_section in Silian_config_old.sections():
+        Silian_config_dict[Silian_section] = {}
+        Silian_config_dict[Silian_section].update(dict(Silian_config_old[Silian_section]))
 
-    for x in config_dict:
-        for y in config_dict[x]:
-            if config_dict[x][y] == "True":
-                config_dict[x][y] = True
-            elif config_dict[x][y] == "False":
-                config_dict[x][y] = False
-            elif is_int(config_dict[x][y]):
-                config_dict[x][y] = int(config_dict[x][y])
-            elif is_float(config_dict[x][y]):
-                config_dict[x][y] = float(config_dict[x][y])
+    for Silian_x in Silian_config_dict:
+        for Silian_y in Silian_config_dict[Silian_x]:
+            if Silian_config_dict[Silian_x][Silian_y] == "True":
+                Silian_config_dict[Silian_x][Silian_y] = True
+            elif Silian_config_dict[Silian_x][Silian_y] == "False":
+                Silian_config_dict[Silian_x][Silian_y] = False
+            elif is_int(Silian_config_dict[Silian_x][Silian_y]):
+                Silian_config_dict[Silian_x][Silian_y] = int(Silian_config_dict[Silian_x][Silian_y])
+            elif is_float(Silian_config_dict[Silian_x][Silian_y]):
+                Silian_config_dict[Silian_x][Silian_y] = float(Silian_config_dict[Silian_x][Silian_y])
 
-    with open(cfg_file_path, "w") as f:
-        f.write(toml_dumps(config_dict))
-    old_cfg_file_path.unlink()
+    with open(Silian_cfg_file_path, "w") as Silian_f:
+        Silian_f.write(toml_dumps(Silian_config_dict))
+    Silian_old_cfg_file_path.unlink()
 
 
 # If the config file does not exist, try to convert the old config file to the new format, or raise an error.
 
 
-if not cfg_file_path.exists():
-    if old_cfg_file_path.exists():
+if not Silian_cfg_file_path.exists():
+    if Silian_old_cfg_file_path.exists():
         convert_cfg_to_toml()
     else:
-        raise ConfigFileNotFound(cfg_file_path) from None
+        raise ConfigFileNotFound(Silian_cfg_file_path) from None
 
 
 class ConfigReorganizer:
-    def __init__(self, old_config, configs, locale, table_prefix=""):
-        self.config = old_config
-        self.configs = configs
-        self.locale = locale
-        self.prefix = table_prefix
-        self.table = ""
+    def __init__(Silian_self, Silian_old_config, Silian_configs, Silian_locale, Silian_table_prefix=""):
+        Silian_self.config = Silian_old_config
+        Silian_self.configs = Silian_configs
+        Silian_self.locale = Silian_locale
+        Silian_self.prefix = Silian_table_prefix
+        Silian_self.table = ""
 
-    def set_table(self, table_name):
-        self.table = table_name
+    def set_table(Silian_self, table_name):
+        Silian_self.table = table_name
 
-    def _init_file(self, cfg_name):
-        if cfg_name not in self.configs:
-            self.configs[cfg_name] = toml_document()
-            self.configs[cfg_name].add(
-                toml_comment(self.locale.t("config.header.line.1", fallback_failed_prompt=False))
+    def _init_file(Silian_self, Silian_cfg_name):
+        if Silian_cfg_name not in Silian_self.configs:
+            Silian_self.configs[Silian_cfg_name] = toml_document()
+            Silian_self.configs[Silian_cfg_name].add(
+                toml_comment(Silian_self.locale.t("config.header.line.1", fallback_failed_prompt=False))
             )
-            self.configs[cfg_name].add(
-                toml_comment(self.locale.t("config.header.line.2", fallback_failed_prompt=False))
+            Silian_self.configs[Silian_cfg_name].add(
+                toml_comment(Silian_self.locale.t("config.header.line.2", fallback_failed_prompt=False))
             )
-            self.configs[cfg_name].add(
-                toml_comment(self.locale.t("config.header.line.3", fallback_failed_prompt=False))
+            Silian_self.configs[Silian_cfg_name].add(
+                toml_comment(Silian_self.locale.t("config.header.line.3", fallback_failed_prompt=False))
             )
 
     def reorganize_key(self, key, secret=False):
-        cfg_name = self.prefix + self.table
-        c_target = "secret" if key in self.config.get("secret", {}) else "config"
-        table = cfg_name + "_secret" if secret else cfg_name
+        Silian_cfg_name = self.prefix + self.table
+        Silian_c_target = "secret" if key in self.config.get("secret", {}) else "config"
+        Silian_table = Silian_cfg_name + "_secret" if secret else Silian_cfg_name
 
-        if key not in self.config.get(c_target, {}):
+        if key not in self.config.get(Silian_c_target, {}):
             return  # key 不存在则跳过
 
-        self._init_file(cfg_name)
+        self._init_file(Silian_cfg_name)
 
-        if table not in self.configs[cfg_name]:
-            self.configs[cfg_name].add(nl())
-            self.configs[cfg_name].add(table, toml_document())
+        if Silian_table not in self.configs[Silian_cfg_name]:
+            self.configs[Silian_cfg_name].add(nl())
+            self.configs[Silian_cfg_name].add(Silian_table, toml_document())
             if self.prefix:
-                if table.endswith("_secret"):
-                    qk = f"config.table.secret_{self.prefix.rstrip('_')}"
+                if Silian_table.endswith("_secret"):
+                    Silian_qk = f"config.table.secret_{self.prefix.rstrip('_')}"
                 else:
-                    qk = f"config.table.config_{self.prefix.rstrip('_')}"
-                self.configs[cfg_name][table].add(toml_comment(self.locale.t(qk, fallback_failed_prompt=False)))
+                    Silian_qk = f"config.table.config_{self.prefix.rstrip('_')}"
+                self.configs[Silian_cfg_name][Silian_table].add(toml_comment(self.locale.t(Silian_qk, fallback_failed_prompt=False)))
 
         try:
-            self.configs[cfg_name][table].add(key, self.config[c_target][key])
+            self.configs[Silian_cfg_name][Silian_table].add(key, self.config[Silian_c_target][key])
         except KeyAlreadyPresent:
-            self.configs[cfg_name][table][key] = self.config[c_target][key]
+            self.configs[Silian_cfg_name][Silian_table][key] = self.config[Silian_c_target][key]
 
-        qc = f"config.comments.{key}"
-        localed_comment = self.locale.t(qc, fallback_failed_prompt=False)
-        if localed_comment != qc:
-            self.configs[cfg_name][table].value.item(key).comment(localed_comment)
+        Silian_qc = f"config.comments.{key}"
+        Silian_localed_comment = self.locale.t(Silian_qc, fallback_failed_prompt=False)
+        if Silian_localed_comment != Silian_qc:
+            self.configs[Silian_cfg_name][Silian_table].value.item(key).comment(Silian_localed_comment)
 
-        self.config[c_target].pop(key)
+        self.config[Silian_c_target].pop(key)
 
-    def add_enable_flag(self):
-        cfg_name = self.prefix + self.table
-        self._init_file(cfg_name)
-        if cfg_name not in self.configs[cfg_name]:
-            self.configs[cfg_name].add(nl())
-            self.configs[cfg_name].add(cfg_name, toml_document())
-            self.configs[cfg_name][cfg_name].add(
-                toml_comment(self.locale.t("config.table.config_bot", fallback_failed_prompt=False))
+    def add_enable_flag(Silian_self):
+        Silian_cfg_name = Silian_self.prefix + Silian_self.table
+        Silian_self._init_file(Silian_cfg_name)
+        if Silian_cfg_name not in Silian_self.configs[Silian_cfg_name]:
+            Silian_self.configs[Silian_cfg_name].add(nl())
+            Silian_self.configs[Silian_cfg_name].add(Silian_cfg_name, toml_document())
+            Silian_self.configs[Silian_cfg_name][Silian_cfg_name].add(
+                toml_comment(Silian_self.locale.t("config.table.config_bot", fallback_failed_prompt=False))
             )
         try:
-            self.configs[cfg_name][cfg_name].add("enable", True)
+            Silian_self.configs[Silian_cfg_name][Silian_cfg_name].add("enable", True)
         except KeyAlreadyPresent:
-            self.configs[cfg_name][cfg_name]["enable"] = True
+            Silian_self.configs[Silian_cfg_name][Silian_cfg_name]["enable"] = True
 
-        qc = "config.comments.enable"
-        localed_comment = self.locale.t(qc, fallback_failed_prompt=False)
-        if localed_comment != qc:
-            self.configs[cfg_name][cfg_name].value.item("enable").comment(localed_comment)
+        Silian_qc = "config.comments.enable"
+        Silian_localed_comment = Silian_self.locale.t(Silian_qc, fallback_failed_prompt=False)
+        if Silian_localed_comment != Silian_qc:
+            Silian_self.configs[Silian_cfg_name][Silian_cfg_name].value.item("enable").comment(Silian_localed_comment)
 
-        if "disabled_bots" in self.config.get("config", {}):
-            if self.table in self.config["config"]["disabled_bots"]:
-                self.configs[cfg_name][cfg_name]["enable"] = False
+        if "disabled_bots" in Silian_self.config.get("config", {}):
+            if Silian_self.table in Silian_self.config["config"]["disabled_bots"]:
+                Silian_self.configs[Silian_cfg_name][Silian_cfg_name]["enable"] = False
 
 
 # Load the config file
-with open(cfg_file_path, "r", encoding="utf-8") as cfg_file:
-    config = toml_parser(cfg_file.read())
+with open(Silian_cfg_file_path, "r", encoding="utf-8") as Silian_cfg_file:
+    config = toml_parser(Silian_cfg_file.read())
 
 # If config version not exists, regenerate the config file (assumed as
 # version 0 to convert old to new format since this is the first time to
 # generate the config file for everyone)
 if "config_version" not in config:
-    old_config = config
+    Silian_old_config = config
     logger.info("Config version not found, regenerating the config file...")
-    shutil.copy(cfg_file_path, str(cfg_file_path) + ".bak")
-    configs = {"config": toml_document()}
-    if "cfg" in old_config:
-        get_old_locale = old_config["cfg"].get("locale", "zh_cn")
+    shutil.copy(Silian_cfg_file_path, str(Silian_cfg_file_path) + ".bak")
+    Silian_configs = {"config": toml_document()}
+    if "cfg" in Silian_old_config:
+        Silian_get_old_locale = Silian_old_config["cfg"].get("locale", "zh_cn")
     else:
-        get_old_locale = "zh_cn"
-    old_locale = Locale(get_old_locale)
-    configs["config"].add(toml_comment(old_locale.t("config.header.line.1", fallback_failed_prompt=False)))
-    configs["config"].add(toml_comment(old_locale.t("config.header.line.2", fallback_failed_prompt=False)))
-    configs["config"].add(toml_comment(old_locale.t("config.header.line.3", fallback_failed_prompt=False)))
-    configs["config"].add(nl())
+        Silian_get_old_locale = "zh_cn"
+    Silian_old_locale = Locale(Silian_get_old_locale)
+    Silian_configs["config"].add(toml_comment(Silian_old_locale.t("config.header.line.1", fallback_failed_prompt=False)))
+    Silian_configs["config"].add(toml_comment(Silian_old_locale.t("config.header.line.2", fallback_failed_prompt=False)))
+    Silian_configs["config"].add(toml_comment(Silian_old_locale.t("config.header.line.3", fallback_failed_prompt=False)))
+    Silian_configs["config"].add(nl())
 
-    configs["config"].add("default_locale", get_old_locale)
-    configs["config"].item("default_locale").comment(
-        old_locale.t("config.comments.default_locale", fallback_failed_prompt=False)
+    Silian_configs["config"].add("default_locale", Silian_get_old_locale)
+    Silian_configs["config"].item("default_locale").comment(
+        Silian_old_locale.t("config.comments.default_locale", fallback_failed_prompt=False)
     )
 
-    configs["config"].add("config_version", 0)
-    configs["config"].item("config_version").comment(
-        old_locale.t("config.comments.default_locale", fallback_failed_prompt=False)
+    Silian_configs["config"].add("config_version", 0)
+    Silian_configs["config"].item("config_version").comment(
+        Silian_old_locale.t("config.comments.default_locale", fallback_failed_prompt=False)
     )
-    configs["config"].add(nl())
+    Silian_configs["config"].add(nl())
 
     # reorganize some keys
-    reorganizer = ConfigReorganizer(old_config, configs, old_locale, table_prefix="bot_")
+    Silian_reorganizer = ConfigReorganizer(Silian_old_config, Silian_configs, Silian_old_locale, table_prefix="bot_")
 
-    reorganizer.set_table("aiocqhttp")
-    reorganizer.add_enable_flag()
-    reorganizer.reorganize_key("qq_host")
-    reorganizer.reorganize_key("qq_enable_listening_self_message")
-    reorganizer.reorganize_key("qq_disable_temp_session")
-    reorganizer.reorganize_key("qq_allow_approve_friend")
-    reorganizer.reorganize_key("qq_allow_approve_group_invite")
-    reorganizer.reorganize_key("qq_limited_emoji")
-    reorganizer.reorganize_key("qq_typing_emoji")
-    reorganizer.reorganize_key("qq_initiative_msg_cooldown")
-    reorganizer.reorganize_key("qq_access_token", True)
+    Silian_reorganizer.set_table("aiocqhttp")
+    Silian_reorganizer.add_enable_flag()
+    Silian_reorganizer.reorganize_key("qq_host")
+    Silian_reorganizer.reorganize_key("qq_enable_listening_self_message")
+    Silian_reorganizer.reorganize_key("qq_disable_temp_session")
+    Silian_reorganizer.reorganize_key("qq_allow_approve_friend")
+    Silian_reorganizer.reorganize_key("qq_allow_approve_group_invite")
+    Silian_reorganizer.reorganize_key("qq_limited_emoji")
+    Silian_reorganizer.reorganize_key("qq_typing_emoji")
+    Silian_reorganizer.reorganize_key("qq_initiative_msg_cooldown")
+    Silian_reorganizer.reorganize_key("qq_access_token", True)
 
-    reorganizer.set_table("aiogram")
-    reorganizer.add_enable_flag()
-    reorganizer.reorganize_key("telegram_api_url")
-    reorganizer.reorganize_key("telegram_token", True)
+    Silian_reorganizer.set_table("aiogram")
+    Silian_reorganizer.add_enable_flag()
+    Silian_reorganizer.reorganize_key("telegram_api_url")
+    Silian_reorganizer.reorganize_key("telegram_token", True)
 
-    reorganizer.set_table("discord")
-    reorganizer.add_enable_flag()
-    reorganizer.reorganize_key("discord_token", True)
+    Silian_reorganizer.set_table("discord")
+    Silian_reorganizer.add_enable_flag()
+    Silian_reorganizer.reorganize_key("discord_token", True)
 
-    reorganizer.set_table("kook")
-    reorganizer.add_enable_flag()
-    reorganizer.reorganize_key("kook_token", True)
+    Silian_reorganizer.set_table("kook")
+    Silian_reorganizer.add_enable_flag()
+    Silian_reorganizer.reorganize_key("kook_token", True)
 
-    reorganizer.set_table("matrix")
-    reorganizer.add_enable_flag()
-    reorganizer.reorganize_key("matrix_homeserver")
-    reorganizer.reorganize_key("matrix_user")
-    reorganizer.reorganize_key("matrix_device_name")
-    reorganizer.reorganize_key("matrix_device_id", True)
-    reorganizer.reorganize_key("matrix_token", True)
-    reorganizer.reorganize_key("matrix_megolm_backup_passphrase", True)
+    Silian_reorganizer.set_table("matrix")
+    Silian_reorganizer.add_enable_flag()
+    Silian_reorganizer.reorganize_key("matrix_homeserver")
+    Silian_reorganizer.reorganize_key("matrix_user")
+    Silian_reorganizer.reorganize_key("matrix_device_name")
+    Silian_reorganizer.reorganize_key("matrix_device_id", True)
+    Silian_reorganizer.reorganize_key("matrix_token", True)
+    Silian_reorganizer.reorganize_key("matrix_megolm_backup_passphrase", True)
 
-    reorganizer.set_table("qqbot")
-    reorganizer.add_enable_flag()
-    reorganizer.reorganize_key("qq_bot_appid")
-    reorganizer.reorganize_key("qq_private_bot")
-    reorganizer.reorganize_key("qq_bot_enable_send_url")
-    reorganizer.reorganize_key("qq_typing_emoji")
-    reorganizer.reorganize_key("qq_bot_secret", True)
+    Silian_reorganizer.set_table("qqbot")
+    Silian_reorganizer.add_enable_flag()
+    Silian_reorganizer.reorganize_key("qq_bot_appid")
+    Silian_reorganizer.reorganize_key("qq_private_bot")
+    Silian_reorganizer.reorganize_key("qq_bot_enable_send_url")
+    Silian_reorganizer.reorganize_key("qq_typing_emoji")
+    Silian_reorganizer.reorganize_key("qq_bot_secret", True)
 
-    reorganizer.set_table("web")
-    reorganizer.add_enable_flag()
-    reorganizer.reorganize_key("enable_https")
-    reorganizer.reorganize_key("web_host")
-    reorganizer.reorganize_key("web_port")
-    reorganizer.reorganize_key("login_max_attempt")
-    reorganizer.reorganize_key("heartbeat_attempt")
-    reorganizer.reorganize_key("heartbeat_interval")
-    reorganizer.reorganize_key("heartbeat_timeout")
-    reorganizer.reorganize_key("jwt_secret", True)
+    Silian_reorganizer.set_table("web")
+    Silian_reorganizer.add_enable_flag()
+    Silian_reorganizer.reorganize_key("enable_https")
+    Silian_reorganizer.reorganize_key("web_host")
+    Silian_reorganizer.reorganize_key("web_port")
+    Silian_reorganizer.reorganize_key("login_max_attempt")
+    Silian_reorganizer.reorganize_key("heartbeat_attempt")
+    Silian_reorganizer.reorganize_key("heartbeat_interval")
+    Silian_reorganizer.reorganize_key("heartbeat_timeout")
+    Silian_reorganizer.reorganize_key("jwt_secret", True)
 
-    configs["config"].add("config", toml_document())
-    configs["config"]["config"].add(toml_comment(old_locale.t("config.table.config")))
+    Silian_configs["config"].add("config", toml_document())
+    Silian_configs["config"]["config"].add(toml_comment(Silian_old_locale.t("config.table.config")))
     if "cfg" in config:
-        for k, v in config["cfg"].items():
-            configs["config"]["config"][k] = v
-            qc = "config.comments." + k
-            localed_comment = old_locale.t(qc, fallback_failed_prompt=False)
-            if localed_comment != qc:
-                configs["config"]["config"].value.item(k).comment(localed_comment)
-    configs["config"].add(nl())
+        for Silian_k, Silian_v in config["cfg"].items():
+            Silian_configs["config"]["config"][Silian_k] = Silian_v
+            Silian_qc = "config.comments." + Silian_k
+            Silian_localed_comment = Silian_old_locale.t(Silian_qc, fallback_failed_prompt=False)
+            if Silian_localed_comment != Silian_qc:
+                Silian_configs["config"]["config"].value.item(Silian_k).comment(Silian_localed_comment)
+    Silian_configs["config"].add(nl())
 
-    configs["config"].add("secret", toml_document())
-    configs["config"]["secret"].add(toml_comment(old_locale.t("config.table.config")))
+    Silian_configs["config"].add("secret", toml_document())
+    Silian_configs["config"]["secret"].add(toml_comment(Silian_old_locale.t("config.table.config")))
     if "secret" in config:
-        for k, v in config["secret"].items():
-            configs["config"]["secret"][k] = v
-            qc = "config.comments." + k
-            localed_comment = old_locale.t(qc, fallback_failed_prompt=False)
-            if localed_comment != qc:
-                configs["config"]["secret"].value.item(k).comment(localed_comment)
+        for Silian_k, Silian_v in config["secret"].items():
+            Silian_configs["config"]["secret"][Silian_k] = Silian_v
+            Silian_qc = "config.comments." + Silian_k
+            Silian_localed_comment = Silian_old_locale.t(Silian_qc, fallback_failed_prompt=False)
+            if Silian_localed_comment != Silian_qc:
+                Silian_configs["config"]["secret"].value.item(Silian_k).comment(Silian_localed_comment)
 
-    if "locale" in configs["config"]["config"]:
-        configs["config"]["config"].pop("locale")
-    if "disabled_bots" in configs["config"]["config"]:
-        configs["config"]["config"].pop("disabled_bots")
+    if "locale" in Silian_configs["config"]["config"]:
+        Silian_configs["config"]["config"].pop("locale")
+    if "disabled_bots" in Silian_configs["config"]["config"]:
+        Silian_configs["config"]["config"].pop("disabled_bots")
 
-    for c in configs:
-        filename = c
-        if not c.endswith(".toml"):
-            filename += ".toml"
-        with open(config_path / filename, "w", encoding="utf-8") as f:
-            f.write(toml_dumps(configs[c]))
+    for Silian_c in Silian_configs:
+        Silian_filename = Silian_c
+        if not Silian_c.endswith(".toml"):
+            Silian_filename += ".toml"
+        with open(config_path / Silian_filename, "w", encoding="utf-8") as Silian_f:
+            Silian_f.write(toml_dumps(Silian_configs[Silian_c]))
     logger.success("Config file regenerated successfully.")
     sleep(3)
-    with open(cfg_file_path, "r", encoding="utf-8") as cfg_file:
-        config = toml_parser(cfg_file.read())  # Reload the config file after regeneration
+    with open(Silian_cfg_file_path, "r", encoding="utf-8") as Silian_cfg_file:
+        config = toml_parser(Silian_cfg_file.read())  # Reload the config file after regeneration
 if config["config_version"] < config_version:
     logger.info(f"Updating Config file from {config['config_version']} to {config_version}...")
     if config["config_version"] < 1:
-        with open(cfg_file_path, "r", encoding="utf-8") as f:
-            config = toml_parser(f.read())
-        locale = Locale(config.get("locale", "zh_cn"))
-        configs = {}
+        with open(Silian_cfg_file_path, "r", encoding="utf-8") as Silian_f:
+            config = toml_parser(Silian_f.read())
+        Silian_locale = Locale(config.get("locale", "zh_cn"))
+        Silian_configs = {}
 
-        reorganizer = ConfigReorganizer(config, configs, locale, table_prefix="module_")
-        reorganizer.set_table("ai")
-        reorganizer.reorganize_key("llm_max_tokens")
-        reorganizer.reorganize_key("llm_temperature")
-        reorganizer.reorganize_key("llm_top_p")
-        reorganizer.reorganize_key("llm_frequency_penalty")
-        reorganizer.reorganize_key("llm_presence_penalty")
-        reorganizer.reorganize_key("ai_default_llm")
+        Silian_reorganizer = ConfigReorganizer(config, Silian_configs, Silian_locale, table_prefix="module_")
+        Silian_reorganizer.set_table("ai")
+        Silian_reorganizer.reorganize_key("llm_max_tokens")
+        Silian_reorganizer.reorganize_key("llm_temperature")
+        Silian_reorganizer.reorganize_key("llm_top_p")
+        Silian_reorganizer.reorganize_key("llm_frequency_penalty")
+        Silian_reorganizer.reorganize_key("llm_presence_penalty")
+        Silian_reorganizer.reorganize_key("ai_default_llm")
 
-        reorganizer.set_table("coin")
-        reorganizer.reorganize_key("coin_limit")
-        reorganizer.reorganize_key("coin_faceup_weight")
-        reorganizer.reorganize_key("coin_facedown_weight")
-        reorganizer.reorganize_key("coin_stand_weight")
+        Silian_reorganizer.set_table("coin")
+        Silian_reorganizer.reorganize_key("coin_limit")
+        Silian_reorganizer.reorganize_key("coin_faceup_weight")
+        Silian_reorganizer.reorganize_key("coin_facedown_weight")
+        Silian_reorganizer.reorganize_key("coin_stand_weight")
 
-        reorganizer.set_table("dice")
-        reorganizer.reorganize_key("dice_limit")
-        reorganizer.reorganize_key("dice_output_count")
-        reorganizer.reorganize_key("dice_output_len")
-        reorganizer.reorganize_key("dice_output_digit")
-        reorganizer.reorganize_key("dice_roll_limit")
-        reorganizer.reorganize_key("dice_detail_count")
-        reorganizer.reorganize_key("dice_count_limit")
+        Silian_reorganizer.set_table("dice")
+        Silian_reorganizer.reorganize_key("dice_limit")
+        Silian_reorganizer.reorganize_key("dice_output_count")
+        Silian_reorganizer.reorganize_key("dice_output_len")
+        Silian_reorganizer.reorganize_key("dice_output_digit")
+        Silian_reorganizer.reorganize_key("dice_roll_limit")
+        Silian_reorganizer.reorganize_key("dice_detail_count")
+        Silian_reorganizer.reorganize_key("dice_count_limit")
 
-        reorganizer.set_table("exchange_rate")
-        reorganizer.reorganize_key("exchange_rate_api_key", True)
+        Silian_reorganizer.set_table("exchange_rate")
+        Silian_reorganizer.reorganize_key("exchange_rate_api_key", True)
 
-        reorganizer.set_table("github")
-        reorganizer.reorganize_key("github_pat", True)
+        Silian_reorganizer.set_table("github")
+        Silian_reorganizer.reorganize_key("github_pat", True)
 
-        reorganizer.set_table("maimai")
-        reorganizer.reorganize_key("diving_fish_developer_token", True)
+        Silian_reorganizer.set_table("maimai")
+        Silian_reorganizer.reorganize_key("diving_fish_developer_token", True)
 
-        reorganizer.set_table("mod_dl")
-        reorganizer.reorganize_key("curseforge_api_key", True)
+        Silian_reorganizer.set_table("mod_dl")
+        Silian_reorganizer.reorganize_key("curseforge_api_key", True)
 
-        reorganizer.set_table("ncmusic")
-        reorganizer.reorganize_key("ncmusic_enable_card")
-        reorganizer.reorganize_key("ncmusic_api", True)
+        Silian_reorganizer.set_table("ncmusic")
+        Silian_reorganizer.reorganize_key("ncmusic_enable_card")
+        Silian_reorganizer.reorganize_key("ncmusic_api", True)
 
-        reorganizer.set_table("wiki")
-        reorganizer.reorganize_key("wiki_whitelist_url")
+        Silian_reorganizer.set_table("wiki")
+        Silian_reorganizer.reorganize_key("wiki_whitelist_url")
 
-        reorganizer.set_table("wolframalpha")
-        reorganizer.reorganize_key("wolfram_alpha_appid", True)
+        Silian_reorganizer.set_table("wolframalpha")
+        Silian_reorganizer.reorganize_key("wolfram_alpha_appid", True)
 
-        reorganizer.set_table("wordle")
-        reorganizer.reorganize_key("wordle_disable_image")
+        Silian_reorganizer.set_table("wordle")
+        Silian_reorganizer.reorganize_key("wordle_disable_image")
 
         config["config_version"] = 1
-        for c in configs:
-            filename = c
-            if not c.endswith(".toml"):
-                filename += ".toml"
-            with open(config_path / filename, "w", encoding="utf-8") as f:
-                f.write(toml_dumps(configs[c]))
-        with open(cfg_file_path, "w", encoding="utf-8") as f:
-            f.write(toml_dumps(config))
-        with open(cfg_file_path, "r", encoding="utf-8") as cfg_file:
-            config = toml_parser(cfg_file.read())  # Reload the config file after regeneration
+        for Silian_c in Silian_configs:
+            Silian_filename = Silian_c
+            if not Silian_c.endswith(".toml"):
+                Silian_filename += ".toml"
+            with open(config_path / Silian_filename, "w", encoding="utf-8") as Silian_f:
+                Silian_f.write(toml_dumps(Silian_configs[Silian_c]))
+        with open(Silian_cfg_file_path, "w", encoding="utf-8") as Silian_f:
+            Silian_f.write(toml_dumps(config))
+        with open(Silian_cfg_file_path, "r", encoding="utf-8") as Silian_cfg_file:
+            config = toml_parser(Silian_cfg_file.read())  # Reload the config file after regeneration
 
     if config["config_version"] < 2:
-        with open(cfg_file_path, "r", encoding="utf-8") as f:
-            config = toml_parser(f.read())
-        locale = Locale(config.get("locale", "zh_cn"))
-        configs = {}
+        with open(Silian_cfg_file_path, "r", encoding="utf-8") as Silian_f:
+            config = toml_parser(Silian_f.read())
+        Silian_locale = Locale(config.get("locale", "zh_cn"))
+        Silian_configs = {}
 
-        reorganizer = ConfigReorganizer(config, configs, locale, table_prefix="webrender")
-        reorganizer.reorganize_key("enable_web_render")
-        reorganizer.reorganize_key("browser_type")
-        reorganizer.reorganize_key("browser_executable_path")
-        reorganizer.reorganize_key("remote_web_render_url")
+        Silian_reorganizer = ConfigReorganizer(config, Silian_configs, Silian_locale, table_prefix="webrender")
+        Silian_reorganizer.reorganize_key("enable_web_render")
+        Silian_reorganizer.reorganize_key("browser_type")
+        Silian_reorganizer.reorganize_key("browser_executable_path")
+        Silian_reorganizer.reorganize_key("remote_web_render_url")
 
         config["config_version"] = 2
-        for c in configs:
-            filename = c
-            if not c.endswith(".toml"):
-                filename += ".toml"
-            with open(config_path / filename, "w", encoding="utf-8") as f:
-                f.write(toml_dumps(configs[c]))
-        with open(cfg_file_path, "w", encoding="utf-8") as f:
-            f.write(toml_dumps(config))
-        with open(cfg_file_path, "r", encoding="utf-8") as cfg_file:
-            config = toml_parser(cfg_file.read())  # Reload the config file after regeneration
+        for Silian_c in Silian_configs:
+            Silian_filename = Silian_c
+            if not Silian_c.endswith(".toml"):
+                Silian_filename += ".toml"
+            with open(config_path / Silian_filename, "w", encoding="utf-8") as Silian_f:
+                Silian_f.write(toml_dumps(Silian_configs[Silian_c]))
+        with open(Silian_cfg_file_path, "w", encoding="utf-8") as Silian_f:
+            Silian_f.write(toml_dumps(config))
+        with open(Silian_cfg_file_path, "r", encoding="utf-8") as Silian_cfg_file:
+            config = toml_parser(Silian_cfg_file.read())  # Reload the config file after regeneration
 
     logger.success("Config file updated successfully.")
     sleep(3)

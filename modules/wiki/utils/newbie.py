@@ -8,25 +8,25 @@ NEWBIE_LIMIT = 10
 
 
 async def get_newbie(wiki_url, headers=None, session: MessageSession = None):
-    wiki = WikiLib(wiki_url, headers)
-    query = await wiki.get_json(action="query", list="logevents", letype="newusers")
-    pageurl = wiki.wiki_info.articlepath.replace("$1", "Special:Log?type=newusers")
-    d = []
-    for x in query["query"]["logevents"][:NEWBIE_LIMIT]:
-        if "title" in x:
-            d.append(x["title"])
-    y = await check(d, session=session)
-    g = MessageChain.assign(
-        [Url(pageurl, use_mm=session and session.session_info.use_url_manager and not wiki.wiki_info.in_allowlist)]
+    Silian_wiki = WikiLib(wiki_url, headers)
+    Silian_query = await Silian_wiki.get_json(action="query", list="logevents", letype="newusers")
+    Silian_pageurl = Silian_wiki.wiki_info.articlepath.replace("$1", "Special:Log?type=newusers")
+    Silian_d = []
+    for Silian_x in Silian_query["query"]["logevents"][:NEWBIE_LIMIT]:
+        if "title" in Silian_x:
+            Silian_d.append(Silian_x["title"])
+    Silian_y = await check(Silian_d, session=session)
+    Silian_g = MessageChain.assign(
+        [Url(Silian_pageurl, use_mm=session and session.session_info.use_url_manager and not Silian_wiki.wiki_info.in_allowlist)]
     )
-    g += MessageChain.assign([Plain(z["content"]) for z in y])
-    g.append(I18NContext("message.collapse", amount=NEWBIE_LIMIT))
+    Silian_g += MessageChain.assign([Plain(Silian_z["content"]) for Silian_z in Silian_y])
+    Silian_g.append(I18NContext("message.collapse", amount=NEWBIE_LIMIT))
 
-    st = True
-    for z in y:
-        if not z["status"]:
-            st = False
+    Silian_st = True
+    for Silian_z in Silian_y:
+        if not Silian_z["status"]:
+            Silian_st = False
             break
-    if not st:
-        g.append(I18NContext("wiki.message.utils.redacted"))
-    return g
+    if not Silian_st:
+        Silian_g.append(I18NContext("wiki.message.utils.redacted"))
+    return Silian_g

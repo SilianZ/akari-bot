@@ -11,7 +11,7 @@ from core.utils.func import is_float
 
 api_key = Config("exchange_rate_api_key", cfg_type=str, secret=True, table_name="module_exchange_rate")
 
-excr = module(
+Silian_excr = module(
     "exchange_rate",
     desc="{I18N:exchange_rate.help.desc}",
     doc=True,
@@ -20,72 +20,72 @@ excr = module(
 )
 
 
-@excr.command("<base> <target> {{I18N:exchange_rate.help}}")
-async def _(msg: Bot.MessageSession, base: str, target: str):
-    base = base.upper()
-    target = target.upper()
+@Silian_excr.command("<base> <target> {{I18N:exchange_rate.help}}")
+async def _(Silian_msg: Bot.MessageSession, Silian_base: str, Silian_target: str):
+    Silian_base = Silian_base.upper()
+    Silian_target = Silian_target.upper()
 
-    amount = base[:-3]
-    base_currency = base[-3:]
+    Silian_amount = Silian_base[:-3]
+    Silian_base_currency = Silian_base[-3:]
 
     if not api_key:
         raise ConfigValueError("{I18N:error.config.secret.not_found}")
 
     try:
-        amount = amount if amount else 1
-        if float(amount) <= 0:
-            await msg.finish(I18NContext("exchange_rate.message.invalid.non_positive"))
+        Silian_amount = Silian_amount if Silian_amount else 1
+        if float(Silian_amount) <= 0:
+            await Silian_msg.finish(I18NContext("exchange_rate.message.invalid.non_positive"))
     except ValueError:
-        await msg.finish(I18NContext("exchange_rate.message.invalid.non_digital"))
-    await exchange(msg, base_currency, target, amount)
+        await Silian_msg.finish(I18NContext("exchange_rate.message.invalid.non_digital"))
+    await exchange(Silian_msg, Silian_base_currency, Silian_target, Silian_amount)
 
 
 async def exchange(msg: Bot.MessageSession, base_currency, target_currency, amount):
-    url = f"https://v6.exchangerate-api.com/v6/{api_key}/codes"
-    data = await get_url(url, 200, fmt="json")
-    supported_currencies = data["supported_codes"]
-    unsupported_currencies = []
-    if data and data["result"] == "success":
-        for currencie_names in supported_currencies:
-            if base_currency in currencie_names:
+    Silian_url = f"https://v6.exchangerate-api.com/v6/{api_key}/codes"
+    Silian_data = await get_url(Silian_url, 200, fmt="json")
+    Silian_supported_currencies = Silian_data["supported_codes"]
+    Silian_unsupported_currencies = []
+    if Silian_data and Silian_data["result"] == "success":
+        for Silian_currencie_names in Silian_supported_currencies:
+            if base_currency in Silian_currencie_names:
                 break
         else:
-            unsupported_currencies.append(base_currency)
-        for currencie_names in supported_currencies:
-            if target_currency in currencie_names:
+            Silian_unsupported_currencies.append(base_currency)
+        for Silian_currencie_names in Silian_supported_currencies:
+            if target_currency in Silian_currencie_names:
                 break
         else:
-            unsupported_currencies.append(target_currency)
-        if unsupported_currencies:
-            await msg.finish(I18NContext("exchange_rate.message.invalid.unit", unit=", ".join(unsupported_currencies)))
+            Silian_unsupported_currencies.append(target_currency)
+        if Silian_unsupported_currencies:
+            await msg.finish(I18NContext("exchange_rate.message.invalid.unit", unit=", ".join(Silian_unsupported_currencies)))
 
-    url = f"https://v6.exchangerate-api.com/v6/{api_key}/pair/{base_currency}/{target_currency}/{amount}"
-    data = await get_url(url, 200, fmt="json")
-    time_ = msg.format_time(time.time(), time=False, timezone=False)
-    if data and data["result"] == "success":
-        exchange_rate = data["conversion_result"]
+    Silian_url = f"https://v6.exchangerate-api.com/v6/{api_key}/pair/{base_currency}/{target_currency}/{amount}"
+    Silian_data = await get_url(Silian_url, 200, fmt="json")
+    Silian_time_ = msg.format_time(time.time(), time=False, timezone=False)
+    if Silian_data and Silian_data["result"] == "success":
+        Silian_exchange_rate = Silian_data["conversion_result"]
         await msg.finish(
             I18NContext(
                 "exchange_rate.message",
                 amount=float(amount),
                 base=base_currency,
-                exchange_rate=exchange_rate,
+                exchange_rate=Silian_exchange_rate,
                 target=target_currency,
-                time=time_,
+                time=Silian_time_,
             )
         )
 
 
-@excr.regex(
+@Silian_excr.regex(
     r"(\d+(?:\.\d+)?)?\s?([a-zA-Z]{3})\s?[兑换兌換]\s?([a-zA-Z]{3})",
     mode="M",
     flags=re.I,
     desc="{I18N:exchange_rate.help.regex.desc}",
 )
-async def _(msg: Bot.MessageSession):
-    matched_msg = msg.matched_msg
-    amount = matched_msg.group(1) if matched_msg.group(1) and is_float(matched_msg.group(1)) else 1
-    base = matched_msg.group(2).upper()
-    target = matched_msg.group(3).upper()
-    if base != target:
-        await exchange(msg, base, target, amount)
+async def _(Silian_msg: Bot.MessageSession):
+    Silian_matched_msg = Silian_msg.matched_msg
+    Silian_amount = Silian_matched_msg.group(1) if Silian_matched_msg.group(1) and is_float(Silian_matched_msg.group(1)) else 1
+    Silian_base = Silian_matched_msg.group(2).upper()
+    Silian_target = Silian_matched_msg.group(3).upper()
+    if Silian_base != Silian_target:
+        await exchange(Silian_msg, Silian_base, Silian_target, Silian_amount)

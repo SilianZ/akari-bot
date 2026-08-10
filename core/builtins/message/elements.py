@@ -55,15 +55,15 @@ class BaseElement:
     """
 
     @classmethod
-    def __name__(cls):
+    def __name__(Silian_cls):
         """
         获取元素类名。
 
         :return: 类的名称字符串
         """
-        return cls.__name__
+        return Silian_cls.__name__
 
-    def kecode(self):
+    def kecode(Silian_self):
         """
         转换为 KE 码格式（AkariBot 特定的消息格式）。
 
@@ -75,7 +75,7 @@ class BaseElement:
         """
         raise NotImplementedError
 
-    def __str__(self):
+    def __str__(Silian_self):
         """
         转换为字符串表示。
 
@@ -110,7 +110,7 @@ class PlainElement(BaseElement):
     disable_joke: bool = False
 
     @classmethod
-    def assign(cls, *texts: Any, disable_joke: bool = False):
+    def assign(Silian_cls, *texts: Any, disable_joke: bool = False):
         """
         创建纯文本元素的工厂方法。
 
@@ -122,9 +122,9 @@ class PlainElement(BaseElement):
         :return: PlainElement 实例
         """
         # 将所有参数转换为字符串并用空字符连接（保留原始格式）
-        text = "".join([str(x) for x in texts])
+        Silian_text = "".join([str(Silian_x) for Silian_x in texts])
         disable_joke = bool(disable_joke)
-        return deepcopy(cls(text=text, disable_joke=disable_joke))
+        return deepcopy(Silian_cls(text=Silian_text, disable_joke=disable_joke))
 
     def kecode(self):
         """
@@ -136,9 +136,9 @@ class PlainElement(BaseElement):
         """
         return f"[KE:plain,text={self.text}]"
 
-    def __str__(self):
+    def __str__(Silian_self):
         """返回文本内容"""
-        return self.text
+        return Silian_self.text
 
 
 @define
@@ -170,7 +170,7 @@ class URLElement(BaseElement):
     md_format_name: str | None = None
 
     @classmethod
-    def assign(cls, url: str, use_mm: bool | None = None, md_format: bool = False, md_format_name: str | None = None):
+    def assign(Silian_cls, url: str, use_mm: bool | None = None, md_format: bool = False, md_format_name: str | None = None):
         """
         创建 URL 元素的工厂方法。
 
@@ -189,21 +189,21 @@ class URLElement(BaseElement):
         # ========== 步骤 1: 应用链接跳板（如果需要）==========
         if use_mm:
             # 使用 mm.teahouse.team 的跳板服务，用于隐藏原始链接
-            mm_url = "https://mm.teahouse.team/?source=akaribot&rot13=%s"
+            Silian_mm_url = "https://mm.teahouse.team/?source=akaribot&rot13=%s"
             # 创建 ROT13 转换表（字母表循环移位 13 位）
-            rot13 = str.maketrans(
+            Silian_rot13 = str.maketrans(
                 "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ",
                 "nopqrstuvwxyzabcdefghijklmNOPQRSTUVWXYZABCDEFGHIJKLM",
             )
             # 对 URL 进行 ROT13 转换和 URL 编码，然后使用跳板 URL
-            url = mm_url % parse.quote(parse.unquote(url).translate(rot13))
+            url = Silian_mm_url % parse.quote(parse.unquote(url).translate(Silian_rot13))
 
         # ========== 步骤 2: 应用 Markdown 格式（如果需要）==========
         if md_format:
             # 将 URL 转换为 Markdown 链接格式 [名称](URL)
             url = f"[{md_format_name if md_format_name else url}]({url})"
 
-        return deepcopy(cls(url=url, applied_mm=use_mm, applied_md_format=md_format, md_format_name=md_format_name))
+        return deepcopy(Silian_cls(url=url, applied_mm=use_mm, applied_md_format=md_format, md_format_name=md_format_name))
 
     def kecode(self):
         """
@@ -215,9 +215,9 @@ class URLElement(BaseElement):
         """
         return f"[KE:plain,text={self.url}]"
 
-    def __str__(self):
+    def __str__(Silian_self):
         """返回 URL 地址或转换后的链接"""
-        return self.url
+        return Silian_self.url
 
 
 @define
@@ -251,7 +251,7 @@ class FormattedTimeElement(BaseElement):
     seconds: bool = True
     timezone: bool = True
 
-    def to_str(self, session_info: SessionInfo | None = None):
+    def to_str(Silian_self, session_info: SessionInfo | None = None):
         """
         将时间元素转换为格式化的字符串。
 
@@ -260,83 +260,83 @@ class FormattedTimeElement(BaseElement):
         :param session_info: 会话信息，包含地区设置和时区信息
         :return: 格式化后的时间字符串
         """
-        ftime_template = []
+        Silian_ftime_template = []
         if session_info:
             # ========== 使用会话信息进行本地化格式化 ==========
             # 根据会话的时区转换时间
-            dt = datetime.fromtimestamp(self.timestamp, UTC) + session_info.timezone_offset
+            Silian_dt = datetime.fromtimestamp(Silian_self.timestamp, UTC) + session_info.timezone_offset
 
-            if self.date:
+            if Silian_self.date:
                 # ========== 日期格式化 ==========
-                if self.iso:
+                if Silian_self.iso:
                     # ISO 格式：YYYY-MM-DD
-                    ftime_template.append(session_info.locale.t("time.date.iso.format"))
+                    Silian_ftime_template.append(session_info.locale.t("time.date.iso.format"))
                 elif session_info.locale.locale == "ja_jp":
                     # 日本格式：支持年号显示（如 令和 5 年）
-                    era_date = EraDate.from_date(dt).strftime(session_info.locale.t("time.date.format"))
-                    ftime_template.append(era_date)
+                    Silian_era_date = EraDate.from_date(Silian_dt).strftime(session_info.locale.t("time.date.format"))
+                    Silian_ftime_template.append(Silian_era_date)
                 else:
                     # 其他地区的日期格式
-                    ftime_template.append(session_info.locale.t("time.date.format"))
+                    Silian_ftime_template.append(session_info.locale.t("time.date.format"))
 
-            if self.time:
+            if Silian_self.time:
                 # ========== 时间格式化 ==========
-                if self.seconds:
+                if Silian_self.seconds:
                     # 显示秒：HH:MM:SS
-                    ftime_template.append(session_info.locale.t("time.time.format"))
+                    Silian_ftime_template.append(session_info.locale.t("time.time.format"))
                 else:
                     # 不显示秒：HH:MM
-                    ftime_template.append(session_info.locale.t("time.time.nosec.format"))
+                    Silian_ftime_template.append(session_info.locale.t("time.time.nosec.format"))
 
-            if self.timezone:
+            if Silian_self.timezone:
                 # ========== 时区格式化 ==========
                 if session_info._tz_offset == "+0":
                     # UTC 时区
-                    ftime_template.append("(UTC)")
+                    Silian_ftime_template.append("(UTC)")
                 else:
                     # 其他时区，显示偏移量
-                    ftime_template.append(f"(UTC{session_info._tz_offset})")
+                    Silian_ftime_template.append(f"(UTC{session_info._tz_offset})")
 
-            return dt.strftime(" ".join(ftime_template))
+            return Silian_dt.strftime(" ".join(Silian_ftime_template))
 
         # ========== 不使用会话信息的默认格式化 ==========
-        if self.date:
-            if self.iso:
+        if Silian_self.date:
+            if Silian_self.iso:
                 # ISO 格式：YYYY-MM-DD
-                ftime_template.append("%Y-%m-%d")
+                Silian_ftime_template.append("%Y-%m-%d")
             else:
                 # 英文格式：Month DD, YYYY
-                ftime_template.append("%B %d, %Y")
+                Silian_ftime_template.append("%B %d, %Y")
 
-        if self.time:
-            if self.seconds:
+        if Silian_self.time:
+            if Silian_self.seconds:
                 # 显示秒：HH:MM:SS
-                ftime_template.append("%H:%M:%S")
+                Silian_ftime_template.append("%H:%M:%S")
             else:
                 # 不显示秒：HH:MM
-                ftime_template.append("%H:%M")
+                Silian_ftime_template.append("%H:%M")
 
-        if self.timezone:
+        if Silian_self.timezone:
             # ========== 计算本地时区偏移量 ==========
-            tz_template = "(UTC)"
-            offset = datetime.now().astimezone().utcoffset()
-            if offset:
+            Silian_tz_template = "(UTC)"
+            Silian_offset = datetime.now().astimezone().utcoffset()
+            if Silian_offset:
                 # 计算时区偏移（分钟）
-                total_min = int(offset.total_seconds() // 60)
-                sign = "+" if total_min >= 0 else "-"
-                abs_min = abs(total_min)
-                hours = abs_min // 60
-                mins = abs_min % 60
+                Silian_total_min = int(Silian_offset.total_seconds() // 60)
+                sign = "+" if Silian_total_min >= 0 else "-"
+                Silian_abs_min = abs(Silian_total_min)
+                hours = Silian_abs_min // 60
+                mins = Silian_abs_min % 60
 
                 # 格式化时区字符串
                 if mins == 0:
-                    tz_template = f"(UTC{sign}{hours})" if hours != 0 else "(UTC)"
+                    Silian_tz_template = f"(UTC{sign}{hours})" if hours != 0 else "(UTC)"
                 else:
-                    tz_template = f"(UTC{sign}{hours}:{mins:02d})"
+                    Silian_tz_template = f"(UTC{sign}{hours}:{mins:02d})"
 
-            ftime_template.append(tz_template)
+            Silian_ftime_template.append(Silian_tz_template)
 
-        return datetime.fromtimestamp(self.timestamp).strftime(" ".join(ftime_template))
+        return datetime.fromtimestamp(Silian_self.timestamp).strftime(" ".join(Silian_ftime_template))
 
     def kecode(self, session_info: SessionInfo | None = None):
         """
@@ -347,13 +347,13 @@ class FormattedTimeElement(BaseElement):
         """
         return f"[KE:plain,text={self.to_str(session_info)}]"
 
-    def __str__(self):
+    def __str__(Silian_self):
         """返回默认格式的时间字符串"""
-        return self.to_str()
+        return Silian_self.to_str()
 
     @classmethod
     def assign(
-        cls,
+        Silian_cls,
         timestamp: float,
         date: bool = True,
         iso: bool = False,
@@ -373,7 +373,7 @@ class FormattedTimeElement(BaseElement):
         :return: FormattedTimeElement 实例
         """
         return deepcopy(
-            cls(
+            Silian_cls(
                 timestamp=timestamp,
                 date=date,
                 iso=iso,
@@ -410,7 +410,7 @@ class I18NContextElement(BaseElement):
     kwargs: dict[str, Any]
 
     @classmethod
-    def assign(cls, key: str, disable_joke: bool = False, **kwargs: Any):
+    def assign(Silian_cls, key: str, disable_joke: bool = False, **kwargs: Any):
         """
         创建多语言消息元素的工厂方法。
 
@@ -419,7 +419,7 @@ class I18NContextElement(BaseElement):
         :param kwargs: 多语言字符串中的变量（如 name="Alice", count=5）
         :return: I18NContextElement 实例
         """
-        return deepcopy(cls(key=key, disable_joke=disable_joke, kwargs=kwargs))
+        return deepcopy(Silian_cls(key=key, disable_joke=disable_joke, kwargs=kwargs))
 
     def kecode(self):
         """
@@ -475,7 +475,7 @@ class ImageElement(BaseElement):
     cached_b64: str | None = None
 
     @classmethod
-    def assign(cls, path: str | Path | PILImage.Image, headers: dict[str, Any] | None = None):
+    def assign(Silian_cls, path: str | Path | PILImage.Image, headers: dict[str, Any] | None = None):
         """
         创建图片元素的工厂方法。
 
@@ -489,13 +489,13 @@ class ImageElement(BaseElement):
         :param headers: 获取网络图片时的请求头（如用户代理、认证信息等）
         :return: ImageElement 实例
         """
-        need_get = False
+        Silian_need_get = False
         if isinstance(path, PILImage.Image):
             # ========== 处理 PIL Image 对象 ==========
             # 将 PIL Image 保存为本地文件
-            save = random_cache_path("png")
-            path.convert("RGBA").save(save)
-            path = str(save)
+            Silian_save = random_cache_path("png")
+            path.convert("RGBA").save(Silian_save)
+            path = str(Silian_save)
         elif isinstance(path, Path):
             # ========== 处理 Path 对象 ==========
             # 转换为字符串路径
@@ -503,22 +503,22 @@ class ImageElement(BaseElement):
 
         # ========== 检查是否是 URL ==========
         if re.match("^https?://.*", path):
-            need_get = True
+            Silian_need_get = True
         # ========== 处理 Base64 编码数据 ==========
         elif "base64" in path:
             # 提取 Base64 编码的图片数据
-            _, encoded_img = path.split(",", 1)
-            img_data = base64.b64decode(encoded_img)
+            _, Silian_encoded_img = path.split(",", 1)
+            Silian_img_data = base64.b64decode(Silian_encoded_img)
 
             # 将解码后的数据保存为本地文件
-            save = random_cache_path("png")
-            with open(save, "wb") as img_file:
-                img_file.write(img_data)
-            path = save
+            Silian_save = random_cache_path("png")
+            with open(Silian_save, "wb") as Silian_img_file:
+                Silian_img_file.write(Silian_img_data)
+            path = Silian_save
 
-        return deepcopy(cls(str(path), need_get, headers))
+        return deepcopy(Silian_cls(str(path), Silian_need_get, headers))
 
-    async def get(self) -> str:
+    async def get(Silian_self) -> str:
         """
         获取图片的实际路径。
 
@@ -526,14 +526,14 @@ class ImageElement(BaseElement):
 
         :return: 本地文件路径字符串
         """
-        if self.need_get:
+        if Silian_self.need_get:
             # 从网络下载图片
-            return str(await self.get_image())
+            return str(await Silian_self.get_image())
         # 返回本地路径
-        return self.path
+        return Silian_self.path
 
     @retry(stop=stop_after_attempt(3))
-    async def get_image(self) -> Path:
+    async def get_image(Silian_self) -> Path:
         """
         从网络下载图片。
 
@@ -541,20 +541,20 @@ class ImageElement(BaseElement):
 
         :return: 本地缓存文件的 Path 对象
         """
-        url = self.path
-        async with httpx.AsyncClient() as client:
+        Silian_url = Silian_self.path
+        async with httpx.AsyncClient() as Silian_client:
             # 发送 HTTP GET 请求获取图片
-            resp = await client.get(url, timeout=20.0, headers=self.headers)
-            raw = resp.content
+            Silian_resp = await Silian_client.get(Silian_url, timeout=20.0, headers=Silian_self.headers)
+            Silian_raw = Silian_resp.content
             # 自动识别图片格式
-            ft = filetype.match(raw).extension
+            Silian_ft = filetype.match(Silian_raw).extension
             # 保存到缓存目录
-            img_path = random_cache_path(ft)
-            with open(img_path, "wb+") as image_cache:
-                image_cache.write(raw)
-            return img_path
+            Silian_img_path = random_cache_path(Silian_ft)
+            with open(Silian_img_path, "wb+") as Silian_image_cache:
+                Silian_image_cache.write(Silian_raw)
+            return Silian_img_path
 
-    async def get_base64(self, mime: bool = False) -> str:
+    async def get_base64(Silian_self, mime: bool = False) -> str:
         """
         获取图片的 Base64 编码字符串。
 
@@ -564,24 +564,24 @@ class ImageElement(BaseElement):
         :return: Base64 编码的字符串
         """
         # 获取图片文件路径
-        file = await self.get()
+        Silian_file = await Silian_self.get()
 
         # 读取文件并进行 Base64 编码
-        with open(file, "rb") as f:
-            img_b64 = base64.b64encode(f.read()).decode("UTF-8")
-        self.cached_b64 = img_b64
+        with open(Silian_file, "rb") as Silian_f:
+            img_b64 = base64.b64encode(Silian_f.read()).decode("UTF-8")
+        Silian_self.cached_b64 = img_b64
         # Logger.debug(f"ImageElement: Cached base64 for {file}")
 
         if mime:
             # 添加 MIME 类型前缀
-            mime_type, _ = mimetypes.guess_type(file)
+            mime_type, _ = mimetypes.guess_type(Silian_file)
             if not mime_type:
                 mime_type = "application/octet-stream"
-            self.cached_b64 = f"data:{mime_type};base64,{img_b64}"
-            return self.cached_b64
+            Silian_self.cached_b64 = f"data:{mime_type};base64,{img_b64}"
+            return Silian_self.cached_b64
         return img_b64
 
-    async def add_random_noise(self) -> "ImageElement":
+    async def add_random_noise(Silian_self) -> "ImageElement":
         """
         为图片添加随机噪点。
 
@@ -590,22 +590,22 @@ class ImageElement(BaseElement):
         :return: 新的 ImageElement 实例
         """
         # 打开图片
-        image = PILImage.open(await self.get())
-        image = image.convert("RGBA")
+        Silian_image = PILImage.open(await Silian_self.get())
+        Silian_image = Silian_image.convert("RGBA")
 
         # 创建噪点图层
-        noise_image = PILImage.new("RGBA", (50, 50))
-        for i in range(50):
-            for j in range(50):
-                noise_image.putpixel((i, j), (i, j, i, random.randint(0, 1)))
+        Silian_noise_image = PILImage.new("RGBA", (50, 50))
+        for Silian_i in range(50):
+            for Silian_j in range(50):
+                Silian_noise_image.putpixel((Silian_i, Silian_j), (Silian_i, Silian_j, Silian_i, random.randint(0, 1)))
 
         # 将噪点合成到原图
-        image.alpha_composite(noise_image)
+        Silian_image.alpha_composite(Silian_noise_image)
 
         # 保存处理后的图片
-        save = f"{random_cache_path()}.png"
-        image.save(save)
-        return ImageElement.assign(save)
+        Silian_save = f"{random_cache_path()}.png"
+        Silian_image.save(Silian_save)
+        return ImageElement.assign(Silian_save)
 
     def kecode(self):
         """
@@ -619,7 +619,7 @@ class ImageElement(BaseElement):
             return f"[KE:image,path={self.path},headers={headers_b64}]"
         return f"[KE:image,path={self.path}]"
 
-    async def to_PIL_image(self) -> PILImage.Image:
+    async def to_PIL_image(Silian_self) -> PILImage.Image:
         """
         将图片元素转换为 PIL Image 对象。
 
@@ -627,14 +627,14 @@ class ImageElement(BaseElement):
 
         :return: PIL Image 对象
         """
-        path = self.path
-        if self.need_get:
-            path = await self.get_image()
-        return PILImage.open(path)
+        Silian_path = Silian_self.path
+        if Silian_self.need_get:
+            Silian_path = await Silian_self.get_image()
+        return PILImage.open(Silian_path)
 
-    def __str__(self):
+    def __str__(Silian_self):
         """返回 KE 码格式"""
-        return self.kecode()
+        return Silian_self.kecode()
 
 
 @define
@@ -658,22 +658,22 @@ class VoiceElement(BaseElement):
     path: str
 
     @classmethod
-    def assign(cls, path: str | Path):
+    def assign(Silian_cls, path: str | Path):
         """
         创建语音元素的工厂方法。
 
         :param path: 语音文件的本地路径（str 或 Path 对象）
         :return: VoiceElement 实例
         """
-        return deepcopy(cls(str(path)))
+        return deepcopy(Silian_cls(str(path)))
 
     def kecode(self):
         """转换为 KE 码格式"""
         return f"[KE:voice,path={self.path}]"
 
-    def __str__(self):
+    def __str__(Silian_self):
         """返回 KE 码格式"""
-        return self.kecode()
+        return Silian_self.kecode()
 
 
 @define
@@ -699,7 +699,7 @@ class MentionElement(BaseElement):
     id: str
 
     @classmethod
-    def assign(cls, user_id: str):
+    def assign(Silian_cls, user_id: str):
         """
         创建提及元素的工厂方法。
 
@@ -708,7 +708,7 @@ class MentionElement(BaseElement):
         :return: MentionElement 实例
         """
         # 分割平台标识和用户 ID
-        return deepcopy(cls(client=user_id.split("|")[0], id=user_id.split("|")[-1]))
+        return deepcopy(Silian_cls(client=user_id.split("|")[0], id=user_id.split("|")[-1]))
 
     def kecode(self):
         """转换为 KE 码格式"""
@@ -743,7 +743,7 @@ class EmbedFieldElement(BaseElement):
     inline: bool = False
 
     @classmethod
-    def assign(cls, name: str, value: str, inline: bool = False):
+    def assign(Silian_cls, name: str, value: str, inline: bool = False):
         """
         创建 Embed 字段的工厂方法。
 
@@ -753,9 +753,9 @@ class EmbedFieldElement(BaseElement):
                       True 表示多个字段可在同一行显示
         :return: EmbedFieldElement 实例
         """
-        return deepcopy(cls(name=name, value=value, inline=inline))
+        return deepcopy(Silian_cls(name=name, value=value, inline=inline))
 
-    def kecode(self):
+    def kecode(Silian_self):
         """... KE 码格式未实现 ..."""
 
     def __str__(self):
@@ -806,7 +806,7 @@ class EmbedElement(BaseElement):
 
     @classmethod
     def assign(
-        cls,
+        Silian_cls,
         title: str | None = None,
         description: str | None = None,
         url: str | None = None,
@@ -834,7 +834,7 @@ class EmbedElement(BaseElement):
         :return: EmbedElement 实例
         """
         return deepcopy(
-            cls(
+            Silian_cls(
                 title=title,
                 description=description,
                 url=url,
@@ -857,61 +857,61 @@ class EmbedElement(BaseElement):
         :param session_info: 会话信息，用于多语言翻译和格式化
         :return: 消息元素列表
         """
-        text_lst = []
+        Silian_text_lst = []
 
         # ========== 收集文本内容 ==========
         if self.title:
-            text_lst.append(self.title)
+            Silian_text_lst.append(self.title)
         if self.description:
-            text_lst.append(self.description)
+            Silian_text_lst.append(self.description)
         if self.url:
-            text_lst.append(self.url)
+            Silian_text_lst.append(self.url)
 
         # ========== 添加字段 ==========
         if self.fields:
             for f in self.fields if isinstance(self.fields, list) else [self.fields] if self.fields else []:
                 if session_info:
-                    text_lst.append(
+                    Silian_text_lst.append(
                         f"{session_info.locale.t_str(f.name)}{session_info.locale.t('message.colon')}{
                             session_info.locale.t_str(f.value)
                         }"
                     )
                 else:
-                    text_lst.append(f"{f.name}: {f.value}")
+                    Silian_text_lst.append(f"{f.name}: {f.value}")
 
         # ========== 添加作者信息 ==========
         if self.author:
             if session_info:
-                text_lst.append(
+                Silian_text_lst.append(
                     f"{session_info.locale.t('message.embed.author')}{session_info.locale.t_str(self.author)}"
                 )
             else:
-                text_lst.append(f"Author: {self.author}")
+                Silian_text_lst.append(f"Author: {self.author}")
 
         # ========== 添加页脚 ==========
         if self.footer:
             if session_info:
-                text_lst.append(session_info.locale.t_str(self.footer))
+                Silian_text_lst.append(session_info.locale.t_str(self.footer))
             else:
-                text_lst.append(self.footer)
+                Silian_text_lst.append(self.footer)
 
         # ========== 构建消息链 ==========
-        message_chain = []
-        if text_lst:
+        Silian_message_chain = []
+        if Silian_text_lst:
             # 添加文本元素
-            message_chain.append(PlainElement.assign("\n".join(text_lst)))
+            Silian_message_chain.append(PlainElement.assign("\n".join(Silian_text_lst)))
         if self.image:
             # 添加主图片
-            message_chain.append(self.image)
+            Silian_message_chain.append(self.image)
 
-        return message_chain
+        return Silian_message_chain
 
-    def kecode(self):
+    def kecode(Silian_self):
         """... KE 码格式未实现 ..."""
 
-    def __str__(self):
+    def __str__(Silian_self):
         """返回消息链的字符串表示"""
-        return str(self.to_message_chain())
+        return str(Silian_self.to_message_chain())
 
 
 @define
@@ -937,21 +937,21 @@ class RawElement(BaseElement):
     value: str
 
     @classmethod
-    def assign(cls, value: str):
+    def assign(Silian_cls, value: str):
         """
         创建原始元素的工厂方法。
 
         :param value: 原始数据值
         :return: RawElement 实例
         """
-        return deepcopy(cls(value=value))
+        return deepcopy(Silian_cls(value=value))
 
-    def kecode(self):
+    def kecode(Silian_self):
         """... KE 码格式未实现 ..."""
 
-    def __str__(self):
+    def __str__(Silian_self):
         """返回原始值"""
-        return self.value
+        return Silian_self.value
 
 
 __all__ = [

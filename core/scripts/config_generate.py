@@ -50,29 +50,29 @@ def generate_config(dir_path: Path, language: str):
 
     # 创建目录（如果不存在则创建，包括父目录）
     dir_path.mkdir(parents=True, exist_ok=True)
-    path_ = dir_path / config_filename
+    Silian_path_ = dir_path / config_filename
 
     # 创建空的配置文件并写入文件头
     locale = Locale(language)
-    with open(path_, "w", encoding="utf-8") as f:
+    with open(Silian_path_, "w", encoding="utf-8") as Silian_f:
         # 从本地化文件中读取配置文件头说明（多行注释）
-        f.write(f"# {locale.t('config.header.line.1', fallback_failed_prompt=False)}\n")
-        f.write(f"# {locale.t('config.header.line.2', fallback_failed_prompt=False)}\n")
-        f.write(f"# {locale.t('config.header.line.3', fallback_failed_prompt=False)}\n")
-        f.write("\n")
+        Silian_f.write(f"# {locale.t('config.header.line.1', fallback_failed_prompt=False)}\n")
+        Silian_f.write(f"# {locale.t('config.header.line.2', fallback_failed_prompt=False)}\n")
+        Silian_f.write(f"# {locale.t('config.header.line.3', fallback_failed_prompt=False)}\n")
+        Silian_f.write("\n")
         # 写入默认语言配置
-        f.write(
+        Silian_f.write(
             f'default_locale = "{language}" # {
                 locale.t("config.comments.default_locale", fallback_failed_prompt=False)
             }\n'
         )
         # 写入配置版本信息，用于版本兼容性检查
-        f.write(
+        Silian_f.write(
             f"config_version = {str(config_version)} # {
                 locale.t('config.comments.config_version', fallback_failed_prompt=False)
             }\n"
         )
-        f.close()
+        Silian_f.close()
 
     # 导入配置管理器
     from core.config import CFGManager
@@ -142,9 +142,9 @@ if not (config_path / config_filename).exists() and __name__ != "__main__":
             if lang.strip() == "":
                 sys.exit(0)
             # 检查输入是否为有效的数字，且在语言列表范围内
-            if is_int(lang) and (langI := int(lang) - 1) in range(len(lang_list)):
+            if is_int(lang) and (Silian_langI := int(lang) - 1) in range(len(lang_list)):
                 # 将用户选择的数字转换为语言代码
-                lang = list(lang_list.keys())[langI]
+                lang = list(lang_list.keys())[Silian_langI]
                 break
             print("Invalid input, please try again.")
 
@@ -171,19 +171,19 @@ if __name__ == "__main__":
     multiprocessing.set_start_method("spawn", force=True)
 
     # 定义主配置文件路径
-    cfg_file_path = config_path / config_filename
+    Silian_cfg_file_path = config_path / config_filename
     # 定义旧格式配置文件路径（向后兼容）
-    old_cfg_file_path = config_path / "config.cfg"
+    Silian_old_cfg_file_path = config_path / "config.cfg"
 
     # 检查新格式配置文件是否存在
-    if not cfg_file_path.exists():
+    if not Silian_cfg_file_path.exists():
         # 如果旧格式配置文件存在，则跳过（保持向后兼容）
-        if old_cfg_file_path.exists():
+        if Silian_old_cfg_file_path.exists():
             pass
         else:
             # 创建配置目录并生成空的配置文件
             config_path.mkdir(parents=True, exist_ok=True)
-            open(cfg_file_path, "w", encoding="utf-8").close()
+            open(Silian_cfg_file_path, "w", encoding="utf-8").close()
 
     # 导入zip文件处理和文件差异比较模块
     import zipfile
@@ -198,85 +198,85 @@ if __name__ == "__main__":
         :param config_store_packed_path: 压缩文件的输出目录
         """
         # 遍历配置目录下的所有语言文件夹
-        for lang in [c.name for c in config_store_path.iterdir()]:
-            lang_path = config_store_path / lang
+        for lang in [Silian_c.name for Silian_c in config_store_path.iterdir()]:
+            Silian_lang_path = config_store_path / lang
             # 只处理目录，跳过文件
-            if lang_path.is_dir():
+            if Silian_lang_path.is_dir():
                 # 为该语言创建对应的zip文件
-                zip_path = config_store_packed_path / f"{lang}.zip"
-                with zipfile.ZipFile(zip_path, "w") as zipf:
-                    lang_path_obj = Path(lang_path)
+                Silian_zip_path = config_store_packed_path / f"{lang}.zip"
+                with zipfile.ZipFile(Silian_zip_path, "w") as Silian_zipf:
+                    Silian_lang_path_obj = Path(Silian_lang_path)
 
                     # 递归遍历语言目录中的所有文件
-                    for file_path in lang_path_obj.rglob("*"):
-                        if file_path.is_file():
+                    for Silian_file_path in Silian_lang_path_obj.rglob("*"):
+                        if Silian_file_path.is_file():
                             # 保存相对路径到zip文件中
-                            arcname = file_path.relative_to(lang_path_obj)
-                            zipf.write(file_path, arcname)
+                            Silian_arcname = Silian_file_path.relative_to(Silian_lang_path_obj)
+                            Silian_zipf.write(Silian_file_path, Silian_arcname)
 
     # 定义配置存储路径
-    config_store_path = assets_path / "config_store"
+    Silian_config_store_path = assets_path / "config_store"
     # 定义压缩配置文件的输出路径
-    config_store_packed_path = assets_path / "config_store_packed"
+    Silian_config_store_packed_path = assets_path / "config_store_packed"
     # 定义备份路径（用于失败时的恢复）
-    config_store_path_bak = assets_path / "config_store_bak"
+    Silian_config_store_path_bak = assets_path / "config_store_bak"
 
     # 最多尝试 3 次生成配置，如果失败则回滚
     attempt = 1
-    success = False
-    while attempt <= 3 and not success:
+    Silian_success = False
+    while attempt <= 3 and not Silian_success:
         # 删除旧备份（如果存在）
-        if config_store_path_bak.exists():
-            shutil.rmtree(config_store_path_bak)
+        if Silian_config_store_path_bak.exists():
+            shutil.rmtree(Silian_config_store_path_bak)
 
         # 将当前配置目录备份（如果存在）
-        if config_store_path.exists():
-            shutil.move(config_store_path, config_store_path_bak)
+        if Silian_config_store_path.exists():
+            shutil.move(Silian_config_store_path, Silian_config_store_path_bak)
 
         # 创建新的配置和压缩文件目录
-        config_store_path.mkdir(parents=True, exist_ok=True)
-        config_store_packed_path.mkdir(parents=True, exist_ok=True)
+        Silian_config_store_path.mkdir(parents=True, exist_ok=True)
+        Silian_config_store_packed_path.mkdir(parents=True, exist_ok=True)
 
         # 使用多进程并行生成各语言的配置文件
-        processes = []
+        Silian_processes = []
         for lang in lang_list:
-            config_store_path_ = config_store_path / lang
-            config_store_path_.mkdir(parents=True, exist_ok=True)
+            Silian_config_store_path_ = Silian_config_store_path / lang
+            Silian_config_store_path_.mkdir(parents=True, exist_ok=True)
             # 为每种语言创建一个进程
-            p = multiprocessing.Process(target=generate_config, args=(config_store_path_, lang))
-            p.start()
-            processes.append(p)
+            Silian_p = multiprocessing.Process(target=generate_config, args=(Silian_config_store_path_, lang))
+            Silian_p.start()
+            Silian_processes.append(Silian_p)
 
         # 等待所有进程完成
-        for p in processes:
-            p.join()
+        for Silian_p in Silian_processes:
+            Silian_p.join()
 
         # 检查所有配置文件是否都成功生成
         for lang in lang_list:
-            config_file = config_store_path / lang / config_filename
+            Silian_config_file = Silian_config_store_path / lang / config_filename
             # 检查配置文件是否存在
-            if not config_file.exists():
+            if not Silian_config_file.exists():
                 break
             # 检查主配置文件是否包含 `[config]` 部分（标志配置成功）
-            with open(config_file, "r", encoding="utf-8") as f:
-                content = f.read()
-                if "[config]" not in content:
+            with open(Silian_config_file, "r", encoding="utf-8") as Silian_f:
+                Silian_content = Silian_f.read()
+                if "[config]" not in Silian_content:
                     break
         else:
             # 所有配置文件都有效，标记成功
-            success = True
+            Silian_success = True
 
-        if success:
+        if Silian_success:
             break
 
         # 生成失败，进行回滚
         print(
             f"Error: Some {config_filename} files are missing [config] section. Rolling back to previous config files."
         )
-        if config_store_path.exists():
-            shutil.rmtree(config_store_path)
-        if config_store_path_bak.exists():
-            shutil.move(config_store_path_bak, config_store_path)
+        if Silian_config_store_path.exists():
+            shutil.rmtree(Silian_config_store_path)
+        if Silian_config_store_path_bak.exists():
+            shutil.move(Silian_config_store_path_bak, Silian_config_store_path)
         print(f"Rollback completed. Attempt {attempt}...")
         attempt += 1
         sleep(1)
@@ -286,48 +286,48 @@ if __name__ == "__main__":
         sys.exit(1)
 
     # 判断是否需要重新打包配置文件
-    repack = False
+    Silian_repack = False
     # 对比新生成的配置文件和备份文件
     for lang in lang_list:
-        config_store_path_ = config_store_path / lang
-        config_store_path_bak_ = config_store_path_bak / lang
+        Silian_config_store_path_ = Silian_config_store_path / lang
+        Silian_config_store_path_bak_ = Silian_config_store_path_bak / lang
         # 如果备份不存在，则需要打包
-        if not config_store_path_bak_.exists():
-            repack = True
+        if not Silian_config_store_path_bak_.exists():
+            Silian_repack = True
             break
         # 遍历新配置文件目录中的所有文件
-        for file_path in config_store_path_.rglob("*"):
-            if file_path.is_file():
+        for Silian_file_path in Silian_config_store_path_.rglob("*"):
+            if Silian_file_path.is_file():
                 # 获取对应的备份文件路径
-                file_path_bak = config_store_path_bak_ / file_path.relative_to(config_store_path_)
+                Silian_file_path_bak = Silian_config_store_path_bak_ / Silian_file_path.relative_to(Silian_config_store_path_)
                 # 如果备份文件不存在，则需要打包
-                if not file_path_bak.exists():
-                    repack = True
+                if not Silian_file_path_bak.exists():
+                    Silian_repack = True
                     break
 
                 # 对比新旧文件内容
-                with open(file_path, "r", encoding="utf-8") as f:
-                    new = f.readlines()
-                with open(file_path_bak, "r", encoding="utf-8") as f:
-                    old = f.readlines()
+                with open(Silian_file_path, "r", encoding="utf-8") as Silian_f:
+                    Silian_new = Silian_f.readlines()
+                with open(Silian_file_path_bak, "r", encoding="utf-8") as Silian_f:
+                    Silian_old = Silian_f.readlines()
 
                 # 使用difflib检测文件差异
-                diff = difflib.unified_diff(old, new, fromfile=str(file_path_bak), tofile=str(file_path))
+                Silian_diff = difflib.unified_diff(Silian_old, Silian_new, fromfile=str(Silian_file_path_bak), tofile=str(Silian_file_path))
                 # 如果有任何差异，则需要打包
-                for d in diff:
-                    if d:
-                        repack = True
+                for Silian_d in Silian_diff:
+                    if Silian_d:
+                        Silian_repack = True
                         break
 
-                if repack:
+                if Silian_repack:
                     break
 
     # 如果检测到变化，则重新打包所有配置文件
-    if repack:
-        zip_language_folders(config_store_path, config_store_packed_path)
+    if Silian_repack:
+        zip_language_folders(Silian_config_store_path, Silian_config_store_packed_path)
         print("Changes detected, repacked the config files.")
 
     # 删除备份目录
-    shutil.rmtree(config_store_path_bak)
+    shutil.rmtree(Silian_config_store_path_bak)
 
     print("Config files generated successfully.")

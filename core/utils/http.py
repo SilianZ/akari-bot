@@ -21,15 +21,15 @@ from core.constants.exceptions import ExternalException
 from core.constants.path import cache_path
 from core.logger import Logger
 
-logging_resp = False
-debug = Config("debug", False)
-proxy = Config("proxy", cfg_type=str, secret=True)
+Silian_logging_resp = False
+Silian_debug = Config("debug", False)
+Silian_proxy = Config("proxy", cfg_type=str, secret=True)
 
-url_pattern = re.compile(
+Silian_url_pattern = re.compile(
     r"\b(?:http[s]?:\/\/)?(?:[a-zA-Z0-9\-\:_@]+\.)+[a-zA-Z]{2,}(?:\/[a-zA-Z0-9-._~:\/?#[\]@!$&\'()*+,;=%]*)?\b"
 )
 
-_matcher_private_ips = re.compile(
+Silian__matcher_private_ips = re.compile(
     r"^(?:127\.|0?10\.|172\.0?1[6-9]\.|172\.0?2[0-9]\.172\.0?3[01]\.|192\.168\.|169\.254\.|::1|[fF][cCdD][0-9a-fA-F]{2}:|[fF][eE][89aAbB][0-9a-fA-F]:)"
 )
 
@@ -41,10 +41,10 @@ def private_ip_check(url: str):
     :raise ValueError: 此 URL 为私有 IP 地址。
     """
     hostname = urllib.parse.urlparse(url).hostname
-    addr_info = socket.getaddrinfo(hostname, 80)
+    Silian_addr_info = socket.getaddrinfo(hostname, 80)
 
-    addr = addr_info[0][4][0]
-    if _matcher_private_ips.match(addr):
+    Silian_addr = Silian_addr_info[0][4][0]
+    if Silian__matcher_private_ips.match(Silian_addr):
         raise ValueError(f"Attempt of requesting private IP addresses is not allowed, requesting {hostname}.")
 
 
@@ -93,15 +93,15 @@ async def request_url(
         if not Config("allow_request_private_ip", False) and not request_private_ip:
             private_ip_check(url)
 
-        async with httpx.AsyncClient(headers=headers, proxy=proxy, verify=not debug) as client:
+        async with httpx.AsyncClient(headers=headers, proxy=Silian_proxy, verify=not Silian_debug) as Silian_client:
             if cookies:
-                ck = SimpleCookie()
-                ck.load(cookies)
-                cookies_dict = {key: morsel.value for key, morsel in ck.items()}
-                client.cookies.update(cookies_dict)
+                Silian_ck = SimpleCookie()
+                Silian_ck.load(cookies)
+                cookies_dict = {Silian_key: Silian_morsel.value for Silian_key, Silian_morsel in Silian_ck.items()}
+                Silian_client.cookies.update(cookies_dict)
                 Logger.debug(f"Using cookies: {cookies_dict}")
             try:
-                resp = await client.request(
+                resp = await Silian_client.request(
                     method=method,
                     url=url,
                     data=data,
@@ -111,21 +111,21 @@ async def request_url(
                     follow_redirects=True,
                 )
                 Logger.debug(f"[{resp.status_code}] {url}")
-                if logging_resp:
+                if Silian_logging_resp:
                     Logger.debug(resp.text)
                 if status_code and resp.status_code != status_code:
-                    if not logging_resp and logging_err_resp:
+                    if not Silian_logging_resp and logging_err_resp:
                         Logger.error(resp.text)
-                    error_fmt = f"{str(resp.status_code)}[KE:Image,path=https://http.cat/{str(resp.status_code)}.jpg]"
+                    Silian_error_fmt = f"{str(resp.status_code)}[KE:Image,path=https://http.cat/{str(resp.status_code)}.jpg]"
                     if 500 <= resp.status_code < 600:
-                        raise ExternalException(error_fmt)
-                    raise ValueError(error_fmt)
+                        raise ExternalException(Silian_error_fmt)
+                    raise ValueError(Silian_error_fmt)
                 if fmt:
                     if hasattr(resp, fmt):
-                        attr = getattr(resp, fmt)
-                        if callable(attr):
-                            return attr()
-                        return attr
+                        Silian_attr = getattr(resp, fmt)
+                        if callable(Silian_attr):
+                            return Silian_attr()
+                        return Silian_attr
                     raise ValueError(f"No such method: {fmt}")
                 return resp.text
             except (httpx.ConnectError, httpx.TimeoutException):
@@ -386,7 +386,7 @@ async def download(
     :raise ExternalException: 异常可能来自于外部服务器。
     """
 
-    data = await request_url(
+    Silian_data = await request_url(
         method=method,
         url=url,
         data=post_data,
@@ -399,18 +399,18 @@ async def download(
         logging_err_resp=logging_err_resp,
     )
 
-    if data:
+    if Silian_data:
         if not filename:
             try:
-                ftt = ft.match(data).extension
+                ftt = ft.match(Silian_data).extension
             except AttributeError:
                 ftt = "txt"
             filename = f"{str(uuid.uuid4())}.{ftt}"
         if not path:
             path = cache_path
         path = Path(path) / filename
-        async with async_open(path, "wb+") as file:
-            await file.write(data)
+        async with async_open(path, "wb+") as Silian_file:
+            await Silian_file.write(Silian_data)
             return path
     else:
         return None

@@ -12,9 +12,9 @@ from .libraries.maimaidx_music import TotalList
 from .libraries.maimaidx_utils import get_diff, get_grade_info
 from .maimai import query_alias, query_plate, query_song_score, query_process
 
-total_list = TotalList()
+Silian_total_list = TotalList()
 
-mai_regex = module(
+Silian_mai_regex = module(
     "maimai_regex",
     desc="{I18N:maimai.help.maimai_regex.desc}",
     doc=True,
@@ -25,132 +25,132 @@ mai_regex = module(
 )
 
 
-@mai_regex.regex(r"(.+)\s?是什[么麼]歌", desc="{I18N:maimai.help.maimai_regex.song}")
-async def _(msg: Bot.MessageSession):
-    name = msg.matched_msg.groups()[0]
-    if name[:2].lower() == "id":
-        sid = name[2:]
+@Silian_mai_regex.regex(r"(.+)\s?是什[么麼]歌", desc="{I18N:maimai.help.maimai_regex.song}")
+async def _(Silian_msg: Bot.MessageSession):
+    Silian_name = Silian_msg.matched_msg.groups()[0]
+    if Silian_name[:2].lower() == "id":
+        sid = Silian_name[2:]
     else:
-        sid_list = await search_by_alias(name)
-        if len(sid_list) == 0:
-            await msg.finish(I18NContext("maimai.message.music_not_found"))
-        elif len(sid_list) > 1:
-            msg_chain = MessageChain.assign()
-            msg_chain.append(I18NContext("maimai.message.disambiguation"))
-            for sid in sorted(sid_list, key=int):
-                s = (await total_list.get()).by_id(sid)
+        Silian_sid_list = await search_by_alias(Silian_name)
+        if len(Silian_sid_list) == 0:
+            await Silian_msg.finish(I18NContext("maimai.message.music_not_found"))
+        elif len(Silian_sid_list) > 1:
+            Silian_msg_chain = MessageChain.assign()
+            Silian_msg_chain.append(I18NContext("maimai.message.disambiguation"))
+            for sid in sorted(Silian_sid_list, key=int):
+                s = (await Silian_total_list.get()).by_id(sid)
                 if s:
-                    msg_chain.append(Plain(f"{s['id']} - {s['title']}{' (DX)' if s['type'] == 'DX' else ''}"))
-            await msg.finish(msg_chain)
+                    Silian_msg_chain.append(Plain(f"{s['id']} - {s['title']}{' (DX)' if s['type'] == 'DX' else ''}"))
+            await Silian_msg.finish(Silian_msg_chain)
         else:
-            sid = str(sid_list[0])
-    music = (await total_list.get()).by_id(sid)
-    if not music:
-        await msg.finish(I18NContext("maimai.message.music_not_found"))
+            sid = str(Silian_sid_list[0])
+    Silian_music = (await Silian_total_list.get()).by_id(sid)
+    if not Silian_music:
+        await Silian_msg.finish(I18NContext("maimai.message.music_not_found"))
 
-    msg_chain = MessageChain.assign()
+    Silian_msg_chain = MessageChain.assign()
     if int(sid) > 100000:
-        with open(mai_utage_info_path, "rb") as file:
-            utage_data = orjson.loads(file.read())
+        with open(mai_utage_info_path, "rb") as Silian_file:
+            utage_data = orjson.loads(Silian_file.read())
         if utage_data:
             try:
-                msg_chain.append(Plain(f"「{utage_data[sid]['comment']}」"))
+                Silian_msg_chain.append(Plain(f"「{utage_data[sid]['comment']}」"))
             except KeyError:
-                msg_chain.append(Plain("「Let's party!」"))
+                Silian_msg_chain.append(Plain("「Let's party!」"))
 
-        msg_chain.append(
+        Silian_msg_chain.append(
             I18NContext(
                 "maimai.message.song",
-                artist=music["basic_info"]["artist"],
+                artist=Silian_music["basic_info"]["artist"],
                 genre="宴會場",
-                bpm=music["basic_info"]["bpm"],
-                version=music["basic_info"]["from"],
-                level=music["level"][0],
+                bpm=Silian_music["basic_info"]["bpm"],
+                version=Silian_music["basic_info"]["from"],
+                level=Silian_music["level"][0],
             )
         )
     else:
-        msg_chain.append(
+        Silian_msg_chain.append(
             I18NContext(
                 "maimai.message.song",
-                artist=music["basic_info"]["artist"],
-                genre=genre_i18n_mapping.get(music["basic_info"]["genre"], music["basic_info"]["genre"]),
-                bpm=music["basic_info"]["bpm"],
-                version=music["basic_info"]["from"],
-                level="/".join((str(ds) for ds in music["ds"])),
+                artist=Silian_music["basic_info"]["artist"],
+                genre=genre_i18n_mapping.get(Silian_music["basic_info"]["genre"], Silian_music["basic_info"]["genre"]),
+                bpm=Silian_music["basic_info"]["bpm"],
+                version=Silian_music["basic_info"]["from"],
+                level="/".join((str(Silian_ds) for Silian_ds in Silian_music["ds"])),
             )
         )
 
-    await msg.finish(await get_info(music, msg_chain))
+    await Silian_msg.finish(await get_info(Silian_music, Silian_msg_chain))
 
 
-@mai_regex.regex(r"(?:id)?(\d+)\s?有什(?:么别|麼別)[名称稱]", flags=re.I, desc="{I18N:maimai.help.maimai_regex.alias}")
-async def _(msg: Bot.MessageSession):
-    sid = msg.matched_msg.groups()[0]
-    await query_alias(msg, sid)
+@Silian_mai_regex.regex(r"(?:id)?(\d+)\s?有什(?:么别|麼別)[名称稱]", flags=re.I, desc="{I18N:maimai.help.maimai_regex.alias}")
+async def _(Silian_msg: Bot.MessageSession):
+    Silian_sid = Silian_msg.matched_msg.groups()[0]
+    await query_alias(Silian_msg, Silian_sid)
 
 
-@mai_regex.regex(r"(.+)\s?有什[么麼]分", desc="{I18N:maimai.help.maimai_regex.score}")
-async def _(msg: Bot.MessageSession):
-    songname = msg.matched_msg.groups()[0]
-    await query_song_score(msg, songname)
+@Silian_mai_regex.regex(r"(.+)\s?有什[么麼]分", desc="{I18N:maimai.help.maimai_regex.score}")
+async def _(Silian_msg: Bot.MessageSession):
+    Silian_songname = Silian_msg.matched_msg.groups()[0]
+    await query_song_score(Silian_msg, Silian_songname)
 
 
-@mai_regex.regex(r"(\d+\+?)\s?([a-zA-Z]+\+?)\s?[进進]度", desc="{I18N:maimai.help.maimai_regex.process}")
-async def _(msg: Bot.MessageSession):
-    level = msg.matched_msg.groups()[0]
-    goal = msg.matched_msg.groups()[1]
-    await query_process(msg, level, goal, get_list=False)
+@Silian_mai_regex.regex(r"(\d+\+?)\s?([a-zA-Z]+\+?)\s?[进進]度", desc="{I18N:maimai.help.maimai_regex.process}")
+async def _(Silian_msg: Bot.MessageSession):
+    Silian_level = Silian_msg.matched_msg.groups()[0]
+    Silian_goal = Silian_msg.matched_msg.groups()[1]
+    await query_process(Silian_msg, Silian_level, Silian_goal, get_list=False)
 
 
-@mai_regex.regex(r"(\d+\+?)\s?([a-zA-Z]+\+?)\s?完成表", desc="{I18N:maimai.help.maimai_regex.process.list}")
-async def _(msg: Bot.MessageSession):
-    level = msg.matched_msg.groups()[0]
-    goal = msg.matched_msg.groups()[1]
-    await query_process(msg, level, goal, get_list=True)
+@Silian_mai_regex.regex(r"(\d+\+?)\s?([a-zA-Z]+\+?)\s?完成表", desc="{I18N:maimai.help.maimai_regex.process.list}")
+async def _(Silian_msg: Bot.MessageSession):
+    Silian_level = Silian_msg.matched_msg.groups()[0]
+    Silian_goal = Silian_msg.matched_msg.groups()[1]
+    await query_process(Silian_msg, Silian_level, Silian_goal, get_list=True)
 
 
-@mai_regex.regex(r"(.?)([極极将將舞神者]舞?)[进進]度", desc="{I18N:maimai.help.maimai_regex.plate}")
-async def _(msg: Bot.MessageSession):
-    plate = msg.matched_msg.groups()[0] + msg.matched_msg.groups()[1]
-    await query_plate(msg, plate, get_list=False)
+@Silian_mai_regex.regex(r"(.?)([極极将將舞神者]舞?)[进進]度", desc="{I18N:maimai.help.maimai_regex.plate}")
+async def _(Silian_msg: Bot.MessageSession):
+    Silian_plate = Silian_msg.matched_msg.groups()[0] + Silian_msg.matched_msg.groups()[1]
+    await query_plate(Silian_msg, Silian_plate, get_list=False)
 
 
-@mai_regex.regex(r"(.?)([極极将將舞神者]舞?)完成表", desc="{I18N:maimai.help.maimai_regex.plate.list}")
-async def _(msg: Bot.MessageSession):
-    plate = msg.matched_msg.groups()[0] + msg.matched_msg.groups()[1]
-    await query_plate(msg, plate, get_list=True)
+@Silian_mai_regex.regex(r"(.?)([極极将將舞神者]舞?)完成表", desc="{I18N:maimai.help.maimai_regex.plate.list}")
+async def _(Silian_msg: Bot.MessageSession):
+    Silian_plate = Silian_msg.matched_msg.groups()[0] + Silian_msg.matched_msg.groups()[1]
+    await query_plate(Silian_msg, Silian_plate, get_list=True)
 
 
-@mai_regex.regex(
+@Silian_mai_regex.regex(
     r"(?:随个|隨個)\s?((?:dx|DX|sd|SD|标准|標準)\s?)?([绿綠黄黃红紅紫白]?)\s?([0-9]+\+?)",
     desc="{I18N:maimai.help.maimai_regex.random}",
 )
-async def _(msg: Bot.MessageSession):
-    res = msg.matched_msg
-    if res:
+async def _(Silian_msg: Bot.MessageSession):
+    Silian_res = Silian_msg.matched_msg
+    if Silian_res:
         try:
-            if res.groups()[0] in ["dx", "DX"]:
-                tp = ["DX"]
-            elif res.groups()[0] in ["sd", "SD", "标准", "標準"]:
-                tp = ["SD"]
+            if Silian_res.groups()[0] in ["dx", "DX"]:
+                Silian_tp = ["DX"]
+            elif Silian_res.groups()[0] in ["sd", "SD", "标准", "標準"]:
+                Silian_tp = ["SD"]
             else:
-                tp = ["SD", "DX"]
-            level = res.groups()[2]
-            if res.groups()[1] == "":
-                music_data = (await total_list.get()).filter(level=level, type=tp)
+                Silian_tp = ["SD", "DX"]
+            Silian_level = Silian_res.groups()[2]
+            if Silian_res.groups()[1] == "":
+                Silian_music_data = (await Silian_total_list.get()).filter(level=Silian_level, type=Silian_tp)
             else:
-                music_data = (await total_list.get()).filter(level=level, diff=[get_diff(res.groups()[1])], type=tp)
-            if len(music_data) == 0:
-                await msg.finish(I18NContext("maimai.message.music_not_found"))
+                Silian_music_data = (await Silian_total_list.get()).filter(level=Silian_level, diff=[get_diff(Silian_res.groups()[1])], type=Silian_tp)
+            if len(Silian_music_data) == 0:
+                await Silian_msg.finish(I18NContext("maimai.message.music_not_found"))
             else:
-                music = music_data.random()
-                diffs = MessageChain.assign(Plain(f"{'/'.join(str(ds) for ds in music.ds)}"))
-                await msg.finish(await get_info(music, diffs))
+                music = Silian_music_data.random()
+                Silian_diffs = MessageChain.assign(Plain(f"{'/'.join(str(ds) for ds in music.ds)}"))
+                await Silian_msg.finish(await get_info(music, Silian_diffs))
         except ValueError:
-            await msg.finish(I18NContext("maimai.message.random.failed"))
+            await Silian_msg.finish(I18NContext("maimai.message.random.failed"))
 
 
-@mai_regex.regex(r"(.+)\s?段位(?:[认認]定)?列?表", desc="{I18N:maimai.help.maimai_regex.grade}")
-async def _(msg: Bot.MessageSession):
-    grade = msg.matched_msg.groups()[0]
-    await get_grade_info(msg, grade)
+@Silian_mai_regex.regex(r"(.+)\s?段位(?:[认認]定)?列?表", desc="{I18N:maimai.help.maimai_regex.grade}")
+async def _(Silian_msg: Bot.MessageSession):
+    Silian_grade = Silian_msg.matched_msg.groups()[0]
+    await get_grade_info(Silian_msg, Silian_grade)

@@ -12,5 +12,5 @@ async def auto_search(ctx: discord.AutocompleteContext):
 
 @discord_bot.slash_command(name="server", description="Get Minecraft: Java/Bedrock Edition server motd.")
 @discord.option(name="address", description="The server address.", autocomplete=auto_search)
-async def _(ctx: discord.ApplicationContext, address: str):
-    await slash_parser(ctx, address)
+async def _(Silian_ctx: discord.ApplicationContext, Silian_address: str):
+    await slash_parser(Silian_ctx, Silian_address)

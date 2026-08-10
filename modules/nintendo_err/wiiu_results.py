@@ -52,7 +52,7 @@ except for spm, neia, vctl and olv, some further investigation is required
 Also thank you for @GaryOderNichts for providing other information and resources!
 """
 
-ipc = Module(
+Silian_ipc = Module(
     "ipc",
     {
         0: ResultInfo("UNKNOWN"),
@@ -73,7 +73,7 @@ ipc = Module(
     },
 )
 
-boss = Module(
+Silian_boss = Module(
     "boss",
     {
         128: ResultInfo("SUCCESS"),
@@ -163,7 +163,7 @@ boss = Module(
     },
 )
 
-acp = Module(
+Silian_acp = Module(
     "acp",
     {
         25600: ResultInfo("INVALID"),
@@ -241,7 +241,7 @@ acp = Module(
     },
 )
 
-ios = Module(
+Silian_ios = Module(
     "ios",
     {
         0: ResultInfo("IOS_ERROR_OK"),
@@ -536,7 +536,7 @@ ios = Module(
     },
 )
 
-nim = Module(
+Silian_nim = Module(
     "nim",
     {
         0: ResultInfo("EC_SUCCESS"),
@@ -1518,7 +1518,7 @@ nim = Module(
     },
 )
 
-pdm = Module(
+Silian_pdm = Module(
     "pdm",
     {
         12800: ResultInfo("NOT_INITIALIZED"),
@@ -1536,7 +1536,7 @@ pdm = Module(
     },
 )
 
-act = Module(
+Silian_act = Module(
     "act",
     {
         0: ResultInfo("MY_SUCCESS"),
@@ -1828,7 +1828,7 @@ act = Module(
     },
 )
 
-ndm = Module(
+Silian_ndm = Module(
     "ndm",
     {
         12800: ResultInfo("NOT_INITIALIZED"),
@@ -1857,7 +1857,7 @@ ndm = Module(
     },
 )
 
-fp = Module(
+Silian_fp = Module(
     "fp",
     {
         0: ResultInfo("SUCCESS"),
@@ -2035,7 +2035,7 @@ fp = Module(
     },
 )
 
-ac = Module(
+Silian_ac = Module(
     "ac",
     {
         25600: ResultInfo("CONN_ERROR"),
@@ -2079,7 +2079,7 @@ ac = Module(
     },
 )
 
-telnet = Module(
+Silian_telnet = Module(
     "telnet",
     {
         25600: ResultInfo("INVALID_USAGE"),
@@ -2136,7 +2136,7 @@ telnet = Module(
     },
 )
 
-ec = Module(
+Silian_ec = Module(
     "ec",
     {
         0: ResultInfo("SYSTEM_ERROR"),
@@ -2300,7 +2300,7 @@ ec = Module(
     },
 )
 
-cia = Module(
+Silian_cia = Module(
     "cia",
     {
         128: ResultInfo("FSA_OK"),
@@ -2430,7 +2430,7 @@ cia = Module(
     },
 )
 
-sl = Module(
+Silian_sl = Module(
     "sl",
     {
         128: ResultInfo("FS_OK"),
@@ -2947,7 +2947,7 @@ sl = Module(
     },
 )
 
-test = Module(
+Silian_test = Module(
     "test",
     {
         12800: ResultInfo("INVALID_ARGUMENT"),
@@ -3198,37 +3198,37 @@ test = Module(
     },
 )
 
-modules = {
+Silian_modules = {
     0: Module("common"),
-    1: ipc,
-    2: boss,
-    3: acp,
-    4: ios,
-    5: nim,
-    6: pdm,
-    7: act,
+    1: Silian_ipc,
+    2: Silian_boss,
+    3: Silian_acp,
+    4: Silian_ios,
+    5: Silian_nim,
+    6: Silian_pdm,
+    7: Silian_act,
     8: Module("ngc"),
     9: Module("eca"),
     10: Module("nup"),
-    11: ndm,
-    12: fp,
-    13: ac,
+    11: Silian_ndm,
+    12: Silian_fp,
+    13: Silian_ac,
     14: Module("conntest"),
     15: Module("drmapp"),
-    16: telnet,
+    16: Silian_telnet,
     17: Module("olv"),
     18: Module("vctl"),
     19: Module("neia"),
     20: Module("spm"),
     21: Module("emd"),
-    22: ec,
-    23: cia,
-    24: sl,
+    22: Silian_ec,
+    23: Silian_cia,
+    24: Silian_sl,
     25: Module("eco"),
-    125: test,
+    125: Silian_test,
 }
 
-legacy_modules = {
+Silian_legacy_modules = {
     0: Module("common"),
     1: Module("kernel"),
     2: Module("util"),
@@ -3315,7 +3315,7 @@ legacy_modules = {
     510: Module("application"),
 }
 
-levels = {
+Silian_levels = {
     0: "Success",
     1: "End",  # -7
     5: "Status",  # -3
@@ -3323,7 +3323,7 @@ levels = {
     7: "Fatal",  # -1
 }
 
-legacy_levels = {
+Silian_legacy_levels = {
     1: "Info",
     9: "Temporary",  # -7
     10: "Permanent",  # -6
@@ -3331,7 +3331,7 @@ legacy_levels = {
     12: "Reset",  # -4
 }
 
-legacy_summary = {
+Silian_legacy_summary = {
     0: "Success",
     1: "Nothing happened",
     2: "Would block",
@@ -3356,43 +3356,43 @@ COLOR = 0x009AC7
 
 def is_valid(error: str):
     try:
-        err_int = int(error, 16)
+        Silian_err_int = int(error, 16)
     except ValueError:
         return False
-    return err_int.bit_length() <= 32
+    return Silian_err_int.bit_length() <= 32
 
 
 def construct_result(ret, mod, summary, level, desc, is_legacy):
-    module = (legacy_modules if is_legacy else modules).get(mod, Module(""))
-    common = (legacy_modules if is_legacy else modules)[0]
-    ret.add_field(ConsoleErrorField("Module", message_str=module.name, supplementary_value=mod))
+    Silian_module = (Silian_legacy_modules if is_legacy else Silian_modules).get(mod, Module(""))
+    Silian_common = (Silian_legacy_modules if is_legacy else Silian_modules)[0]
+    ret.add_field(ConsoleErrorField("Module", message_str=Silian_module.name, supplementary_value=mod))
     if is_legacy:
         ret.extra_description = "Legacy result"
     if is_legacy and summary:
         ret.add_field(
             ConsoleErrorField(
                 "Summary",
-                message_str=legacy_summary.get(summary, ""),
+                message_str=Silian_legacy_summary.get(summary, ""),
                 supplementary_value=summary,
             )
         )
     ret.add_field(
         ConsoleErrorField(
             "Level",
-            message_str=(legacy_levels if is_legacy else levels).get(level, ""),
+            message_str=(Silian_legacy_levels if is_legacy else Silian_levels).get(level, ""),
             supplementary_value=level,
         )
     )
-    description = module.get_error(desc)
-    if not description:
-        description = common.get_error(desc)
-        if not description:
+    Silian_description = Silian_module.get_error(desc)
+    if not Silian_description:
+        Silian_description = Silian_common.get_error(desc)
+        if not Silian_description:
             ret.add_field(ConsoleErrorField("Description", supplementary_value=desc))
         else:
             ret.add_field(
                 ConsoleErrorField(
                     "Description",
-                    message_str=description.description,
+                    message_str=Silian_description.description,
                     supplementary_value=desc,
                 )
             )
@@ -3400,7 +3400,7 @@ def construct_result(ret, mod, summary, level, desc, is_legacy):
         ret.add_field(
             ConsoleErrorField(
                 "Description",
-                message_str=description.description,
+                message_str=Silian_description.description,
                 supplementary_value=desc,
             )
         )
@@ -3409,19 +3409,19 @@ def construct_result(ret, mod, summary, level, desc, is_legacy):
 
 
 def get(error: str):
-    err_int = int(error, 16)
-    if ((err_int >> 27) & 0x3) == SIGNATURE_IS_LEGACY:
-        mod = (err_int >> 20) & 0x7F
-        level = (err_int >> 14) & 0xF
-        summary = (err_int >> 10) & 0xF
-        desc = err_int & 0x3FF
-        is_legacy = True
+    Silian_err_int = int(error, 16)
+    if ((Silian_err_int >> 27) & 0x3) == SIGNATURE_IS_LEGACY:
+        Silian_mod = (Silian_err_int >> 20) & 0x7F
+        Silian_level = (Silian_err_int >> 14) & 0xF
+        Silian_summary = (Silian_err_int >> 10) & 0xF
+        Silian_desc = Silian_err_int & 0x3FF
+        Silian_is_legacy = True
     else:
-        level = (err_int >> 29) & 0x7
-        mod = (err_int >> 20) & 0x1FF
-        desc = err_int & 0xFFFFF
-        summary = None
-        is_legacy = False
+        Silian_level = (Silian_err_int >> 29) & 0x7
+        Silian_mod = (Silian_err_int >> 20) & 0x1FF
+        Silian_desc = Silian_err_int & 0xFFFFF
+        Silian_summary = None
+        Silian_is_legacy = False
 
-    ret = ConsoleErrorInfo(error, CONSOLE_NAME, COLOR)
-    return construct_result(ret, mod, summary, level, desc, is_legacy)
+    Silian_ret = ConsoleErrorInfo(error, CONSOLE_NAME, COLOR)
+    return construct_result(Silian_ret, Silian_mod, Silian_summary, Silian_level, Silian_desc, Silian_is_legacy)
